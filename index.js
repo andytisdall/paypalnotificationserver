@@ -1,12 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 const mysql = require('mysql');
-const e = require('express');
+const https = require('https');
 
 // get environment variables
-const SF_CLIENT_ID = process.env.SF_CLIENT_ID || require('keys').CONSUMER_KEY;
+const SF_CLIENT_ID = process.env.SF_CLIENT_ID || require('./keys').CONSUMER_KEY;
 const SF_CLIENT_SECRET =
-  process.env.SF_CLIENT_SECRET || require('keys').CONSUMER_SECRET;
+  process.env.SF_CLIENT_SECRET || require('./keys').CONSUMER_SECRET;
 const dbUrl = process.env.JAWSDB_URL || '';
 const PORT = process.env.PORT || 3000;
 
@@ -95,7 +95,6 @@ app.post('/', async (req, res) => {
 app.get('/', (req, res) => {
   res.send('~paypal server~!');
 });
-
-app.listen(PORT, () => {
+https.createServer(app).listen(PORT, () => {
   console.log('server listening');
 });
