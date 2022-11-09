@@ -30,7 +30,7 @@ for (field in SALESFORCE_AUTH_CREDENTIALS) {
 // listener for paypal message
 app.post('/', async (req, res) => {
   // send paypal back a 200
-  console.log(req.header('Origin'));
+  console.log(req.headers);
   res.sendStatus(200);
 
   // post a verification to paypal
