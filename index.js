@@ -60,7 +60,7 @@ app.post('/', async (req, res) => {
       console.log('succccess');
     }
   } catch (err) {
-    console.log(err.response.data);
+    console.log('error');
     return;
   }
 
