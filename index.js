@@ -37,15 +37,13 @@ app.post('/', async (req, res) => {
   const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
 
   // post a verification to paypal
+  const verificationPost = new URLSearchParams();
+  verificationPost.append('cmd', '_notify_validate');
+  for (field in req.body) {
+    verificationPost.append(field, req.body[field]);
+  }
+
   try {
-    const verificationPost = new URLSearchParams();
-    verificationPost.append('cmd', '_notify_validate');
-    for (field in req.body) {
-      verificationPost.append(field, req.body[field]);
-    }
-
-    console.log(verificationPost);
-
     const paypalResponse = await axios.post(paypalUrl, verificationPost, {
       headers: {
         'User-Agent': 'Node-IPN-VerificationScript',
@@ -54,13 +52,13 @@ app.post('/', async (req, res) => {
 
     // console.log(paypalResponse);
     if (paypalResponse.data !== 'VERIFIED') {
-      // console.log(paypalResponse);
+      console.log(paypalResponse);
       return;
     } else {
       console.log('succccess');
     }
   } catch (err) {
-    console.log('error');
+    console.log(err);
     return;
   }
 
