@@ -30,6 +30,7 @@ for (field in SALESFORCE_AUTH_CREDENTIALS) {
 // listener for paypal message
 app.post('/', async (req, res) => {
   // send paypal back a 200
+  console.log(req.header('Origin'));
   res.sendStatus(200);
 
   // post a verification to paypal
@@ -75,8 +76,18 @@ app.post('/', async (req, res) => {
   // }
 
   // make api call to salesforce
+  // relevant data:
+  // payment_gross - amount
+  // payment_fee - fee
+  // payment_date
+  // payment_status
+  // first_name
+  // payer_email
+  // payment_type
+  // item_name
+  // item_number
 
-  console.log(req.body);
+  // console.log(req.body);
 
   // mark db entry as successful
 });
