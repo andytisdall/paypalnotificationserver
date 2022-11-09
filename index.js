@@ -68,6 +68,10 @@ app.post('/', async (req, res) => {
 
 // db.end();
 
+app.get('/', (req, res) => {
+  res.send('~paypal server~!');
+});
+
 app.listen(3000, () => {
   console.log('server listening');
 });
