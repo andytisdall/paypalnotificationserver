@@ -27,11 +27,17 @@ app.post('/', async (req, res) => {
 
   // post a verification to paypal
   try {
-    const paypalResponse = await axios.post(paypalUrl, req.body);
+    const verificationPost = { cmd: '_notify_validate', ...req.body };
+
+    const paypalResponse = await axios.post(paypalUrl, verificationPost, {
+      headers: {
+        'User-Agent': 'Node-IPN-VerificationScript',
+      },
+    });
 
     console.log(paypalResponse);
     if (paypalResponse.data !== 'VERIFIED') {
-      console.log(paypalResponse.data);
+      console.log(paypalResponse);
       return;
     }
   } catch (err) {
