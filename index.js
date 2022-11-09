@@ -44,15 +44,17 @@ app.post('/', async (req, res) => {
       verificationPost.append(field, req.body[field]);
     }
 
+    console.log(verificationPost);
+
     const paypalResponse = await axios.post(paypalUrl, verificationPost, {
       headers: {
         'User-Agent': 'Node-IPN-VerificationScript',
       },
     });
 
-    console.log(paypalResponse);
+    // console.log(paypalResponse);
     if (paypalResponse.data !== 'VERIFIED') {
-      console.log(paypalResponse);
+      // console.log(paypalResponse);
       return;
     } else {
       console.log('succccess');
