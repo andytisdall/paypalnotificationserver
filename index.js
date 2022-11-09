@@ -32,41 +32,40 @@ app.post('/', async (req, res) => {
   // send paypal back a 200
   res.sendStatus(200);
 
-  // get address to post verification
-  const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
-
   // post a verification to paypal
-  const verificationPost = new URLSearchParams();
-  verificationPost.append('cmd', '_notify_validate');
-  for (field in req.body) {
-    verificationPost.append(field, req.body[field]);
-  }
 
-  try {
-    const paypalResponse = await axios.post(paypalUrl, verificationPost, {
-      headers: {
-        'User-Agent': 'Node-IPN-VerificationScript',
-      },
-    });
+  // const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
+  // const verificationPost = new URLSearchParams();
+  // verificationPost.append('cmd', '_notify_validate');
+  // for (field in req.body) {
+  //   verificationPost.append(field, req.body[field]);
+  // }
 
-    // console.log(paypalResponse);
-    if (paypalResponse.data !== 'VERIFIED') {
-      console.log(paypalResponse);
-      return;
-    } else {
-      console.log('succccess');
-    }
-  } catch (err) {
-    console.log(err);
-    return;
-  }
+  // try {
+  //   const paypalResponse = await axios.post(paypalUrl, verificationPost, {
+  //     headers: {
+  //       'User-Agent': 'Node-IPN-VerificationScript',
+  //     },
+  //   });
+
+  //   // console.log(paypalResponse);
+  //   if (paypalResponse.data !== 'VERIFIED') {
+  //     console.log(paypalResponse);
+  //     return;
+  //   } else {
+  //     console.log('succccess');
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  //   return;
+  // }
 
   // check message against db for duplicates
 
   // save message in db
 
   // get token from salesforce
-  let token;
+  // let token;
   // try {
   //   const SFResponse = await axios.post(SALESFORCE_AUTH_ENDPOINT, SFAuthPost);
   //   token = SFResponse.data.token;
@@ -76,6 +75,8 @@ app.post('/', async (req, res) => {
   // }
 
   // make api call to salesforce
+
+  console.log(req.body);
 
   // mark db entry as successful
 });
