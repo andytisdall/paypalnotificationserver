@@ -4,6 +4,7 @@ const axios = require('axios');
 const mysql = require('mysql');
 
 const dbUrl = process.env.JAWSDB_URL || '';
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
