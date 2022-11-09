@@ -1,5 +1,5 @@
 const express = require('express');
-const keys = require('./keys');
+// const keys = require('./keys');
 const axios = require('axios');
 const mysql = require('mysql');
 
@@ -13,9 +13,9 @@ const SALESFORCE_AUTH_ENDPOINT =
   'https://communitykitchens.my.salesforce.com/services/oauth2/token';
 
 const SFPostBody = new URLSearchParams();
-SFPostBody.append('client_id', keys.CONSUMER_KEY);
-SFPostBody.append('client_secret', keys.CONSUMER_SECRET);
-SFPostBody.append('grant_type', 'client_credentials');
+// SFPostBody.append('client_id', keys.CONSUMER_KEY);
+// SFPostBody.append('client_secret', keys.CONSUMER_SECRET);
+// SFPostBody.append('grant_type', 'client_credentials');
 
 app.post('/', async (req, res) => {
   // send paypal back a 200
@@ -27,6 +27,8 @@ app.post('/', async (req, res) => {
   // post a verification to paypal
   try {
     const paypalResponse = await axios.post(paypalUrl, req.body);
+
+    console.log(paypalResponse);
     if (paypalResponse.data !== 'VERIFIED') {
       console.log(paypalResponse.data);
       return;
@@ -42,13 +44,13 @@ app.post('/', async (req, res) => {
 
   // get token from salesforce
   let token;
-  try {
-    const SFResponse = await axios.post(SALESFORCE_AUTH_ENDPOINT, SFPostBody);
-    token = SFResponse.data.token;
-  } catch (err) {
-    console.log(err.response.data);
-    return;
-  }
+  // try {
+  //   const SFResponse = await axios.post(SALESFORCE_AUTH_ENDPOINT, SFPostBody);
+  //   token = SFResponse.data.token;
+  // } catch (err) {
+  //   console.log(err.response.data);
+  //   return;
+  // }
 
   // make api call to salesforce
 
