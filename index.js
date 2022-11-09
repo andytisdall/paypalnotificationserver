@@ -25,16 +25,16 @@ app.post('/', async (req, res) => {
   const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
 
   // post a verification to paypal
-  // try {
-  //   const paypalResponse = await axios.post(paypalUrl, req.body);
-  //   if (paypalResponse.data !== 'VERIFIED') {
-  //     console.log(paypalResponse.data);
-  //     return;
-  //   }
-  // } catch (err) {
-  //   console.log(err.response.data);
-  //   return;
-  // }
+  try {
+    const paypalResponse = await axios.post(paypalUrl, req.body);
+    if (paypalResponse.data !== 'VERIFIED') {
+      console.log(paypalResponse.data);
+      return;
+    }
+  } catch (err) {
+    console.log(err.response.data);
+    return;
+  }
 
   // check message against db for duplicates
 
