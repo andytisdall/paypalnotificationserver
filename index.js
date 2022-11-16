@@ -181,8 +181,8 @@ app.post('/', async (req, res) => {
 
   const oppToAdd = {
     Amount: paypalData.payment_gross,
-    AccountId: existingUser.npsp__HHId__c,
-    npsp__Primary_Contact__c: existingUser.Id,
+    AccountId: existingContact.npsp__HHId__c,
+    npsp__Primary_Contact__c: existingContact.Id,
     StageName: 'Posted',
     CloseDate: paypalData.payment_date,
     Name: `${first_name} ${last_name} Donation ${moment
