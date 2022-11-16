@@ -1,6 +1,5 @@
 const express = require('express');
 const axios = require('axios');
-const mysql = require('mysql');
 const cors = require('cors');
 const moment = require('moment');
 
@@ -183,7 +182,7 @@ app.post('/', async (req, res) => {
     AccountId: existingContact.npsp__HHId__c,
     npsp__Primary_Contact__c: existingContact.Id,
     StageName: 'Posted',
-    CloseDate: moment(new Date(paypalData.payment_date).toISOString()).format(),
+    CloseDate: moment(paypalData.payment_date).format(),
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment
       .utc(paypalData.payment_date)
       .format('MM/DD/YYYY')}`,
