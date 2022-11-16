@@ -183,7 +183,7 @@ app.post('/', async (req, res) => {
     AccountId: existingContact.npsp__HHId__c,
     npsp__Primary_Contact__c: existingContact.Id,
     StageName: 'Posted',
-    CloseDate: paypalData.payment_date,
+    CloseDate: moment.format(paypalData.payment_date),
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment
       .utc(paypalData.payment_date)
       .format('MM/DD/YYYY')}`,
