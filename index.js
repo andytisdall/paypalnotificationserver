@@ -83,7 +83,6 @@ app.post('/', async (req, res) => {
   // make api call to salesforce
 
   const paypalData = req.body;
-  console.log(paypalData);
 
   const SFApiPrefix = SALESFORCE_URI_PREFIX + '/data/v56.0';
   const SFHeaders = {
@@ -185,7 +184,7 @@ app.post('/', async (req, res) => {
     npsp__Primary_Contact__c: existingContact.Id,
     StageName: 'Posted',
     CloseDate: paypalData.payment_date,
-    Name: `${first_name} ${last_name} Donation ${moment
+    Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment
       .utc(payment_date)
       .format('MM/DD/YYYY')}`,
     RecordTypeId: '0128Z000001BIZJQA4',
