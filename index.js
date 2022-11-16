@@ -194,11 +194,15 @@ app.post('/', async (req, res) => {
   };
 
   const oppInsertUri = SFApiPrefix + '/sobjects/Opportunity';
-  const response = await axios.post(oppInsertUri, oppToAdd, {
-    headers: SFHeaders,
-  });
+  try {
+    const response = await axios.post(oppInsertUri, oppToAdd, {
+      headers: SFHeaders,
+    });
 
-  console.log(response.data);
+    console.log(response.data);
+  } catch (err) {
+    console.log(err.response.data);
+  }
 
   // OPPORTUNITY
   // Amount
