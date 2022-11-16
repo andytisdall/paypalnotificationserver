@@ -185,7 +185,7 @@ app.post('/', async (req, res) => {
     StageName: 'Posted',
     CloseDate: paypalData.payment_date,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment
-      .utc(payment_date)
+      .utc(paypalData.payment_date)
       .format('MM/DD/YYYY')}`,
     RecordTypeId: '0128Z000001BIZJQA4',
     Description:
