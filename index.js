@@ -8,7 +8,7 @@ const moment = require('moment');
 const SF_CLIENT_ID = process.env.SF_CLIENT_ID || require('./keys').CONSUMER_KEY;
 const SF_CLIENT_SECRET =
   process.env.SF_CLIENT_SECRET || require('./keys').CONSUMER_SECRET;
-const dbUrl = process.env.JAWSDB_URL || '';
+// const dbUrl = process.env.JAWSDB_URL || '';
 const PORT = process.env.PORT || 3000;
 
 // initialize app and add middleware
@@ -83,6 +83,7 @@ app.post('/', async (req, res) => {
   // make api call to salesforce
 
   const paypalData = req.body;
+  console.log(paypalData);
 
   const SFApiPrefix = SALESFORCE_URI_PREFIX + '/data/v56.0';
   const SFHeaders = {
@@ -180,7 +181,7 @@ app.post('/', async (req, res) => {
 
   const oppToAdd = {
     Amount: paypalData.payment_gross,
-    AccountId: exisingUser.npsp__HHId__c,
+    AccountId: existingUser.npsp__HHId__c,
     npsp__Primary_Contact__c: existingUser.Id,
     StageName: 'Posted',
     CloseDate: paypalData.payment_date,
