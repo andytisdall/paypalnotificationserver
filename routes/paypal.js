@@ -6,30 +6,6 @@ const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const SALESFORCE_URI_PREFIX =
   'https://communitykitchens.my.salesforce.com/services';
 
-const secrets = {};
-const getSecrets = async () => {
-  const secretClient = new SecretManagerServiceClient();
-  // error if not in cloud env
-  try {
-    const projectId = await secretClient.getProjectId();
-    if (projectId) {
-      const getSecret = async (name) => {
-        const [version] = await secretClient.accessSecretVersion({
-          name: `projects/385802469502/secrets/${name}/versions/latest`,
-        });
-        return version.payload.data.toString();
-      };
-      secrets.SF_CLIENT_ID = await getSecret('SF_CLIENT_ID');
-      SF_CLIENT_SECRET = await getSecret('SF_CLIENT_SECRET');
-    } else {
-      throw Error();
-    }
-  } catch {
-    secrets.SF_CLIENT_ID = require('../keys').CONSUMER_KEY;
-    secrets.SF_CLIENT_SECRET = require('../keys').CONSUMER_SECRET;
-  }
-};
-getSecrets();
 
 const paypalRouter = express.Router();
 
@@ -41,6 +17,7 @@ paypalRouter.post('/', async (req, res) => {
   // return early if it's not a donation
 
   const paypalData = req.body;
+  console.log(paypalData);
   if (paypalData.payment_gross < 0) {
     console.log('not a credit');
     return;
@@ -75,6 +52,27 @@ paypalRouter.post('/', async (req, res) => {
   //   }
 
   // get token from salesforce
+  const secrets = {};
+  const secretClient = new SecretManagerServiceClient();
+  // error if not in cloud env
+  try {
+    const projectId = await secretClient.getProjectId();
+    if (projectId) {
+      const getSecret = async (name) => {
+        const [version] = await secretClient.accessSecretVersion({
+          name: `projects/385802469502/secrets/${name}/versions/latest`,
+        });
+        return version.payload.data.toString();
+      };
+      secrets.SF_CLIENT_ID = await getSecret('SF_CLIENT_ID');
+      secrets.SF_CLIENT_SECRET = await getSecret('SF_CLIENT_SECRET');
+    } else {
+      throw Error();
+    }
+  } catch {
+    secrets.SF_CLIENT_ID = require('../keys').CONSUMER_KEY;
+    secrets.SF_CLIENT_SECRET = require('../keys').CONSUMER_SECRET;
+  }
 
   const SALESFORCE_AUTH_CREDENTIALS = {
     client_id: secrets.SF_CLIENT_ID,
@@ -185,6 +183,164 @@ paypalRouter.post('/', async (req, res) => {
     }
   }
 
+// check for recurring payment message
+//    payment_cycle: 'Monthly',
+//    txn_type: 'recurring_payment_profile_created',
+//    last_name: 'Downey',
+//    next_payment_date: '02:00:00 Nov 17, 2022 PST',
+//    residence_country: 'US',
+//    initial_payment_amount: '0.00',
+//    currency_code: 'USD',   
+//    time_created: '14:38:45 Nov 17, 2022 PST',
+//    verify_sign: 'AfAHRKTCvmUAT7tItlo3UOlkc5vOAYUdOycluaYyw4tku0sVmUCejvQd',
+//    period_type: ' Regular',
+//    payer_status: 'verified',
+//    tax: '0.00',
+//    payer_email: 'thatsongsucks@hotmail.com',
+//    first_name: 'Deborah',
+//    receiver_email: 'maria@lukasoakland.com',
+//    payer_id: 'ZL69522VZ7GKN',
+//    product_type: '1',
+//    shipping: '0.00',
+//    amount_per_cycle: '1.00',
+//    profile_status: 'Active',
+//    charset: 'UTF-8',    
+//    notify_version: '3.9',
+//    amount: '1.00',
+//    outstanding_balance: '0.00',
+//    recurring_payment_id: 'I-W58L68VCJAE7',   
+//    product_name: 'donation',
+//    ipn_track_id: 'f727617a877a4'
+
+  if (paypalData.txn_type === 'recurring_payment_profile_created') {
+
+    const formattedDate = moment.utc(new Date(paypalData.time_created), 'HH:mm:ss MMM D, YYYY');
+    const recurringToAdd = {
+        npe03__Contact__c: existingContact.Id,
+        npe03__Date_Established__c: formattedDate.format(),
+        npe03__Amount__c: paypalData.amount,
+        npsp__RecurringType__c: 'Open',
+        npsp__Day_of_Month__c: formattedDate.format('d'),
+        npe03__Installment_Period__c: paypalData.payment_cycle,
+        npsp__StartDate__c: Date()
+    }
+
+    const recurringInsertUri = SFApiPrefix + '/sobjects/Opportunity/' + existingOpp.Id;
+    try {
+        const response = await axios.post(recurringInsertUri, recurringToAdd, {
+          headers: SFHeaders,
+        });
+        const summaryMessage = {
+          success: response.data.success,
+          name: `${paypalData.first_name} ${paypalData.last_name}`
+        };
+        console.log('Recurring Added: ' + JSON.stringify(summaryMessage));
+      } catch (err) {
+        console.log(err.response.data);
+      }
+
+    return;
+  }
+
+  // if donation is recurring, pledged opp will already exist in sf
+  // update payment amount and stage
+
+//   mc_gross: '1.00',
+//   outstanding_balance: '0.00',
+//   period_type: ' Regular',
+//   next_payment_date: '02:00:00 Dec 17, 2022 PST',
+//   protection_eligibility: 'Ineligible',
+//   tax: '0.00',
+// payer_id: 'ZL69522VZ7GKN',
+//   payment_date: '14:39:09 Nov 17, 2022 PST',
+//   payment_status: 'Completed',
+//   product_name: 'donation',
+//    charset: 'UTF-8',
+//    recurring_payment_id: 'I-W58L68VCJAE7',
+//   first_name: 'Deborah',
+//   mc_fee: '0.52',
+//   notify_version: '3.9',
+//     amount_per_cycle: '1.00',
+//   payer_status: 'verified',
+//   currency_code: 'USD',
+//   business: 'maria@lukasoakland.com',
+//   verify_sign: 'A27Y9Wm--6Rn7t9LW4WsgnffrMyHAEt7QNsEBb2czNH-fuU1BQUMcQYm',
+//   payer_email: 'thatsongsucks@hotmail.com',
+//   initial_payment_amount: '0.00',
+//    profile_status: 'Active',
+//       txn_id: '5T797629ES9689307',
+//    payment_type: 'instant',
+//       receiver_email: 'maria@lukasoakland.com',
+//       receiver_id: 'NSK6GEW3SV7HW',
+//      txn_type: 'recurring_payment',
+//      mc_currency: 'USD',
+//      residence_country: 'US',
+//  transaction_subject: 'donation',
+//      payment_gross: '1.00',
+//      shipping: '0.00',
+//      product_type: '1',
+//      time_created: '14:38:45 Nov 17, 2022 PST',
+//      ipn_track_id: 'f727617a877a4'
+
+const formattedDate = moment
+.utc(paypalData.payment_date, 'HH:mm:ss MMM D, YYYY')
+.format();
+
+
+if (paypalData.amount_per_cycle) {
+// query donations to get ID
+const oppQuery = [
+    '/query/?q=SELECT',
+    'Id',
+    'from',
+    'Opportunity',
+    'WHERE',
+    'Name',
+    '=',
+    `${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('MM/DD/YYYY')}`
+  ];
+
+  const oppQueryUri = SFApiPrefix + oppQuery.join('+');
+
+  let existingOpp;
+  try {
+    const oppQueryResponse = await axios.get(oppQueryUri, {
+      headers: SFHeaders,
+    });
+    if (oppQueryResponse.data.totalSize !== 0) {
+      existingOpp = oppQueryResponse.data.records[0];
+    }
+  } catch (err) {
+    console.log(err.response.data);
+    return;
+  }
+    
+
+
+    const oppToUpdate = {
+        StageName: 'Posted',
+        Amount: paypalData.payment_gross
+    }
+
+    const oppUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c' + existingOpp.Id;
+    try {
+        const response = await axios.patch(oppUpdateUri, oppToUpdate, {
+          headers: SFHeaders,
+        });
+        const summaryMessage = {
+          success: response.data.success,
+          name: `${paypalData.first_name} ${paypalData.last_name}`
+        };
+        console.log('Donation Updated: ' + JSON.stringify(summaryMessage));
+      } catch (err) {
+        console.log(err.response.data);
+      }
+
+    return;
+
+
+  }
+
   // insert opportunity
 
   // relevant data coming from paypal:
@@ -197,14 +353,12 @@ paypalRouter.post('/', async (req, res) => {
   // payment_type = recurring?
   // item_name
   // item_number
-  console.log(paypalData);
 
-  const splitDate = paypalData.payment_date
-    .split(' ')
-    .filter((el, i, a) => i !== a.length - 1);
-  const formattedDate = moment
-    .utc(splitDate.join(' '), 'HH:mm:ss MMM D, YYYY')
-    .format();
+
+//   const splitDate = paypalData.payment_date
+//     .split(' ')
+//     .filter((el, i, a) => i !== a.length - 1);
+
 
   const oppToAdd = {
     Amount: paypalData.payment_gross,
@@ -219,6 +373,7 @@ paypalRouter.post('/', async (req, res) => {
     Description:
       'Added into Salesforce by the Paypal server on ' +
       moment.utc(new Date().toJSON()).format('MM/DD/YY'),
+    Processing_Fee__c: paypalData.payment_fee
   };
 
   const oppInsertUri = SFApiPrefix + '/sobjects/Opportunity';
@@ -229,10 +384,10 @@ paypalRouter.post('/', async (req, res) => {
     const summaryMessage = {
       success: response.data.success,
       amount: oppToAdd.Amount,
-      Name: oppToAdd.Name,
+      name: `${paypalData.first_name} ${paypalData.last_name}`,
       date: paypalData.payment_date,
     };
-    console.log('Job Completed: ' + summaryMessage);
+    console.log('Donation Added: ' + JSON.stringify(summaryMessage));
   } catch (err) {
     console.log(err.response.data);
   }
