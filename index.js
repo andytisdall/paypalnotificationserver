@@ -2,12 +2,8 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const moment = require('moment');
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 
-// get environment variables
-const SF_CLIENT_ID = process.env.SF_CLIENT_ID || require('./keys').CONSUMER_KEY;
-const SF_CLIENT_SECRET =
-  process.env.SF_CLIENT_SECRET || require('./keys').CONSUMER_SECRET;
-// const dbUrl = process.env.JAWSDB_URL || '';
 const PORT = process.env.PORT || 3000;
 
 // initialize app and add middleware
@@ -16,57 +12,83 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-// get info to get auth token from salesforce
-const SALESFORCE_AUTH_CREDENTIALS = {
-  client_id: SF_CLIENT_ID,
-  client_secret: SF_CLIENT_SECRET,
-  grant_type: 'client_credentials',
-};
-
 const SALESFORCE_URI_PREFIX =
-  'https://communitykitchens.my.salesforce.com/services';
-
-const SFAuthPost = new URLSearchParams();
-for (field in SALESFORCE_AUTH_CREDENTIALS) {
-  SFAuthPost.append(field, SALESFORCE_AUTH_CREDENTIALS[field]);
-}
+'https://communitykitchens.my.salesforce.com/services';
 
 // listener for paypal message
 app.post('/', async (req, res) => {
   // send paypal back a 200
   res.sendStatus(200);
 
+  // return early if it's not a donation
+
+  const paypalData = req.body;
+  if (paypalData.item_name !== 'donation') {
+      console.log('not a donation')
+      return;
+  }
+
   // post a verification to paypal
 
-  // const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
-  // const verificationPost = new URLSearchParams();
-  // verificationPost.append('cmd', '_notify_validate');
-  // for (field in req.body) {
-  //   verificationPost.append(field, req.body[field]);
-  // }
+//   const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
+//   const verificationPost = new URLSearchParams();
+//   verificationPost.append('cmd', '_notify_validate');
+//   for (field in req.body) {
+//     verificationPost.append(field, req.body[field]);
+//   }
 
-  // try {
-  //   const paypalResponse = await axios.post(paypalUrl, verificationPost, {
-  //     headers: {
-  //       'User-Agent': 'Node-IPN-VerificationScript',
-  //     },
-  //   });
+//   try {
+//     const paypalResponse = await axios.post(paypalUrl, verificationPost, {
+//       headers: {
+//         'User-Agent': 'Node-IPN-VerificationScript',
+//       },
+//     });
 
-  //   // console.log(paypalResponse);
-  //   if (paypalResponse.data !== 'VERIFIED') {
-  //     console.log(paypalResponse);
-  //     return;
-  //   } else {
-  //     console.log('succccess');
-  //   }
-  // } catch (err) {
-  //   console.log(err);
-  //   return;
-  // }
+//     // console.log(paypalResponse);
+//     if (paypalResponse.data !== 'VERIFIED') {
+//       console.log(paypalResponse);
+//       return;
+//     } else {
+//       console.log('succccess');
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     return;
+//   }
 
-  // check message against db for duplicates
+// get secrets
+    let SF_CLIENT_ID, SF_CLIENT_SECRET;
 
-  // save message in db
+    const secretClient = new SecretManagerServiceClient();
+    const projectId = await secretClient.getProjectId()
+    if (projectId) {
+        const getSecret = async (name) => {
+            const [version] = await secretClient.accessSecretVersion({
+                name: `projects/385802469502/secrets/${name}/versions/latest`
+            });
+            return version.payload.data.toString();
+        }
+        SF_CLIENT_ID = await getSecret('SF_CLIENT_ID');
+        SF_CLIENT_SECRET =
+        await getSecret('SF_CLIENT_SECRET')
+    } else {
+        SF_CLIENT_ID = require('./keys').CONSUMER_KEY;
+        SF_CLIENT_SECRET = require('./keys').CONSUMER_SECRET;
+    }
+
+
+  // get info to get auth token from salesforce
+    const SALESFORCE_AUTH_CREDENTIALS = {
+        client_id: SF_CLIENT_ID,
+        client_secret: SF_CLIENT_SECRET,
+        grant_type: 'client_credentials',
+    };
+
+
+    const SFAuthPost = new URLSearchParams();
+    for (field in SALESFORCE_AUTH_CREDENTIALS) {
+        SFAuthPost.append(field, SALESFORCE_AUTH_CREDENTIALS[field]);
+    }
 
   // get token from salesforce
   let token;
@@ -80,8 +102,6 @@ app.post('/', async (req, res) => {
   }
 
   // make api call to salesforce
-
-  const paypalData = req.body;
 
   const SFApiPrefix = SALESFORCE_URI_PREFIX + '/data/v56.0';
   const SFHeaders = {
@@ -173,18 +193,21 @@ app.post('/', async (req, res) => {
   // payment_status
   // first_name
   // payer_email
-  // payment_type
+  // payment_type = recurring?
   // item_name
   // item_number
+  console.log(paypalData)
+
+  const splitDate = paypalData.payment_date.split(' ').filter((el, i, a) => i !== a.length -1)
+  const formattedDate = moment.utc(splitDate.join(' '), 'HH:mm:ss MMM D, YYYY').format();
 
   const oppToAdd = {
     Amount: paypalData.payment_gross,
     AccountId: existingContact.npsp__HHId__c,
     npsp__Primary_Contact__c: existingContact.Id,
     StageName: 'Posted',
-    CloseDate: moment(paypalData.payment_date).format(),
-    Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment
-      .utc(paypalData.payment_date)
+    CloseDate: formattedDate,
+    Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(formattedDate)
       .format('MM/DD/YYYY')}`,
     RecordTypeId: '0128Z000001BIZJQA4',
     Description:
@@ -197,7 +220,6 @@ app.post('/', async (req, res) => {
     const response = await axios.post(oppInsertUri, oppToAdd, {
       headers: SFHeaders,
     });
-
     console.log(response.data);
   } catch (err) {
     console.log(err.response.data);
@@ -212,23 +234,11 @@ app.post('/', async (req, res) => {
   // Name - required = `${first_name} ${last_name} Donation ${moment.utc(payment_date).format('MM/DD/YYYY')}`
   // RecordTypeId = 0128Z000001BIZJQA4
   // Description = 'Added into Salesforce by the Paypal server on ' + moment.utc(new Date().toJSON()).format('MM/DD/YY')
-
-  // mark db entry as successful
 });
 
-// const db = mysql.createConnection(dbUrl);
-// db.connect();
-
-// db.query('SELECT 1 + 1 AS solution', function (err, rows, fields) {
-//   if (err) throw err;
-
-//   console.log('The solution is: ', rows[0].solution);
-// });
-
-// db.end();
 
 app.get('/', (req, res) => {
-  res.send('~paypal server~!');
+  res.send('Server is running.');
 });
 
 app.listen(PORT, () => {
