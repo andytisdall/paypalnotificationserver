@@ -220,12 +220,14 @@ paypalRouter.post('/', async (req, res) => {
         npe03__Date_Established__c: formattedDate.format(),
         npe03__Amount__c: paypalData.amount,
         npsp__RecurringType__c: 'Open',
-        npsp__Day_of_Month__c: formattedDate.format('d'),
+        npsp__Day_of_Month__c: formattedDate.format('D'),
         npe03__Installment_Period__c: paypalData.payment_cycle,
-        npsp__StartDate__c: Date()
+        npsp__StartDate__c: moment.utc(new Date().toJSON()).format()
     }
 
-    const recurringInsertUri = SFApiPrefix + '/sobjects/Opportunity/' + existingOpp.Id;
+    console.log(recurringToAdd)
+
+    const recurringInsertUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/';
     try {
         const response = await axios.post(recurringInsertUri, recurringToAdd, {
           headers: SFHeaders,
@@ -234,11 +236,72 @@ paypalRouter.post('/', async (req, res) => {
           success: response.data.success,
           name: `${paypalData.first_name} ${paypalData.last_name}`
         };
-        console.log('Recurring Added: ' + JSON.stringify(summaryMessage));
+        console.log('Recurring Donation Added: ' + JSON.stringify(summaryMessage));
       } catch (err) {
         console.log(err.response.data);
       }
 
+    return;
+  }
+
+  if (paypalData.txn_type === 'recurring_payment_profile_cancel') {
+
+    let amt = paypalData.amount_per_cycle
+    const splitAmt = amt.split('.');
+    if (splitAmt[1] === '00') {
+        amt = splitAmt[0];
+    } else if (splitAmt[1].split('')[1] == '0') {
+        amt = splitAmt[0] + '.' + splitAmt[1].split('')[1];
+    }
+
+    const recurringQuery = [
+        '/query/?q=SELECT',
+        'Id',
+        'from',
+        'npe03__Recurring_Donation__c',
+        'WHERE',
+        'Name',
+        '=',
+        `'${paypalData.first_name} ${paypalData.last_name} $${amt} - Recurring'`
+      ];
+    
+      const recurringQueryUri = SFApiPrefix + recurringQuery.join('+');
+    
+      let existingRecurring;
+      try {
+        const recurringQueryResponse = await axios.get(recurringQueryUri, {
+          headers: SFHeaders,
+        });
+        if (recurringQueryResponse.data.totalSize !== 0) {
+          existingRecurring = recurringQueryResponse.data.records[0];
+        }
+      } catch (err) {
+        console.log(err.response.data);
+        return;
+      }
+      if (existingRecurring) {
+
+    const recurringToUpdate = {
+        npsp__Status__c: 'Closed'
+    }
+
+    const recurringUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/' + existingRecurring.Id;
+    try {
+        const response = await axios.patch(recurringUpdateUri, recurringToUpdate, {
+          headers: SFHeaders,
+        });
+        const summaryMessage = {
+          success: response.data.success,
+          name: `${paypalData.first_name} ${paypalData.last_name}`,
+          action: 'Cancel'
+        };
+        console.log('Recurring Donation Updated: ' + JSON.stringify(summaryMessage));
+      } catch (err) {
+        console.log(err.response.data);
+      }
+    } else {
+        console.log('Recurring donation not found')
+    }
     return;
   }
 
@@ -281,9 +344,14 @@ paypalRouter.post('/', async (req, res) => {
 //      product_type: '1',
 //      time_created: '14:38:45 Nov 17, 2022 PST',
 //      ipn_track_id: 'f727617a877a4'
-
+if (!paypalData.payment_date) {
+    return console.log('Unknown type of message: no payment date')
+}
+  const splitDate = paypalData.payment_date
+    .split(' ')
+    .filter((el, i, a) => i !== a.length - 1);
 const formattedDate = moment
-.utc(paypalData.payment_date, 'HH:mm:ss MMM D, YYYY')
+.utc(splitDate, 'HH:mm:ss MMM D, YYYY')
 .format();
 
 
@@ -297,7 +365,7 @@ const oppQuery = [
     'WHERE',
     'Name',
     '=',
-    `${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('MM/DD/YYYY')}`
+    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('MM/DD/YYYY')}'`
   ];
 
   const oppQueryUri = SFApiPrefix + oppQuery.join('+');
@@ -315,7 +383,7 @@ const oppQuery = [
     return;
   }
     
-
+if (existingOpp) {  
 
     const oppToUpdate = {
         StageName: 'Posted',
@@ -338,7 +406,7 @@ const oppQuery = [
 
     return;
 
-
+    }
   }
 
   // insert opportunity
@@ -355,9 +423,7 @@ const oppQuery = [
   // item_number
 
 
-//   const splitDate = paypalData.payment_date
-//     .split(' ')
-//     .filter((el, i, a) => i !== a.length - 1);
+
 
 
   const oppToAdd = {
