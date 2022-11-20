@@ -246,7 +246,8 @@ paypalRouter.post('/', async (req, res) => {
       'recurring_payment_suspended_due_to_max_failed_payment',
       'recurring_payment_profile_cancel',
       'recurring_payment_expired',
-      'recurring_payment_suspended'
+      'recurring_payment_suspended',
+      'recurring_payment_failed'
   ]
 
   if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
@@ -287,7 +288,8 @@ paypalRouter.post('/', async (req, res) => {
       if (existingRecurring) {
 
     const recurringToUpdate = {
-        npsp__Status__c: 'Closed'
+        npsp__Status__c: paypalData.txn_type === 'recurring_payment_failed' ? 'Paused' : 'Closed',
+        npsp__ClosedReason__c: paypalData.txn_type.replace('_', ' ')
     }
 
     const recurringUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/' + existingRecurring.Id;
@@ -298,7 +300,6 @@ paypalRouter.post('/', async (req, res) => {
         const summaryMessage = {
           success: response.data.success,
           name: `${paypalData.first_name} ${paypalData.last_name}`,
-          action: 'Cancel'
         };
         console.log('Recurring Donation Canceled: ' + JSON.stringify(summaryMessage));
       } catch (err) {
@@ -308,12 +309,6 @@ paypalRouter.post('/', async (req, res) => {
         console.log('Recurring donation not found')
     }
     return;
-  }
-
-  if (paypalData.txn_type === 'recurring_payment_failed') {
-      // Not sure what to do. Delete existing opp?
-      console.log('Recurring Payment Failed!!!')
-      return;
   }
 
 // catch all clause for unknown transaction type
