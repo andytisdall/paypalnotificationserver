@@ -225,8 +225,6 @@ paypalRouter.post('/', async (req, res) => {
         npsp__StartDate__c: moment.utc(new Date().toJSON()).format()
     }
 
-    console.log(recurringToAdd)
-
     const recurringInsertUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/';
     try {
         const response = await axios.post(recurringInsertUri, recurringToAdd, {
@@ -244,7 +242,14 @@ paypalRouter.post('/', async (req, res) => {
     return;
   }
 
-  if (paypalData.txn_type === 'recurring_payment_profile_cancel') {
+  const canceledSubscriptionStatuses = [
+      'recurring_payment_suspended_due_to_max_failed_payment',
+      'recurring_payment_profile_cancel',
+      'recurring_payment_expired',
+      'recurring_payment_suspended'
+  ]
+
+  if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
 
     let amt = paypalData.amount_per_cycle
     const splitAmt = amt.split('.');
@@ -295,7 +300,7 @@ paypalRouter.post('/', async (req, res) => {
           name: `${paypalData.first_name} ${paypalData.last_name}`,
           action: 'Cancel'
         };
-        console.log('Recurring Donation Updated: ' + JSON.stringify(summaryMessage));
+        console.log('Recurring Donation Canceled: ' + JSON.stringify(summaryMessage));
       } catch (err) {
         console.log(err.response.data);
       }
@@ -304,6 +309,18 @@ paypalRouter.post('/', async (req, res) => {
     }
     return;
   }
+
+  if (paypalData.txn_type === 'recurring_payment_failed') {
+      // Not sure what to do. Delete existing opp?
+      console.log('Recurring Payment Failed!!!')
+      return;
+  }
+
+// catch all clause for unknown transaction type
+
+if (!paypalData.payment_date) {
+    return console.log('Unknown type of message: no payment date')
+}
 
   // if donation is recurring, pledged opp will already exist in sf
   // update payment amount and stage
@@ -344,9 +361,6 @@ paypalRouter.post('/', async (req, res) => {
 //      product_type: '1',
 //      time_created: '14:38:45 Nov 17, 2022 PST',
 //      ipn_track_id: 'f727617a877a4'
-if (!paypalData.payment_date) {
-    return console.log('Unknown type of message: no payment date')
-}
   const splitDate = paypalData.payment_date
     .split(' ')
     .filter((el, i, a) => i !== a.length - 1);
@@ -390,7 +404,7 @@ if (existingOpp) {
         Amount: paypalData.payment_gross
     }
 
-    const oppUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c' + existingOpp.Id;
+    const oppUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/' + existingOpp.Id;
     try {
         const response = await axios.patch(oppUpdateUri, oppToUpdate, {
           headers: SFHeaders,
