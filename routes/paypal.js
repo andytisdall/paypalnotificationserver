@@ -148,7 +148,7 @@ paypalRouter.post('/', async (req, res) => {
       Email: paypalData.payer_email,
       Description:
         'Added into Salesforce by the Paypal server on ' +
-        moment.utc(new Date().toJSON()).format('MM/DD/YY'),
+        moment.utc(new Date().toJSON()).format('M/DD/YY'),
     };
 
     // Insert call
@@ -215,12 +215,18 @@ paypalRouter.post('/', async (req, res) => {
   if (paypalData.txn_type === 'recurring_payment_profile_created') {
 
     const formattedDate = moment.utc(new Date(paypalData.time_created), 'HH:mm:ss MMM D, YYYY');
+
+    let dayOfMonth = formattedDate.format('D');
+    if (parseInt(dayOfMonth) === 31 || (formattedDate.format('M') === '2' && parseInt(dayOfMonth) >= 28)) {
+        dayOfMonth = 'Last_Day';
+    } 
+
     const recurringToAdd = {
         npe03__Contact__c: existingContact.Id,
         npe03__Date_Established__c: formattedDate.format(),
         npe03__Amount__c: paypalData.amount,
         npsp__RecurringType__c: 'Open',
-        npsp__Day_of_Month__c: formattedDate.format('D'),
+        npsp__Day_of_Month__c: dayOfMonth,
         npe03__Installment_Period__c: paypalData.payment_cycle,
         npsp__StartDate__c: moment.utc(new Date().toJSON()).format()
     }
@@ -374,7 +380,7 @@ const oppQuery = [
     'WHERE',
     'Name',
     '=',
-    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('MM/DD/YYYY')}'`
+    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('M/DD/YYYY')}'`
   ];
 
   const oppQueryUri = SFApiPrefix + oppQuery.join('+');
@@ -443,11 +449,11 @@ if (existingOpp) {
     CloseDate: formattedDate,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
       formattedDate
-    ).format('MM/DD/YYYY')}`,
+    ).format('M/DD/YYYY')}`,
     RecordTypeId: '0128Z000001BIZJQA4',
     Description:
       'Added into Salesforce by the Paypal server on ' +
-      moment.utc(new Date().toJSON()).format('MM/DD/YY'),
+      moment.utc(new Date().toJSON()).format('M/DD/YY'),
     Processing_Fee__c: paypalData.payment_fee
   };
 
