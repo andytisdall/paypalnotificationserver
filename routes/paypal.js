@@ -148,7 +148,7 @@ paypalRouter.post('/', async (req, res) => {
       Email: paypalData.payer_email,
       Description:
         'Added into Salesforce by the Paypal server on ' +
-        moment.utc(new Date().toJSON()).format('M/DD/YY'),
+        moment.utc(new Date().toJSON()).format('M/D/YY'),
     };
 
     // Insert call
@@ -380,7 +380,7 @@ const oppQuery = [
     'WHERE',
     'Name',
     '=',
-    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('M/DD/YYYY')}'`
+    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment.utc(formattedDate).format('M/D/YYYY')}'`
   ];
 
   const oppQueryUri = SFApiPrefix + oppQuery.join('+');
@@ -449,11 +449,11 @@ if (existingOpp) {
     CloseDate: formattedDate,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
       formattedDate
-    ).format('M/DD/YYYY')}`,
+    ).format('M/D/YYYY')}`,
     RecordTypeId: '0128Z000001BIZJQA4',
     Description:
       'Added into Salesforce by the Paypal server on ' +
-      moment.utc(new Date().toJSON()).format('M/DD/YY'),
+      moment.utc(new Date().toJSON()).format('M/D/YY'),
     Processing_Fee__c: paypalData.payment_fee
   };
 
