@@ -405,13 +405,13 @@ if (existingOpp) {
         Amount: paypalData.payment_gross
     }
 
-    const oppUpdateUri = SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/' + existingOpp.Id;
+    const oppUpdateUri = SFApiPrefix + '/sobjects/Opportunity/' + existingOpp.Id;
     try {
         const response = await axios.patch(oppUpdateUri, oppToUpdate, {
           headers: SFHeaders,
         });
         const summaryMessage = {
-          success: response.data.success,
+          success: response.status === 204,
           name: `${paypalData.first_name} ${paypalData.last_name}`
         };
         console.log('Donation Updated: ' + JSON.stringify(summaryMessage));
