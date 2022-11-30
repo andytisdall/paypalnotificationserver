@@ -4,9 +4,11 @@ const moment = require('moment');
 
 const getSecrets = require('../services/getSecrets');
 
-const SALESFORCE_URI_PREFIX =
-  'https://communitykitchens.my.salesforce.com/services';
-const SFApiPrefix = SALESFORCE_URI_PREFIX + '/data/v56.0';
+const axiosInstance = axios.create({
+    baseURL: 'https://communitykitchens.my.salesforce.com/services'
+});
+
+const SF_API_PREFIX = '/data/v56.0';
 
 const canceledSubscriptionStatuses = [
   'recurring_payment_suspended_due_to_max_failed_payment',
@@ -35,11 +37,17 @@ paypalRouter.post('/', async (req, res) => {
   // post a verification to paypal - not working
   // verifyPaypalMessage(paypalData);
 
-  // get token from salesforce
-  const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
-  const tokenResult = await getToken(secrets);
-  if (!tokenResult.success) {
-    return console.log(tokenResult);
+  // check for token already in instance
+  // if there's an expiration for the token, it's longer than the time it takes
+  // for the google server to go to sleep, which wipes out the axios instance config,
+  // in which case this block will execute
+  if (!axiosInstance.defaults.headers.common['Authorization']) {
+    // get token from salesforce
+    const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
+    const tokenResult = await getToken(secrets);
+    if (!tokenResult.success) {
+        return console.log('Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult));
+    }
   }
 
   // Check if contact exists
@@ -53,7 +61,7 @@ paypalRouter.post('/', async (req, res) => {
   }
 
   if (paypalData.txn_type === 'recurring_payment_profile_created') {
-    return addRecurring(paypalData);
+    return addRecurring(paypalData, existingContact);
   }
 
   if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
@@ -69,14 +77,14 @@ paypalRouter.post('/', async (req, res) => {
   if (paypalData.amount_per_cycle) {
     // if donation is recurring, pledged opp will already exist in sf
     // update payment amount and stage
-    const result = await updateRecurringOpp(paypalData);
-    if (result.success) {
+    const success = await updateRecurringOpp(paypalData, existingContact);
+    if (success) {
       return;
     }
   }
 
   // insert opportunity
-  addDonation(paypalData);
+  addDonation(paypalData, existingContact);
 });
 
 const formatDate = (date) => {
@@ -93,7 +101,7 @@ const verifyPaypalMessage = async (paypalData) => {
   }
 
   try {
-    const paypalResponse = await axios.post(paypalUrl, verificationPost, {
+    const paypalResponse = await axiosInstance.post(paypalUrl, verificationPost, {
       headers: {
         'User-Agent': 'Node-IPN-VerificationScript',
       },
@@ -125,24 +133,25 @@ const getToken = async (secrets) => {
   }
 
   let token;
-  const SFAuthUri = SALESFORCE_URI_PREFIX + '/oauth2/token';
+  const SF_AUTH_URI = '/oauth2/token';
   try {
-    const SFResponse = await axios.post(SFAuthUri, SFAuthPost);
+    const SFResponse = await axiosInstance.post(SF_AUTH_URI, SFAuthPost, {
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    });
     token = SFResponse.data.access_token;
   } catch (err) {
     return err.response.data;
   }
 
-  axios.interceptors.request.use(function (config) {
-    config.headers.Authorization = `Bearer ${token}`;
-    config.headers['Content-Type'] = 'application/json';
-    return config;
-  });
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
 
   return { success: true };
 };
 
-const getContact = async () => {
+const getContact = async (paypalData) => {
   const contactQuery = [
     '/query/?q=SELECT',
     'Name,',
@@ -160,12 +169,10 @@ const getContact = async () => {
     `'${paypalData.last_name}'`,
   ];
 
-  const contactQueryUri = SFApiPrefix + contactQuery.join('+');
+  const contactQueryUri = SF_API_PREFIX + contactQuery.join('+');
 
   try {
-    const contactQueryResponse = await axios.get(contactQueryUri, {
-      headers: SFHeaders,
-    });
+    const contactQueryResponse = await axiosInstance.get(contactQueryUri);
     if (contactQueryResponse.data.totalSize !== 0) {
       return contactQueryResponse.data.records[0];
     }
@@ -175,7 +182,7 @@ const getContact = async () => {
   }
 };
 
-const addContact = async () => {
+const addContact = async (paypalData) => {
   const contactToAdd = {
     FirstName: paypalData.first_name,
     LastName: paypalData.last_name,
@@ -186,21 +193,14 @@ const addContact = async () => {
   };
 
   // Insert call
-  const contactInsertUri = SFApiPrefix + '/sobjects/Contact';
+  const contactInsertUri = SF_API_PREFIX + '/sobjects/Contact';
   let insertRes;
   try {
-    insertRes = await axios.post(contactInsertUri, contactToAdd, {
-      headers: SFHeaders,
-    });
+    insertRes = await axiosInstance.post(contactInsertUri, contactToAdd);
 
     //Query new contact to get household account number for opp
     if (insertRes.data.success) {
-      const newContact = await axios.get(
-        contactInsertUri + '/' + insertRes.data.id,
-        {
-          headers: SFHeaders,
-        }
-      );
+      const newContact = await axiosInstance.get(contactInsertUri + '/' + insertRes.data.id);
       return {
         Id: newContact.data.Id,
         npsp__HHId__c: newContact.data.npsp__HHId__c,
@@ -213,7 +213,7 @@ const addContact = async () => {
   }
 };
 
-const addRecurring = async (paypalData) => {
+const addRecurring = async (paypalData, contact) => {
   // check for recurring payment message
   //    payment_cycle: 'Monthly',
   //    txn_type: 'recurring_payment_profile_created',
@@ -244,17 +244,17 @@ const addRecurring = async (paypalData) => {
   //    ipn_track_id: 'f727617a877a4'
   const formattedDate = formatDate(paypalData.time_created);
 
-  let dayOfMonth = formattedDate.format('D');
+  let dayOfMonth = moment(formattedDate).format('D');
   if (
     parseInt(dayOfMonth) === 31 ||
-    (formattedDate.format('M') === '2' && parseInt(dayOfMonth) >= 28)
+    (moment(formattedDate).format('M') === '2' && parseInt(dayOfMonth) >= 28)
   ) {
     dayOfMonth = 'Last_Day';
   }
 
   const recurringToAdd = {
-    npe03__Contact__c: existingContact.Id,
-    npe03__Date_Established__c: formattedDate.format(),
+    npe03__Contact__c: contact.Id,
+    npe03__Date_Established__c: formattedDate,
     npe03__Amount__c: paypalData.amount,
     npsp__RecurringType__c: 'Open',
     npsp__Day_of_Month__c: dayOfMonth,
@@ -263,11 +263,10 @@ const addRecurring = async (paypalData) => {
   };
 
   const recurringInsertUri =
-    SFApiPrefix + '/sobjects/npe03__Recurring_Donation__c/';
+  SF_API_PREFIX + '/sobjects/npe03__Recurring_Donation__c/';
+
   try {
-    const response = await axios.post(recurringInsertUri, recurringToAdd, {
-      headers: SFHeaders,
-    });
+    const response = await axiosInstance.post(recurringInsertUri, recurringToAdd);
     const summaryMessage = {
       success: response.data.success,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -298,13 +297,11 @@ const cancelRecurring = async (paypalData) => {
     `'${paypalData.first_name} ${paypalData.last_name} $${amt} - Recurring'`,
   ];
 
-  const recurringQueryUri = SFApiPrefix + recurringQuery.join('+');
+  const recurringQueryUri = SF_API_PREFIX + recurringQuery.join('+');
 
   let existingRecurring;
   try {
-    const recurringQueryResponse = await axios.get(recurringQueryUri, {
-      headers: SFHeaders,
-    });
+    const recurringQueryResponse = await axiosInstance.get(recurringQueryUri);
     if (recurringQueryResponse.data.totalSize !== 0) {
       existingRecurring = recurringQueryResponse.data.records[0];
     }
@@ -322,16 +319,13 @@ const cancelRecurring = async (paypalData) => {
     };
 
     const recurringUpdateUri =
-      SFApiPrefix +
+    SF_API_PREFIX +
       '/sobjects/npe03__Recurring_Donation__c/' +
       existingRecurring.Id;
     try {
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         recurringUpdateUri,
-        recurringToUpdate,
-        {
-          headers: SFHeaders,
-        }
+        recurringToUpdate
       );
       const summaryMessage = {
         success: response.data.success,
@@ -341,14 +335,14 @@ const cancelRecurring = async (paypalData) => {
         'Recurring Donation Canceled: ' + JSON.stringify(summaryMessage)
       );
     } catch (err) {
-      console.log(err.response.data);
+      console.log('Header: ' + err.request._header);
     }
   } else {
     console.log('Recurring donation not found');
   }
 };
 
-const updateRecurringOpp = async (paypalData) => {
+const updateRecurringOpp = async (paypalData, contact) => {
   //   mc_gross: '1.00',
   //   outstanding_balance: '0.00',
   //   period_type: ' Regular',
@@ -393,20 +387,19 @@ const updateRecurringOpp = async (paypalData) => {
     'from',
     'Opportunity',
     'WHERE',
-    'Name',
+    'npsp__Primary_Contact__c',
     '=',
-    `'${paypalData.first_name} ${paypalData.last_name} Donation ${moment
-      .utc(formatDate(paypalData.payment_date))
-      .format('M/D/YYYY')}'`,
+    `'${contact.Id}'`,
+    'StageName',
+    '=',
+    `'Pledged'`,
   ];
 
-  const oppQueryUri = SFApiPrefix + oppQuery.join('+');
+  const oppQueryUri = SF_API_PREFIX + oppQuery.join('+');
 
   let existingOpp;
   try {
-    const oppQueryResponse = await axios.get(oppQueryUri, {
-      headers: SFHeaders,
-    });
+    const oppQueryResponse = await axiosInstance.get(oppQueryUri);
     if (oppQueryResponse.data.totalSize !== 0) {
       existingOpp = oppQueryResponse.data.records[0];
     }
@@ -422,11 +415,9 @@ const updateRecurringOpp = async (paypalData) => {
     };
 
     const oppUpdateUri =
-      SFApiPrefix + '/sobjects/Opportunity/' + existingOpp.Id;
+    SF_API_PREFIX + '/sobjects/Opportunity/' + existingOpp.Id;
     try {
-      const response = await axios.patch(oppUpdateUri, oppToUpdate, {
-        headers: SFHeaders,
-      });
+      const response = await axiosInstance.patch(oppUpdateUri, oppToUpdate);
       const summaryMessage = {
         success: response.status === 204,
         name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -438,10 +429,10 @@ const updateRecurringOpp = async (paypalData) => {
 
     return { success: true };
   } else {
-    return { success: false };
+    return;
   }
 };
-const addDonation = async (paypalData) => {
+const addDonation = async (paypalData, contact) => {
   // relevant data coming from paypal:
   // payment_gross - amount
   // payment_fee - fee
@@ -457,8 +448,8 @@ const addDonation = async (paypalData) => {
 
   const oppToAdd = {
     Amount: paypalData.payment_gross,
-    AccountId: existingContact.npsp__HHId__c,
-    npsp__Primary_Contact__c: existingContact.Id,
+    AccountId: contact.npsp__HHId__c,
+    npsp__Primary_Contact__c: contact.Id,
     StageName: 'Posted',
     CloseDate: formattedDate,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
@@ -471,11 +462,9 @@ const addDonation = async (paypalData) => {
     Processing_Fee__c: paypalData.payment_fee,
   };
 
-  const oppInsertUri = SFApiPrefix + '/sobjects/Opportunity';
+  const oppInsertUri = SF_API_PREFIX + '/sobjects/Opportunity';
   try {
-    const response = await axios.post(oppInsertUri, oppToAdd, {
-      headers: SFHeaders,
-    });
+    const response = await axiosInstance.post(oppInsertUri, oppToAdd);
     const summaryMessage = {
       success: response.data.success,
       amount: oppToAdd.Amount,
