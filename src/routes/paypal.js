@@ -335,7 +335,7 @@ const cancelRecurring = async (paypalData) => {
         'Recurring Donation Canceled: ' + JSON.stringify(summaryMessage)
       );
     } catch (err) {
-      console.log('Header: ' + err.request._header);
+      console.log(err.response.data);
     }
   } else {
     console.log('Recurring donation not found');
@@ -390,6 +390,7 @@ const updateRecurringOpp = async (paypalData, contact) => {
     'npsp__Primary_Contact__c',
     '=',
     `'${contact.Id}'`,
+    'AND',
     'StageName',
     '=',
     `'Pledged'`,
