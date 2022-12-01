@@ -37,11 +37,6 @@ paypalRouter.post('/', async (req, res) => {
   // post a verification to paypal - not working
   // verifyPaypalMessage(paypalData);
 
-  // check for token already in instance
-  // if there's an expiration for the token, it's longer than the time it takes
-  // for the google server to go to sleep, which wipes out the axios instance config,
-  // in which case this block will execute
-  // get token from salesforce
   const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
   const tokenResult = await getToken(secrets);
   if (!tokenResult.success) {
