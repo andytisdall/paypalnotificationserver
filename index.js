@@ -9,6 +9,7 @@ const smsRouter = require('./src/routes/sms');
 const signinRouter = require('./src/routes/signin');
 const userRouter = require('./src/routes/user');
 const addPhoneRouter = require('./src/routes/addPhone');
+const incomingSmsRouter = require('./src/routes/incoming-message');
 
 const PORT = process.env.PORT || 3001;
 
@@ -23,6 +24,7 @@ app.use(smsRouter);
 app.use(signinRouter);
 app.use(userRouter);
 app.use(addPhoneRouter);
+app.use(incomingSmsRouter);
 
 app.get('/', (req, res) => {
   res.send('Server is running.');

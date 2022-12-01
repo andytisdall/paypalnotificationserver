@@ -5,7 +5,7 @@ const moment = require('moment');
 const getSecrets = require('../services/getSecrets');
 
 const axiosInstance = axios.create({
-    baseURL: 'https://communitykitchens.my.salesforce.com/services'
+  baseURL: 'https://communitykitchens.my.salesforce.com/services',
 });
 
 const SF_API_PREFIX = '/data/v56.0';
@@ -41,13 +41,13 @@ paypalRouter.post('/', async (req, res) => {
   // if there's an expiration for the token, it's longer than the time it takes
   // for the google server to go to sleep, which wipes out the axios instance config,
   // in which case this block will execute
-  if (!axiosInstance.defaults.headers.common['Authorization']) {
-    // get token from salesforce
-    const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
-    const tokenResult = await getToken(secrets);
-    if (!tokenResult.success) {
-        return console.log('Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult));
-    }
+  // get token from salesforce
+  const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
+  const tokenResult = await getToken(secrets);
+  if (!tokenResult.success) {
+    return console.log(
+      'Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult)
+    );
   }
 
   // Check if contact exists
@@ -101,11 +101,15 @@ const verifyPaypalMessage = async (paypalData) => {
   }
 
   try {
-    const paypalResponse = await axiosInstance.post(paypalUrl, verificationPost, {
-      headers: {
-        'User-Agent': 'Node-IPN-VerificationScript',
-      },
-    });
+    const paypalResponse = await axiosInstance.post(
+      paypalUrl,
+      verificationPost,
+      {
+        headers: {
+          'User-Agent': 'Node-IPN-VerificationScript',
+        },
+      }
+    );
 
     // console.log(paypalResponse);
     if (paypalResponse.data !== 'VERIFIED') {
@@ -136,9 +140,9 @@ const getToken = async (secrets) => {
   const SF_AUTH_URI = '/oauth2/token';
   try {
     const SFResponse = await axiosInstance.post(SF_AUTH_URI, SFAuthPost, {
-        headers: { 
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
     token = SFResponse.data.access_token;
   } catch (err) {
@@ -200,7 +204,9 @@ const addContact = async (paypalData) => {
 
     //Query new contact to get household account number for opp
     if (insertRes.data.success) {
-      const newContact = await axiosInstance.get(contactInsertUri + '/' + insertRes.data.id);
+      const newContact = await axiosInstance.get(
+        contactInsertUri + '/' + insertRes.data.id
+      );
       return {
         Id: newContact.data.Id,
         npsp__HHId__c: newContact.data.npsp__HHId__c,
@@ -263,10 +269,13 @@ const addRecurring = async (paypalData, contact) => {
   };
 
   const recurringInsertUri =
-  SF_API_PREFIX + '/sobjects/npe03__Recurring_Donation__c/';
+    SF_API_PREFIX + '/sobjects/npe03__Recurring_Donation__c/';
 
   try {
-    const response = await axiosInstance.post(recurringInsertUri, recurringToAdd);
+    const response = await axiosInstance.post(
+      recurringInsertUri,
+      recurringToAdd
+    );
     const summaryMessage = {
       success: response.data.success,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -316,10 +325,11 @@ const cancelRecurring = async (paypalData) => {
           ? 'Paused'
           : 'Closed',
       npsp__ClosedReason__c: paypalData.txn_type.replace('_', ' '),
+      npsp__EndDate__c: moment().add(1, 'days'),
     };
 
     const recurringUpdateUri =
-    SF_API_PREFIX +
+      SF_API_PREFIX +
       '/sobjects/npe03__Recurring_Donation__c/' +
       existingRecurring.Id;
     try {
@@ -416,7 +426,7 @@ const updateRecurringOpp = async (paypalData, contact) => {
     };
 
     const oppUpdateUri =
-    SF_API_PREFIX + '/sobjects/Opportunity/' + existingOpp.Id;
+      SF_API_PREFIX + '/sobjects/Opportunity/' + existingOpp.Id;
     try {
       const response = await axiosInstance.patch(oppUpdateUri, oppToUpdate);
       const summaryMessage = {
