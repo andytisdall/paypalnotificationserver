@@ -1,1 +1,3 @@
 runtime: nodejs16
+env_variables:
+  TWILIO_AUTH_TOKEN: a96e89fe8b8fd3815d44ff631ba35120

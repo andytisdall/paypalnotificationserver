@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 
-require('./src/db');
+
+// require('./src/db');
 require('./src/models/user');
 require('./src/models/phone');
 const paypalRouter = require('./src/routes/paypal');

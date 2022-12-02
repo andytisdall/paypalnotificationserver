@@ -159,13 +159,13 @@ const getContact = async (paypalData) => {
     'from',
     'Contact',
     'WHERE',
-    'FirstName',
-    '=',
-    `'${paypalData.first_name}'`,
-    'AND',
     'LastName',
     '=',
     `'${paypalData.last_name}'`,
+    'AND',
+    'Email',
+    '=',
+    `'${paypalData.payer_email}'`,
   ];
 
   const contactQueryUri = SF_API_PREFIX + contactQuery.join('+');
