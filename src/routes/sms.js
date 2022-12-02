@@ -9,10 +9,10 @@ const getSecrets = require('../services/getSecrets');
 const smsRouter = express.Router();
 
 smsRouter.post('/sms', currentUser, requireAuth, async (req, res) => {
-  const secrets = await getSecrets(['TWILIO_ID', 'TWILIO_TOKEN']);
+  const secrets = await getSecrets(['TWILIO_ID', 'TWILIO_AUTH_TOKEN']);
   const twilioClient = new twilio.Twilio(
     secrets.TWILIO_ID,
-    secrets.TWILIO_TOKEN
+    secrets.TWILIO_AUTH_TOKEN
   );
 
   if (!req.body.message) {
