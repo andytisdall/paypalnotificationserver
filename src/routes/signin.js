@@ -25,7 +25,7 @@ router.post('/signin', async (req, res) => {
 
   if (!passwordsMatch) {
     res.status(401);
-    res.send('Credentials Invalid');
+    return res.send('Credentials Invalid');
   }
 
   const token = jwt.sign(
