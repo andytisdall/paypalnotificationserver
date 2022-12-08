@@ -3,6 +3,7 @@ const axios = require('axios');
 const moment = require('moment');
 
 const getSecrets = require('../services/getSecrets');
+const email = require('./sendMail');
 
 const axiosInstance = axios.create({
   baseURL: 'https://communitykitchens.my.salesforce.com/services',
@@ -67,6 +68,14 @@ paypalRouter.post('/', async (req, res) => {
 
   if (!paypalData.payment_date) {
     return console.log('Unknown type of message: no payment date');
+  }
+
+  try {
+    const sendEmail = await email();
+    const info = await sendEmail(paypalData);
+    console.log('Email Sent: ' + info.envelope);
+  } catch (err) {
+    console.log(err);
   }
 
   if (paypalData.amount_per_cycle) {
