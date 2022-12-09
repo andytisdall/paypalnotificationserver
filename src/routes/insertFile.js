@@ -1,5 +1,6 @@
-const express = require('express');
 const axios = require('axios');
+const fs = require('fs');
+const FormData = require('form-data');
 
 const getSecrets = require('../services/getSecrets');
 
@@ -7,10 +8,10 @@ const axiosInstance = axios.create({
   baseURL: 'https://communitykitchens.my.salesforce.com/services',
 });
 
-const SF_API_PREFIX = '/data/v56.0/sobjects/Document/';
+const SF_API_PREFIX = '/data/v56.0';
 
 const insertFile = async () => {
-  const secrets = await getSecrets(['AWS_ACCESS_KEY', 'AWS_SECRET']);
+  const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
   const tokenResult = await getToken(secrets);
   if (!tokenResult.success) {
     return console.log(
@@ -18,38 +19,45 @@ const insertFile = async () => {
     );
   }
 
-  const fs = require('fs');
-  fs.readFile('./logo.jpeg', async (err, data) => {
-    if (err) {
-      console.log(err);
-    }
-    const postBody = `
-    --boundary_string
-    Content-Disposition: form-data; name="entity_document";
-    Content-Type: application/json
-
-    {  
-        "Description" : "Marketing brochure for Q1 2011",
-        "Name" : "Andy's File",
-        "Type" : "jpg"
+    const fileMetaData = {
+        Title: 'Test File',
+        Description: 'See if this works',
+        PathOnClient: 'testfile.jpg'
     }
 
-    --boundary_string
-    Content-Type: image/jpg
-    Content-Disposition: form-data; name="Body"; filename="file.jpg"
+    const postBody = new FormData();
+    postBody.append('entity_document', JSON.stringify(fileMetaData), {contentType: 'application/json' })
+    postBody.append('VersionData', fs.createReadStream('./logo.jpeg'))
 
-    ${data}
-
-    --boundary_string--`;
     try {
-      const res = await axiosInstance.post(SF_API_PREFIX, postBody, {
-        'Content-Type': 'multipart/form-data; boundary="boundary_string',
-      });
-      console.log(res.data);
+        const res = await axiosInstance.post(SF_API_PREFIX + '/sobjects/ContentVersion/', postBody, {
+            headers: postBody.getHeaders()
+        });
+        console.log('Content Version created: ' + res.data);
     } catch (err) {
-      console.log(err.response.data);
+        return console.log(err.response.data);
+    } 
+
+    const ContentDocumentId = await getDocumentId();
+    const accountId = '0018Z00002lLsLWQA0';
+
+    const CDLinkData = {
+        ShareType: 'I',
+        LinkedEntityId: accountId,
+        ContentDocumentId
     }
-  });
+
+    try {
+        const res = await axiosInstance.post(SF_API_PREFIX + '/sobjects/ContentDocumentLink/', CDLinkData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('File Linked to Account: ' + res.data);
+    } catch (err) {
+        console.log(err.response.data);
+    } 
+
 };
 
 const getToken = async (secrets) => {
@@ -76,6 +84,29 @@ const getToken = async (secrets) => {
   } catch (err) {
     return err.response.data;
   }
+
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  return { success: true }
 };
 
-insertFile();
+const getDocumentId = async () => {
+    const documentQuery = [
+        '/query/?q=SELECT',
+        'ContentDocumentId',
+        'from',
+        'ContentVersion',
+        'WHERE',
+        'Id',
+        '=',
+        `'0688Z00000VBW3gQAH'`
+      ];
+    
+    const documentQueryUri = SF_API_PREFIX + documentQuery.join('+');
+
+    try {
+        const documentQueryResponse = await axiosInstance.get(documentQueryUri);
+        return documentQueryResponse.data.records[0].ContentDocumentId;
+    } catch (err) {
+        console.log(err.response.data);
+    }
+}
