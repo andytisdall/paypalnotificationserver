@@ -109,4 +109,4 @@ const getDocumentId = async () => {
     } catch (err) {
         console.log(err.response.data);
     }
-}
+};
