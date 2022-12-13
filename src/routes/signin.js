@@ -15,7 +15,7 @@ router.post('/signin', async (req, res) => {
   const existingUser = await User.findOne({ username });
   if (!existingUser) {
     res.status(401);
-    return res.send('Credentials Invalid');
+    throw new Error('Credentials Invalid');
   }
 
   const passwordsMatch = await Password.compare(
@@ -25,7 +25,7 @@ router.post('/signin', async (req, res) => {
 
   if (!passwordsMatch) {
     res.status(401);
-    return res.send('Credentials Invalid');
+    throw new Error('Credentials Invalid');
   }
 
   const token = jwt.sign(

@@ -16,7 +16,8 @@ smsRouter.post('/sms', currentUser, requireAuth, async (req, res) => {
   );
 
   if (!req.body.message) {
-    return res.status(422).send('No message to send');
+    res.status(422);
+    throw new Error('No message to send');
   }
 
   const allPhoneNumbers = await Phone.find();
@@ -32,7 +33,8 @@ smsRouter.post('/sms', currentUser, requireAuth, async (req, res) => {
       },
       (err) => {
         if (err) {
-          return res.status(422).send(err.message);
+          res.status(422);
+          throw new Error(err.message);
         }
         res.send('Message Sent!');
       }

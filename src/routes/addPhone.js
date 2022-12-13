@@ -8,18 +8,21 @@ const router = express.Router();
 
 router.post('/addphone', currentUser, requireAuth, async (req, res) => {
   if (!req.body.phone) {
-    return res.status(422).send('No Phone Number in Request Body');
+    res.status(422);
+    throw new Error('No Phone Number in Request Body');
   }
 
   const phoneNumber = String(req.body.phone).replace(/[^\d]/g, '');
 
   if (phoneNumber.length !== 10) {
-    return res.status(422).send('Phone number must have 10 digits');
+    res.status(422);
+    throw new Error('Phone number must have 10 digits');
   }
 
   const existingNumber = Phone.findOne({ number: '+1' + phoneNumber });
   if (existingNumber) {
-    return res.status(422).send('Phone number is already in database');
+    res.status(422);
+    throw new Error('Phone number is already in database');
   }
 
   try {
