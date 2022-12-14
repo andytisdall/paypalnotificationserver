@@ -13,17 +13,19 @@ const sendEmail = async (donationData) => {
   const html = createEmail(donationData.firstName, donationData.payment_gross);
 
   const msg = {
-    to: donationData.email,
+    to: donationData.payer_email,
     from: 'andy@ckoakland.org',
     subject: 'Thank you for your donation!',
     html,
   };
   try {
     await sgMail.send(msg);
-    console.log('Email sent to ' + donationData.email);
+    console.log('Email sent to ' + donationData.payer_email);
   } catch (err) {
     console.log(err);
   }
 };
+
+// sendEmail({ payer_email: 'andrew.tisdall@gmail.com', firstName: 'Gogo', payment_gross: '50.78'})
 
 module.exports = { sendEmail };

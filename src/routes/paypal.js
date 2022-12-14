@@ -3,7 +3,7 @@ const axios = require('axios');
 const moment = require('moment');
 
 const getSecrets = require('../services/getSecrets');
-const email = require('../services/email');
+const { sendEmail } = require('../services/email');
 
 const axiosInstance = axios.create({
   baseURL: 'https://communitykitchens.my.salesforce.com/services',
@@ -76,7 +76,7 @@ paypalRouter.post('/', async (req, res) => {
 
   // thank you email
   try {
-    await email(paypalData);
+    await sendEmail(paypalData);
   } catch (err) {
     console.log(err);
   }
