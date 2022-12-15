@@ -9,18 +9,22 @@ const { uploadFiles } = require('../services/uploadFiles');
 const router = express.Router();
 
 router.post('/files', currentUser, requireAuth, async (req, res) => {
+  const { expiration } = req.body;
   const restaurant = await Restaurant.findById(req.body.restaurant);
   if (!restaurant) {
     res.status(404);
     throw new Error('Restaurant not found');
   }
+
   const fileList = [];
-  for (file in req.files) {
-    fileList.push({ name: file, data: req.files[file].data });
+  for (entry in req.files) {
+    fileList.push({ docType: entry, file: req.files[entry] });
   }
-  uploadFiles(restaurant, fileList);
 
   // make api call to salesforce
+  const dataAdded = await uploadFiles(restaurant, fileList, expiration);
+
+  res.send({ dataAdded });
 });
 
 module.exports = router;

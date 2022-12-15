@@ -100,7 +100,7 @@ paypalRouter.post('/', async (req, res) => {
 
 const formatDate = (date) => {
   const splitDate = date.split(' ').filter((el, i, a) => i !== a.length - 1);
-  return moment.utc(splitDate, 'HH:mm:ss MMM D, YYYY').format();
+  return moment(splitDate, 'HH:mm:ss MMM D, YYYY').format();
 };
 
 const verifyPaypalMessage = async (paypalData) => {
@@ -204,7 +204,7 @@ const addContact = async (paypalData) => {
     Email: paypalData.payer_email,
     Description:
       'Added into Salesforce by the Paypal server on ' +
-      moment.utc(new Date().toJSON()).format('M/D/YY'),
+      moment().format('M/D/YY'),
   };
 
   // Insert call
@@ -276,7 +276,7 @@ const addRecurring = async (paypalData, contact) => {
     npsp__RecurringType__c: 'Open',
     npsp__Day_of_Month__c: dayOfMonth,
     npe03__Installment_Period__c: paypalData.payment_cycle,
-    npsp__StartDate__c: moment.utc(new Date().toJSON()).format(),
+    npsp__StartDate__c: moment().format(),
   };
 
   const recurringInsertUri =
@@ -477,7 +477,7 @@ const addDonation = async (paypalData, contact) => {
     RecordTypeId: '0128Z000001BIZJQA4',
     Description:
       'Added into Salesforce by the Paypal server on ' +
-      moment.utc(new Date().toJSON()).format('M/D/YY'),
+      moment().format('M/D/YY'),
     Processing_Fee__c: paypalData.payment_fee,
   };
 

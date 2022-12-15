@@ -32,16 +32,16 @@ router.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { username, password, admin } = req.body;
+    const { username, password } = req.body;
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       return res.status(400).send('Username is in use');
     }
 
-    const newUser = new User({ username, password, admin });
+    const newUser = new User({ username, password });
     await newUser.save();
-    res.status(201).send(newUser.username);
+    res.status(201).send(newUser);
   }
 );
 

@@ -1,7 +1,7 @@
-module.exports = (name, amount) => {
+module.exports = (firstName, lastName, amount) => {
   return `
   <body style="font-family: Calibri, sans-serif; font-size: 14px;">
-  <p>Dear ${name},</p>
+  <p>Dear ${firstName} ${lastName},</p>
 
   <p>Thank you for your gift of $${amount} to Community Kitchens. Your support came at a critical time.
   Our meals are used to fill gaps left by other food support programs, to promote healthy lifestyles and

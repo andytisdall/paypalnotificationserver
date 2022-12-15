@@ -36,7 +36,7 @@ smsRouter.post('/sms', currentUser, requireAuth, async (req, res) => {
           res.status(422);
           throw new Error(err.message);
         }
-        res.send('Message Sent!');
+        res.send(req.body.message);
       }
     );
   });

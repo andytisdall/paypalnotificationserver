@@ -10,7 +10,11 @@ const initializeEmail = async () => {
 
 const sendEmail = async (donationData) => {
   await initializeEmail();
-  const html = createEmail(donationData.firstName, donationData.payment_gross);
+  const html = createEmail(
+    donationData.first_name,
+    donationData.last_name,
+    donationData.payment_gross
+  );
 
   const msg = {
     to: donationData.payer_email,
