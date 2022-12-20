@@ -15,6 +15,7 @@ const addPhoneRouter = require('./src/routes/addPhone');
 const incomingSmsRouter = require('./src/routes/incoming-message');
 const restaurantRouter = require('./src/routes/restaurant');
 const fileRouter = require('./src/routes/files');
+const docusignRouter = require('./src/routes/signDocuments');
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -34,6 +35,7 @@ app.use(addPhoneRouter);
 app.use(incomingSmsRouter);
 app.use(restaurantRouter);
 app.use(fileRouter);
+app.use(docusignRouter);
 
 app.use(errorHandler);
 

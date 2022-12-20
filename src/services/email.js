@@ -22,6 +22,7 @@ const sendEmail = async (donationData) => {
     subject: 'Thank you for your donation!',
     html,
   };
+
   try {
     await sgMail.send(msg);
     console.log('Email sent to ' + donationData.payer_email);
