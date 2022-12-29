@@ -44,7 +44,7 @@ apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
 
-app.use(errorHandler);
+apiRouter.use(errorHandler);
 
 app.use('/api', apiRouter)
 
