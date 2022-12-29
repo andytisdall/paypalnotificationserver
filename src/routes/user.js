@@ -45,4 +45,15 @@ router.post(
   }
 );
 
+router.patch('/user', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const { user, username, password } = req.body;
+  const u = await User.findByIdAndUpdate(user, { username, password })
+  res.status(204).send(u)
+})
+
+router.delete('/user/:userId', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  await User.deleteOne({ _id: req.params.userId });
+  res.sendStatus(204)
+})
+
 module.exports = router;

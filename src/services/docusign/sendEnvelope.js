@@ -41,7 +41,7 @@ module.exports = async (args) => {
   const { envelopeId } = res.data;
 
   // Step 3. create the recipient view, the embedded signing
-  let viewRequest = makeRecipientViewRequest({ ...args, envelopeId });
+  let viewRequest = makeRecipientViewRequest({ ...args, token: token.accessToken, envelopeId });
 
   // // Call the CreateRecipientView API
   const result = await axios.post(
@@ -50,5 +50,5 @@ module.exports = async (args) => {
     { headers }
   );
 
-  return result.data.url;
+  return { redirectUrl: result.data.url };
 };

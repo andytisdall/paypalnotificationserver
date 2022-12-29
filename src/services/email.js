@@ -8,6 +8,23 @@ const initializeEmail = async () => {
   sgMail.setApiKey(secrets.SENDGRID_KEY);
 };
 
+const sendEmailToSelf = async ({ subject, message }) => {
+  await initializeEmail();
+  const msg = {
+    to: 'andy@ckoakland.org',
+    from: 'andy@ckoakland.org',
+    subject,
+    text: 'Sent to self from server: ' + message,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('Email sent to ' + donationData.payer_email);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 const sendEmail = async (donationData) => {
   await initializeEmail();
   const html = createEmail(
@@ -33,4 +50,4 @@ const sendEmail = async (donationData) => {
 
 // sendEmail({ payer_email: 'andrew.tisdall@gmail.com', firstName: 'Gogo', payment_gross: '50.78'})
 
-module.exports = { sendEmail };
+module.exports = { sendEmail, sendEmailToSelf };

@@ -51,4 +51,9 @@ router.get(
   }
 );
 
+router.get('/restaurants', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const restaurants = await Restaurant.find();
+  res.send(restaurants)
+})
+
 module.exports = router;

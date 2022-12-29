@@ -30,7 +30,7 @@ const uploadFiles = async (restaurant, files, expiration) => {
   const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
   const tokenResult = await getToken(secrets);
   if (!tokenResult.success) {
-    return console.log(
+    throw new Error(
       'Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult)
     );
   }
@@ -79,8 +79,8 @@ const insertFile = async (restaurant, file) => {
   }
 
   const ContentDocumentId = await getDocumentId(contentVersionId);
-  // const accountId = restaurant.id;
-  const accountId = '0018Z00002lLOx1QAG';
+  const accountId = restaurant.id;
+  // const accountId = '0018Z00002lLOx1QAG';
 
   const CDLinkData = {
     ShareType: 'I',
@@ -158,5 +158,22 @@ const getDocumentId = async (CVId) => {
     console.log(err.response?.data || err);
   }
 };
+
+const updateHealthExpiration = async (restaurantId, date) => {
+  const data = {
+    npsp__health__whatever: date
+  };
+
+  const accountUpdateUri =
+    SF_API_PREFIX + '/sobjects/Account/' + restaurantId;
+  try {
+    await axiosInstance.patch(accountUpdateUri, data, {headers: {
+      'Content-Type': 'application/json',
+    },});
+    console.log('Health Permit Expiration Date Updated: ' + date);
+  } catch (err) {
+    console.log(err.response.data);
+  }
+}
 
 module.exports = { uploadFiles };
