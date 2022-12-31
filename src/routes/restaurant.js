@@ -51,9 +51,38 @@ router.get(
   }
 );
 
-router.get('/restaurants', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  const restaurants = await Restaurant.find();
-  res.send(restaurants)
-})
+router.get(
+  '/restaurants',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const restaurants = await Restaurant.find();
+    res.send(restaurants);
+  }
+);
+
+router.patch(
+  '/restaurant',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { restaurantId, name, salesforceId, userId } = req.body;
+
+    const rest = await Restaurant.findById(restaurantId);
+    if (name) {
+      rest.name = name;
+    }
+    if (salesforceId) {
+      rest.salesforceId = salesforceId;
+    }
+    if (userId) {
+      rest.user = userId;
+    }
+    await rest.save();
+    res.send(rest);
+  }
+);
 
 module.exports = router;

@@ -45,15 +45,45 @@ router.post(
   }
 );
 
-router.patch('/user', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  const { user, username, password } = req.body;
-  const u = await User.findByIdAndUpdate(user, { username, password })
-  res.status(204).send(u)
-})
+router.patch('/user', currentUser, requireAuth, async (req, res) => {
+  const { userId, username, password } = req.body;
 
-router.delete('/user/:userId', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  await User.deleteOne({ _id: req.params.userId });
-  res.sendStatus(204)
-})
+  if (!username && !password) {
+    res.status(400);
+    throw new Error('No username or password provided');
+  }
+
+  const u = await User.findById(userId);
+
+  if (u.id !== req.currentUser.id && !req.currentUser.admin) {
+    res.status(403);
+    throw new Error('User not authorized to modify this user');
+  }
+
+  if (u.id !== req.currentUser.id && u.admin) {
+    res.status(403);
+    throw new Error('Admin users can only be modified by themselves');
+  }
+
+  if (username && username !== u.username) {
+    u.username = username;
+  }
+  if (password) {
+    u.password = password;
+  }
+  await u.save();
+  res.send(u);
+});
+
+router.delete(
+  '/user/:userId',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    await User.deleteOne({ _id: req.params.userId });
+    res.sendStatus(204);
+  }
+);
 
 module.exports = router;
