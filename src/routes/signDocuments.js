@@ -16,7 +16,7 @@ const REDIRECT_URL =
     : 'http://localhost:3000/onboarding/docusign';
 
 router.get('/docusign/login', currentUser, requireAuth, async (req, res) => {
-  const authUri = getDSAuthCode(REDIRECT_URL + '/sign');
+  const authUri = await getDSAuthCode(REDIRECT_URL + '/sign');
   res.send(authUri);
 });
 

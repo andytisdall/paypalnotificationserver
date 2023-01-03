@@ -14,7 +14,7 @@ const SF_API_PREFIX = '/data/v56.0';
 const paypalRouter = express.Router();
 
 // listener for paypal message
-paypalRouter.post('/', async (req, res) => {
+paypalRouter.post('/paypal', async (req, res) => {
   // send paypal back a 200
   res.sendStatus(200);
 
