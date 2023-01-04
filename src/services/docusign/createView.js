@@ -17,7 +17,7 @@ module.exports = (args) => {
   // the DocuSign signing ceremony. It's usually better to use
   // the session mechanism of your web framework. Query parameters
   // can be changed/spoofed very easily.
-  viewRequest.returnUrl = args.dsReturnUrl + `?envelopeId=${args.envelopeId}&token=${args.token}`
+  viewRequest.returnUrl = args.dsReturnUrl + `?envelopeId=${args.envelopeId}`;
 
   // How has your app authenticated the user? In addition to your app's
   // authentication, you can include authenticate steps from DocuSign.

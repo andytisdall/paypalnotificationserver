@@ -10,7 +10,7 @@ const getSecrets = require('../services/getSecrets');
 const smsRouter = express.Router();
 
 smsRouter.post(
-  '/sms',
+  '/text/outgoing',
   currentUser,
   requireAuth,
   requireAdmin,

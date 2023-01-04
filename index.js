@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-const path = require('path')
+const path = require('path');
 
 require('./src/db');
 require('./src/models/user');
@@ -9,11 +9,11 @@ require('./src/models/phone');
 require('./src/models/restaurant');
 require('express-async-errors');
 const paypalRouter = require('./src/routes/paypal');
-const smsRouter = require('./src/routes/sms');
+const outgoingTextRouter = require('./src/routes/outgoingText');
 const signinRouter = require('./src/routes/signin');
 const userRouter = require('./src/routes/user');
 const addPhoneRouter = require('./src/routes/addPhone');
-const incomingSmsRouter = require('./src/routes/incoming-message');
+const incomingTextRouter = require('./src/routes/incomingText');
 const restaurantRouter = require('./src/routes/restaurant');
 const fileRouter = require('./src/routes/files');
 const docusignRouter = require('./src/routes/signDocuments');
@@ -35,18 +35,18 @@ app.use(fileUpload());
 const apiRouter = express.Router({ mergeParams: true });
 
 apiRouter.use(paypalRouter);
-apiRouter.use(smsRouter);
+apiRouter.use(outgoingTextRouter);
 apiRouter.use(signinRouter);
 apiRouter.use(userRouter);
 apiRouter.use(addPhoneRouter);
-apiRouter.use(incomingSmsRouter);
+apiRouter.use(incomingTextRouter);
 apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
 
 apiRouter.use(errorHandler);
 
-app.use('/api', apiRouter)
+app.use('/api', apiRouter);
 
 app.get('/*', (req, res) => {
   res.sendFile('src/client/build/index.html', { root: __dirname });

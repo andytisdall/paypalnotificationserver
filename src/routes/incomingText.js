@@ -9,11 +9,12 @@ const router = express.Router();
 const SIGN_UP_WORD = 'enroll';
 const SIGN_UP_RESPONSE = 'You have been added to the text list!';
 const DUPLICATE_RESPONSE = 'Your phone number is already on our list!';
+const FEEDBACK_WORD = 'feedback';
 const FEEDBACK_RESPONSE =
   'Thank you for your feedback. A team member will review your message soon.';
 
 router.post(
-  '/incoming-sms',
+  '/text/incoming/signup',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
     // ToCountry: 'US',
@@ -40,15 +41,30 @@ router.post(
     const { Body, From, To } = req.body;
     const response = new MessagingResponse();
 
-    if (Body && Body.toLowerCase() === SIGN_UP_WORD) {
+    if (!Body) {
+      return;
+    }
+
+    if (Body.toLowerCase() === SIGN_UP_WORD) {
       const region = Object.values(REGIONS).find(
         (reg) => reg.phoneNumber === To
       );
       const responseMessage = await addPhoneNumber(From, region);
       response.message(responseMessage);
-      res.set('Content-Type', 'text/xml');
-      return res.send(response.toString());
     }
+
+    if (Body.toLowerCase() === FEEDBACK_WORD) {
+      const response = new MessagingResponse();
+      await sendEmailToSelf({
+        subject: 'Feedback Text Received',
+        message: `Received from ${From}: ${Body.body}`,
+      });
+
+      response.message(FEEDBACK_RESPONSE);
+    }
+
+    res.set('Content-Type', 'text/xml');
+    return res.send(response.toString());
   }
 );
 
@@ -61,23 +77,5 @@ const addPhoneNumber = async (number, region) => {
   await newPhone.save();
   return SIGN_UP_RESPONSE;
 };
-
-router.post(
-  '/feedback',
-  twilio.webhook({ protocol: 'https' }),
-  async (req, res) => {
-    const { Body, From } = req.body;
-    const response = new MessagingResponse();
-    await sendEmailToSelf({
-      subject: 'Feedback Text Received',
-      message: `Received from ${From}: ${Body.body}`,
-    });
-
-    response.message(FEEDBACK_RESPONSE);
-
-    res.set('Content-Type', 'text/xml');
-    return res.send(response.toString());
-  }
-);
 
 module.exports = router;

@@ -7,6 +7,7 @@ const sendEnvelope = require('../services/docusign/sendEnvelope');
 const getDSAuthCode = require('../services/docusign/getDSAuthCode');
 const getSecrets = require('../services/getSecrets');
 const uploadFiles = require('../services/uploadFiles');
+const { Restaurant } = require('../models/restaurant.js');
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get('/docusign/login', currentUser, requireAuth, async (req, res) => {
 });
 
 router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
-  const { authCode } = req.body;
+  const { authCode, restaurantId } = req.body;
 
   const envelopeArgs = {
     signerName: 'Andrew Tisdall',
@@ -31,15 +32,31 @@ router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
     authCode,
   };
 
-  const results = await sendEnvelope(envelopeArgs);
-  res.send(results);
+  const { redirectUrl, token } = await sendEnvelope(envelopeArgs);
+
+  const restaurant = await Restaurant.findById(restaurantId);
+  restaurant.token = token;
+  await restaurant.save();
+
+  res.send(redirectUrl);
 });
 
 router.post('/docusign/getDoc', async (req, res) => {
-  const { envelopeId, restaurantId, token } = req.body;
+  const { envelopeId, restaurantId } = req.body;
+
+  const restaurant = await Restaurant.findById(restaurantId);
+
+  if (!restaurant) {
+    throw new Error('Restaurant not found');
+  }
+
+  if (!restaurant.token) {
+    throw new Error('Restaurant has no auth token saved');
+  }
+
   const BASE_PATH = 'https://demo.docusign.net/restapi';
   const headers = {
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${restaurant.token}`,
     'Content-Type': 'application/json',
   };
 
@@ -52,6 +69,10 @@ router.post('/docusign/getDoc', async (req, res) => {
   const filesAdded = await uploadFiles(restaurantId, [
     { docType: 'RC', file: docs },
   ]);
+
+  restaurant.token = null;
+  await restaurant.save();
+
   res.send(filesAdded);
 });
 

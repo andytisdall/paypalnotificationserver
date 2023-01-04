@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const REGIONS = {
-  WEST_OAKLAND: { name: 'WEST_OAKLAND', phoneNumber: '+14782495048' },
-  EAST_OAKLAND: { name: 'EAST_OAKLAND', phoneNumber: '+14782495048' },
+  WEST_OAKLAND: { name: 'WEST_OAKLAND', phoneNumber: '+15105297288' },
+  EAST_OAKLAND: { name: 'EAST_OAKLAND', phoneNumber: '+15109301159' },
 };
 
 const phoneSchema = new mongoose.Schema(
