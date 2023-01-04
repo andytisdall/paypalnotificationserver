@@ -35,7 +35,7 @@ smsRouter.post(
 
     const responsePhoneNumber = REGIONS[region].phoneNumber;
 
-    const allPhoneNumbers = await Phone.find({ region });
+    const allPhoneNumbers = await Phone.find({ $or: [{ region }, { region: 'BOTH' }] });
 
     const formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
