@@ -11,7 +11,7 @@ const regionKey = {
   WEST_OAKLAND: 'West Oakland',
 };
 
-const SIGN_UP_WORD = 'enroll';
+const SIGN_UP_WORDS = ['signup', 'enroll', 'start', 'unstop', 'yes', ];
 const signUpResponse = (region) => {
   return `You have been added to the text list for ${regionKey[region]}.`;
 };
@@ -25,13 +25,10 @@ const feedbackResponse = () => {
   return 'Thank you for your feedback. A team member will review your message soon.';
 };
 
-const CANCEL_WORD = 'STOP';
-const cancelResponse = (region) => {
-  return `Your number has been taken off the alert list for ${regionKey[region]}`;
-};
+const CANCEL_WORDS = ['stop', 'stopall', 'unsubscribe', 'quit', 'cancel', 'end'];
 
 const generalInfo = (region) => {
-  return `This is the Community Kitchens text service for ${regionKey[region]}. Send the word "${SIGN_UP_WORD}" to sign up for alerts. Send the word ${FEEDBACK_WORD} to give us some feedback.`;
+  return `This is the Community Kitchens text service for ${regionKey[region]}. Send the word "${SIGN_UP_WORDS[0]}" to sign up for alerts. Send the word "${FEEDBACK_WORD}" to give us some feedback. Send the word "${CANCEL_WORDS[0]}" to stop receiving texts from this number.`;
 };
 
 router.post(
@@ -41,6 +38,10 @@ router.post(
     const response = new MessagingResponse();
 
     const responseMessage = await routeTextToResponse(req.body);
+    if (!responseMessage) {
+        return;
+    }
+
     response.message(responseMessage);
 
     res.set('Content-Type', 'text/xml');
@@ -53,20 +54,27 @@ const routeTextToResponse = async ({ Body, From, To }) => {
     (reg) => reg.phoneNumber === To
   ).name;
 
-  switch (Body.toLowerCase()) {
-    case SIGN_UP_WORD:
-      return await addPhoneNumber(From, region);
-    case FEEDBACK_WORD:
-      await sendEmailToSelf({
+  const keyword = Body.toLowerCase().replace(' ', '');
+
+  if (SIGN_UP_WORDS.includes(keyword)) {
+    return await addPhoneNumber(From, region);
+  }
+
+  if (FEEDBACK_WORD === keyword) {
+    await sendEmailToSelf({
         subject: 'Feedback Text Received',
         message: `Received from ${From}: ${Body}`,
       });
       return feedbackResponse();
-    case CANCEL_WORD:
-      return await removePhoneNumber(From, region);
-    default:
-      return generalInfo(region);
   }
+
+  if (CANCEL_WORDS.includes(keyword)) {
+    await removePhoneNumber(From, region);
+    return null;
+  }
+
+    return generalInfo(region);
+  
 };
 
 const addPhoneNumber = async (number, region) => {
@@ -92,8 +100,6 @@ const removePhoneNumber = async (number, region) => {
     existingNumber.region = existingNumber.region.filter((r) => r !== region);
     await existingNumber.save();
   }
-
-  return cancelResponse(region);
 };
 
 module.exports = router;
