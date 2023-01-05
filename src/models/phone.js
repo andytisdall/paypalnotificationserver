@@ -12,11 +12,11 @@ const phoneSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    region: {
-      type: String,
-      required: true,
-      default: REGIONS.EAST_OAKLAND.name,
-    },
+    region: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     toJSON: {

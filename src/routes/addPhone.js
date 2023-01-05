@@ -26,11 +26,17 @@ router.post('/addphone', currentUser, requireAuth, async (req, res) => {
 
   const existingNumber = await Phone.findOne({ number: '+1' + phoneNumber });
   if (existingNumber) {
-    res.status(422);
-    throw new Error('Phone number is already in database');
+    if (existingNumber.region.includes(region)) {
+      res.status(422);
+      throw new Error('Phone number is already in database');
+    } else {
+      existingNumber.region.push(region);
+      await existingNumber.save();
+      return res.send(existingNumber);
+    }
   }
 
-  const newPhone = new Phone({ number: '+1' + phoneNumber, region });
+  const newPhone = new Phone({ number: '+1' + phoneNumber, region: [region] });
   await newPhone.save();
   res.send(newPhone);
 });
