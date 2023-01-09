@@ -2,7 +2,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
 
-const getSecrets = require('./getSecrets');
+const getSFToken = require('./getSFToken');
 
 const axiosInstance = axios.create({
   baseURL: 'https://communitykitchens.my.salesforce.com/services',
@@ -27,13 +27,8 @@ const fileInfo = {
 };
 
 const uploadFiles = async (restaurant, files, expiration) => {
-  const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
-  const tokenResult = await getToken(secrets);
-  if (!tokenResult.success) {
-    throw new Error(
-      'Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult)
-    );
-  }
+  const token = await getSFToken();
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   const insertPromises = files.map((f) => insertFile(restaurant, f));
   const dataAdded = await Promise.all(insertPromises);
@@ -63,24 +58,19 @@ const insertFile = async (restaurant, file) => {
 
   postBody.append('VersionData', file.file.data, { filename: file.file.name });
   let contentVersionId;
-  try {
-    const res = await axiosInstance.post(
-      SF_API_PREFIX + '/sobjects/ContentVersion/',
-      postBody,
-      {
-        headers: postBody.getHeaders(),
-      }
-    );
-    console.log('Content Version created: ' + res.data.id);
-    contentVersionId = res.data.id;
-  } catch (err) {
-    console.log(err.config.data);
-    return console.log(err.response?.data || err);
-  }
+
+  let res = await axiosInstance.post(
+    SF_API_PREFIX + '/sobjects/ContentVersion/',
+    postBody,
+    {
+      headers: postBody.getHeaders(),
+    }
+  );
+  console.log('Content Version created: ' + res.data.id);
+  contentVersionId = res.data.id;
 
   const ContentDocumentId = await getDocumentId(contentVersionId);
-  const accountId = restaurant.id;
-  // const accountId = '0018Z00002lLOx1QAG';
+  const accountId = restaurant.salesforceId;
 
   const CDLinkData = {
     ShareType: 'I',
@@ -88,53 +78,17 @@ const insertFile = async (restaurant, file) => {
     ContentDocumentId,
   };
 
-  try {
-    const res = await axiosInstance.post(
-      SF_API_PREFIX + '/sobjects/ContentDocumentLink/',
-      CDLinkData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    console.log('File Linked to Account: ' + res.data.id);
-    return true;
-  } catch (err) {
-    console.log(err.response.data);
-  }
-  // };
-
-  // });
-};
-
-const getToken = async (secrets) => {
-  const SALESFORCE_AUTH_CREDENTIALS = {
-    client_id: secrets.SF_CLIENT_ID,
-    client_secret: secrets.SF_CLIENT_SECRET,
-    grant_type: 'client_credentials',
-  };
-
-  const SFAuthPost = new URLSearchParams();
-  for (field in SALESFORCE_AUTH_CREDENTIALS) {
-    SFAuthPost.append(field, SALESFORCE_AUTH_CREDENTIALS[field]);
-  }
-
-  let token;
-  const SF_AUTH_URI = '/oauth2/token';
-  try {
-    const SFResponse = await axiosInstance.post(SF_AUTH_URI, SFAuthPost, {
+  res = await axiosInstance.post(
+    SF_API_PREFIX + '/sobjects/ContentDocumentLink/',
+    CDLinkData,
+    {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-    });
-    token = SFResponse.data.access_token;
-  } catch (err) {
-    return err.response.data;
-  }
-
-  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  return { success: true };
+    }
+  );
+  console.log('File Linked to Account: ' + res.data.id);
+  return true;
 };
 
 const getDocumentId = async (CVId) => {
@@ -151,29 +105,23 @@ const getDocumentId = async (CVId) => {
 
   const documentQueryUri = SF_API_PREFIX + documentQuery.join('+');
 
-  try {
-    const documentQueryResponse = await axiosInstance.get(documentQueryUri);
-    return documentQueryResponse.data.records[0].ContentDocumentId;
-  } catch (err) {
-    console.log(err.response?.data || err);
-  }
+  const documentQueryResponse = await axiosInstance.get(documentQueryUri);
+  return documentQueryResponse.data.records[0].ContentDocumentId;
 };
 
 const updateHealthExpiration = async (restaurantId, date) => {
   const data = {
-    npsp__health__whatever: date
+    npsp__health__whatever: date,
   };
 
-  const accountUpdateUri =
-    SF_API_PREFIX + '/sobjects/Account/' + restaurantId;
-  try {
-    await axiosInstance.patch(accountUpdateUri, data, {headers: {
+  const accountUpdateUri = SF_API_PREFIX + '/sobjects/Account/' + restaurantId;
+
+  await axiosInstance.patch(accountUpdateUri, data, {
+    headers: {
       'Content-Type': 'application/json',
-    },});
-    console.log('Health Permit Expiration Date Updated: ' + date);
-  } catch (err) {
-    console.log(err.response.data);
-  }
-}
+    },
+  });
+  console.log('Health Permit Expiration Date Updated: ' + date);
+};
 
 module.exports = { uploadFiles };

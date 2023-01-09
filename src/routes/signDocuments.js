@@ -1,13 +1,15 @@
 const express = require('express');
 const axios = require('axios');
+const { Blob } = require('buffer');
 
 const { currentUser } = require('../middlewares/current-user.js');
 const { requireAuth } = require('../middlewares/require-auth.js');
 const sendEnvelope = require('../services/docusign/sendEnvelope');
 const getDSAuthCode = require('../services/docusign/getDSAuthCode');
 const getSecrets = require('../services/getSecrets');
-const uploadFiles = require('../services/uploadFiles');
+const { uploadFiles } = require('../services/uploadFiles');
 const { Restaurant } = require('../models/restaurant.js');
+const getDSJWT = require('../services/docusign/getDSJWT.js');
 
 const router = express.Router();
 
@@ -44,36 +46,35 @@ router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
 router.post('/docusign/getDoc', async (req, res) => {
   const { envelopeId, restaurantId } = req.body;
 
+  const token = await getDSJWT();
   const restaurant = await Restaurant.findById(restaurantId);
-
   if (!restaurant) {
-    throw new Error('Restaurant not found');
-  }
-
-  if (!restaurant.token) {
-    throw new Error('Restaurant has no auth token saved');
+    throw new Error('No restaurant to associate this file with');
   }
 
   const BASE_PATH = 'https://demo.docusign.net/restapi';
   const headers = {
-    Authorization: `Bearer ${restaurant.token}`,
-    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/pdf',
   };
 
   const { DOCUSIGN_ACCOUNT_ID } = await getSecrets(['DOCUSIGN_ACCOUNT_ID']);
   const docs = await axios.get(
     `${BASE_PATH}/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/documents/combined`,
-    { headers }
+    { headers, responseType: 'arraybuffer', responseEncoding: 'binary' }
   );
 
-  const filesAdded = await uploadFiles(restaurantId, [
-    { docType: 'RC', file: docs },
-  ]);
+  const file = {
+    docType: 'RC',
+    file: {
+      name: 'contract.pdf',
+      data: Buffer.from(docs.data),
+    },
+  };
 
-  restaurant.token = null;
-  await restaurant.save();
+  const filesAdded = await uploadFiles(restaurant, [file]);
 
-  res.send(filesAdded);
+  res.send({ filesAdded });
 });
 
 module.exports = router;

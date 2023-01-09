@@ -2,8 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const moment = require('moment');
 
-const getSecrets = require('../services/getSecrets');
+const getSFToken = require('../services/getSFToken');
 const { sendEmail } = require('../services/email');
+const { getContact, addContact } = require('../services/SFQuery');
 
 const axiosInstance = axios.create({
   baseURL: 'https://communitykitchens.my.salesforce.com/services',
@@ -30,19 +31,28 @@ paypalRouter.post('/paypal', async (req, res) => {
   // post a verification to paypal - not working
   // verifyPaypalMessage(paypalData);
 
-  const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
-  const tokenResult = await getToken(secrets);
-  if (!tokenResult.success) {
-    return console.log(
-      'Attempt to get Salesforce token failed: ' + JSON.stringify(tokenResult)
-    );
-  }
+  const token = await getSFToken();
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
 
   // Check if contact exists
-  let existingContact = await getContact(paypalData);
+  let existingContact = await getContact(
+    paypalData.last_name,
+    paypalData.payer_email,
+    axiosInstance
+  );
+
   if (!existingContact) {
     // contact needs to be added first so that opp can have a contactid
-    existingContact = await addContact(paypalData);
+    const contactToAdd = {
+      FirstName: paypalData.first_name,
+      LastName: paypalData.last_name,
+      Email: paypalData.payer_email,
+      Description:
+        'Added into Salesforce by the Paypal server on ' +
+        moment().format('M/D/YY'),
+    };
+    existingContact = await addContact(contactToAdd, axiosInstance);
     if (!existingContact) {
       return;
     }
@@ -132,101 +142,6 @@ const verifyPaypalMessage = async (paypalData) => {
   } catch (err) {
     console.log(err);
     return;
-  }
-};
-
-const getToken = async (secrets) => {
-  const SALESFORCE_AUTH_CREDENTIALS = {
-    client_id: secrets.SF_CLIENT_ID,
-    client_secret: secrets.SF_CLIENT_SECRET,
-    grant_type: 'client_credentials',
-  };
-
-  const SFAuthPost = new URLSearchParams();
-  for (field in SALESFORCE_AUTH_CREDENTIALS) {
-    SFAuthPost.append(field, SALESFORCE_AUTH_CREDENTIALS[field]);
-  }
-
-  let token;
-  const SF_AUTH_URI = '/oauth2/token';
-  try {
-    const SFResponse = await axiosInstance.post(SF_AUTH_URI, SFAuthPost, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
-    token = SFResponse.data.access_token;
-  } catch (err) {
-    return err.response.data;
-  }
-
-  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
-
-  return { success: true };
-};
-
-const getContact = async (paypalData) => {
-  const contactQuery = [
-    '/query/?q=SELECT',
-    'Name,',
-    'npsp__HHId__c,',
-    'Id',
-    'from',
-    'Contact',
-    'WHERE',
-    'LastName',
-    '=',
-    `'${paypalData.last_name}'`,
-    'AND',
-    'Email',
-    '=',
-    `'${paypalData.payer_email}'`,
-  ];
-
-  const contactQueryUri = SF_API_PREFIX + contactQuery.join('+');
-
-  try {
-    const contactQueryResponse = await axiosInstance.get(contactQueryUri);
-    if (contactQueryResponse.data.totalSize !== 0) {
-      return contactQueryResponse.data.records[0];
-    }
-  } catch (err) {
-    console.log(err.response.data);
-    return;
-  }
-};
-
-const addContact = async (paypalData) => {
-  const contactToAdd = {
-    FirstName: paypalData.first_name,
-    LastName: paypalData.last_name,
-    Email: paypalData.payer_email,
-    Description:
-      'Added into Salesforce by the Paypal server on ' +
-      moment().format('M/D/YY'),
-  };
-
-  // Insert call
-  const contactInsertUri = SF_API_PREFIX + '/sobjects/Contact';
-  let insertRes;
-  try {
-    insertRes = await axiosInstance.post(contactInsertUri, contactToAdd);
-
-    //Query new contact to get household account number for opp
-    if (insertRes.data.success) {
-      const newContact = await axiosInstance.get(
-        contactInsertUri + '/' + insertRes.data.id
-      );
-      return {
-        Id: newContact.data.Id,
-        npsp__HHId__c: newContact.data.npsp__HHId__c,
-      };
-    } else {
-      console.log('Unable to insert contact!');
-    }
-  } catch (err) {
-    console.log(err.response.data);
   }
 };
 
