@@ -24,31 +24,42 @@ const fileInfo = {
   RC: { title: 'Contract', description: '', folder: 'contract' },
   W9: { title: 'W9', description: '', folder: 'w9' },
   DD: { title: 'Direct Deposit', description: '', folder: 'direct-deposit' },
+  HC: { title: 'Home Chef Contract', description: '', folder: 'home-chef' },
+  FH: {
+    title: 'Food Handler Certification',
+    description: '',
+    folder: 'home-chef',
+  },
 };
 
-const uploadFiles = async (restaurant, files, expiration) => {
+const uploadFiles = async (account, files, expiration) => {
   const token = await getSFToken();
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-  const insertPromises = files.map((f) => insertFile(restaurant, f));
+  const insertPromises = files.map((f) => insertFile(account, f));
   const dataAdded = await Promise.all(insertPromises);
 
   if (expiration) {
-    // do that
-    dataAdded.push(true);
+    const healthUpdated = await updateHealthExpiration(
+      account.salesforceId,
+      expiration
+    );
+    if (healthUpdated) {
+      dataAdded.push(true);
+    }
   }
 
   return dataAdded.length;
 };
 
-const insertFile = async (restaurant, file) => {
+const insertFile = async (account, file) => {
   const typeOfFile = fileInfo[file.docType];
 
   const fileMetaData = {
     Title: typeOfFile.title,
     Description: typeOfFile.description,
     PathOnClient:
-      restaurant.name + '/' + typeOfFile.folder + path.extname(file.file.name),
+      account.name + '/' + typeOfFile.folder + path.extname(file.file.name),
   };
 
   const postBody = new FormData();
@@ -70,7 +81,7 @@ const insertFile = async (restaurant, file) => {
   contentVersionId = res.data.id;
 
   const ContentDocumentId = await getDocumentId(contentVersionId);
-  const accountId = restaurant.salesforceId;
+  const accountId = account.salesforceId;
 
   const CDLinkData = {
     ShareType: 'I',
@@ -111,7 +122,7 @@ const getDocumentId = async (CVId) => {
 
 const updateHealthExpiration = async (restaurantId, date) => {
   const data = {
-    npsp__health__whatever: date,
+    Health_Department_Expiration_Date__c: date,
   };
 
   const accountUpdateUri = SF_API_PREFIX + '/sobjects/Account/' + restaurantId;
@@ -122,6 +133,7 @@ const updateHealthExpiration = async (restaurantId, date) => {
     },
   });
   console.log('Health Permit Expiration Date Updated: ' + date);
+  return true;
 };
 
 module.exports = { uploadFiles };

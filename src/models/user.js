@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    active: {
+      type: Boolean,
+      default: false,
+    },
+    salesforceId: String,
+    householdId: String,
   },
   {
     toJSON: {

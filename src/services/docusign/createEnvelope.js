@@ -2,14 +2,17 @@ const docusign = require('docusign-esign');
 const fs = require('fs-extra');
 const path = require('path');
 
-module.exports = ({ signerEmail, signerName, signerClientId }) => {
-  let docPdfBytes;
+const mapDocCodeToFile = {
+  RC: 'World_Wide_Corp_lorem.pdf',
+  HC: 'Joshi.pdf',
+};
 
-  const demoDoc = path.resolve(__dirname, 'World_Wide_Corp_lorem.pdf');
+module.exports = ({ signerEmail, signerName, signerClientId, docCode }) => {
+  const doc = path.resolve(__dirname, 'contracts/' + mapDocCodeToFile[docCode]);
 
   // read file from a local directory
   // The read could raise an exception if the file is not available!
-  docPdfBytes = fs.readFileSync(demoDoc);
+  const docPdfBytes = fs.readFileSync(doc);
 
   // create the envelope definition
   let env = new docusign.EnvelopeDefinition();

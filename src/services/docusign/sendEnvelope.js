@@ -50,5 +50,5 @@ module.exports = async (args) => {
     { headers }
   );
 
-  return { redirectUrl: result.data.url, token: token.accessToken };
+  return { redirectUrl: result.data.url };
 };

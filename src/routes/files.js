@@ -1,30 +1,31 @@
 const express = require('express');
 
-const { Restaurant } = require('../models/restaurant');
-const { User } = require('../models/user');
+const { getAccountForFileUpload } = require('../services/getModel');
 const { currentUser } = require('../middlewares/current-user');
 const { requireAuth } = require('../middlewares/require-auth');
 const { uploadFiles } = require('../services/uploadFiles');
 
 const router = express.Router();
 
-router.post('/files', currentUser, requireAuth, async (req, res) => {
-  const { expiration } = req.body;
-  const restaurant = await Restaurant.findById(req.body.restaurant);
-  if (!restaurant) {
-    res.status(404);
-    throw new Error('Restaurant not found');
+router.post(
+  '/files/:accountType',
+  currentUser,
+  requireAuth,
+  async (req, res) => {
+    const { expiration, accountId } = req.body;
+    const { accountType } = req.params;
+
+    const fileList = [];
+    for (entry in req.files) {
+      fileList.push({ docType: entry, file: req.files[entry] });
+    }
+
+    const account = await getAccountForFileUpload(accountType, accountId);
+    // make api call to salesforce
+    const dataAdded = await uploadFiles(account, fileList, expiration);
+
+    res.send({ dataAdded });
   }
-
-  const fileList = [];
-  for (entry in req.files) {
-    fileList.push({ docType: entry, file: req.files[entry] });
-  }
-
-  // make api call to salesforce
-  const dataAdded = await uploadFiles(restaurant, fileList, expiration);
-
-  res.send({ dataAdded });
-});
+);
 
 module.exports = router;

@@ -32,21 +32,21 @@ router.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, salesforceId, householdId } = req.body;
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       return res.status(400).send('Username is in use');
     }
 
-    const newUser = new User({ username, password });
+    const newUser = new User({ username, password, salesforceId, householdId });
     await newUser.save();
     res.status(201).send(newUser);
   }
 );
 
 router.patch('/user', currentUser, requireAuth, async (req, res) => {
-  const { userId, username, password } = req.body;
+  const { userId, username, password, salesforceId, householdId } = req.body;
 
   if (!username && !password) {
     res.status(400);
@@ -71,6 +71,16 @@ router.patch('/user', currentUser, requireAuth, async (req, res) => {
   if (password) {
     u.password = password;
   }
+  if (salesforceId) {
+    u.salesforceId = salesforceId;
+  }
+  if (householdId) {
+    u.householdId = householdId;
+  }
+  if (u.id === req.currentUser.id && !u.active) {
+    u.active = true;
+  }
+
   await u.save();
   res.send(u);
 });
