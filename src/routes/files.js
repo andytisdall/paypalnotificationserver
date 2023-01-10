@@ -22,9 +22,9 @@ router.post(
 
     const account = await getAccountForFileUpload(accountType, accountId);
     // make api call to salesforce
-    const dataAdded = await uploadFiles(account, fileList, expiration);
+    const filesAdded = await uploadFiles(account, fileList, expiration);
 
-    res.send({ dataAdded });
+    res.send({ filesAdded });
   }
 );
 
