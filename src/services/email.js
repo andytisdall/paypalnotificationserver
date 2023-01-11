@@ -23,7 +23,7 @@ const sendEmailToSelf = async ({ subject, message }) => {
   } catch (err) {
     console.log(err);
   }
-}
+};
 
 const sendEmail = async (donationData) => {
   await initializeEmail();
@@ -47,7 +47,5 @@ const sendEmail = async (donationData) => {
     console.log(err);
   }
 };
-
-// sendEmail({ payer_email: 'andrew.tisdall@gmail.com', firstName: 'Gogo', payment_gross: '50.78'})
 
 module.exports = { sendEmail, sendEmailToSelf };

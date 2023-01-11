@@ -7,6 +7,7 @@ require('./src/db');
 require('./src/models/user');
 require('./src/models/phone');
 require('./src/models/restaurant');
+require('./src/models/recipe');
 require('express-async-errors');
 const paypalRouter = require('./src/routes/paypal');
 const outgoingTextRouter = require('./src/routes/outgoingText');
@@ -17,6 +18,7 @@ const incomingTextRouter = require('./src/routes/incomingText');
 const restaurantRouter = require('./src/routes/restaurant');
 const fileRouter = require('./src/routes/files');
 const docusignRouter = require('./src/routes/signDocuments');
+const recipeRouter = require('./src/routes/recipes');
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -25,6 +27,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(express.static(path.join(__dirname, 'src/client/build')));
+app.use('/images', express.static(path.join(__dirname, 'src/images')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -43,6 +46,7 @@ apiRouter.use(incomingTextRouter);
 apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
+apiRouter.use(recipeRouter);
 
 apiRouter.use(errorHandler);
 
@@ -52,6 +56,10 @@ app.get('/*', (req, res) => {
   res.sendFile('src/client/build/index.html', { root: __dirname });
 });
 
-app.listen(PORT, () => {
-  console.log('server listening');
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log('server listening');
+  });
+}
+
+module.exports = app;

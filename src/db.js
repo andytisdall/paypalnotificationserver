@@ -22,4 +22,6 @@ const connectDb = async () => {
   });
 };
 
-connectDb();
+if (process.env.NODE_ENV !== 'test') {
+  connectDb();
+}
