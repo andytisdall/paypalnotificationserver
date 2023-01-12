@@ -2,10 +2,11 @@ const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
 
+const urls = require('./urls');
 const getSFToken = require('./getSFToken');
 
 const axiosInstance = axios.create({
-  baseURL: 'https://communitykitchens.my.salesforce.com/services',
+  baseURL: urls.salesforce,
 });
 
 const SF_API_PREFIX = '/data/v56.0';

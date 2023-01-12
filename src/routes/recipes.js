@@ -41,10 +41,11 @@ router.post(
 
     const ingredientsList = ingredients.split('\n');
     const instructionsList = instructions.split('\n');
-    const fileName = name + path.extname(req.files.image.name);
-    const imageUrl = BASE_URL + fileName;
+    let imageUrl = '';
 
     if (req.files) {
+      imageUrl = BASE_URL + fileName;
+      const fileName = name + path.extname(req.files.image.name);
       const imagePath = 'src/images/' + fileName;
       const stream = fs.createWriteStream(imagePath);
       stream.write(req.files.image.data);

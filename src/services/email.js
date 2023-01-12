@@ -1,7 +1,8 @@
 const sgMail = require('@sendgrid/mail');
 
 const getSecrets = require('./getSecrets');
-const createEmail = require('./emailTemplate');
+const createDonationAckEmail = require('./emailTemplates/donationAck');
+const createHomeChefSignupEmail = require('./emailTemplates/homeChefSignup');
 
 const initializeEmail = async () => {
   const secrets = await getSecrets(['SENDGRID_KEY']);
@@ -17,17 +18,12 @@ const sendEmailToSelf = async ({ subject, message }) => {
     text: 'Sent to self from server: ' + message,
   };
 
-  try {
-    await sgMail.send(msg);
-    console.log('Email sent to ' + donationData.payer_email);
-  } catch (err) {
-    console.log(err);
-  }
+  await sendEmail(msg);
 };
 
-const sendEmail = async (donationData) => {
+const sendDonationAckEmail = async (donationData) => {
   await initializeEmail();
-  const html = createEmail(
+  const html = createDonationAckEmail(
     donationData.first_name,
     donationData.last_name,
     donationData.payment_gross
@@ -40,12 +36,30 @@ const sendEmail = async (donationData) => {
     html,
   };
 
-  try {
-    await sgMail.send(msg);
-    console.log('Email sent to ' + donationData.payer_email);
-  } catch (err) {
-    console.log(err);
-  }
+  await sendEmail(msg);
 };
 
-module.exports = { sendEmail, sendEmailToSelf };
+const sendHomeChefSignupEmail = async (chef) => {
+  const html = createHomeChefSignupEmail(chef);
+
+  const msg = {
+    to: chef.email,
+    from: 'andy@ckoakland.org',
+    subject: 'Thank you for signing up as a CK Home Chef!',
+    html,
+  };
+
+  await sendEmail(msg);
+};
+
+const sendEmail = async (msg) => {
+  await sgMail.send(msg);
+  console.log('Email sent to ' + msg.to);
+};
+
+module.exports = {
+  sendEmail,
+  sendEmailToSelf,
+  sendDonationAckEmail,
+  sendHomeChefSignupEmail,
+};

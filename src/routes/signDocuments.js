@@ -9,13 +9,9 @@ const getSecrets = require('../services/getSecrets');
 const { uploadFiles } = require('../services/uploadFiles');
 const { getAccountForFileUpload } = require('../services/getModel');
 const getDSJWT = require('../services/docusign/getDSJWT.js');
+const urls = require('../services/urls');
 
 const router = express.Router();
-
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://coherent-vision-368820.uw.r.appspot.com/'
-    : 'http://localhost:3000/';
 
 const URL_EXT = {
   restaurant: 'onboarding/docusign',
@@ -34,7 +30,7 @@ router.get(
   async (req, res) => {
     const { accountType } = req.params;
 
-    const returnUrl = BASE_URL + URL_EXT[accountType] + '/sign';
+    const returnUrl = urls.self + URL_EXT[accountType] + '/sign';
 
     const authUri = await getDSAuthCode(returnUrl);
     res.send(authUri);
@@ -44,7 +40,7 @@ router.get(
 router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
   const { authCode, accountType, docCode } = req.body;
 
-  const returnUrl = BASE_URL + URL_EXT[accountType] + '/success';
+  const returnUrl = urls.self + URL_EXT[accountType] + '/success';
 
   const envelopeArgs = {
     signerName: 'Andrew Tisdall',
@@ -66,13 +62,12 @@ router.post('/docusign/getDoc', async (req, res) => {
   const token = await getDSJWT();
   const { DOCUSIGN_ACCOUNT_ID } = await getSecrets(['DOCUSIGN_ACCOUNT_ID']);
 
-  const BASE_PATH = 'https://demo.docusign.net/restapi';
   const headers = {
     Authorization: `Bearer ${token}`,
     'Content-Type': 'application/pdf',
   };
   const docs = await axios.get(
-    `${BASE_PATH}/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/documents/combined`,
+    `${urls.docusign}/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/documents/combined`,
     { headers, responseType: 'arraybuffer', responseEncoding: 'binary' }
   );
 

@@ -3,29 +3,33 @@ const axios = require('axios');
 const moment = require('moment');
 
 const getSFToken = require('../services/getSFToken');
-const { sendEmail } = require('../services/email');
+const { sendDonationAckEmail, sendEmailToSelf } = require('../services/email');
 const { getContact, addContact } = require('../services/SFQuery');
+const urls = require('../services/urls');
 
-const axiosInstance = axios.create({
-  baseURL: 'https://communitykitchens.my.salesforce.com/services',
-});
+const axiosInstance = axios.create({ baseURL: urls.salesforce });
 
 const SF_API_PREFIX = '/data/v56.0';
+
+const paypalErrorReport = async (error) => {
+  await sendEmailToSelf({
+    subject: 'Paypal Route Error',
+    message: JSON.stringify(error),
+  });
+  throw new Error();
+};
 
 const paypalRouter = express.Router();
 
 // listener for paypal message
 paypalRouter.post('/paypal', async (req, res) => {
-  // send paypal back a 200
-  res.sendStatus(200);
-
   // return early if it's not a donation
 
   const paypalData = req.body;
   console.log(paypalData);
   if (paypalData.payment_gross < 0) {
     console.log('not a credit');
-    return;
+    return res.send(200);
   }
 
   // post a verification to paypal - not working
@@ -53,17 +57,6 @@ paypalRouter.post('/paypal', async (req, res) => {
         moment().format('M/D/YY'),
     };
     existingContact = await addContact(contactToAdd, axiosInstance);
-    if (!existingContact) {
-      return;
-    }
-  }
-
-  if (paypalData.txn_type === 'recurring_payment_profile_created') {
-    return addRecurring(paypalData, existingContact);
-  }
-
-  if (paypalData.txn_type === 'recurring_payment_skipped') {
-    return updateRecurringOpp(paypalData, existingContact, 'Closed Lost');
   }
 
   const canceledSubscriptionStatuses = [
@@ -74,38 +67,32 @@ paypalRouter.post('/paypal', async (req, res) => {
     'recurring_payment_failed',
   ];
 
-  if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
-    return cancelRecurring(paypalData);
-  }
-
-  // catch all clause for unknown transaction type
-
-  if (!paypalData.payment_date) {
-    return console.log('Unknown type of message: no payment date');
+  if (paypalData.txn_type === 'recurring_payment_profile_created') {
+    await addRecurring(paypalData, existingContact);
+  } else if (paypalData.txn_type === 'recurring_payment_skipped') {
+    await updateRecurringOpp(paypalData, existingContact, 'Closed Lost');
+  } else if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
+    await cancelRecurring(paypalData, existingContact);
+  } else if (!paypalData.payment_date) {
+    // catch all clause for unknown transaction type
+    paypalErrorReport('Unknown type of message: no payment date');
+  } else if (paypalData.amount_per_cycle) {
+    // if donation is recurring, pledged opp will already exist in sf
+    // update payment amount and stage
+    await updateRecurringOpp(paypalData, existingContact, 'Posted');
+  } else {
+    // insert opportunity
+    await addDonation(paypalData, existingContact);
   }
 
   // thank you email
   try {
-    await sendEmail(paypalData);
+    await sendDonationAckEmail(paypalData);
   } catch (err) {
-    console.log(err);
+    paypalErrorReport(err);
   }
-
-  if (paypalData.amount_per_cycle) {
-    // if donation is recurring, pledged opp will already exist in sf
-    // update payment amount and stage
-    const success = await updateRecurringOpp(
-      paypalData,
-      existingContact,
-      'Posted'
-    );
-    if (success) {
-      return;
-    }
-  }
-
-  // insert opportunity
-  addDonation(paypalData, existingContact);
+  // send paypal back a 200
+  res.sendStatus(200);
 });
 
 const formatDate = (date) => {
@@ -140,7 +127,7 @@ const verifyPaypalMessage = async (paypalData) => {
       console.log('succccess');
     }
   } catch (err) {
-    console.log(err);
+    paypalErrorReport(err);
     return;
   }
 };
@@ -208,11 +195,11 @@ const addRecurring = async (paypalData, contact) => {
     };
     console.log('Recurring Donation Added: ' + JSON.stringify(summaryMessage));
   } catch (err) {
-    console.log(err.response.data);
+    paypalErrorReport(err);
   }
 };
 
-const cancelRecurring = async (paypalData) => {
+const cancelRecurring = async (paypalData, contact) => {
   let amt = paypalData.amount_per_cycle;
   const splitAmt = amt.split('.');
   if (splitAmt[1] === '00') {
@@ -227,9 +214,9 @@ const cancelRecurring = async (paypalData) => {
     'from',
     'npe03__Recurring_Donation__c',
     'WHERE',
-    'Name',
+    'npe03__Contact__c',
     '=',
-    `'${paypalData.first_name} ${paypalData.last_name} $${amt} - Recurring'`,
+    `'${contact.Id}'`,
   ];
 
   const recurringQueryUri = SF_API_PREFIX + recurringQuery.join('+');
@@ -241,13 +228,13 @@ const cancelRecurring = async (paypalData) => {
       existingRecurring = recurringQueryResponse.data.records[0];
     }
   } catch (err) {
-    console.log(err.response.data);
+    paypalErrorReport(err);
     return;
   }
   if (existingRecurring) {
     const recurringToUpdate = {
       npsp__Status__c: 'Closed',
-      npsp__ClosedReason__c: paypalData.txn_type.replace('_', ' '),
+      npsp__ClosedReason__c: paypalData.txn_type.replace(/_/gi, ' '),
       npsp__EndDate__c: moment().add(1, 'days'),
     };
 
@@ -268,7 +255,7 @@ const cancelRecurring = async (paypalData) => {
         'Recurring Donation Canceled: ' + JSON.stringify(summaryMessage)
       );
     } catch (err) {
-      console.log(err.response.data);
+      paypalErrorReport(err);
     }
   } else {
     console.log('Recurring donation not found');
@@ -338,7 +325,7 @@ const updateRecurringOpp = async (paypalData, contact, status) => {
       existingOpp = oppQueryResponse.data.records[0];
     }
   } catch (err) {
-    console.log(err.response.data);
+    paypalErrorReport(err);
     return;
   }
 
@@ -358,10 +345,8 @@ const updateRecurringOpp = async (paypalData, contact, status) => {
       };
       console.log('Donation Updated: ' + JSON.stringify(summaryMessage));
     } catch (err) {
-      console.log(err.response.data);
+      paypalErrorReport(err);
     }
-
-    return { success: true };
   } else {
     return console.log('Existing opportunity not found');
   }
@@ -374,9 +359,6 @@ const addDonation = async (paypalData, contact) => {
   // payment_status
   // first_name
   // payer_email
-  // payment_type = recurring?
-  // item_name
-  // item_number
 
   const formattedDate = formatDate(paypalData.payment_date);
 
@@ -407,7 +389,7 @@ const addDonation = async (paypalData, contact) => {
     };
     console.log('Donation Added: ' + JSON.stringify(summaryMessage));
   } catch (err) {
-    console.log(err.response.data);
+    paypalErrorReport(err);
   }
 };
 

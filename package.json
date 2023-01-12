@@ -6,14 +6,13 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000 --detectOpenHandles=true"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=30000 --detectOpenHandles=true --watch"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/secret-manager": "^4.1.4",
     "@sendgrid/mail": "^7.7.0",
-    "aws-sdk": "^2.1271.0",
     "axios": "^1.1.3",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
@@ -21,7 +20,6 @@
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "express-fileupload": "^1.4.0",
-    "filereader": "^0.10.3",
     "form-data": "^4.0.0",
     "fs-extra": "^11.1.0",
     "generate-password": "^1.7.0",
@@ -30,10 +28,7 @@
     "moment": "^2.29.4",
     "mongodb-memory-server": "^8.11.0",
     "mongoose": "^6.7.4",
-    "node-blob": "^0.0.2",
-    "nodemailer": "^6.8.0",
     "path": "^0.12.7",
-    "stream": "^0.0.2",
     "supertest": "^6.3.3",
     "twilio": "^3.83.3"
   },

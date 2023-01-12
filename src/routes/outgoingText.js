@@ -33,7 +33,7 @@ smsRouter.post(
       throw new Error('No region specified');
     }
 
-    const responsePhoneNumber = REGIONS[region].phoneNumber;
+    const responsePhoneNumber = REGIONS[region];
 
     const allPhoneNumbers = await Phone.find({ region });
 

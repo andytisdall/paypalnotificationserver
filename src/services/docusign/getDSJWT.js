@@ -1,5 +1,6 @@
 const docusign = require('docusign-esign');
 const getSecrets = require('../getSecrets');
+const urls = require('../urls');
 
 let dsApiClient = new docusign.ApiClient();
 
@@ -11,7 +12,7 @@ module.exports = async () => {
       'DOCUSIGN_PRIVATE_KEY',
     ]);
 
-  dsApiClient.setBasePath('https://demo.docusign.net/restapi');
+  dsApiClient.setBasePath(urls.docusign);
 
   const result = await dsApiClient.requestJWTUserToken(
     DOCUSIGN_ID,

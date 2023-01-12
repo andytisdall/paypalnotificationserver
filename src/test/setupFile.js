@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const getSecrets = require('../services/getSecrets.js');
 const { User } = require('../models/user');
 
+jest.mock('@sendgrid/mail');
+jest.mock('twilio');
+
 global.getToken = async ({ admin }) => {
   const userInfo = {
     username: 'test',

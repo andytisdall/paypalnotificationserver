@@ -2,12 +2,13 @@ const docusign = require('docusign-esign');
 const getSecrets = require('../getSecrets');
 const axios = require('axios');
 
+const urls = require('../urls');
 const makeEnvelope = require('./createEnvelope');
 const makeRecipientViewRequest = require('./createView');
 
 module.exports = async (args) => {
   let dsApiClient = new docusign.ApiClient();
-  dsApiClient.setOAuthBasePath('account-d.docusign.com');
+  dsApiClient.setOAuthBasePath(urls.docusignOauth);
 
   const { DOCUSIGN_ACCOUNT_ID, DOCUSIGN_ID, DOCUSIGN_SECRET } =
     await getSecrets(['DOCUSIGN_ACCOUNT_ID', 'DOCUSIGN_ID', 'DOCUSIGN_SECRET']);
@@ -26,7 +27,7 @@ module.exports = async (args) => {
   let envelope = makeEnvelope(args);
 
   // Call Envelopes::create API method
-  const BASE_PATH = 'https://demo.docusign.net/restapi';
+  const BASE_PATH = urls.docusign;
   const headers = {
     Authorization: `Bearer ${token.accessToken}`,
     'Content-Type': 'application/json',

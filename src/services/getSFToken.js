@@ -1,5 +1,6 @@
 const axios = require('axios');
 
+const urls = require('./urls');
 const getSecrets = require('./getSecrets');
 
 module.exports = async () => {
@@ -16,8 +17,7 @@ module.exports = async () => {
     SFAuthPost.append(field, SALESFORCE_AUTH_CREDENTIALS[field]);
   }
 
-  const SF_AUTH_URI =
-    'https://communitykitchens.my.salesforce.com/services/oauth2/token';
+  const SF_AUTH_URI = `${urls.salesforce}/oauth2/token`;
 
   const SFResponse = await axios.post(SF_AUTH_URI, SFAuthPost, {
     headers: {

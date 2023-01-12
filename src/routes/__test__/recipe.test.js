@@ -1,16 +1,14 @@
-const server = require('./index.js');
-const supertest = require('supertest');
-
-const requestWithSupertest = supertest(server);
+const app = require('../../../index.js');
+const request = require('supertest');
 
 it('gets all recipes', async () => {
-  const res = await requestWithSupertest.get('/api/recipes');
+  const res = await request(app).get('/api/recipes');
   expect(res.status).toEqual(200);
 });
 
 it('posts a recipe', async () => {
   const token = await global.getToken({ admin: true });
-  const res = await requestWithSupertest
+  const res = await request(app)
     .post('/api/recipe')
     .set('Authorization', token)
     .send({
