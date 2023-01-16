@@ -26,40 +26,49 @@ router.post(
   }
 );
 
+// send general info if you're not on the list
+// feedback if you are on the list
+
 const routeTextToResponse = async ({ Body, From, To }) => {
   const region = Object.keys(REGIONS).find((reg) => REGIONS[reg] === To);
 
   const keyword = Body.toLowerCase().replace(' ', '');
 
+  const existingNumber = await Phone.findOne({ From });
+
+  // sign up words - check for duplicate, and add region to existing users region or create new phone number
+
   if (textResponses.SIGN_UP_WORDS.includes(keyword)) {
-    return await addPhoneNumber(From, region);
+    if (existingNumber && existingNumber.region.includes(region)) {
+      return textResponses.duplicateResponse(region);
+    }
+    return await addPhoneNumber(existingNumber, From, region);
   }
 
+  // built in unsubscribe words for twilio. outgoing messages will be blocked until 'START' is texted
+
   if (textResponses.CANCEL_WORDS.includes(keyword)) {
-    await removePhoneNumber(From, region);
+    if (existingNumber) {
+      await removePhoneNumber(existingNumber, region);
+    }
     return null;
   }
 
-  if (textResponses.INFO_WORD === keyword) {
+  // if we receive a message from someone not signed up, give general info
+
+  if (!existingNumber || textResponses.INFO_WORD === keyword) {
     return textResponses.generalInfoResponse(region);
   }
 
-  await sendEmailToSelf({
-    subject: 'Feedback Text Received',
-    message: `Received from ${From}: ${Body}`,
-  });
-  return textResponses.feedbackResponse();
+  // if it's an existing user with text that has not been matched, it's treated as feedback
+
+  return await receiveFeedback(Body, From);
 };
 
-const addPhoneNumber = async (number, region) => {
-  const existingNumber = await Phone.findOne({ number });
-  if (existingNumber) {
-    if (existingNumber.region.includes(region)) {
-      return textResponses.duplicateResponse(region);
-    } else {
-      existingNumber.region.push(region);
-      await existingNumber.save();
-    }
+const addPhoneNumber = async (user, number, region) => {
+  if (user) {
+    user.region.push(region);
+    await user.save();
   } else {
     const newPhone = new Phone({ number, region: [region] });
     await newPhone.save();
@@ -67,13 +76,18 @@ const addPhoneNumber = async (number, region) => {
   return textResponses.signUpResponse(region);
 };
 
-const removePhoneNumber = async (number, region) => {
-  const existingNumber = await Phone.findOne({ number });
+const removePhoneNumber = async (user, region) => {
+  user.region = user.region.filter((r) => r !== region);
+  await user.save();
+};
 
-  if (existingNumber) {
-    existingNumber.region = existingNumber.region.filter((r) => r !== region);
-    await existingNumber.save();
-  }
+const receiveFeedback = async (message, sender) => {
+  await sendEmailToSelf({
+    // make feedback object
+    subject: 'Feedback Text Received',
+    message: `Received from ${sender}: ${message}`,
+  });
+  return textResponses.feedbackResponse();
 };
 
 module.exports = router;
