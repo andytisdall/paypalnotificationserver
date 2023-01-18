@@ -16,11 +16,11 @@ const INFO_WORD = 'info';
 const SURVEY_URL = 'example url';
 
 const signUpResponse = (region) => {
-  return `You have been added to the text list for ${regionKey[region]}.`;
+  return `Thank you for signing up for ${regionKey[region]} meal notifications!`;
 };
 
 const duplicateResponse = (region) => {
-  return `Your phone number is already on the list for ${regionKey[region]}`;
+  return `Your phone number is already on the list for ${regionKey[region]} meal notifications.`;
 };
 
 const feedbackResponse = () => {
@@ -28,7 +28,7 @@ const feedbackResponse = () => {
 };
 
 const generalInfoResponse = (region) => {
-  return `This is the Community Kitchens text service for ${regionKey[region]}. Send the word "${SIGN_UP_WORDS[0]}" to sign up for alerts. Send the word "${CANCEL_WORDS[0]}" to stop receiving texts from this number.`;
+  return `This is the Community Kitchens text service for ${regionKey[region]} meal notifications. Send the word "${SIGN_UP_WORDS[0]}" to sign up for alerts. Send the word "${CANCEL_WORDS[0]}" to stop receiving texts from this number.`;
 };
 
 module.exports = {
