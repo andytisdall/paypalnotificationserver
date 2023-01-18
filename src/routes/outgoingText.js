@@ -38,6 +38,7 @@ smsRouter.post(
     const allPhoneNumbers = await Phone.find({ region });
 
     const formattedNumbers = allPhoneNumbers.map((p) => p.number);
+    // const formattedNumbers = ['+14158190251'];
 
     const textPromises = formattedNumbers.map((pn) => {
       return twilioClient.messages.create({

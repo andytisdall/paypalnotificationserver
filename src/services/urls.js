@@ -13,4 +13,4 @@ const testUrls = {
   self: 'http://localhost:3000/',
 };
 
-module.exports = process.env.NODE_ENV === 'test' ? testUrls : prodUrls;
+module.exports = process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
