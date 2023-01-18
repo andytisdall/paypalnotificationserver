@@ -19,6 +19,7 @@ const restaurantRouter = require('./src/routes/restaurant');
 const fileRouter = require('./src/routes/files');
 const docusignRouter = require('./src/routes/signDocuments');
 const recipeRouter = require('./src/routes/recipes');
+const homeChefRouter = require('./src/routes/homeChefJobListing');
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -47,6 +48,7 @@ apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
 apiRouter.use(recipeRouter);
+apiRouter.use(homeChefRouter);
 
 apiRouter.use(errorHandler);
 
