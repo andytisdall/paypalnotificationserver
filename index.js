@@ -20,6 +20,7 @@ const fileRouter = require('./src/routes/files');
 const docusignRouter = require('./src/routes/signDocuments');
 const recipeRouter = require('./src/routes/recipes');
 const homeChefRouter = require('./src/routes/homeChefJobListing');
+const formsRouter = require('./src/routes/forms');
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -49,6 +50,7 @@ apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
 apiRouter.use(recipeRouter);
 apiRouter.use(homeChefRouter);
+apiRouter.use(formsRouter);
 
 apiRouter.use(errorHandler);
 

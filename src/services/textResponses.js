@@ -13,7 +13,8 @@ const CANCEL_WORDS = [
   'end',
 ];
 const INFO_WORD = 'info';
-const SURVEY_URL = 'example url';
+const SURVEY_URL =
+  'https://coherent-vision-368820.uw.r.appspot.com/forms/meal-survey';
 
 const signUpResponse = (region) => {
   return `Thank you for signing up for ${regionKey[region]} meal notifications!`;
