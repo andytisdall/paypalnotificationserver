@@ -3,6 +3,7 @@ const twilio = require('twilio');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const { Phone, REGIONS } = require('../models/phone');
+const { Feedback } = require('../models/feedback');
 const { sendEmailToSelf } = require('../services/email');
 const textResponses = require('../services/textResponses');
 
@@ -65,7 +66,7 @@ const routeTextToResponse = async ({ Body, From, To }) => {
 
   // if it's an existing user with text that has not been matched, it's treated as feedback
 
-  return await receiveFeedback(Body, From);
+  return await receiveFeedback(Body, From, region);
 };
 
 const addPhoneNumber = async (user, number, region) => {
@@ -84,12 +85,9 @@ const removePhoneNumber = async (user, region) => {
   await user.save();
 };
 
-const receiveFeedback = async (message, sender) => {
-  await sendEmailToSelf({
-    // make feedback object
-    subject: 'Feedback Text Received',
-    message: `Received from ${sender}: ${message}`,
-  });
+const receiveFeedback = async (message, sender, region) => {
+  const newFeedback = new Feedback({ message, sender, region });
+  await newFeedback.save();
   return textResponses.feedbackResponse();
 };
 

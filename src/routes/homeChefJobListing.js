@@ -19,7 +19,10 @@ router.get(
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
 
-    const CKHomeChefCampaignId = '7018Z000003C3MxQAK';
+    const CKHomeChefCampaignId =
+      process.env.NODE_ENV === 'production'
+        ? '7018Z000003C3MxQAK'
+        : '70178000000EoOlAAK';
     const jobs = await getJobs(CKHomeChefCampaignId, axiosInstance);
     const renamedJobs = jobs.map((j) => {
       // rename attributes to something sane

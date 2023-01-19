@@ -8,6 +8,7 @@ require('./src/models/user');
 require('./src/models/phone');
 require('./src/models/restaurant');
 require('./src/models/recipe');
+require('./src/models/feedback');
 require('express-async-errors');
 const paypalRouter = require('./src/routes/paypal');
 const outgoingTextRouter = require('./src/routes/outgoingText');
@@ -21,6 +22,7 @@ const docusignRouter = require('./src/routes/signDocuments');
 const recipeRouter = require('./src/routes/recipes');
 const homeChefRouter = require('./src/routes/homeChefJobListing');
 const formsRouter = require('./src/routes/forms');
+const feedbackRouter = require('./src/routes/feedback');
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -51,6 +53,7 @@ apiRouter.use(docusignRouter);
 apiRouter.use(recipeRouter);
 apiRouter.use(homeChefRouter);
 apiRouter.use(formsRouter);
+apiRouter.use(feedbackRouter);
 
 apiRouter.use(errorHandler);
 

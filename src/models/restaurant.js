@@ -17,7 +17,6 @@ const restaurantSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    token: String,
   },
   {
     toJSON: {
