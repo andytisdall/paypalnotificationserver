@@ -56,7 +56,10 @@ const routeTextToResponse = async ({ Body, From, To }) => {
 
   // if we receive a message from someone not signed up, give general info
 
-  if (!existingNumber || textResponses.INFO_WORD === keyword) {
+  if (
+    !existingNumber.region.includes(region) ||
+    textResponses.INFO_WORD === keyword
+  ) {
     return textResponses.generalInfoResponse(region);
   }
 
