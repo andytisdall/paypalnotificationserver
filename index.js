@@ -61,7 +61,7 @@ apiRouter.use(errorHandler);
 app.use('/api', apiRouter);
 
 app.get('/*', (req, res) => {
-  res.sendFile('src/client/build/index.html', { root });
+  res.sendFile(path.join('src', 'client', 'build', 'index.html', { root }));
 });
 
 if (process.env.NODE_ENV !== 'test') {
