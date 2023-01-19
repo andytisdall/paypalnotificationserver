@@ -30,7 +30,8 @@ const PORT = process.env.PORT || 3001;
 // initialize app and add middleware
 const app = express();
 
-app.use(express.static(path.join(__dirname, 'src/client/build')));
+const root = path.join(__dirname, 'src', 'client', 'build');
+app.use(express.static(root));
 app.use('/images', express.static(path.join(__dirname, 'src/images')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -60,7 +61,7 @@ apiRouter.use(errorHandler);
 app.use('/api', apiRouter);
 
 app.get('/*', (req, res) => {
-  res.sendFile('src/client/build/index.html', { root: __dirname });
+  res.sendFile('src/client/build/index.html', { root });
 });
 
 if (process.env.NODE_ENV !== 'test') {
