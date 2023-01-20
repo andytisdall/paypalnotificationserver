@@ -12,6 +12,7 @@ router.post(
   '/text/incoming',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
+    console.log('Incoming Text: ' + req.body);
     const response = new MessagingResponse();
 
     const responseMessage = await routeTextToResponse(req.body);
