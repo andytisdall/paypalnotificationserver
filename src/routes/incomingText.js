@@ -4,7 +4,6 @@ const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const { Phone, REGIONS } = require('../models/phone');
 const { Feedback } = require('../models/feedback');
-const { sendEmailToSelf } = require('../services/email');
 const textResponses = require('../services/textResponses');
 
 const router = express.Router();
@@ -35,7 +34,7 @@ const routeTextToResponse = async ({ Body, From, To }) => {
 
   const keyword = Body.toLowerCase().replace(' ', '');
 
-  const existingNumber = await Phone.findOne({ From });
+  const existingNumber = await Phone.findOne({ number: From });
 
   // sign up words - check for duplicate, and add region to existing users region or create new phone number
 
@@ -58,7 +57,7 @@ const routeTextToResponse = async ({ Body, From, To }) => {
   // if we receive a message from someone not signed up, give general info
 
   if (
-    !existingNumber.region.includes(region) ||
+    !existingNumber?.region.includes(region) ||
     textResponses.INFO_WORD === keyword
   ) {
     return textResponses.generalInfoResponse(region);
