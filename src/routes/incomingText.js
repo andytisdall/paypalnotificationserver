@@ -14,10 +14,9 @@ router.post(
   '/text/incoming',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
-    console.log('Incoming Text: ' + req.body);
     const response = new MessagingResponse();
 
-    const images = getImages(body);
+    const images = getImages(req.body);
 
     const responseMessage = await routeTextToResponse(req.body, images);
     if (!responseMessage) {
