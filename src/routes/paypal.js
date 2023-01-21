@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const moment = require('moment');
 
+const { PaypalTxn } = require('../models/paypalTxn');
 const getSFToken = require('../services/getSFToken');
 const { sendDonationAckEmail, sendEmailToSelf } = require('../services/email');
 const { getContact, addContact } = require('../services/SFQuery');
@@ -27,6 +28,14 @@ paypalRouter.post('/paypal', async (req, res) => {
 
   const paypalData = req.body;
   console.log(paypalData);
+
+  // check for already processed transaction
+  const existingTxn = await PaypalTxn.find({ txnId: paypalData.ipn_track_id });
+  if (existingTxn) {
+    console.log('Already processed this transaction, this is a duplicate');
+    return res.send(200);
+  }
+
   if (paypalData.payment_gross < 0) {
     console.log('not a credit');
     return res.send(200);
@@ -91,6 +100,9 @@ paypalRouter.post('/paypal', async (req, res) => {
   } catch (err) {
     paypalErrorReport(err);
   }
+
+  const newTxn = new PaypalTxn({ txnId: paypalData.ipn_track_id });
+  await newTxn.save();
   // send paypal back a 200
   res.sendStatus(200);
 });

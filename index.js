@@ -2,14 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+require('express-async-errors');
 
+// register models
 require('./src/db');
 require('./src/models/user');
 require('./src/models/phone');
 require('./src/models/restaurant');
 require('./src/models/recipe');
 require('./src/models/feedback');
-require('express-async-errors');
+require('./src/models/feedback');
+
+// routes
 const paypalRouter = require('./src/routes/paypal');
 const outgoingTextRouter = require('./src/routes/outgoingText');
 const signinRouter = require('./src/routes/signin');
@@ -23,6 +27,7 @@ const recipeRouter = require('./src/routes/recipes');
 const homeChefRouter = require('./src/routes/homeChefJobListing');
 const formsRouter = require('./src/routes/forms');
 const feedbackRouter = require('./src/routes/feedback');
+
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -61,8 +66,7 @@ apiRouter.use(errorHandler);
 app.use('/api', apiRouter);
 
 app.get('/*', (req, res) => {
-  res.sendFile('index.html', { root }
-  );
+  res.sendFile('index.html', { root });
 });
 
 if (process.env.NODE_ENV !== 'test') {

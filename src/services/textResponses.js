@@ -32,6 +32,9 @@ const generalInfoResponse = (region) => {
   return `This is the Community Kitchens text service for ${regionKey[region]} meal notifications. Send the word "${SIGN_UP_WORDS[0]}" to sign up for alerts. Send the word "${CANCEL_WORDS[0]}" to stop receiving texts from this number.`;
 };
 
+const dropOffResponse =
+  'Thank you for notifying CK staff of your meal drop off! We will send out an alert about this drop off to the people on our notification list.';
+
 module.exports = {
   SIGN_UP_WORDS,
   CANCEL_WORDS,
@@ -40,4 +43,5 @@ module.exports = {
   duplicateResponse,
   feedbackResponse,
   generalInfoResponse,
+  dropOffResponse,
 };

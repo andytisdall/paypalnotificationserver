@@ -5,6 +5,7 @@ const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const { Phone, REGIONS } = require('../models/phone');
 const { Feedback } = require('../models/feedback');
 const textResponses = require('../services/textResponses');
+const { sendEmail } = require('../services/email');
 
 const router = express.Router();
 
@@ -26,6 +27,58 @@ router.post(
     return res.send(response.toString());
   }
 );
+
+router.post(
+  '/text/incoming/dropoff',
+  twilio.webhook({ protocol: 'https' }),
+  async () => {
+    const emailToSendTo = 'andy@ckoakland.org';
+
+    const { Body, From, DateSent } = req.body;
+
+    const images = getImages(req.body);
+
+    let html = `
+    <h3>This is a CK Home Chef drop off alert</h3>
+    <p>This message was received at ${moment(DateSent).format()}</p>
+    <p>From: ${From}</p>
+    <p>Message:</p>
+    <p>${Body}</p>
+    `;
+
+    if (images.length) {
+      let imagesHtml = `<p>Images included with message:</p>`;
+      images.forEach((url) => {
+        imagesHtml += `<br /><img src=${url} />`;
+      });
+      html += imagesHtml;
+    }
+
+    const msg = {
+      to: emailToSendTo,
+      from: 'do-not-reply@ckoakland.org',
+      subject: 'You got a text on the Home Chef drop-off line',
+      mediaUrl: images,
+      html,
+    };
+
+    await sendEmail(msg);
+
+    const response = new MessagingResponse();
+    response.message(textResponses.dropOffResponse);
+
+    res.set('Content-Type', 'text/xml');
+    res.send(response.toString());
+  }
+);
+
+const getImages = (body) => {
+  const images = [];
+  for (let i = 0; i < NumMedia; i++) {
+    images.push(body[`MediaUrl${i}`]);
+  }
+  return images;
+};
 
 // send general info if you're not on the list
 // feedback if you are on the list
