@@ -7,6 +7,7 @@ const feedbackSchema = new mongoose.Schema(
     sender: String,
     region: String,
     read: { type: Boolean, default: false },
+    images: [String],
   },
   {
     toJSON: {

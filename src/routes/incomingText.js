@@ -1,7 +1,7 @@
 const express = require('express');
 const twilio = require('twilio');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
-const moment = require('moment')
+const moment = require('moment');
 
 const { Phone, REGIONS } = require('../models/phone');
 const { Feedback } = require('../models/feedback');
@@ -17,7 +17,9 @@ router.post(
     console.log('Incoming Text: ' + req.body);
     const response = new MessagingResponse();
 
-    const responseMessage = await routeTextToResponse(req.body);
+    const images = getImages(body);
+
+    const responseMessage = await routeTextToResponse(req.body, images);
     if (!responseMessage) {
       return res.sendStatus(200);
     }
@@ -33,8 +35,7 @@ router.post(
   '/text/incoming/dropoff',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
-    const emailToSendTo = 'andy@ckoakland.org';
-    console.log(req.body)
+    const emailToSendTo = 'mollye@ckoakland.org';
 
     const { Body, From, DateSent } = req.body;
 
@@ -42,7 +43,9 @@ router.post(
 
     let html = `
     <h3>This is a CK Home Chef drop off alert</h3>
-    <p>This message was received at ${moment(DateSent).format('MM/DD/YY hh:mm a')}</p>
+    <p>This message was received at ${moment(DateSent).format(
+      'MM/DD/YY hh:mm a'
+    )}</p>
     <p>From: ${From}</p>
     <p>Message:</p>
     <p>${Body}</p>
@@ -85,7 +88,7 @@ const getImages = (body) => {
 // send general info if you're not on the list
 // feedback if you are on the list
 
-const routeTextToResponse = async ({ Body, From, To }) => {
+const routeTextToResponse = async ({ Body, From, To }, images) => {
   const region = Object.keys(REGIONS).find((reg) => REGIONS[reg] === To);
 
   const keyword = Body.toLowerCase().replace(' ', '');
@@ -121,7 +124,7 @@ const routeTextToResponse = async ({ Body, From, To }) => {
 
   // if it's an existing user with text that has not been matched, it's treated as feedback
 
-  return await receiveFeedback(Body, From, region);
+  return await receiveFeedback(Body, From, region, images);
 };
 
 const addPhoneNumber = async (user, number, region) => {
@@ -140,8 +143,8 @@ const removePhoneNumber = async (user, region) => {
   await user.save();
 };
 
-const receiveFeedback = async (message, sender, region) => {
-  const newFeedback = new Feedback({ message, sender, region });
+const receiveFeedback = async (message, sender, region, images) => {
+  const newFeedback = new Feedback({ message, sender, region, images });
   await newFeedback.save();
   return textResponses.feedbackResponse();
 };
