@@ -10,7 +10,6 @@ const initializeEmail = async () => {
 };
 
 const sendEmailToSelf = async ({ subject, message }) => {
-  await initializeEmail();
   const msg = {
     to: 'andy@ckoakland.org',
     from: 'andy@ckoakland.org',
@@ -22,7 +21,6 @@ const sendEmailToSelf = async ({ subject, message }) => {
 };
 
 const sendDonationAckEmail = async (donationData) => {
-  await initializeEmail();
   const html = createDonationAckEmail(
     donationData.first_name,
     donationData.last_name,
@@ -53,6 +51,7 @@ const sendHomeChefSignupEmail = async (chef) => {
 };
 
 const sendEmail = async (msg) => {
+  await initializeEmail()
   await sgMail.send(msg);
   console.log('Email sent to ' + msg.to);
 };

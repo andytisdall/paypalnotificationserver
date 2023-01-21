@@ -1,6 +1,7 @@
 const express = require('express');
 const twilio = require('twilio');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
+const moment = require('moment')
 
 const { Phone, REGIONS } = require('../models/phone');
 const { Feedback } = require('../models/feedback');
@@ -31,8 +32,9 @@ router.post(
 router.post(
   '/text/incoming/dropoff',
   twilio.webhook({ protocol: 'https' }),
-  async () => {
+  async (req, res) => {
     const emailToSendTo = 'andy@ckoakland.org';
+    console.log(req.body)
 
     const { Body, From, DateSent } = req.body;
 
@@ -40,7 +42,7 @@ router.post(
 
     let html = `
     <h3>This is a CK Home Chef drop off alert</h3>
-    <p>This message was received at ${moment(DateSent).format()}</p>
+    <p>This message was received at ${moment(DateSent).format('MM/DD/YY hh:mm a')}</p>
     <p>From: ${From}</p>
     <p>Message:</p>
     <p>${Body}</p>
@@ -56,7 +58,7 @@ router.post(
 
     const msg = {
       to: emailToSendTo,
-      from: 'do-not-reply@ckoakland.org',
+      from: 'andy@ckoakland.org',
       subject: 'You got a text on the Home Chef drop-off line',
       mediaUrl: images,
       html,
@@ -74,7 +76,7 @@ router.post(
 
 const getImages = (body) => {
   const images = [];
-  for (let i = 0; i < NumMedia; i++) {
+  for (let i = 0; i < body.NumMedia; i++) {
     images.push(body[`MediaUrl${i}`]);
   }
   return images;
