@@ -53,7 +53,7 @@ router.post(
     if (images.length) {
       let imagesHtml = `<p>Images included with message:</p>`;
       images.forEach((url) => {
-        imagesHtml += `<br /><img src=${url} />`;
+        imagesHtml += `<br /><img src=${url} width='300px' />`;
       });
       html += imagesHtml;
     }
