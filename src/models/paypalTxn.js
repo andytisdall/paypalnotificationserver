@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const paypalTxnSchema = new mongoose.Schema(
   {
-    ipnId: String,
+    txnId: String,
   },
   {
     toJSON: {

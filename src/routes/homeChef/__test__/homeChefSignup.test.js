@@ -1,7 +1,6 @@
 const app = require('../../../../index.js');
 const request = require('supertest');
-
-const { sendHomeChefSignupEmail } = require('../../../services/email');
+const { send } = require('@sendgrid/mail');
 
 it('correctly makes the portal user and salesforce contact when the interest form is submitted', async () => {
   const formValues = {
@@ -25,5 +24,5 @@ it('correctly makes the portal user and salesforce contact when the interest for
     .send(formValues)
     .expect(201);
 
-  expect(sendHomeChefSignupEmail).toHaveBeenCalled();
+  expect(send).toHaveBeenCalled();
 });

@@ -26,16 +26,12 @@ const addContact = async (contactToAdd, axiosInstance) => {
   }
 };
 
-const updateContact = async (contactToUpdate, axiosInstance) => {
-  const contactUpdateUri = '/data/v56.0/sobjects/Contact';
+const updateContact = async (id, contactToUpdate, axiosInstance) => {
+  const contactUpdateUri = '/data/v56.0/sobjects/Contact/' + id;
   const updateRes = await axiosInstance.patch(
     contactUpdateUri,
     contactToUpdate
   );
-  //Query new contact to get household account number for opp
-  if (!updateRes.data.success) {
-    throw new Error('Unable to update contact!');
-  }
 };
 
 module.exports = { getContact, addContact, updateContact };

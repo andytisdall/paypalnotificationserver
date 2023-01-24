@@ -30,10 +30,12 @@ paypalRouter.post('/paypal', async (req, res) => {
   // return early if it's not a donation
 
   const paypalData = req.body;
-  console.log(paypalData);
+  // console.log(paypalData);
 
   // check for already processed transaction
-  const existingTxn = await PaypalTxn.find({ txnId: paypalData.ipn_track_id });
+  const existingTxn = await PaypalTxn.findOne({
+    txnId: paypalData.ipn_track_id,
+  });
   if (existingTxn) {
     console.log('Already processed this transaction, this is a duplicate');
     return res.sendStatus(200);

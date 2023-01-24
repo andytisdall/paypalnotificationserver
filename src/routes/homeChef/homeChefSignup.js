@@ -50,14 +50,14 @@ router.post('/signup', async (req, res) => {
     LastName: lastName,
     Email: email,
     HomePhone: phoneNumber,
-    GW_Volunteers__Volunteer_Availability__c: daysAvailable,
+    GW_Volunteers__Volunteer_Availability__c: daysAvailable.join(';') + ';',
     GW_Volunteers__Volunteer_Skills__c: 'Cooking',
     GW_Volunteers__Volunteer_Status__c: 'Prospective',
     GW_Volunteers__Volunteer_Manager_Notes__c: extraInfo,
     Instagram_Handle__c: instagramHandle,
     Able_to_Commit__c: commit,
     Able_to_get_food_handler_cert__c: foodHandler,
-    Cooking_Experience__c: experience,
+    Cooking_Experience__c: experience === 'None' ? null : experience,
     Able_to_attend_orientation__c: attend,
     Meal_Transportation__c: pickup,
     How_did_they_hear_about_CK__c: source,
@@ -67,7 +67,7 @@ router.post('/signup', async (req, res) => {
 
   let existingContact = await getContact(lastName, email, axiosInstance);
   if (existingContact) {
-    await updateContact(contactInfo, axiosInstance);
+    await updateContact(existingContact.Id, contactInfo, axiosInstance);
   } else {
     // contact needs to be added first so that opp can have a contactid
     existingContact = await addContact(contactInfo, axiosInstance);
