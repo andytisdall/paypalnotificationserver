@@ -1,8 +1,8 @@
-const app = require('../../../index.js');
+const app = require('../../../../index.js');
 const request = require('supertest');
 
-const textResponses = require('../../services/textResponses');
-const { Phone, REGIONS } = require('../../models/phone');
+const textResponses = require('../../../services/textResponses');
+const { Phone, REGIONS } = require('../../../models/phone');
 
 const from = '+14158190251';
 

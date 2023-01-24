@@ -36,12 +36,12 @@ paypalRouter.post('/paypal', async (req, res) => {
   const existingTxn = await PaypalTxn.find({ txnId: paypalData.ipn_track_id });
   if (existingTxn) {
     console.log('Already processed this transaction, this is a duplicate');
-    return res.send(200);
+    return res.sendStatus(200);
   }
 
   if (paypalData.payment_gross < 0) {
     console.log('not a credit');
-    return res.send(200);
+    return res.sendStatus(200);
   }
 
   // post a verification to paypal - not working

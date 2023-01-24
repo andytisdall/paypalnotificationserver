@@ -19,19 +19,14 @@ require('./src/models/feedback');
 const paypalRouter = require('./src/routes/paypal/paypal');
 
 // text
-const outgoingTextRouter = require('./src/routes/textService/outgoingText');
-const feedbackRouter = require('./src/routes/textService/feedback');
-const addPhoneRouter = require('./src/routes/textService/addPhone');
-const incomingTextRouter = require('./src/routes/textService/incomingText');
+const textRouter = require('./src/routes/textService');
 
 // restaurant onboarding
 const restaurantRouter = require('./src/routes/restaurantOnboarding/restaurant');
 const fileRouter = require('./src/routes/restaurantOnboarding/files');
 
 // home chef
-const recipeRouter = require('./src/routes/homeChef/recipes');
-const homeChefRouter = require('./src/routes/homeChef/homeChefJobListing');
-const formsRouter = require('./src/routes/homeChef/forms');
+const homeChefRouter = require('./src/routes/homeChef');
 
 // shared
 const docusignRouter = require('./src/routes/signDocuments');
@@ -60,18 +55,13 @@ app.use(fileUpload());
 const apiRouter = express.Router({ mergeParams: true });
 
 apiRouter.use(paypalRouter);
-apiRouter.use(outgoingTextRouter);
 apiRouter.use(signinRouter);
 apiRouter.use(userRouter);
-apiRouter.use(addPhoneRouter);
-apiRouter.use(incomingTextRouter);
+apiRouter.use('/text', textRouter);
 apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
-apiRouter.use(recipeRouter);
-apiRouter.use(homeChefRouter);
-apiRouter.use(formsRouter);
-apiRouter.use(feedbackRouter);
+apiRouter.use('/home-chef', homeChefRouter);
 
 apiRouter.use(errorHandler);
 

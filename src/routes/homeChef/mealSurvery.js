@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-router.post('/forms/meal-survey', async (req, res) => {
+router.post('/meal-survey', async (req, res) => {
   console.log(req.body);
   res.sendStatus(200);
 });

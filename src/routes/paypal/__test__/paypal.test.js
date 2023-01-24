@@ -1,6 +1,12 @@
-const app = require('../../../index.js');
+const app = require('../../../../index.js');
 const request = require('supertest');
 const passwordGenerator = require('generate-password');
+
+const { PaypalTxn } = require('../../../models/paypalTxn');
+
+afterEach(async () => {
+  await PaypalTxn.deleteOne({ txnId: '1' });
+});
 
 it('processes a donation w/o an exisiting contact', async () => {
   const randomFirstname = passwordGenerator.generate({
@@ -22,6 +28,7 @@ it('processes a donation w/o an exisiting contact', async () => {
       first_name: randomFirstname,
       last_name: randomLastname,
       payer_email: randomEmail + '@fake.com',
+      ipn_track_id: '1',
     })
     .expect(200);
 });
@@ -36,6 +43,7 @@ it('processes a donation with an existing contact', async () => {
       first_name: 'Joe',
       last_name: 'Duplicate',
       payer_email: 'joe@duplicate.fake',
+      ipn_track_id: '1',
     })
     .expect(200);
 });
@@ -51,6 +59,7 @@ it('processes a new recurring donation', async () => {
       last_name: 'De Niro',
       payer_email: 'rob@deniro.com',
       payment_cycle: 'Monthly',
+      ipn_track_id: '1',
     })
     .expect(200);
 });
@@ -66,6 +75,7 @@ it('processes an installment of a recurring donation', async () => {
       first_name: 'Robert',
       last_name: 'De Niro',
       payer_email: 'rob@deniro.com',
+      ipn_track_id: '1',
     })
     .expect(200);
 });
@@ -81,6 +91,7 @@ it('processes a skipped payment', async () => {
       first_name: 'Robert',
       last_name: 'De Niro',
       payer_email: 'rob@deniro.com',
+      ipn_track_id: '1',
     })
     .expect(200);
 });
@@ -96,6 +107,7 @@ it('processes a canceled recurring donation', async () => {
       first_name: 'Robert',
       last_name: 'De Niro',
       payer_email: 'rob@deniro.com',
+      ipn_track_id: '1',
     })
     .expect(200);
 });

@@ -11,7 +11,7 @@ const { sendEmail } = require('../../services/email');
 const router = express.Router();
 
 router.post(
-  '/text/incoming',
+  '/incoming',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
     const response = new MessagingResponse();
@@ -31,7 +31,7 @@ router.post(
 );
 
 router.post(
-  '/text/incoming/dropoff',
+  '/incoming/dropoff',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
     const emailToSendTo = 'mollye@ckoakland.org';
