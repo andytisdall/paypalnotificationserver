@@ -1,11 +1,11 @@
 const express = require('express');
 const twilio = require('twilio');
-const { Phone, REGIONS } = require('../models/phone');
+const { Phone, REGIONS } = require('../../models/phone');
 
-const { currentUser } = require('../middlewares/current-user.js');
-const { requireAuth } = require('../middlewares/require-auth.js');
-const { requireAdmin } = require('../middlewares/require-admin');
-const getSecrets = require('../services/getSecrets');
+const { currentUser } = require('../../middlewares/current-user.js');
+const { requireAuth } = require('../../middlewares/require-auth.js');
+const { requireAdmin } = require('../../middlewares/require-admin');
+const getSecrets = require('../../services/getSecrets');
 
 const smsRouter = express.Router();
 

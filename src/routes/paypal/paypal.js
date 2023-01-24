@@ -2,11 +2,14 @@ const express = require('express');
 const axios = require('axios');
 const moment = require('moment');
 
-const { PaypalTxn } = require('../models/paypalTxn');
-const getSFToken = require('../services/getSFToken');
-const { sendDonationAckEmail, sendEmailToSelf } = require('../services/email');
-const { getContact, addContact } = require('../services/SFQuery');
-const urls = require('../services/urls');
+const { PaypalTxn } = require('../../models/paypalTxn');
+const getSFToken = require('../../services/salesforce/getSFToken');
+const {
+  sendDonationAckEmail,
+  sendEmailToSelf,
+} = require('../../services/email');
+const { getContact, addContact } = require('../../services/salesforce/SFQuery');
+const urls = require('../../services/urls');
 
 const axiosInstance = axios.create({ baseURL: urls.salesforce });
 

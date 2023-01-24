@@ -1,8 +1,8 @@
 const express = require('express');
 
-const { currentUser } = require('../middlewares/current-user.js');
-const { requireAuth } = require('../middlewares/require-auth.js');
-const { Phone } = require('../models/phone');
+const { currentUser } = require('../../middlewares/current-user.js');
+const { requireAuth } = require('../../middlewares/require-auth.js');
+const { Phone } = require('../../models/phone');
 
 const router = express.Router();
 

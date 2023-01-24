@@ -1,9 +1,9 @@
 const express = require('express');
 
-const { getAccountForFileUpload } = require('../services/getModel');
-const { currentUser } = require('../middlewares/current-user');
-const { requireAuth } = require('../middlewares/require-auth');
-const { uploadFiles } = require('../services/uploadFiles');
+const { getAccountForFileUpload } = require('../../services/getModel');
+const { currentUser } = require('../../middlewares/current-user');
+const { requireAuth } = require('../../middlewares/require-auth');
+const { uploadFiles } = require('../../services/salesforce/uploadFiles');
 
 const router = express.Router();
 

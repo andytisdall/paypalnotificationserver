@@ -1,10 +1,11 @@
 const express = require('express');
 const axios = require('axios');
+const moment = require('moment');
 
-const { currentUser } = require('../middlewares/current-user.js');
-const { requireAuth } = require('../middlewares/require-auth');
-const getSFToken = require('../services/getSFToken');
-const urls = require('../services/urls');
+const { currentUser } = require('../../middlewares/current-user.js');
+const { requireAuth } = require('../../middlewares/require-auth');
+const getSFToken = require('../../services/salesforce/getSFToken');
+const urls = require('../../services/urls');
 
 const router = express.Router();
 
@@ -30,6 +31,10 @@ router.get(
         id: j.Id,
         name: j.Name,
         shifts: [],
+        location: j.GW_Volunteers__Location_Information__c.replace(
+          '<p>',
+          ''
+        ).replace('</p>', ''),
       };
     });
     const shifts = [];
@@ -52,7 +57,7 @@ router.get(
 );
 
 const getJobs = async (id, axiosInstance) => {
-  const query = `SELECT Id , Name from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
+  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c	 from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
 
   const jobQueryUri = '/data/v56.0/query/?q=' + encodeURIComponent(query);
 
@@ -61,7 +66,9 @@ const getJobs = async (id, axiosInstance) => {
 };
 
 const getShifts = async (id, axiosInstance) => {
-  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY`;
+  const ThirtyDaysFromNow = moment().add(30, 'day').format();
+
+  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${ThirtyDaysFromNow}`;
 
   const shiftQueryUri = '/data/v56.0/query/?q=' + encodeURIComponent(query);
 

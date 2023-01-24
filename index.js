@@ -14,19 +14,31 @@ require('./src/models/feedback');
 require('./src/models/feedback');
 
 // routes
-const paypalRouter = require('./src/routes/paypal');
-const outgoingTextRouter = require('./src/routes/outgoingText');
-const signinRouter = require('./src/routes/signin');
-const userRouter = require('./src/routes/user');
-const addPhoneRouter = require('./src/routes/addPhone');
-const incomingTextRouter = require('./src/routes/incomingText');
-const restaurantRouter = require('./src/routes/restaurant');
-const fileRouter = require('./src/routes/files');
+
+// paypal
+const paypalRouter = require('./src/routes/paypal/paypal');
+
+// text
+const outgoingTextRouter = require('./src/routes/textService/outgoingText');
+const feedbackRouter = require('./src/routes/textService/feedback');
+const addPhoneRouter = require('./src/routes/textService/addPhone');
+const incomingTextRouter = require('./src/routes/textService/incomingText');
+
+// restaurant onboarding
+const restaurantRouter = require('./src/routes/restaurantOnboarding/restaurant');
+const fileRouter = require('./src/routes/restaurantOnboarding/files');
+
+// home chef
+const recipeRouter = require('./src/routes/homeChef/recipes');
+const homeChefRouter = require('./src/routes/homeChef/homeChefJobListing');
+const formsRouter = require('./src/routes/homeChef/forms');
+
+// shared
 const docusignRouter = require('./src/routes/signDocuments');
-const recipeRouter = require('./src/routes/recipes');
-const homeChefRouter = require('./src/routes/homeChefJobListing');
-const formsRouter = require('./src/routes/forms');
-const feedbackRouter = require('./src/routes/feedback');
+
+// auth
+const signinRouter = require('./src/routes/auth/signin');
+const userRouter = require('./src/routes/auth/user');
 
 const { errorHandler } = require('./src/middlewares/error-handler');
 

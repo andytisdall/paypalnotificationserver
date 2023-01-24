@@ -2,7 +2,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const path = require('path');
 
-const urls = require('./urls');
+const urls = require('../urls');
 const getSFToken = require('./getSFToken');
 
 const axiosInstance = axios.create({

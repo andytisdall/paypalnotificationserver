@@ -3,10 +3,10 @@ const twilio = require('twilio');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 const moment = require('moment');
 
-const { Phone, REGIONS } = require('../models/phone');
-const { Feedback } = require('../models/feedback');
-const textResponses = require('../services/textResponses');
-const { sendEmail } = require('../services/email');
+const { Phone, REGIONS } = require('../../models/phone');
+const { Feedback } = require('../../models/feedback');
+const textResponses = require('../../services/textResponses');
+const { sendEmail } = require('../../services/email');
 
 const router = express.Router();
 
@@ -42,9 +42,9 @@ router.post(
 
     let html = `
     <h3>This is a CK Home Chef drop off alert</h3>
-    <p>This message was received at ${moment(DateSent).format(
-      'MM/DD/YY hh:mm a'
-    )}</p>
+    <p>This message was received at ${moment(DateSent)
+      .subtract(8, 'hours')
+      .format('MM/DD/YY hh:mm a')}</p>
     <p>From: ${From}</p>
     <p>Message:</p>
     <p>${Body}</p>

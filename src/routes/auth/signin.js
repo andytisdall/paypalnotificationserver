@@ -1,9 +1,9 @@
 const express = require('express');
 
-const getSecrets = require('../services/getSecrets.js');
-const { Password } = require('../services/password.js');
+const getSecrets = require('../../services/getSecrets.js');
+const { Password } = require('../../services/password.js');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/user.js');
+const { User } = require('../../models/user.js');
 
 const router = express.Router();
 

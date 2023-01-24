@@ -1,9 +1,9 @@
 const express = require('express');
 
-const { currentUser } = require('../middlewares/current-user.js');
-const { requireAuth } = require('../middlewares/require-auth');
-const { requireAdmin } = require('../middlewares/require-admin');
-const { Feedback } = require('../models/feedback');
+const { currentUser } = require('../../middlewares/current-user.js');
+const { requireAuth } = require('../../middlewares/require-auth');
+const { requireAdmin } = require('../../middlewares/require-admin');
+const { Feedback } = require('../../models/feedback');
 
 const router = express.Router();
 

@@ -2,11 +2,11 @@ const express = require('express');
 const axios = require('axios');
 const passwordGenerator = require('generate-password');
 
-const { getContact, addContact } = require('../services/SFQuery');
-const getSFToken = require('../services/getSFToken');
-const { User } = require('../models/user');
-const { sendHomeChefSignupEmail } = require('../services/email');
-const urls = require('../services/urls');
+const { getContact, addContact } = require('../../services/SFQuery');
+const getSFToken = require('../../services/getSFToken');
+const { User } = require('../../models/user');
+const { sendHomeChefSignupEmail } = require('../../services/email');
+const urls = require('../../services/urls');
 
 const axiosInstance = axios.create({
   baseURL: urls.salesforce,

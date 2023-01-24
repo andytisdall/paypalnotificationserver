@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-const urls = require('./urls');
-const getSecrets = require('./getSecrets');
+const urls = require('../urls');
+const getSecrets = require('../getSecrets');
 
 module.exports = async () => {
   const secrets = await getSecrets(['SF_CLIENT_ID', 'SF_CLIENT_SECRET']);
