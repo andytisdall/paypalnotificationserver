@@ -1,6 +1,12 @@
 const docusign = require('docusign-esign');
 
-module.exports = (args) => {
+module.exports = ({
+  signerClientId,
+  signerEmail,
+  signerName,
+  envelopeId,
+  dsReturnUrl,
+}) => {
   // Data for this method
   // args.dsReturnUrl
   // args.signerEmail
@@ -17,7 +23,7 @@ module.exports = (args) => {
   // the DocuSign signing ceremony. It's usually better to use
   // the session mechanism of your web framework. Query parameters
   // can be changed/spoofed very easily.
-  viewRequest.returnUrl = args.dsReturnUrl + `?envelopeId=${args.envelopeId}`;
+  viewRequest.returnUrl = dsReturnUrl + `?envelopeId=${envelopeId}`;
 
   // How has your app authenticated the user? In addition to your app's
   // authentication, you can include authenticate steps from DocuSign.
@@ -26,9 +32,9 @@ module.exports = (args) => {
 
   // Recipient information must match embedded recipient info
   // we used to create the envelope.
-  viewRequest.email = args.signerEmail;
-  viewRequest.userName = args.signerName;
-  viewRequest.clientUserId = args.signerClientId;
+  viewRequest.email = signerEmail;
+  viewRequest.userName = signerName;
+  viewRequest.clientUserId = signerClientId;
 
   // DocuSign recommends that you redirect to DocuSign for the
   // Signing Ceremony. There are multiple ways to save state.

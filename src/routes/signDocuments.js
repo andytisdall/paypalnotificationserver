@@ -1,26 +1,27 @@
 const express = require('express');
-const axios = require('axios');
 
 const { currentUser } = require('../middlewares/current-user.js');
 const { requireAuth } = require('../middlewares/require-auth.js');
 const sendEnvelope = require('../services/docusign/sendEnvelope');
 const getDSAuthCode = require('../services/docusign/getDSAuthCode');
-const getSecrets = require('../services/getSecrets');
+const getSignedDocs = require('../services/docusign/getSignedDocs');
 const { uploadFiles } = require('../services/salesforce/uploadFiles');
 const { getAccountForFileUpload } = require('../services/getModel');
-const getDSJWT = require('../services/docusign/getDSJWT.js');
 const urls = require('../services/urls');
 
 const router = express.Router();
 
-const URL_EXT = {
-  restaurant: '/onboarding/docusign',
-  contact: '/home-chef/onboarding/docusign',
-};
-
-const mapDocumentToConfig = {
-  RC: { name: 'restaurant-contract' },
-  HC: { name: 'home-chef-agreement' },
+const accountConfig = {
+  restaurant: {
+    name: 'restaurant-contract',
+    url: '/onboarding/docusign',
+    docType: 'RC',
+  },
+  contact: {
+    name: 'home-chef-agreement',
+    url: '/home-chef/onboarding/docusign',
+    docType: 'HC',
+  },
 };
 
 router.get(
@@ -30,25 +31,21 @@ router.get(
   async (req, res) => {
     const { accountType } = req.params;
 
-    const returnUrl = urls.self + URL_EXT[accountType] + '/sign';
-
+    const returnUrl = urls.self + accountConfig[accountType].url + '/sign';
     const authUri = await getDSAuthCode(returnUrl);
+
     res.send(authUri);
   }
 );
 
 router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
-  const { authCode, accountType, docCode } = req.body;
+  const { authCode, accountType } = req.body;
 
-  const returnUrl = urls.self + URL_EXT[accountType] + '/success';
-
+  const returnUrl = urls.self + accountConfig[accountType].url + '/success';
   const envelopeArgs = {
-    signerName: 'Andrew Tisdall',
-    signerEmail: 'andy@ckoakland.org',
-    signerClientId: '5',
     dsReturnUrl: returnUrl,
     authCode,
-    docCode,
+    accountType,
   };
 
   const { redirectUrl } = await sendEnvelope(envelopeArgs);
@@ -57,31 +54,20 @@ router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
 });
 
 router.post('/docusign/getDoc', async (req, res) => {
-  const { envelopeId, accountId, accountType, docCode } = req.body;
+  const { envelopeId, accountId, accountType } = req.body;
 
-  const token = await getDSJWT();
-  const { DOCUSIGN_ACCOUNT_ID } = await getSecrets(['DOCUSIGN_ACCOUNT_ID']);
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/pdf',
-  };
-  const docs = await axios.get(
-    `${urls.docusign}/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/documents/combined`,
-    { headers, responseType: 'arraybuffer', responseEncoding: 'binary' }
-  );
-
+  const docs = await getSignedDocs(envelopeId);
   const file = {
-    docType: docCode,
+    docType: accountConfig[accountType].docType,
     file: {
-      name: mapDocumentToConfig[docCode].name + '.pdf',
+      name: accountConfig[accountType].name + '.pdf',
       data: Buffer.from(docs.data),
     },
   };
 
   const account = await getAccountForFileUpload(accountType, accountId);
-
   const filesAdded = await uploadFiles(account, [file]);
+
   res.send({ filesAdded });
 });
 

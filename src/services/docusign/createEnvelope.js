@@ -2,13 +2,16 @@ const docusign = require('docusign-esign');
 const fs = require('fs-extra');
 const path = require('path');
 
-const mapDocCodeToFile = {
-  RC: 'World_Wide_Corp_lorem.pdf',
-  HC: 'Joshi.pdf',
+const mapAccountTypeToFiles = {
+  restaurant: 'World_Wide_Corp_lorem.pdf',
+  contact: 'Joshi.pdf',
 };
 
-module.exports = ({ signerEmail, signerName, signerClientId, docCode }) => {
-  const doc = path.resolve(__dirname, 'contracts/' + mapDocCodeToFile[docCode]);
+module.exports = ({ signerEmail, signerName, signerClientId, accountType }) => {
+  const doc = path.resolve(
+    __dirname,
+    'contracts/' + mapAccountTypeToFiles[accountType]
+  );
 
   // read file from a local directory
   // The read could raise an exception if the file is not available!
