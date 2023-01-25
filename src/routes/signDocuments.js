@@ -14,8 +14,8 @@ const urls = require('../services/urls');
 const router = express.Router();
 
 const URL_EXT = {
-  restaurant: 'onboarding/docusign',
-  contact: 'home-chef/onboarding/docusign',
+  restaurant: '/onboarding/docusign',
+  contact: '/home-chef/onboarding/docusign',
 };
 
 const mapDocumentToConfig = {

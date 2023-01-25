@@ -13,8 +13,6 @@ const urls = require('../../services/urls');
 
 const axiosInstance = axios.create({ baseURL: urls.salesforce });
 
-const SF_API_PREFIX = '/data/v56.0';
-
 const paypalErrorReport = async (error) => {
   await sendEmailToSelf({
     subject: 'Paypal Route Error',
@@ -199,7 +197,7 @@ const addRecurring = async (paypalData, contact) => {
   };
 
   const recurringInsertUri =
-    SF_API_PREFIX + '/sobjects/npe03__Recurring_Donation__c/';
+    urls.SFOperationPrefix + '/npe03__Recurring_Donation__c/';
 
   try {
     const response = await axiosInstance.post(
@@ -226,7 +224,7 @@ const cancelRecurring = async (paypalData, contact) => {
   }
 
   const recurringQuery = [
-    '/query/?q=SELECT',
+    'SELECT',
     'Id',
     'from',
     'npe03__Recurring_Donation__c',
@@ -236,7 +234,7 @@ const cancelRecurring = async (paypalData, contact) => {
     `'${contact.Id}'`,
   ];
 
-  const recurringQueryUri = SF_API_PREFIX + recurringQuery.join('+');
+  const recurringQueryUri = urls.SFQueryPrefix + recurringQuery.join('+');
 
   let existingRecurring;
   try {
@@ -256,8 +254,8 @@ const cancelRecurring = async (paypalData, contact) => {
     };
 
     const recurringUpdateUri =
-      SF_API_PREFIX +
-      '/sobjects/npe03__Recurring_Donation__c/' +
+      urls.SFOperationPrefix +
+      '/npe03__Recurring_Donation__c/' +
       existingRecurring.Id;
     try {
       const response = await axiosInstance.patch(
@@ -319,7 +317,7 @@ const updateRecurringOpp = async (paypalData, contact, status) => {
 
   // query donations to get ID
   const oppQuery = [
-    '/query/?q=SELECT',
+    'SELECT',
     'Id',
     'from',
     'Opportunity',
@@ -333,7 +331,7 @@ const updateRecurringOpp = async (paypalData, contact, status) => {
     `'Pledged'`,
   ];
 
-  const oppQueryUri = SF_API_PREFIX + oppQuery.join('+');
+  const oppQueryUri = urls.SFQueryPrefix + oppQuery.join('+');
 
   let existingOpp;
   try {
@@ -353,7 +351,7 @@ const updateRecurringOpp = async (paypalData, contact, status) => {
     };
 
     const oppUpdateUri =
-      SF_API_PREFIX + '/sobjects/Opportunity/' + existingOpp.Id;
+      urls.SFOperationPrefix + '/Opportunity/' + existingOpp.Id;
     try {
       const response = await axiosInstance.patch(oppUpdateUri, oppToUpdate);
       const summaryMessage = {
@@ -395,7 +393,7 @@ const addDonation = async (paypalData, contact) => {
     Processing_Fee__c: paypalData.payment_fee,
   };
 
-  const oppInsertUri = SF_API_PREFIX + '/sobjects/Opportunity';
+  const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';
   try {
     const response = await axiosInstance.post(oppInsertUri, oppToAdd);
     const summaryMessage = {

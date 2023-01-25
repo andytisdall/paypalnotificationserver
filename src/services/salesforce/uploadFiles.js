@@ -9,8 +9,6 @@ const axiosInstance = axios.create({
   baseURL: urls.salesforce,
 });
 
-const SF_API_PREFIX = '/data/v56.0';
-
 const fileInfo = {
   BL: {
     title: 'Business License',
@@ -72,7 +70,7 @@ const insertFile = async (account, file) => {
   let contentVersionId;
 
   let res = await axiosInstance.post(
-    SF_API_PREFIX + '/sobjects/ContentVersion/',
+    urls.SFOperationPrefix + '/ContentVersion/',
     postBody,
     {
       headers: postBody.getHeaders(),
@@ -91,7 +89,7 @@ const insertFile = async (account, file) => {
   };
 
   res = await axiosInstance.post(
-    SF_API_PREFIX + '/sobjects/ContentDocumentLink/',
+    urls.SFOperationPrefix + '/ContentDocumentLink/',
     CDLinkData,
     {
       headers: {
@@ -105,7 +103,7 @@ const insertFile = async (account, file) => {
 
 const getDocumentId = async (CVId) => {
   const documentQuery = [
-    '/query/?q=SELECT',
+    'SELECT',
     'ContentDocumentId',
     'from',
     'ContentVersion',
@@ -115,7 +113,7 @@ const getDocumentId = async (CVId) => {
     `'${CVId}'`,
   ];
 
-  const documentQueryUri = SF_API_PREFIX + documentQuery.join('+');
+  const documentQueryUri = urls.SFQueryPrefix + documentQuery.join('+');
 
   const documentQueryResponse = await axiosInstance.get(documentQueryUri);
   return documentQueryResponse.data.records[0].ContentDocumentId;
@@ -126,7 +124,7 @@ const updateHealthExpiration = async (restaurantId, date) => {
     Health_Department_Expiration_Date__c: date,
   };
 
-  const accountUpdateUri = SF_API_PREFIX + '/sobjects/Account/' + restaurantId;
+  const accountUpdateUri = urls.SFOperationPrefix + '/Account/' + restaurantId;
 
   await axiosInstance.patch(accountUpdateUri, data, {
     headers: {

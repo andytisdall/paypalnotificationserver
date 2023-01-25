@@ -1,8 +1,13 @@
+const SFQueryPrefix = '/data/v56.0/query/?q=';
+const SFOperationPrefix = '/data/v56.0/sobjects';
+
 const prodUrls = {
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
   docusignOauth: 'account-d.docusign.com',
-  self: 'https://coherent-vision-368820.uw.r.appspot.com/',
+  self: 'https://coherent-vision-368820.uw.r.appspot.com',
+  SFOperationPrefix,
+  SFQueryPrefix,
 };
 
 const testUrls = {
@@ -10,7 +15,9 @@ const testUrls = {
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
   docusignOauth: 'account-d.docusign.com',
-  self: 'http://localhost:3000/',
+  self: 'http://localhost:3000',
+  SFOperationPrefix,
+  SFQueryPrefix,
 };
 
 module.exports = process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

@@ -39,7 +39,7 @@ router.post('/signup', async (req, res) => {
     length: 10,
     numbers: true,
   });
-  const username = firstName.charAt(0) + lastName;
+  const username = firstName.charAt(0).toLowerCase() + lastName.toLowerCase();
 
   const token = await getSFToken();
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -53,7 +53,7 @@ router.post('/signup', async (req, res) => {
     GW_Volunteers__Volunteer_Availability__c: daysAvailable.join(';') + ';',
     GW_Volunteers__Volunteer_Skills__c: 'Cooking',
     GW_Volunteers__Volunteer_Status__c: 'Prospective',
-    GW_Volunteers__Volunteer_Manager_Notes__c: extraInfo,
+    GW_Volunteers__Volunteer_Notes__c: extraInfo,
     Instagram_Handle__c: instagramHandle,
     Able_to_Commit__c: commit,
     Able_to_get_food_handler_cert__c: foodHandler,
@@ -63,6 +63,7 @@ router.post('/signup', async (req, res) => {
     How_did_they_hear_about_CK__c: source,
     Portal_Username__c: username,
     Portal_Temporary_Password__c: temporaryPassword,
+    Home_Chef_Status__c: 'Prospective',
   };
 
   let existingContact = await getContact(lastName, email, axiosInstance);

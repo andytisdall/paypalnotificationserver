@@ -1,7 +1,9 @@
+const urls = require('../urls');
+
 const getContact = async (lastName, email, axiosInstance) => {
   const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
 
-  const contactQueryUri = '/data/v56.0/query/?q=' + encodeURIComponent(query);
+  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse = await axiosInstance.get(contactQueryUri);
   if (contactQueryResponse.data.totalSize !== 0) {
@@ -10,7 +12,7 @@ const getContact = async (lastName, email, axiosInstance) => {
 };
 
 const addContact = async (contactToAdd, axiosInstance) => {
-  const contactInsertUri = '/data/v56.0/sobjects/Contact';
+  const contactInsertUri = urls.SFOperationPrefix + '/Contact';
   const insertRes = await axiosInstance.post(contactInsertUri, contactToAdd);
   //Query new contact to get household account number for opp
   if (insertRes.data.success) {
@@ -27,11 +29,8 @@ const addContact = async (contactToAdd, axiosInstance) => {
 };
 
 const updateContact = async (id, contactToUpdate, axiosInstance) => {
-  const contactUpdateUri = '/data/v56.0/sobjects/Contact/' + id;
-  const updateRes = await axiosInstance.patch(
-    contactUpdateUri,
-    contactToUpdate
-  );
+  const contactUpdateUri = urls.SFOperationPrefix + '/Contact/' + id;
+  await axiosInstance.patch(contactUpdateUri, contactToUpdate);
 };
 
 module.exports = { getContact, addContact, updateContact };
