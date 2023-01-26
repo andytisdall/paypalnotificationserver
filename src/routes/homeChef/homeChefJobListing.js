@@ -19,7 +19,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   const CKHomeChefCampaignId =
     process.env.NODE_ENV === 'production'
       ? '7018Z000003C3MxQAK'
-      : '70178000000EoOlAAK';
+      : '7018G000000JSCWQA4';
   const jobs = await getJobs(CKHomeChefCampaignId, axiosInstance);
   const renamedJobs = jobs.map((j) => {
     // rename attributes to something sane
@@ -54,7 +54,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 const getJobs = async (id, axiosInstance) => {
   const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c	 from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
 
-  const jobQueryUri = '/data/v56.0/query/?q=' + encodeURIComponent(query);
+  const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const res = await axiosInstance.get(jobQueryUri);
   return res.data.records;
@@ -65,7 +65,7 @@ const getShifts = async (id, axiosInstance) => {
 
   const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${ThirtyDaysFromNow}`;
 
-  const shiftQueryUri = '/data/v56.0/query/?q=' + encodeURIComponent(query);
+  const shiftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const res = await axiosInstance.get(shiftQueryUri);
   return res.data.records;
