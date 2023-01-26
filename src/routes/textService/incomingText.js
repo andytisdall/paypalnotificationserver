@@ -34,7 +34,7 @@ router.post(
   '/incoming/dropoff',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
-    const emailToSendTo = 'mollye@ckoakland.org';
+    const emailsToSendTo = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
 
     const { Body, From, DateSent } = req.body;
 
@@ -59,7 +59,7 @@ router.post(
     }
 
     const msg = {
-      to: emailToSendTo,
+      to: emailsToSendTo,
       from: 'andy@ckoakland.org',
       subject: 'You got a text on the Home Chef drop-off line',
       mediaUrl: images,

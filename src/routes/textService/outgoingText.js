@@ -50,7 +50,7 @@ smsRouter.post(
 
     await Promise.all(textPromises);
 
-    res.send(message);
+    res.send({ message, region });
   }
 );
 

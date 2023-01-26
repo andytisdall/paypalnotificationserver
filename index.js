@@ -42,7 +42,6 @@ const PORT = process.env.PORT || 3001;
 // initialize app and add middleware
 const app = express();
 
-const __dirname = path.resolve();
 const root = path.join(__dirname, 'client', 'build');
 app.use(express.static(root));
 app.use('/images', express.static(path.join(__dirname, 'images')));
