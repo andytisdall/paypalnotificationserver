@@ -6,12 +6,6 @@ const { currentUser } = require('../../middlewares/current-user.js');
 const { requireAuth } = require('../../middlewares/require-auth');
 const { requireAdmin } = require('../../middlewares/require-admin');
 const { Recipe } = require('../../models/recipe');
-const urls = require('../../services/urls');
-
-const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? 'https://coherent-vision-368820.uw.r.appspot.com/images/'
-    : 'http://localhost:3001/images/';
 
 const router = express.Router();
 
@@ -42,12 +36,11 @@ router.post(
 
     const ingredientsList = ingredients.split('\n');
     const instructionsList = instructions.split('\n');
-    let imageUrl = '';
+    let fileName = '';
 
     if (req.files) {
-      imageUrl = BASE_URL + fileName;
-      const fileName = name + path.extname(req.files.image.name);
-      const imagePath = 'src/images/' + fileName;
+      fileName = name + path.extname(req.files.image.name);
+      const imagePath = 'images/recipes/' + fileName;
       const stream = fs.createWriteStream(imagePath);
       stream.write(req.files.image.data);
       stream.end();
@@ -58,7 +51,7 @@ router.post(
       ingredients: ingredientsList,
       instructions: instructionsList,
       description,
-      image: imageUrl,
+      image: fileName,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);
