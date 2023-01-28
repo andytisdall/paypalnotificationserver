@@ -2,8 +2,6 @@ const app = require('../../../../index.js');
 const request = require('supertest');
 const passwordGenerator = require('generate-password');
 
-const { PaypalTxn } = require('../../../models/paypalTxn');
-
 it('processes a donation w/o an exisiting contact', async () => {
   const randomFirstname = passwordGenerator.generate({
     length: 5,
