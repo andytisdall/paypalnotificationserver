@@ -1,3 +1,9 @@
+const urls = require('./urls');
+
+const formatPhone = (phone) => {
+  return phone.substring(2);
+};
+
 const regionKey = {
   EAST_OAKLAND: 'East Oakland',
   WEST_OAKLAND: 'West Oakland',
@@ -13,21 +19,25 @@ const CANCEL_WORDS = [
   'end',
 ];
 const INFO_WORD = 'info';
-const MEAL_SURVEY_URL =
-  'https://coherent-vision-368820.uw.r.appspot.com/forms/meal-survey';
-const SIGNUP_SURVEY_URL =
-  'https://coherent-vision-368820.uw.r.appspot.com/forms/text-signup-survey';
+const MEAL_SURVEY_URL = urls.client + '/forms/meal-survey';
+const SIGNUP_SURVEY_URL = urls.client + '/forms/text-signup-survey';
 
-const signUpResponse = (region) => {
-  return `Thank you for signing up for ${regionKey[region]} meal notifications! If you are able to complete our short survey, it is anonymous and helps greatly with funding to provide free meals to the people: ${SIGNUP_SURVEY_URL}`;
+const signUpResponse = (region, phone) => {
+  return `Thank you for signing up for ${
+    regionKey[region]
+  } meal notifications! If you are able to complete our short survey, it is anonymous and helps greatly with funding to provide free meals to the people: ${
+    SIGNUP_SURVEY_URL + '?phone=' + formatPhone(phone)
+  }`;
 };
 
 const duplicateResponse = (region) => {
   return `Your phone number is already on the list for ${regionKey[region]} meal notifications.`;
 };
 
-const feedbackResponse = () => {
-  return `Thank you for your feedback. A team member will review your message soon. If you want to fill out a survey about your experience with Community Kitchens, please follow this link: ${MEAL_SURVEY_URL}`;
+const feedbackResponse = (phone) => {
+  return `Thank you for your feedback. A team member will review your message soon. If you want to fill out a survey about your experience with Community Kitchens, please follow this link: ${
+    MEAL_SURVEY_URL + '?phone=' + formatPhone(phone)
+  }`;
 };
 
 const generalInfoResponse = (region) => {

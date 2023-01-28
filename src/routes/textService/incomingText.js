@@ -40,20 +40,26 @@ router.post(
 
     const images = getImages(req.body);
 
+    const textUrl =
+      'https://coherent-vision-368820.uw.r.appspot.com/text/send-text';
+
     let html = `
-    <h3>This is a CK Home Chef drop off alert</h3>
-    <p>This message was received at ${moment(DateSent)
+    <h4>This is a CK Home Chef drop off alert</h4>
+    <p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>
+    <p color='blue'>This message was received at <span color='black'>${moment(
+      DateSent
+    )
       .subtract(8, 'hours')
-      .format('MM/DD/YY hh:mm a')}</p>
-    <p>From: ${From}</p>
-    <p>Message:</p>
+      .format('MM/DD/YY hh:mm a')}</span></p>
+    <p color='blue'>From: <span color='black'>${From}</span></p>
+    <p color='blue'>Message:</p>
     <p>${Body}</p>
     `;
 
     if (images.length) {
       let imagesHtml = `<p>Images included with message:</p>`;
       images.forEach((url) => {
-        imagesHtml += `<br /><img src=${url} width='300px' />`;
+        imagesHtml += `<br /><img src=${url} width='300px' height='auto'/>`;
       });
       html += imagesHtml;
     }
@@ -134,7 +140,7 @@ const addPhoneNumber = async (user, number, region) => {
     const newPhone = new Phone({ number, region: [region] });
     await newPhone.save();
   }
-  return textResponses.signUpResponse(region);
+  return textResponses.signUpResponse(region, number);
 };
 
 const removePhoneNumber = async (user, region) => {
@@ -145,7 +151,7 @@ const removePhoneNumber = async (user, region) => {
 const receiveFeedback = async (message, sender, region, images) => {
   const newFeedback = new Feedback({ message, sender, region, images });
   await newFeedback.save();
-  return textResponses.feedbackResponse();
+  return textResponses.feedbackResponse(sender);
 };
 
 module.exports = router;

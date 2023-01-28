@@ -31,7 +31,7 @@ router.get(
   async (req, res) => {
     const { accountType } = req.params;
 
-    const returnUrl = urls.self + accountConfig[accountType].url + '/sign';
+    const returnUrl = urls.client + accountConfig[accountType].url + '/sign';
     const authUri = await getDSAuthCode(returnUrl);
 
     res.send(authUri);
@@ -41,7 +41,7 @@ router.get(
 router.post('/docusign/sign', currentUser, requireAuth, async (req, res) => {
   const { authCode, accountType } = req.body;
 
-  const returnUrl = urls.self + accountConfig[accountType].url + '/success';
+  const returnUrl = urls.client + accountConfig[accountType].url + '/success';
   const envelopeArgs = {
     dsReturnUrl: returnUrl,
     authCode,

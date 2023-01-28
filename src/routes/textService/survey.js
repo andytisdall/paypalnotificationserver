@@ -11,7 +11,8 @@ const axiosInstance = axios.create({
 const router = express.Router();
 
 router.post('/meal-survey', async (req, res) => {
-  const { mealName, location, taste, size, type, ingredients, days } = req.body;
+  const { mealName, location, taste, size, type, ingredients, days, phone } =
+    req.body;
 
   const token = await getToken();
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -25,9 +26,10 @@ router.post('/meal-survey', async (req, res) => {
     Desired_Meal_Type__c: type,
     Desired_Ingredients__c: ingredients,
     Days_of_Use_Per_Week__c: days,
+    Phone_Number__c: phone,
   };
 
-  const insertUri = '/data/v56.0/sobjects/Meal_Survey_Data__c';
+  const insertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
   const { data } = await axiosInstance.post(insertUri, surveyData);
 
   if (!data.success) {
@@ -37,7 +39,7 @@ router.post('/meal-survey', async (req, res) => {
 });
 
 router.post('/signup-survey', async (req, res) => {
-  const { age, ethnicity, zip } = req.body;
+  const { age, ethnicity, zip, type, ingredients, days, phone } = req.body;
 
   const token = await getToken();
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -47,14 +49,30 @@ router.post('/signup-survey', async (req, res) => {
     Age__c: age,
     Ethnicity__c: ethnicity,
     Zip_Code__c: zip,
+    Phone_Number__c: phone,
   };
 
-  const insertUri = '/data/v56.0/sobjects/Client_Data__c';
-  const { data } = await axiosInstance.post(insertUri, clientData);
+  const surveyData = {
+    Desired_Meal_Type__c: type,
+    Desired_Ingredients__c: ingredients,
+    Days_of_Use_Per_Week__c: days,
+    Phone_Number__c: phone,
+  };
 
-  if (!data.success) {
+  const CDInsertUri = urls.SFOperationPrefix + '/Client_Data__c';
+  const { CDData } = await axiosInstance.post(CDInsertUri, clientData);
+
+  if (!CDData.success) {
     throw new Error('Could not save the survey results');
   }
+
+  const MSInsertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
+  const { MSData } = await axiosInstance.post(MSInsertUri, surveyData);
+
+  if (!MSData.success) {
+    throw new Error('Could not save the survey results');
+  }
+
   res.sendStatus(200);
 });
 

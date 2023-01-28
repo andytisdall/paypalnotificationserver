@@ -1,11 +1,15 @@
 const express = require('express');
 const twilio = require('twilio');
-const { Phone, REGIONS } = require('../../models/phone');
+const fs = require('fs-extra');
+const path = require('path');
+const moment = require('moment');
 
+const { Phone, REGIONS } = require('../../models/phone');
 const { currentUser } = require('../../middlewares/current-user.js');
 const { requireAuth } = require('../../middlewares/require-auth.js');
 const { requireAdmin } = require('../../middlewares/require-admin');
 const getSecrets = require('../../services/getSecrets');
+const urls = require('../../services/urls');
 
 const smsRouter = express.Router();
 
@@ -21,7 +25,7 @@ smsRouter.post(
       secrets.TWILIO_AUTH_TOKEN
     );
 
-    const { message, region } = req.body;
+    const { message, region, photo } = req.body;
 
     if (!message) {
       res.status(422);
@@ -40,17 +44,30 @@ smsRouter.post(
     const formattedNumbers = allPhoneNumbers.map((p) => p.number);
     // const formattedNumbers = ['+14158190251'];
 
+    const outgoingText = {
+      body: message,
+      to: pn,
+      from: responsePhoneNumber,
+    };
+
+    if (req.files?.photo) {
+      const fileName =
+        moment().format('YYYY-MM-DD hh:ss a') +
+        path.extname(req.files.photo.name);
+      const imagePath = 'images/outgoingText/' + fileName;
+      const stream = fs.createWriteStream(imagePath);
+      stream.write(req.files.photo.data);
+      stream.end();
+      outgoingText.MediaUrl = path.join(urls.server, imagePath);
+    }
+
     const textPromises = formattedNumbers.map((pn) => {
-      return twilioClient.messages.create({
-        body: message,
-        to: pn,
-        from: responsePhoneNumber,
-      });
+      return twilioClient.messages.create();
     });
 
     await Promise.all(textPromises);
 
-    res.send({ message, region });
+    res.send({ message, region, photoUrl: outgoingText?.MediaUrl });
   }
 );
 
