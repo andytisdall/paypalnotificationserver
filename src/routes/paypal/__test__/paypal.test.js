@@ -11,9 +11,6 @@ it('processes a donation w/o an exisiting contact', async () => {
   const randomLastname = passwordGenerator.generate({
     length: 5,
   });
-  const randomEmail = passwordGenerator.generate({
-    length: 5,
-  });
 
   await request(app)
     .post('/api/paypal')
@@ -23,7 +20,7 @@ it('processes a donation w/o an exisiting contact', async () => {
       payment_date: 'August 3rd, 2022, 00:00:00 PST',
       first_name: randomFirstname,
       last_name: randomLastname,
-      payer_email: randomEmail + '@fake.com',
+      payer_email: randomFirstname + '@fake.com',
       ipn_track_id: '1',
     })
     .expect(200);
