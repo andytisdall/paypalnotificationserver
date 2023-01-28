@@ -25,7 +25,7 @@ smsRouter.post(
       secrets.TWILIO_AUTH_TOKEN
     );
 
-    const { message, region, photo } = req.body;
+    const { message, region } = req.body;
 
     if (!message) {
       res.status(422);
@@ -46,7 +46,6 @@ smsRouter.post(
 
     const outgoingText = {
       body: message,
-      to: pn,
       from: responsePhoneNumber,
     };
 
@@ -61,10 +60,10 @@ smsRouter.post(
       outgoingText.MediaUrl = path.join(urls.server, imagePath);
     }
 
-    const textPromises = formattedNumbers.map((pn) => {
-      return twilioClient.messages.create();
-    });
-
+    const createOutgoingText = async (phone) => {
+      await twilioClient.messages.create({ ...outgoingText, to: phone });
+    };
+    const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
 
     res.send({ message, region, photoUrl: outgoingText?.MediaUrl });

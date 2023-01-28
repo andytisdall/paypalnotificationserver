@@ -25,7 +25,7 @@ const SIGNUP_SURVEY_URL = urls.client + '/forms/text-signup-survey';
 const signUpResponse = (region, phone) => {
   return `Thank you for signing up for ${
     regionKey[region]
-  } meal notifications! If you are able to complete our short survey, it is anonymous and helps greatly with funding to provide free meals to the people: ${
+  } meal notifications! If you are able to complete our short survey, we won't share your data and it helps greatly with funding to provide free meals to the people: ${
     SIGNUP_SURVEY_URL + '?phone=' + formatPhone(phone)
   }`;
 };

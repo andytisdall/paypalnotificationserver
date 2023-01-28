@@ -16,7 +16,9 @@ it('gets general info', async () => {
     .post('/api/text/incoming')
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.generalInfoResponse('WEST_OAKLAND'));
+  expect(res.text).toEqual(
+    textResponses.generalInfoResponse('WEST_OAKLAND', from)
+  );
 });
 
 it('signs up for west oakland', async () => {
@@ -29,7 +31,7 @@ it('signs up for west oakland', async () => {
     .post('/api/text/incoming')
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse('WEST_OAKLAND'));
+  expect(res.text).toEqual(textResponses.signUpResponse('WEST_OAKLAND', from));
 });
 
 it('signs up for east oakland', async () => {
@@ -42,7 +44,7 @@ it('signs up for east oakland', async () => {
     .post('/api/text/incoming')
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse('EAST_OAKLAND'));
+  expect(res.text).toEqual(textResponses.signUpResponse('EAST_OAKLAND', from));
 });
 
 it('gets a duplicate response', async () => {
@@ -68,7 +70,7 @@ it('texts feedback', async () => {
     .post('/api/text/incoming')
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.feedbackResponse());
+  expect(res.text).toEqual(textResponses.feedbackResponse(from));
   // check for feedback record in db
 });
 
@@ -95,5 +97,5 @@ it('un-unsubscribes', async () => {
     .post('/api/text/incoming')
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse('EAST_OAKLAND'));
+  expect(res.text).toEqual(textResponses.signUpResponse('EAST_OAKLAND', from));
 });
