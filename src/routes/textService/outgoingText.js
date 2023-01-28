@@ -51,7 +51,7 @@ smsRouter.post(
 
     if (req.files?.photo) {
       const fileName =
-        moment().format('YYYY-MM-DD hh:ss a') +
+        moment().format('YYYY-MM-DD-hh-ss-a') +
         path.extname(req.files.photo.name);
       const imagePath = 'images/outgoingText/' + fileName;
       const stream = fs.createWriteStream(imagePath);
