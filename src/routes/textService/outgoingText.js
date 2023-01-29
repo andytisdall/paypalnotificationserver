@@ -8,6 +8,7 @@ const { Phone, REGIONS } = require('../../models/phone');
 const { currentUser } = require('../../middlewares/current-user.js');
 const { requireAuth } = require('../../middlewares/require-auth.js');
 const { requireAdmin } = require('../../middlewares/require-admin');
+const { uploadFile } = require('../../services/fileStorage');
 const getSecrets = require('../../services/getSecrets');
 const urls = require('../../services/urls');
 
