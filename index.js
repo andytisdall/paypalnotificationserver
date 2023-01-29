@@ -44,11 +44,12 @@ const PORT = process.env.PORT || 3001;
 // initialize app and add middleware
 const app = express();
 
-const root = path.join(__dirname, './public');
-app.use(express.static(root));
-// app.get('/manifest.json', (req, res) => {
-//   res.sendFile('manifest.json', { root });
-// });
+const root = path.join(__dirname, 'public');
+app.use('/static', express.static(path.join(root, 'static')));
+app.use('/images', express.static(path.join(root, 'images')));
+app.get('/manifest.json', (req, res) => {
+  res.sendFile('manifest.json', { root });
+});
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
