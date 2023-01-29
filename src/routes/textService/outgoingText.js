@@ -1,6 +1,5 @@
 const express = require('express');
 const twilio = require('twilio');
-const fs = require('fs-extra');
 const path = require('path');
 const moment = require('moment');
 
@@ -59,8 +58,9 @@ smsRouter.post(
         name: fileName,
       });
 
-      outgoingText.MediaUrl =
-        urls.server + '/api/db/images/' + imageId + extension;
+      outgoingText.MediaUrl = [
+        urls.server + '/api/db/images/' + imageId + extension,
+      ];
     }
 
     const createOutgoingText = async (phone) => {

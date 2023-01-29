@@ -4,10 +4,13 @@ const { getFile } = require('../services/fileStorage');
 
 const router = express.Router();
 
-router.get('/db/images/:id', async (req, res) => {
-  const { id } = req.params;
+router.get('/db/images/:file', async (req, res) => {
+  const { file } = req.params;
 
-  const stream = getFile(id.split('.')[0]);
+  const [id, ext] = file.split('.');
+
+  const stream = getFile(id);
+  res.type(ext);
   stream.pipe(res);
 });
 
