@@ -45,7 +45,7 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 const root = path.join(__dirname, 'public');
-app.use('/static', express.static('public'));
+app.use(express.static(root));
 app.get('/manifest.json', (req, res) => {
   res.sendFile('manifest.json', { root });
 });
