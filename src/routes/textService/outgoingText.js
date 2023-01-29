@@ -58,7 +58,7 @@ smsRouter.post(
         name: fileName,
       });
 
-      outgoingText.MediaUrl = [
+      outgoingText.mediaUrl = [
         urls.server + '/api/db/images/' + imageId + extension,
       ];
     }
