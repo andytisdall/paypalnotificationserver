@@ -50,14 +50,16 @@ smsRouter.post(
     };
 
     if (req.files?.photo) {
-      const fileName =
-        moment().format('YYYY-MM-DD-hh-ss-a') +
-        path.extname(req.files.photo.name);
-      const imagePath = 'images/outgoingText/' + fileName;
-      const stream = fs.createWriteStream(imagePath);
-      stream.write(req.files.photo.data);
-      stream.end();
-      outgoingText.MediaUrl = path.join(urls.server, imagePath);
+      const extension = path.extname(req.files.photo.name);
+      const fileName = moment().format('YYYY-MM-DD-hh-ss-a') + extension;
+
+      const imageId = await uploadFile({
+        data: req.files.photo.data,
+        name: fileName,
+      });
+
+      outgoingText.MediaUrl =
+        urls.server + '/api/db/images/' + imageId + extension;
     }
 
     const createOutgoingText = async (phone) => {

@@ -1,11 +1,11 @@
 const express = require('express');
-const fs = require('fs-extra');
 const path = require('path');
 
 const { currentUser } = require('../../middlewares/current-user.js');
 const { requireAuth } = require('../../middlewares/require-auth');
 const { requireAdmin } = require('../../middlewares/require-admin');
 const { Recipe } = require('../../models/recipe');
+const { uploadFile } = require('../../services/fileStorage');
 
 const router = express.Router();
 
@@ -36,14 +36,16 @@ router.post(
 
     const ingredientsList = ingredients.split('\n');
     const instructionsList = instructions.split('\n');
-    let fileName = '';
+    let image = '';
 
-    if (req.files) {
-      fileName = name + path.extname(req.files.image.name);
-      const imagePath = 'images/recipes/' + fileName;
-      const stream = fs.createWriteStream(imagePath);
-      stream.write(req.files.image.data);
-      stream.end();
+    if (req.files?.image) {
+      const extension = path.extname(req.files.image.name);
+      const fileName = name + extension;
+      const imageId = await uploadFile({
+        data: req.files.image.data,
+        name: fileName,
+      });
+      image = imageId + extension;
     }
 
     const newRecipe = new Recipe({
@@ -51,7 +53,7 @@ router.post(
       ingredients: ingredientsList,
       instructions: instructionsList,
       description,
-      image: fileName,
+      image,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);

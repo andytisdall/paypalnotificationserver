@@ -35,6 +35,8 @@ const docusignRouter = require('./src/routes/signDocuments');
 const signinRouter = require('./src/routes/auth/signin');
 const userRouter = require('./src/routes/auth/user');
 
+const dbRouter = require('./src/routes/db');
+
 const { errorHandler } = require('./src/middlewares/error-handler');
 
 const PORT = process.env.PORT || 3001;
@@ -44,7 +46,7 @@ const app = express();
 
 const root = path.join(__dirname, 'client', 'build');
 app.use('/static', express.static(path.join(root, 'static')));
-app.use('/images', express.static('images'));
+app.use('/images', express.static(path.join(root, 'images')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -62,6 +64,7 @@ apiRouter.use(restaurantRouter);
 apiRouter.use(fileRouter);
 apiRouter.use(docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
+apiRouter.use(dbRouter);
 
 apiRouter.use(errorHandler);
 
