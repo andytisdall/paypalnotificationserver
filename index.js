@@ -43,8 +43,8 @@ const PORT = process.env.PORT || 3001;
 
 // initialize app and add middleware
 const app = express();
-
-const root = path.join(__dirname, 'public');
+console.log(process.env.PUBLIC_URL);
+const root = 'public';
 app.use('/static', express.static(path.join(root, 'static')));
 app.use('/images', express.static(path.join(root, 'images')));
 app.get('/manifest.json', (req, res) => {
