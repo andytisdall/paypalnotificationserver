@@ -16,18 +16,14 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
 
-  const CKHomeChefCampaignId =
-    process.env.NODE_ENV === 'production'
-      ? '7018Z000003C3MxQAK'
-      : '7018G000000JSCWQA4';
-  const jobs = await getJobs(CKHomeChefCampaignId, axiosInstance);
+  const jobs = await getJobs(urls.townFridgeCampaignId, axiosInstance);
   const renamedJobs = jobs.map((j) => {
     // rename attributes to something sane
     return {
       id: j.Id,
       name: j.Name,
       shifts: [],
-      location: j.GW_Volunteers__Location_Information__c.replace(
+      location: j.GW_Volunteers__Location_Information__c?.replace(
         '<p>',
         ''
       ).replace('</p>', ''),

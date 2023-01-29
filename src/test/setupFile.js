@@ -31,6 +31,10 @@ beforeAll(() => {
   mongoose.connect(process.env['MONGO_URI']);
 });
 
+afterEach(async () => {
+  await User.deleteMany();
+});
+
 afterAll(async () => {
   // put your client disconnection code here, example with mongodb:
   await mongoose.disconnect();

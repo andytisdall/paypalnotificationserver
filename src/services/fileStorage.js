@@ -8,7 +8,6 @@ mongoose.connection.on('connected', () => {
   bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
     bucketName: 'images',
   });
-  console.log('file storage bucket connected');
 });
 
 const uploadFile = ({ data, name }) => {

@@ -2,6 +2,7 @@ const SFQueryPrefix = '/data/v56.0/query/?q=';
 const SFOperationPrefix = '/data/v56.0/sobjects';
 
 const prodUrls = {
+  townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://www.docusign.net/restapi',
   docusignOauth: 'https://account.docusign.com',
@@ -12,6 +13,7 @@ const prodUrls = {
 };
 
 const testUrls = {
+  townFridgeCampaignId: '7018G000000M6zFQAS',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
