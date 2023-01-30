@@ -2,7 +2,7 @@ const app = require('../../../../index.js');
 const request = require('supertest');
 
 it('submits a meal survey', async () => {
-  const res = await request(app)
+  await request(app)
     .post('/api/text/meal-survey')
     .send({
       Meal_Name__c: 'Chicken',
@@ -18,7 +18,7 @@ it('submits a meal survey', async () => {
 });
 
 it('submits a text signup survey', async () => {
-  const res = await request(app)
+  await request(app)
     .post('/api/text/meal-survey')
     .send({
       age: '10',

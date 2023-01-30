@@ -37,6 +37,5 @@ it('correctly makes the portal user and salesforce contact when the interest for
 it('migrates existing users into the portal', async () => {
   await migrate();
   const user = await User.findOne({ username: 'rsanchez' });
-  console.log(user);
   expect(user.username).toEqual('rsanchez');
 });

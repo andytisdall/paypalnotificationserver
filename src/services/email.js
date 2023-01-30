@@ -42,7 +42,7 @@ const sendHomeChefSignupEmail = async (chef) => {
 
   const msg = {
     to: chef.email,
-    from: 'andy@ckoakland.org',
+    from: 'mollye@ckoakland.org',
     subject: 'Thank you for signing up as a CK Home Chef!',
     html,
   };
@@ -51,7 +51,7 @@ const sendHomeChefSignupEmail = async (chef) => {
 };
 
 const sendEmail = async (msg) => {
-  await initializeEmail()
+  await initializeEmail();
   await sgMail.send(msg);
   console.log('Email sent to ' + msg.to);
 };
