@@ -1,7 +1,7 @@
 const app = require('../../../../index.js');
 const request = require('supertest');
 
-it('sends an outgoing text', async () => {
+it('submits a meal survey', async () => {
   const res = await request(app)
     .post('/api/text/meal-survey')
     .send({
@@ -13,6 +13,21 @@ it('sends an outgoing text', async () => {
       Desired_Ingredients__c: 'pepperoni',
       Days_of_Use_Per_Week__c: '7',
       Phone_Number__c: '5108290484',
+    })
+    .expect(200);
+});
+
+it('submits a text signup survey', async () => {
+  const res = await request(app)
+    .post('/api/text/meal-survey')
+    .send({
+      age: '10',
+      ethnicity: 'African American/Black',
+      zip: '94606',
+      type: 'Vegetarian',
+      ingredients: 'Zucchini',
+      days: '3',
+      phone: '5108670484',
     })
     .expect(200);
 });

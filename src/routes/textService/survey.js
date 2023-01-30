@@ -60,16 +60,16 @@ router.post('/signup-survey', async (req, res) => {
   };
 
   const CDInsertUri = urls.SFOperationPrefix + '/Client_Data__c';
-  const { CDData } = await axiosInstance.post(CDInsertUri, clientData);
+  const CDRes = await axiosInstance.post(CDInsertUri, clientData);
 
-  if (!CDData.success) {
+  if (!CDRes.data.success) {
     throw new Error('Could not save the survey results');
   }
 
   const MSInsertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
-  const { MSData } = await axiosInstance.post(MSInsertUri, surveyData);
+  const MSRes = await axiosInstance.post(MSInsertUri, surveyData);
 
-  if (!MSData.success) {
+  if (!MSRes.data.success) {
     throw new Error('Could not save the survey results');
   }
 
