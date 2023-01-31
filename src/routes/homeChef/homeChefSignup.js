@@ -45,12 +45,17 @@ router.post('/signup', async (req, res) => {
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
 
+  const formattedDays =
+    Object.keys(daysAvailable)
+      .filter((d) => daysAvailable[d])
+      .join(';') + ';';
+
   const contactInfo = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,
     HomePhone: phoneNumber,
-    GW_Volunteers__Volunteer_Availability__c: daysAvailable.join(';') + ';',
+    GW_Volunteers__Volunteer_Availability__c: formattedDays,
     GW_Volunteers__Volunteer_Skills__c: 'Cooking',
     GW_Volunteers__Volunteer_Status__c: 'Prospective',
     GW_Volunteers__Volunteer_Notes__c: extraInfo,

@@ -39,8 +39,6 @@ router.post(
     const instructionsList = instructions.split('\n');
     let image = '';
 
-    console.log(req.files.image);
-
     if (req.files?.image) {
       const extension = path.extname(req.files.image.name);
       const fileName = name + extension;

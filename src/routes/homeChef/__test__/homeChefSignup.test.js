@@ -18,7 +18,12 @@ it('correctly makes the portal user and salesforce contact when the interest for
     instagramHandle: '@rockysanchez',
     commit: true,
     foodHandler: false,
-    daysAvailable: ['Monday, Wednesday'],
+    daysAvailable: {
+      Monday: true,
+      Tuesday: false,
+      Wednesday: true,
+      Thursday: false,
+    },
     experience: 'None',
     attend: true,
     pickup: false,
