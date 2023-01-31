@@ -8,6 +8,7 @@ const { requireAuth } = require('../../middlewares/require-auth');
 const getSFToken = require('../../services/salesforce/getSFToken');
 const urls = require('../../services/urls');
 const createHours = require('./createHours');
+const { sendShiftSignupEmail } = require('../../services/email');
 
 const router = express.Router();
 
@@ -55,15 +56,17 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 
 router.post('/job-listing', currentUser, requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date } = req.body;
-  // const { salesforceId } = req.currentUser;
-  const salesforceId = '0038G00000Xq7ICQAZ';
-  await createHours({
+  const { salesforceId } = req.currentUser;
+  const chef = await createHours({
     contactId: salesforceId,
     mealCount,
     shiftId,
     jobId,
     date,
   });
+
+  await sendShiftSignupEmail(chef.Email);
+
   res.send(shiftId);
 });
 

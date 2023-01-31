@@ -3,6 +3,7 @@ const sgMail = require('@sendgrid/mail');
 const getSecrets = require('./getSecrets');
 const createDonationAckEmail = require('./emailTemplates/donationAck');
 const createHomeChefSignupEmail = require('./emailTemplates/homeChefSignup');
+const createShiftSignupEmail = require('./emailTemplates/shiftSignup');
 
 const initializeEmail = async () => {
   const secrets = await getSecrets(['SENDGRID_KEY']);
@@ -50,6 +51,19 @@ const sendHomeChefSignupEmail = async (chef) => {
   await sendEmail(msg);
 };
 
+const sendShiftSignupEmail = async (email) => {
+  const html = createShiftSignupEmail();
+
+  const msg = {
+    to: email,
+    from: 'mollye@ckoakland.org',
+    subject: 'Thank you for signing up for a Town Fridge!',
+    html,
+  };
+
+  await sendEmail(msg);
+};
+
 const sendEmail = async (msg) => {
   await initializeEmail();
   await sgMail.send(msg);
@@ -61,4 +75,5 @@ module.exports = {
   sendEmailToSelf,
   sendDonationAckEmail,
   sendHomeChefSignupEmail,
+  sendShiftSignupEmail,
 };

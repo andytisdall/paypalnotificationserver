@@ -3,7 +3,10 @@ const express = require('express');
 const { getAccountForFileUpload } = require('../../services/getModel');
 const { currentUser } = require('../../middlewares/current-user');
 const { requireAuth } = require('../../middlewares/require-auth');
-const { uploadFiles } = require('../../services/salesforce/uploadFiles');
+const {
+  uploadFiles,
+  updateRestaurant,
+} = require('../../services/salesforce/uploadFiles');
 
 const router = express.Router();
 
@@ -22,9 +25,18 @@ router.post(
 
     const account = await getAccountForFileUpload(accountType, accountId);
     // make api call to salesforce
-    const filesAdded = await uploadFiles(account, fileList, expiration);
+    await uploadFiles(account, fileList);
 
-    res.send({ filesAdded });
+    let numberOfFilesUploaded = 0;
+    if (accountType === 'restaurant') {
+      numberOfFilesUploaded = await updateRestaurant(
+        account.salesforceId,
+        fileList,
+        expiration
+      );
+    }
+
+    res.send({ numberOfFilesUploaded });
   }
 );
 

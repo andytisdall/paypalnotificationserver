@@ -31,24 +31,12 @@ const fileInfo = {
   },
 };
 
-const uploadFiles = async (account, files, expiration) => {
+const uploadFiles = async (account, files) => {
   const token = await getSFToken();
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
   const insertPromises = files.map((f) => insertFile(account, f));
-  const dataAdded = await Promise.all(insertPromises);
-
-  if (expiration) {
-    const healthUpdated = await updateHealthExpiration(
-      account.salesforceId,
-      expiration
-    );
-    if (healthUpdated) {
-      dataAdded.push(true);
-    }
-  }
-
-  return dataAdded.length;
+  await Promise.all(insertPromises);
 };
 
 const insertFile = async (account, file) => {
@@ -98,7 +86,6 @@ const insertFile = async (account, file) => {
     }
   );
   console.log('File Linked to Account: ' + res.data.id);
-  return true;
 };
 
 const getDocumentId = async (CVId) => {
@@ -119,10 +106,20 @@ const getDocumentId = async (CVId) => {
   return documentQueryResponse.data.records[0].ContentDocumentId;
 };
 
-const updateHealthExpiration = async (restaurantId, date) => {
-  const data = {
-    Health_Department_Expiration_Date__c: date,
-  };
+const updateRestaurant = async (restaurantId, files, date) => {
+  const data = {};
+
+  if (date) {
+    data.Health_Department_Expiration_Date__c = date;
+  }
+
+  const fileNames = files.map((f) => fileInfo[f.docType].title).join(';') + ';';
+
+  const accountGetUri = urls.SFOperationPrefix + '/Account/' + restaurantId;
+  const res = await axiosInstance.get(accountGetUri);
+
+  const { Meal_Program_Onboarding__c } = res.data;
+  data.Meal_Program_Onboarding__c = Meal_Program_Onboarding__c + fileNames;
 
   const accountUpdateUri = urls.SFOperationPrefix + '/Account/' + restaurantId;
 
@@ -131,8 +128,7 @@ const updateHealthExpiration = async (restaurantId, date) => {
       'Content-Type': 'application/json',
     },
   });
-  console.log('Health Permit Expiration Date Updated: ' + date);
-  return true;
+  return Object.values(data).length;
 };
 
-module.exports = { uploadFiles };
+module.exports = { uploadFiles, updateRestaurant };

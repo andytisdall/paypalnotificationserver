@@ -1,21 +1,33 @@
+const axios = require('axios');
+
 const { Restaurant } = require('../models/restaurant.js');
 const { User } = require('../models/user.js');
+const urls = require('../services/urls');
+const getSFToken = require('../services/salesforce/getSFToken');
 
-const mapAccountTypeToModel = {
-  restaurant: { model: Restaurant, accountId: 'salesforceId', name: 'name' },
-  contact: { model: User, accountId: 'householdId', name: 'username' },
-};
+const axiosInstance = axios.create({
+  baseURL: urls.salesforce,
+});
 
 const getAccountForFileUpload = async (accountType, accountId) => {
-  const modelType = mapAccountTypeToModel[accountType];
-  const entity = await modelType.model.findById(accountId);
-  if (!entity) {
-    throw new Error('No account to associate this file with');
+  if (accountType === 'restaurant') {
+    const restaurant = await Restaurant.findById(accountId);
+    return restaurant;
   }
-  return {
-    name: entity[modelType.name],
-    salesforceId: entity[modelType.accountId],
-  };
+  if (accountType === 'contact') {
+    const user = await User.findById(accountId);
+
+    const token = await getSFToken();
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axiosInstance.defaults.headers.common['Content-Type'] = 'application/json';
+    const { data } = await axiosInstance.get(
+      urls.SFOperationPrefix + '/Contact/' + user.salesforceId
+    );
+    return {
+      name: data.LastName,
+      salesforceId: data.npsp__HHId__c,
+    };
+  }
 };
 
 module.exports = { getAccountForFileUpload };

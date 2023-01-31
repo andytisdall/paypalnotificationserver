@@ -5,7 +5,10 @@ const { requireAuth } = require('../middlewares/require-auth.js');
 const sendEnvelope = require('../services/docusign/sendEnvelope');
 const getDSAuthCode = require('../services/docusign/getDSAuthCode');
 const getSignedDocs = require('../services/docusign/getSignedDocs');
-const { uploadFiles } = require('../services/salesforce/uploadFiles');
+const {
+  uploadFiles,
+  updateRestaurant,
+} = require('../services/salesforce/uploadFiles');
 const { getAccountForFileUpload } = require('../services/getModel');
 const urls = require('../services/urls');
 
@@ -66,9 +69,17 @@ router.post('/docusign/getDoc', async (req, res) => {
   };
 
   const account = await getAccountForFileUpload(accountType, accountId);
-  const filesAdded = await uploadFiles(account, [file]);
+  await uploadFiles(account, [file]);
 
-  res.send({ filesAdded });
+  let numberOfFilesUploaded = 0;
+
+  if (accountType === 'restaurant') {
+    numberOfFilesUploaded = await updateRestaurant(account.salesforceId, [
+      file,
+    ]);
+  }
+
+  res.send({ numberOfFilesUploaded });
 });
 
 module.exports = router;

@@ -25,9 +25,13 @@ const createHours = async ({ contactId, shiftId, mealCount, jobId, date }) => {
   const insertRes = await axiosInstance.post(hoursInsertUri, hoursToAdd);
   //Query new contact to get household account number for opp
   if (insertRes.data.success) {
-    return insertRes.data;
+    const res = await axiosInstance.get(
+      urls.SFOperationPrefix + '/Contact/' + contactId
+    );
+    return res.data;
   } else {
     throw new Error('Unable to insert hours!');
   }
 };
+
 module.exports = createHours;
