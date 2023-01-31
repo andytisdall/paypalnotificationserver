@@ -1,11 +1,13 @@
 const express = require('express');
 const axios = require('axios');
 const moment = require('moment');
+const { decode } = require('html-entities');
 
 const { currentUser } = require('../../middlewares/current-user.js');
 const { requireAuth } = require('../../middlewares/require-auth');
 const getSFToken = require('../../services/salesforce/getSFToken');
 const urls = require('../../services/urls');
+const createHours = require('./createHours');
 
 const router = express.Router();
 
@@ -23,10 +25,12 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
       id: j.Id,
       name: j.Name,
       shifts: [],
-      location: j.GW_Volunteers__Location_Information__c?.replace(
-        '<p>',
-        ''
-      ).replace('</p>', ''),
+      location: decode(
+        j.GW_Volunteers__Location_Information__c?.replace('<p>', '').replace(
+          '</p>',
+          ''
+        )
+      ),
     };
   });
   const shifts = [];
@@ -39,12 +43,28 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
         return {
           id: js.Id,
           startTime: js.GW_Volunteers__Start_Date_Time__c,
+          open: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
+          job: j.id,
         };
       })
     );
   });
   await Promise.all(shiftPromises);
   res.send({ jobs: renamedJobs, shifts });
+});
+
+router.post('/job-listing', currentUser, requireAuth, async (req, res) => {
+  const { mealCount, shiftId, jobId, date } = req.body;
+  // const { salesforceId } = req.currentUser;
+  const salesforceId = '0038G00000Xq7ICQAZ';
+  await createHours({
+    contactId: salesforceId,
+    mealCount,
+    shiftId,
+    jobId,
+    date,
+  });
+  res.send(shiftId);
 });
 
 const getJobs = async (id, axiosInstance) => {
@@ -59,7 +79,7 @@ const getJobs = async (id, axiosInstance) => {
 const getShifts = async (id, axiosInstance) => {
   const ThirtyDaysFromNow = moment().add(30, 'day').format();
 
-  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${ThirtyDaysFromNow}`;
+  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${ThirtyDaysFromNow}`;
 
   const shiftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

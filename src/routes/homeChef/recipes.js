@@ -31,12 +31,15 @@ router.post(
   currentUser,
   requireAuth,
   requireAdmin,
+  // heicToJpeg,
   async (req, res) => {
     const { name, ingredients, instructions, description } = req.body;
 
     const ingredientsList = ingredients.split('\n');
     const instructionsList = instructions.split('\n');
     let image = '';
+
+    console.log(req.files.image);
 
     if (req.files?.image) {
       const extension = path.extname(req.files.image.name);
