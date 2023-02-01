@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     salesforceId: String,
-    householdId: String,
   },
   {
     toJSON: {

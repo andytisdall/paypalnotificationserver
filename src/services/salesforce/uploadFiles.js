@@ -20,9 +20,13 @@ const fileInfo = {
     description: '',
     folder: 'health-department-permit',
   },
-  RC: { title: 'Contract', description: '', folder: 'contract' },
+  RC: { title: 'Restaurant Contract', description: '', folder: 'contract' },
   W9: { title: 'W9', description: '', folder: 'w9' },
-  DD: { title: 'Direct Deposit', description: '', folder: 'direct-deposit' },
+  DD: {
+    title: 'Direct Deposit Form',
+    description: '',
+    folder: 'direct-deposit',
+  },
   HC: { title: 'Home Chef Contract', description: '', folder: 'home-chef' },
   FH: {
     title: 'Food Handler Certification',
@@ -32,9 +36,6 @@ const fileInfo = {
 };
 
 const uploadFiles = async (account, files) => {
-  const token = await getSFToken();
-  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
   const insertPromises = files.map((f) => insertFile(account, f));
   await Promise.all(insertPromises);
 };
@@ -107,19 +108,27 @@ const getDocumentId = async (CVId) => {
 };
 
 const updateRestaurant = async (restaurantId, files, date) => {
+  const token = await getSFToken();
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
   const data = {};
 
   if (date) {
     data.Health_Department_Expiration_Date__c = date;
   }
 
-  const fileNames = files.map((f) => fileInfo[f.docType].title).join(';') + ';';
+  const fileTitles = files.map((f) => fileInfo[f.docType].title);
 
   const accountGetUri = urls.SFOperationPrefix + '/Account/' + restaurantId;
   const res = await axiosInstance.get(accountGetUri);
 
-  const { Meal_Program_Onboarding__c } = res.data;
-  data.Meal_Program_Onboarding__c = Meal_Program_Onboarding__c + fileNames;
+  const existingDocuments = res.data.Meal_Program_Onboarding__c;
+  if (existingDocuments) {
+    const docs = [...new Set([...existingDocuments.split(';'), ...fileTitles])];
+    data.Meal_Program_Onboarding__c = docs.join(';') + ';';
+  } else {
+    data.Meal_Program_Onboarding__c = fileTitles.join(';') + ';';
+  }
 
   const accountUpdateUri = urls.SFOperationPrefix + '/Account/' + restaurantId;
 
@@ -128,7 +137,42 @@ const updateRestaurant = async (restaurantId, files, date) => {
       'Content-Type': 'application/json',
     },
   });
-  return Object.values(data).length;
+
+  if (!existingDocuments) {
+    return;
+  }
+
+  // get all cdlinks tied to that account
+  const CDLinkQuery = `SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${restaurantId}'`;
+
+  const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
+
+  const CDLinkQueryResponse = await axiosInstance.get(CDLinkQueryUri);
+  // then get all content documents from the CDIds in the cdlinks
+
+  const getPromises = CDLinkQueryResponse.data.records.map(
+    async ({ ContentDocumentId }) => {
+      const ContentDocUri =
+        urls.SFOperationPrefix + '/ContentDocument/' + ContentDocumentId;
+      const { data } = await axiosInstance.get(ContentDocUri);
+      // then search those for the titles that we're replacing
+      return data;
+    }
+  );
+  const ContentDocs = await Promise.all(getPromises);
+  const DocsToDelete = ContentDocs.filter((cd) => {
+    return fileTitles.includes(cd.Title);
+  });
+  // then delete those
+  const deletePromises = DocsToDelete.map(async (cd) => {
+    const ContentDocUri = urls.SFOperationPrefix + '/ContentDocument/' + cd.Id;
+    await axiosInstance.delete(ContentDocUri);
+  });
+  await Promise.all(deletePromises);
+
+  // and the links as well? or will it cascade
+
+  return;
 };
 
 module.exports = { uploadFiles, updateRestaurant };

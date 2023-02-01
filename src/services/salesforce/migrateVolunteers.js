@@ -41,7 +41,6 @@ const createUser = async (contact) => {
   const newUser = new User({
     username: contact.username,
     password: contact.temporaryPassword,
-    householdId: contact.npsp__HHId__c,
     salesforceId: contact.Id,
   });
   await newUser.save();

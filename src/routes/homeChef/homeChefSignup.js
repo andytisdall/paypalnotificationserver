@@ -85,7 +85,6 @@ router.post('/signup', async (req, res) => {
       username,
       password: temporaryPassword,
       salesforceId: existingContact.Id,
-      householdId: existingContact.npsp__HHId__c,
     });
     await newUser.save();
   }

@@ -25,18 +25,12 @@ router.post(
 
     const account = await getAccountForFileUpload(accountType, accountId);
     // make api call to salesforce
+    if (accountType === 'restaurant') {
+      await updateRestaurant(account.salesforceId, fileList, expiration);
+    }
     await uploadFiles(account, fileList);
 
-    let numberOfFilesUploaded = 0;
-    if (accountType === 'restaurant') {
-      numberOfFilesUploaded = await updateRestaurant(
-        account.salesforceId,
-        fileList,
-        expiration
-      );
-    }
-
-    res.send({ numberOfFilesUploaded });
+    res.send({ numberOfFilesUploaded: fileList.length });
   }
 );
 
