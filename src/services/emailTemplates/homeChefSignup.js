@@ -33,7 +33,7 @@ module.exports = (info) => {
   Mollye Chudacoff<br>
   Meal Program Manager<br>
   Community Kitchens<br>
-  <a href='htttps://ckoakland.org'>CKOakland.org</a>
+  <a href='https://ckoakland.org'>ckoakland.org</a>
   </p>
   `;
 };

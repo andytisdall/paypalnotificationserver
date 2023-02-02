@@ -89,7 +89,7 @@ router.post('/signup', async (req, res) => {
     await newUser.save();
   }
 
-  await sendHomeChefSignupEmail(req.body);
+  // await sendHomeChefSignupEmail(req.body);
   res.sendStatus(201);
 });
 

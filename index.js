@@ -43,7 +43,7 @@ const PORT = process.env.PORT || 3001;
 
 // initialize app and add middleware
 const app = express();
-app.use('/static', express.static(path.join('public','static')));
+app.use('/static', express.static(path.join('public', 'static')));
 app.use('/images', express.static(path.join('public', 'images')));
 app.get('/manifest.json', (req, res) => {
   res.sendFile('manifest.json', { root: 'public' });
@@ -68,6 +68,9 @@ apiRouter.use('/home-chef', homeChefRouter);
 apiRouter.use(dbRouter);
 
 apiRouter.use(errorHandler);
+apiRouter.get('/*', (req, res) => {
+  res.sendStatus(404);
+});
 
 app.use('/api', apiRouter);
 
