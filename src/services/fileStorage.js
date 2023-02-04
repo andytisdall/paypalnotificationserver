@@ -25,9 +25,4 @@ const uploadFile = ({ data, name }) => {
   });
 };
 
-const getFile = (id) => {
-  const mongoId = new mongodb.ObjectId(id);
-  return bucket.openDownloadStream(mongoId);
-};
-
-module.exports = { uploadFile, getFile };
+module.exports = { uploadFile, bucket };
