@@ -8,10 +8,9 @@ it('sends an outgoing text', async () => {
   const res = await request(app)
     .post('/api/text/outgoing')
     .set('Authorization', token)
-    .send({
-      message: 'There is food available',
-      region: REGIONS.EAST_OAKLAND,
-    })
+    .field('message', 'There is food available')
+    .field('region', REGIONS.EAST_OAKLAND)
+    .attach('image', 'src/routes/textService/__test__/photo.jpg')
     .expect(200);
 
   expect(res.body.message).toEqual('There is food available');
