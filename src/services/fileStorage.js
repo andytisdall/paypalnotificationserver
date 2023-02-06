@@ -27,11 +27,6 @@ const uploadFile = ({ data, name }) => {
 
 const getFile = (id) => {
   const mongoId = new mongodb.ObjectId(id);
-  if (!bucket) {
-    bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-      bucketName: 'images',
-    });
-  }
   return bucket.openDownloadStream(mongoId);
 };
 

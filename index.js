@@ -2,10 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const path = require('path');
+const mongoose = require('mongoose');
 require('express-async-errors');
 
+const getSecrets = require('./src/services/getSecrets');
+
 // register models
-require('./src/db');
+
 require('./src/models/user');
 require('./src/models/phone');
 require('./src/models/restaurant');
@@ -78,7 +81,28 @@ app.get('/*', (req, res) => {
   res.sendFile(path.join('public', 'index.html'), { root: __dirname });
 });
 
+const connectDb = async () => {
+  const { MONGO_PASSWORD } = await getSecrets(['MONGO_PASSWORD']);
+
+  const uri = `mongodb+srv://andytisdall:${MONGO_PASSWORD}@cluster0.vpgosgh.mongodb.net/CKdb?retryWrites=true&w=majority`;
+
+  mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+
+  mongoose.connection.on('connected', () => {
+    console.log('Connected to mongo cloud');
+  });
+
+  mongoose.connection.on('error', (err) => {
+    console.error('Error connecting to mongo');
+    console.log(err);
+  });
+};
+
 if (process.env.NODE_ENV !== 'test') {
+  connectDb();
   app.listen(PORT, () => {
     console.log('server listening');
   });
