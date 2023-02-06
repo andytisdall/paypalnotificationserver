@@ -1,14 +1,6 @@
-const mongoose = require('mongoose');
-const mongodb = require('mongodb');
 const { Readable } = require('stream');
 
-let bucket;
-
-mongoose.connection.on('connected', () => {
-  bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: 'images',
-  });
-});
+const { bucket } = require('../routes/db');
 
 const uploadFile = ({ data, name }) => {
   const stream = bucket.openUploadStream(name);
@@ -25,9 +17,4 @@ const uploadFile = ({ data, name }) => {
   });
 };
 
-const getFile = (id) => {
-  const mongoId = new mongodb.ObjectId(id);
-  return bucket.openDownloadStream(mongoId);
-};
-
-module.exports = { uploadFile, getFile };
+module.exports = { uploadFile };

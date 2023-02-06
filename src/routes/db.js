@@ -1,18 +1,25 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const mongodb = require('mongodb');
 
-const { getFile } = require('../services/fileStorage');
+const dbRouter = express.Router();
 
-const router = express.Router();
+mongoose.connection.on('connected', () => {
+  bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+    bucketName: 'images',
+  });
+});
 
-router.get('/db/images/:fileName', async (req, res) => {
+dbRouter.get('/db/images/:fileName', async (req, res) => {
   const { fileName } = req.params;
 
   const [id, ext] = fileName.split('.');
 
-  const stream = getFile(id);
+  const mongoId = new mongodb.ObjectId(id);
+  const stream = bucket.openDownloadStream(mongoId);
 
   res.type(ext);
   stream.pipe(res);
 });
 
-module.exports = router;
+module.exports = { dbRouter, bucket };

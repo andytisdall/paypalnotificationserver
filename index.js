@@ -38,7 +38,7 @@ const docusignRouter = require('./src/routes/signDocuments');
 const signinRouter = require('./src/routes/auth/signin');
 const userRouter = require('./src/routes/auth/user');
 
-const dbRouter = require('./src/routes/db');
+const { dbRouter } = require('./src/routes/db');
 
 const { errorHandler } = require('./src/middlewares/error-handler');
 
