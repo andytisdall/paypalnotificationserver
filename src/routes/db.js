@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const mongodb = require('mongodb');
+const { Readable } = require('stream');
 
 const dbRouter = express.Router();
 
@@ -11,6 +12,25 @@ mongoose.connection.on('connected', () => {
     bucketName: 'images',
   });
 });
+
+
+const uploadFile = ({ data, name }) => {
+  const stream = bucket.openUploadStream(name);
+  const readableStream = new Readable();
+  readableStream.push(data);
+  readableStream.push(null);
+  readableStream.pipe(stream);
+
+  return new Promise((resolve, reject) => {
+    stream.on('error', (err) => {
+      reject(err);
+    });
+    stream.on('finish', () => resolve(stream.id));
+  });
+};
+
+module.exports = { uploadFile };
+
 
 dbRouter.get('/db/images/:fileName', async (req, res) => {
   const { fileName } = req.params;
@@ -24,4 +44,4 @@ dbRouter.get('/db/images/:fileName', async (req, res) => {
   stream.pipe(res);
 });
 
-module.exports = { dbRouter, bucket };
+module.exports = { dbRouter, uploadFile };
