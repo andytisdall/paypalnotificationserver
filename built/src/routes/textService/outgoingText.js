@@ -99,7 +99,7 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
                 };
                 if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 4];
                 extension = path_1.default.extname(req.files.photo.name);
-                fileName = moment_1.default().format('YYYY-MM-DD-hh-ss-a') + extension;
+                fileName = 'outgoing-text-' + moment_1.default().format('YYYY-MM-DD-hh-ss-a') + extension;
                 return [4 /*yield*/, db_1.uploadFile({
                         data: req.files.photo.data,
                         name: fileName,

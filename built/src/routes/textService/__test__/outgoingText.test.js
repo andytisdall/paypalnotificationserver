@@ -54,7 +54,7 @@ it('sends an outgoing text', function () { return __awaiter(void 0, void 0, void
                         .set('Authorization', token)
                         .field('message', 'There is food available')
                         .field('region', phone_1.REGIONS.EAST_OAKLAND)
-                        .attach('image', 'src/routes/textService/__test__/photo.jpg')
+                        // .attach('image', 'src/routes/textService/__test__/photo.jpeg')
                         .expect(200)];
             case 2:
                 res = _a.sent();

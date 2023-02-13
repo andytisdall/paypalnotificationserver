@@ -93,10 +93,12 @@ var uploadFiles = function (account, files) { return __awaiter(void 0, void 0, v
     var insertPromises;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
+            case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
+            case 1:
+                _a.sent();
                 insertPromises = files.map(function (f) { return insertFile(account, f); });
                 return [4 /*yield*/, Promise.all(insertPromises)];
-            case 1:
+            case 2:
                 _a.sent();
                 return [2 /*return*/];
         }

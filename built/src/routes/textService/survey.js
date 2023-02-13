@@ -75,11 +75,11 @@ router.post('/meal-survey', function (req, res) { return __awaiter(void 0, void 
     });
 }); });
 router.post('/signup-survey', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, age, ethnicity, zip, type, ingredients, days, phone, clientData, surveyData, CDInsertUri, CDRes, MSInsertUri, MSRes;
+    var _a, age, ethnicity, zip, type, ingredients, days, phone, calfresh, clientData, surveyData, CDInsertUri, CDRes, MSInsertUri, MSRes;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _a = req.body, age = _a.age, ethnicity = _a.ethnicity, zip = _a.zip, type = _a.type, ingredients = _a.ingredients, days = _a.days, phone = _a.phone;
+                _a = req.body, age = _a.age, ethnicity = _a.ethnicity, zip = _a.zip, type = _a.type, ingredients = _a.ingredients, days = _a.days, phone = _a.phone, calfresh = _a.calfresh;
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
                 _b.sent();
@@ -94,6 +94,7 @@ router.post('/signup-survey', function (req, res) { return __awaiter(void 0, voi
                     Desired_Ingredients__c: ingredients,
                     Days_of_Use_Per_Week__c: days,
                     Phone_Number__c: phone,
+                    Interest_in_Calfresh__c: calfresh,
                 };
                 CDInsertUri = urls_1.default.SFOperationPrefix + '/Client_Data__c';
                 return [4 /*yield*/, fetcher_1.default.instance.post(CDInsertUri, clientData)];

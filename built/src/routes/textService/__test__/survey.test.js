@@ -67,7 +67,7 @@ it('submits a text signup survey', function () { return __awaiter(void 0, void 0
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
-                    .post('/api/text/meal-survey')
+                    .post('/api/text/signup-survey')
                     .send({
                     age: '10',
                     ethnicity: 'African American/Black',

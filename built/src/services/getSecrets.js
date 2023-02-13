@@ -62,26 +62,22 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var secret_manager_1 = require("@google-cloud/secret-manager");
-var keys_1 = __importDefault(require("../../keys"));
 exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0, function () {
-    var secrets, secretClient, projectId, getSecret, nameList_1, nameList_1_1, secretName, _a, _b, e_1_1, _c, nameList_2, nameList_2_1, secretName;
-    var e_1, _d, e_2, _e;
-    return __generator(this, function (_f) {
-        switch (_f.label) {
+    var secrets, secretClient, projectId, getSecret, nameList_1, nameList_1_1, secretName, _a, _b, e_1_1, _c;
+    var e_1, _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
                 secrets = {};
                 secretClient = new secret_manager_1.SecretManagerServiceClient();
-                _f.label = 1;
+                _e.label = 1;
             case 1:
-                _f.trys.push([1, 13, , 14]);
+                _e.trys.push([1, 13, , 14]);
                 return [4 /*yield*/, secretClient.getProjectId()];
             case 2:
-                projectId = _f.sent();
+                projectId = _e.sent();
                 if (!projectId) return [3 /*break*/, 11];
                 getSecret = function (name) { return __awaiter(void 0, void 0, void 0, function () {
                     var _a, version;
@@ -97,11 +93,11 @@ exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0
                         }
                     });
                 }); };
-                _f.label = 3;
+                _e.label = 3;
             case 3:
-                _f.trys.push([3, 8, 9, 10]);
+                _e.trys.push([3, 8, 9, 10]);
                 nameList_1 = __values(nameList), nameList_1_1 = nameList_1.next();
-                _f.label = 4;
+                _e.label = 4;
             case 4:
                 if (!!nameList_1_1.done) return [3 /*break*/, 7];
                 secretName = nameList_1_1.value;
@@ -109,14 +105,14 @@ exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0
                 _b = secretName;
                 return [4 /*yield*/, getSecret(secretName)];
             case 5:
-                _a[_b] = _f.sent();
-                _f.label = 6;
+                _a[_b] = _e.sent();
+                _e.label = 6;
             case 6:
                 nameList_1_1 = nameList_1.next();
                 return [3 /*break*/, 4];
             case 7: return [3 /*break*/, 10];
             case 8:
-                e_1_1 = _f.sent();
+                e_1_1 = _e.sent();
                 e_1 = { error: e_1_1 };
                 return [3 /*break*/, 10];
             case 9:
@@ -129,20 +125,7 @@ exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0
             case 11: throw Error();
             case 12: return [3 /*break*/, 14];
             case 13:
-                _c = _f.sent();
-                try {
-                    for (nameList_2 = __values(nameList), nameList_2_1 = nameList_2.next(); !nameList_2_1.done; nameList_2_1 = nameList_2.next()) {
-                        secretName = nameList_2_1.value;
-                        secrets[secretName] = keys_1.default[secretName];
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (nameList_2_1 && !nameList_2_1.done && (_e = nameList_2.return)) _e.call(nameList_2);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
+                _c = _e.sent();
                 return [3 /*break*/, 14];
             case 14: return [2 /*return*/, secrets];
         }

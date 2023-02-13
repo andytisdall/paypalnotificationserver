@@ -35,78 +35,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var mongoose_1 = __importDefault(require("mongoose"));
-var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
-jest.mock('@sendgrid/mail');
-jest.mock('twilio');
-global.getToken = function (_a) {
-    var admin = _a.admin;
-    return __awaiter(void 0, void 0, void 0, function () {
-        var User, userInfo, newUser, JWT_KEY;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    User = mongoose_1.default.model('User');
-                    userInfo = {
-                        username: 'test',
-                        password: 'password',
-                        salesforceId: '0038H00000GUFmHQAX',
-                        householdId: '0018H00000PW4KJQA1',
-                        admin: admin,
-                    };
-                    newUser = new User(userInfo);
-                    return [4 /*yield*/, newUser.save()];
-                case 1:
-                    _b.sent();
-                    return [4 /*yield*/, getSecrets_1.default(['JWT_KEY'])];
-                case 2:
-                    JWT_KEY = (_b.sent()).JWT_KEY;
-                    if (!JWT_KEY) {
-                        throw new Error('No JWT key found');
-                    }
-                    return [2 /*return*/, jsonwebtoken_1.default.sign({
-                            id: newUser.id,
-                        }, JWT_KEY)];
-            }
-        });
-    });
-};
-beforeAll(function () {
-    // put your client connection code here, example with mongoose:
-    var uri = process.env['MONGO_URI'];
-    if (!uri) {
-        throw new Error('could not fing mongo memory server uri');
-    }
-    mongoose_1.default.connect(uri);
-});
-afterEach(function () { return __awaiter(void 0, void 0, void 0, function () {
-    var User;
+exports.connectDb = void 0;
+var mongoose = require('mongoose');
+var getSecrets = require('./src/services/getSecrets');
+var connectDb = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var MONGO_PASSWORD, uri;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0:
-                User = mongoose_1.default.model('User');
-                return [4 /*yield*/, User.deleteMany()];
+            case 0: return [4 /*yield*/, getSecrets(['MONGO_PASSWORD'])];
             case 1:
-                _a.sent();
+                MONGO_PASSWORD = (_a.sent()).MONGO_PASSWORD;
+                uri = "mongodb+srv://andytisdall:" + MONGO_PASSWORD + "@cluster0.vpgosgh.mongodb.net/CKdb?retryWrites=true&w=majority";
+                mongoose.connect(uri, {
+                    useNewUrlParser: true,
+                    useUnifiedTopology: true,
+                });
+                mongoose.connection.on('connected', function () {
+                    console.log('Connected to mongo cloud');
+                });
+                mongoose.connection.on('error', function (err) {
+                    console.error('Error connecting to mongo');
+                    console.log(err);
+                });
                 return [2 /*return*/];
         }
     });
-}); });
-afterAll(function () { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: 
-            // put your client disconnection code here, example with mongodb:
-            return [4 /*yield*/, mongoose_1.default.disconnect()];
-            case 1:
-                // put your client disconnection code here, example with mongodb:
-                _a.sent();
-                return [2 /*return*/];
-        }
-    });
-}); });
+}); };
+exports.connectDb = connectDb;

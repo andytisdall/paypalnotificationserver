@@ -41,6 +41,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../../../../index"));
 var supertest_1 = __importDefault(require("supertest"));
+var urls_1 = __importDefault(require("../../../services/urls"));
+var fetcher_1 = __importDefault(require("../../../services/fetcher"));
 it('gets the job listings', function () { return __awaiter(void 0, void 0, void 0, function () {
     var token, res;
     return __generator(this, function (_a) {
@@ -56,6 +58,47 @@ it('gets the job listings', function () { return __awaiter(void 0, void 0, void 
                 res = _a.sent();
                 expect(res.body.jobs.length).not.toEqual(0);
                 expect(res.body.shifts).not.toEqual(0);
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('signs up for a job shift', function () { return __awaiter(void 0, void 0, void 0, function () {
+    var token, jobQuery, jobQueryRes, jobId, shiftQuery, shiftQueryRes, shifts, shift, date, res;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, global.getToken({ admin: false })];
+            case 1:
+                token = _a.sent();
+                return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
+            case 2:
+                _a.sent();
+                jobQuery = "SELECT Id from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '" + urls_1.default.townFridgeCampaignId + "'";
+                return [4 /*yield*/, fetcher_1.default.instance.get(urls_1.default.SFQueryPrefix + encodeURIComponent(jobQuery))];
+            case 3:
+                jobQueryRes = _a.sent();
+                jobId = jobQueryRes.data.records[0].Id;
+                shiftQuery = "SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '" + jobId + "'";
+                return [4 /*yield*/, fetcher_1.default.instance.get(urls_1.default.SFQueryPrefix + encodeURIComponent(shiftQuery))];
+            case 4:
+                shiftQueryRes = _a.sent();
+                shifts = shiftQueryRes.data.records;
+                shift = shifts.find(function (sh) { return sh.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0; });
+                if (!shift) {
+                    throw Error();
+                }
+                date = shift.GW_Volunteers__Start_Date_Time__c;
+                return [4 /*yield*/, supertest_1.default(index_1.default)
+                        .post('/api/home-chef/job-listing')
+                        .set('Authorization', token)
+                        .send({
+                        mealCount: '25',
+                        shiftId: shift.Id,
+                        jobId: jobId,
+                        date: date,
+                    })
+                        .expect(201)];
+            case 5:
+                res = _a.sent();
                 return [2 /*return*/];
         }
     });

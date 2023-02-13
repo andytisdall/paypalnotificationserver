@@ -71,77 +71,112 @@ it('processes a donation w/o an exisiting contact', function () { return __await
         }
     });
 }); });
-// it('processes a donation with an existing contact', async () => {
-//   await request(app)
-//     .post('/api/paypal')
-//     .send({
-//       payment_gross: '54.21',
-//       payment_fee: '0.90',
-//       payment_date: 'February 20th, 2022, 00:00:00 PST',
-//       first_name: 'Joe',
-//       last_name: 'Duplicate',
-//       payer_email: 'joe@duplicate.fake',
-//       ipn_track_id: '2',
-//     })
-//     .expect(200);
-// });
-// it('processes a new recurring donation', async () => {
-//   await request(app)
-//     .post('/api/paypal')
-//     .send({
-//       txn_type: 'recurring_payment_profile_created',
-//       amount: '50.00',
-//       time_created: 'June 20th, 2022, 00:00:00 PST',
-//       first_name: 'Robert',
-//       last_name: 'De Niro',
-//       payer_email: 'rob@deniro.com',
-//       payment_cycle: 'Monthly',
-//       ipn_track_id: '3',
-//     })
-//     .expect(200);
-// });
-// it('processes an installment of a recurring donation', async () => {
-//   await request(app)
-//     .post('/api/paypal')
-//     .send({
-//       amount_per_cycle: '50.00',
-//       payment_gross: '50.00',
-//       payment_fee: '5.90',
-//       payment_date: 'September 20th, 2022, 00:00:00 PST',
-//       first_name: 'Robert',
-//       last_name: 'De Niro',
-//       payer_email: 'rob@deniro.com',
-//       ipn_track_id: '4',
-//     })
-//     .expect(200);
-// });
-// it('processes a skipped payment', async () => {
-//   await request(app)
-//     .post('/api/paypal')
-//     .send({
-//       txn_type: 'recurring_payment_skipped',
-//       payment_gross: '54.21',
-//       payment_fee: '0.90',
-//       payment_date: 'February 20th, 2022, 00:00:00 PST',
-//       first_name: 'Robert',
-//       last_name: 'De Niro',
-//       payer_email: 'rob@deniro.com',
-//       ipn_track_id: '5',
-//     })
-//     .expect(200);
-// });
-// it('processes a canceled recurring donation', async () => {
-//   await request(app)
-//     .post('/api/paypal')
-//     .send({
-//       txn_type: 'recurring_payment_suspended_due_to_max_failed_payment',
-//       amount_per_cycle: '54.21',
-//       payment_fee: '0.90',
-//       payment_date: 'February 20th, 2022, 00:00:00 PST',
-//       first_name: 'Robert',
-//       last_name: 'De Niro',
-//       payer_email: 'rob@deniro.com',
-//       ipn_track_id: '6',
-//     })
-//     .expect(200);
-// });
+it('processes a donation with an existing contact', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
+                    .post('/api/paypal')
+                    .send({
+                    payment_gross: '54.21',
+                    payment_fee: '0.90',
+                    payment_date: 'February 20th, 2022, 00:00:00 PST',
+                    first_name: 'Joe',
+                    last_name: 'Duplicate',
+                    payer_email: 'joe@duplicate.fake',
+                    ipn_track_id: '2',
+                })
+                    .expect(200)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('processes a new recurring donation', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
+                    .post('/api/paypal')
+                    .send({
+                    txn_type: 'recurring_payment_profile_created',
+                    amount: '50.00',
+                    time_created: 'June 20th, 2022, 00:00:00 PST',
+                    first_name: 'Robert',
+                    last_name: 'De Niro',
+                    payer_email: 'rob@deniro.com',
+                    payment_cycle: 'Monthly',
+                    ipn_track_id: '3',
+                })
+                    .expect(200)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('processes an installment of a recurring donation', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
+                    .post('/api/paypal')
+                    .send({
+                    amount_per_cycle: '50.00',
+                    payment_gross: '50.00',
+                    payment_fee: '5.90',
+                    payment_date: 'September 20th, 2022, 00:00:00 PST',
+                    first_name: 'Robert',
+                    last_name: 'De Niro',
+                    payer_email: 'rob@deniro.com',
+                    ipn_track_id: '4',
+                })
+                    .expect(200)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('processes a skipped payment', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
+                    .post('/api/paypal')
+                    .send({
+                    txn_type: 'recurring_payment_skipped',
+                    payment_gross: '54.21',
+                    payment_fee: '0.90',
+                    payment_date: 'February 20th, 2022, 00:00:00 PST',
+                    first_name: 'Robert',
+                    last_name: 'De Niro',
+                    payer_email: 'rob@deniro.com',
+                    ipn_track_id: '5',
+                })
+                    .expect(200)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('processes a canceled recurring donation', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
+                    .post('/api/paypal')
+                    .send({
+                    txn_type: 'recurring_payment_suspended_due_to_max_failed_payment',
+                    amount_per_cycle: '54.21',
+                    payment_fee: '0.90',
+                    payment_date: 'February 20th, 2022, 00:00:00 PST',
+                    first_name: 'Robert',
+                    last_name: 'De Niro',
+                    payer_email: 'rob@deniro.com',
+                    ipn_track_id: '6',
+                })
+                    .expect(200)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });

@@ -39,11 +39,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateContact = exports.addContact = exports.getContact = void 0;
+exports.getContactById = exports.updateContact = exports.addContact = exports.getContact = void 0;
 var urls_1 = __importDefault(require("../urls"));
 var fetcher_1 = __importDefault(require("../fetcher"));
 var getContact = function (lastName, email) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, contactQueryUri, contactQueryResponse;
+    var query, contactQueryUri, contactQueryResponse, contact;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
@@ -59,7 +59,12 @@ var getContact = function (lastName, email) { return __awaiter(void 0, void 0, v
                     return [2 /*return*/, null];
                 }
                 else {
-                    return [2 /*return*/, contactQueryResponse.data.records[0]];
+                    contact = contactQueryResponse.data.records[0];
+                    return [2 /*return*/, {
+                            id: contact.Id,
+                            name: contact.Name,
+                            householdId: contact.npsp__HHId__c,
+                        }];
                 }
                 return [2 /*return*/];
         }
@@ -86,9 +91,9 @@ var addContact = function (contactToAdd) { return __awaiter(void 0, void 0, void
                     throw Error('Could not get created contact');
                 }
                 return [2 /*return*/, {
-                        Id: newContact.data.Id,
-                        npsp__HHId__c: newContact.data.npsp__HHId__c,
-                        Name: newContact.data.Name,
+                        id: newContact.data.Id,
+                        householdId: newContact.data.npsp__HHId__c,
+                        name: newContact.data.Name,
                     }];
             case 4: throw new Error('Unable to insert contact!');
         }
@@ -111,4 +116,18 @@ var updateContact = function (id, contactToUpdate) { return __awaiter(void 0, vo
     });
 }); };
 exports.updateContact = updateContact;
-module.exports = { getContact: exports.getContact, addContact: exports.addContact, updateContact: exports.updateContact };
+var getContactById = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var res;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, fetcher_1.default.instance.get(urls_1.default.SFOperationPrefix + '/Contact/' + id)];
+            case 2:
+                res = _a.sent();
+                return [2 /*return*/, res.data];
+        }
+    });
+}); };
+exports.getContactById = getContactById;

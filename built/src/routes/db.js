@@ -35,62 +35,40 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadFile = void 0;
 var express_1 = __importDefault(require("express"));
-var mongoose_1 = __importDefault(require("mongoose"));
-var mongodb_1 = __importDefault(require("mongodb"));
-var stream_1 = require("stream");
-var bucket;
-mongoose_1.default.connection.on('connected', function () {
-    bucket = new mongoose_1.default.mongo.GridFSBucket(mongoose_1.default.connection.db, {
-        bucketName: 'images',
-    });
-});
+var stream_1 = __importDefault(require("stream"));
+var storage_1 = require("@google-cloud/storage");
+var storage = new storage_1.Storage();
+var bucket = storage.bucket('coherent-vision-368820.appspot.com');
+var dbRouter = express_1.default.Router();
 var uploadFile = function (_a) {
     var data = _a.data, name = _a.name;
-    var stream = bucket.openUploadStream(name);
-    var readableStream = new stream_1.Readable();
-    readableStream.push(data);
-    readableStream.push(null);
-    readableStream.pipe(stream);
+    var file = bucket.file(name);
+    var passthroughStream = new stream_1.default.PassThrough();
+    passthroughStream.write(data);
+    passthroughStream.end();
+    passthroughStream.pipe(file.createWriteStream());
     return new Promise(function (resolve, reject) {
-        stream.on('error', function (err) {
+        passthroughStream.on('error', function (err) {
             reject(err);
         });
-        stream.on('finish', function () { return resolve(stream.id); });
+        passthroughStream.on('finish', function () { return resolve(name); });
     });
 };
 exports.uploadFile = uploadFile;
-var dbRouter = express_1.default.Router();
 dbRouter.get('/db/images/:fileName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var fileName, _a, id, ext, mongoId, stream;
-    return __generator(this, function (_b) {
+    var fileName, file, outputStream;
+    return __generator(this, function (_a) {
         fileName = req.params.fileName;
-        _a = __read(fileName.split('.'), 2), id = _a[0], ext = _a[1];
-        mongoId = new mongodb_1.default.ObjectId(id);
-        stream = bucket.openDownloadStream(mongoId);
-        res.type(ext);
-        stream.pipe(res);
+        file = bucket.file(fileName);
+        outputStream = file.createReadStream();
+        // res.type(ext);
+        outputStream.pipe(res);
         return [2 /*return*/];
     });
 }); });

@@ -79,7 +79,7 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, ingredients, instructions, description, ingredientsList, instructionsList, image, extension, fileName, imageId, newRecipe;
+    var _a, name, ingredients, instructions, description, ingredientsList, instructionsList, fileName, extension, newRecipe;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -87,17 +87,16 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                 _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
                 ingredientsList = ingredients.split('\n');
                 instructionsList = instructions.split('\n');
-                image = '';
+                fileName = '';
                 if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.image) && !Array.isArray(req.files.image))) return [3 /*break*/, 2];
                 extension = path_1.default.extname(req.files.image.name);
-                fileName = name + extension;
+                fileName = 'recipes-' + name + extension;
                 return [4 /*yield*/, db_1.uploadFile({
                         data: req.files.image.data,
                         name: fileName,
                     })];
             case 1:
-                imageId = _c.sent();
-                image = imageId + extension;
+                _c.sent();
                 _c.label = 2;
             case 2:
                 newRecipe = new Recipe({
@@ -105,7 +104,7 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     ingredients: ingredientsList,
                     instructions: instructionsList,
                     description: description,
-                    image: image,
+                    image: fileName,
                 });
                 return [4 /*yield*/, newRecipe.save()];
             case 3:

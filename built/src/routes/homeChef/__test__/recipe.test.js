@@ -63,12 +63,11 @@ it('posts a recipe', function () { return __awaiter(void 0, void 0, void 0, func
                 return [4 /*yield*/, supertest_1.default(index_1.default)
                         .post('/api/home-chef/recipe')
                         .set('Authorization', token)
-                        .send({
-                        name: 'bacon',
-                        ingredients: 'pig',
-                        description: 'a recipe from the old country',
-                        instructions: 'fry it up!',
-                    })
+                        .field('name', 'bacon')
+                        .field('ingredients', 'pig')
+                        .field('description', 'a recipe from the old country')
+                        .field('instructions', 'fry it up!')
+                        // .attach('image', 'src/routes/textService/__test__/photo.jpeg')
                         .expect(201)];
             case 2:
                 res = _a.sent();

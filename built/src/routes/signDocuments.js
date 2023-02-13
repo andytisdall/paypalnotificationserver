@@ -47,6 +47,7 @@ var getSignedDocs_1 = __importDefault(require("../services/docusign/getSignedDoc
 var uploadFiles_1 = require("../services/salesforce/uploadFiles");
 var getModel_1 = require("../services/getModel");
 var urls_1 = __importDefault(require("../services/urls"));
+var SFQuery_1 = require("../services/salesforce/SFQuery");
 var router = express_1.default.Router();
 var accountConfig = {
     restaurant: {
@@ -61,7 +62,7 @@ var accountConfig = {
     },
 };
 router.post('/docusign/sign', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var accountType, returnUrl, envelopeArgs, redirectUrl;
+    var accountType, contact, userInfo, returnUrl, envelopeArgs, redirectUrl;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -69,18 +70,22 @@ router.post('/docusign/sign', current_user_1.currentUser, require_auth_1.require
                 if (!accountType || accountType !== ('restaurant' || 'contact')) {
                     throw Error('Incorrect account type provided as url parameter');
                 }
+                return [4 /*yield*/, SFQuery_1.getContactById(req.currentUser.salesforceId)];
+            case 1:
+                contact = _a.sent();
+                userInfo = {
+                    name: contact.Name,
+                    email: contact.Email,
+                    id: contact.Id,
+                };
                 returnUrl = urls_1.default.client + accountConfig[accountType].url + '/success';
                 envelopeArgs = {
                     dsReturnUrl: returnUrl,
                     accountType: accountType,
-                    userInfo: {
-                        name: '',
-                        email: '',
-                        id: '',
-                    },
+                    userInfo: userInfo,
                 };
                 return [4 /*yield*/, sendEnvelope_1.default(envelopeArgs)];
-            case 1:
+            case 2:
                 redirectUrl = (_a.sent()).redirectUrl;
                 res.send(redirectUrl);
                 return [2 /*return*/];

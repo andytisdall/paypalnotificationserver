@@ -142,6 +142,7 @@ router.post('/job-listing', current_user_1.currentUser, require_auth_1.requireAu
                 return [4 /*yield*/, email_1.sendShiftSignupEmail(chef.Email)];
             case 2:
                 _c.sent();
+                res.status(201);
                 res.send(shiftId);
                 return [2 /*return*/];
         }

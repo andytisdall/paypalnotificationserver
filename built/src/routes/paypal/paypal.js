@@ -64,7 +64,7 @@ paypalRouter.post('/paypal', function (req, res) { return __awaiter(void 0, void
                     console.log('Already processed this transaction, this is a duplicate');
                     return [2 /*return*/, res.sendStatus(200)];
                 }
-                if (!paypalData.payment_gross || parseFloat(paypalData.payment_gross) < 0) {
+                if (paypalData.payment_gross && parseFloat(paypalData.payment_gross) < 0) {
                     console.log('not a credit');
                     return [2 /*return*/, res.sendStatus(200)];
                 }
@@ -75,7 +75,7 @@ paypalRouter.post('/paypal', function (req, res) { return __awaiter(void 0, void
                 // post a verification to paypal - not working
                 // verifyPaypalMessage(paypalData);
                 _a.sent();
-                return [4 /*yield*/, SFQuery_1.getContact(paypalData.last_name, paypalData.payer_email)];
+                return [4 /*yield*/, getContactByEmail(paypalData.payer_email)];
             case 3:
                 existingContact = _a.sent();
                 if (!!existingContact) return [3 /*break*/, 5];
@@ -83,8 +83,6 @@ paypalRouter.post('/paypal', function (req, res) { return __awaiter(void 0, void
                     FirstName: paypalData.first_name,
                     LastName: paypalData.last_name,
                     Email: paypalData.payer_email,
-                    Description: 'Added into Salesforce by the Paypal server on ' +
-                        moment_1.default().format('M/D/YY'),
                 };
                 return [4 /*yield*/, SFQuery_1.addContact(contactToAdd)];
             case 4:
@@ -198,7 +196,7 @@ var addRecurring = function (paypalData, contact) { return __awaiter(void 0, voi
                     dayOfMonth = 'Last_Day';
                 }
                 recurringToAdd = {
-                    npe03__Contact__c: contact.Id,
+                    npe03__Contact__c: contact.id,
                     npe03__Date_Established__c: formattedDate,
                     npe03__Amount__c: paypalData.amount,
                     npsp__RecurringType__c: 'Open',
@@ -232,7 +230,7 @@ var cancelRecurring = function (paypalData, contact) { return __awaiter(void 0, 
                     'WHERE',
                     'npe03__Contact__c',
                     '=',
-                    "'" + contact.Id + "'",
+                    "'" + contact.id + "'",
                 ];
                 recurringQueryUri = urls_1.default.SFQueryPrefix + recurringQuery.join('+');
                 return [4 /*yield*/, fetcher_1.default.instance.get(recurringQueryUri)];
@@ -279,7 +277,7 @@ var updateRecurringOpp = function (paypalData, contact, status) { return __await
                     'WHERE',
                     'npsp__Primary_Contact__c',
                     '=',
-                    "'" + contact.Id + "'",
+                    "'" + contact.id + "'",
                     'AND',
                     'StageName',
                     '=',
@@ -330,14 +328,12 @@ var addDonation = function (paypalData, contact) { return __awaiter(void 0, void
                 formattedDate = formatDate(paypalData.payment_date);
                 oppToAdd = {
                     Amount: paypalData.payment_gross,
-                    AccountId: contact.npsp__HHId__c,
-                    npsp__Primary_Contact__c: contact.Id,
+                    AccountId: contact.householdId,
+                    npsp__Primary_Contact__c: contact.id,
                     StageName: 'Posted',
                     CloseDate: formattedDate,
                     Name: paypalData.first_name + " " + paypalData.last_name + " Donation " + moment_1.default(formattedDate).format('M/D/YYYY'),
                     RecordTypeId: '0128Z000001BIZJQA4',
-                    Description: 'Added into Salesforce by the Paypal server on ' +
-                        moment_1.default().format('M/D/YY'),
                     Processing_Fee__c: paypalData.payment_fee,
                 };
                 oppInsertUri = urls_1.default.SFOperationPrefix + '/Opportunity';
@@ -352,6 +348,30 @@ var addDonation = function (paypalData, contact) { return __awaiter(void 0, void
                 };
                 console.log('Donation Added: ' + JSON.stringify(summaryMessage));
                 return [2 /*return*/];
+        }
+    });
+}); };
+// this contact query just searches by email because people's names and
+// email addresses don't always match up on paypal
+var getContactByEmail = function (email) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, contactQueryUri, contactQueryResponse, contact;
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                query = "SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '" + email + "'";
+                contactQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
+                return [4 /*yield*/, fetcher_1.default.instance.get(contactQueryUri)];
+            case 1:
+                contactQueryResponse = _c.sent();
+                if (((_b = (_a = contactQueryResponse.data) === null || _a === void 0 ? void 0 : _a.records) === null || _b === void 0 ? void 0 : _b.length) === 0) {
+                    return [2 /*return*/, null];
+                }
+                contact = contactQueryResponse.data.records[0];
+                return [2 /*return*/, {
+                        id: contact.Id,
+                        householdId: contact.npsp__HHId__c,
+                    }];
         }
     });
 }); };

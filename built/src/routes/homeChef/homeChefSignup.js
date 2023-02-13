@@ -84,7 +84,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
             case 1:
                 existingContact = _b.sent();
                 if (!existingContact) return [3 /*break*/, 3];
-                return [4 /*yield*/, SFQuery_1.updateContact(existingContact.Id, contactInfo)];
+                return [4 /*yield*/, SFQuery_1.updateContact(existingContact.id, contactInfo)];
             case 2:
                 _b.sent();
                 return [3 /*break*/, 5];
@@ -100,7 +100,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                 newUser = new User({
                     username: username,
                     password: temporaryPassword,
-                    salesforceId: existingContact.Id,
+                    salesforceId: existingContact.id,
                 });
                 return [4 /*yield*/, newUser.save()];
             case 7:
