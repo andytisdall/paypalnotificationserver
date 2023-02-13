@@ -1,11 +1,14 @@
 {
-  "globalSetup": "<rootDir>/src/test/globalSetup.js",
-  "globalTeardown": "<rootDir>/src/test/globalTeardown.js",
+  "preset": "ts-jest",
+  "globalSetup": "<rootDir>/src/test/globalSetup.ts",
+  "globalTeardown": "<rootDir>/src/test/globalTeardown.ts",
   "setupFilesAfterEnv": [
-    "<rootDir>/src/test/setupFile.js"
+    "<rootDir>/src/test/setup.ts"
   ],
   "testEnvironment": "node",
-  "coveragePathIgnorePatterns": [
-    "/node_modules/"
+  "testPathIgnorePatterns": [
+    "node_modules",
+    "client",
+    "built"
   ]
 }
