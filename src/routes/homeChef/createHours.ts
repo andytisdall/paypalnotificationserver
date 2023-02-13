@@ -1,4 +1,4 @@
-import axiosInstance from '../../services/fetcher';
+import fetcher from '../../services/fetcher';
 import urls from '../../services/urls';
 
 interface SFInsertResponse {
@@ -23,8 +23,8 @@ const createHours = async ({
   jobId: string;
   date: Date;
 }) => {
-  await axiosInstance.setService('salesforce');
-  const { data } = await axiosInstance.instance.get(
+  await fetcher.setService('salesforce');
+  const { data } = await fetcher.instance.get(
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
   );
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
@@ -41,13 +41,13 @@ const createHours = async ({
 
   const hoursInsertUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
-  const insertRes: SFInsertResponse = await axiosInstance.instance.post(
+  const insertRes: SFInsertResponse = await fetcher.instance.post(
     hoursInsertUri,
     hoursToAdd
   );
   //Query new contact to get household account number for opp
   if (insertRes.data?.success) {
-    const res = await axiosInstance.instance.get(
+    const res = await fetcher.instance.get(
       urls.SFOperationPrefix + '/Contact/' + contactId
     );
     return res.data;

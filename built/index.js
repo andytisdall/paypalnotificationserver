@@ -39,7 +39,7 @@ var app = express_1.default();
 app.use('/static', express_1.default.static(path_1.join('public', 'static')));
 app.use('/images', express_1.default.static(path_1.join('public', 'images')));
 app.get('/manifest.json', function (req, res) {
-    res.sendFile('manifest.json', { root: 'public' });
+    return res.sendFile(path_1.join('public', 'manifest.json'), { root: __dirname });
 });
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());

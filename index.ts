@@ -3,9 +3,10 @@ import cors from 'cors';
 import fileUpload from 'express-fileupload';
 import { join } from 'path';
 import 'express-async-errors';
-import { connectDb } from './setupDb';
-// register models
 
+import { connectDb } from './setupDb';
+
+// register models
 import './src/models/user';
 import './src/models/phone';
 import './src/models/restaurant';
@@ -45,9 +46,10 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 app.use('/static', express.static(join('public', 'static')));
 app.use('/images', express.static(join('public', 'images')));
-app.get('/manifest.json', (req, res) => {
-  res.sendFile('manifest.json', { root: 'public' });
-});
+app.get('/manifest.json', (req, res) =>
+  res.sendFile(join('public', 'manifest.json'), { root: __dirname })
+);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
