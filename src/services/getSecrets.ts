@@ -21,25 +21,25 @@ export default async (nameList: string[]) => {
   const secrets: secrets = {};
   const secretClient = new SecretManagerServiceClient();
   // error if not in cloud env
-  try {
-    const projectId = await secretClient.getProjectId();
-    if (projectId) {
-      const getSecret = async (name: string) => {
-        const [version] = await secretClient.accessSecretVersion({
-          name: `projects/385802469502/secrets/${name}/versions/latest`,
-        });
-        return version.payload?.data?.toString();
-      };
-      for (let secretName of nameList) {
-        secrets[secretName] = await getSecret(secretName);
-      }
-    } else {
-      throw Error();
+  // try {
+  const projectId = await secretClient.getProjectId();
+  if (projectId) {
+    const getSecret = async (name: string) => {
+      const [version] = await secretClient.accessSecretVersion({
+        name: `projects/385802469502/secrets/${name}/versions/latest`,
+      });
+      return version.payload?.data?.toString();
+    };
+    for (let secretName of nameList) {
+      secrets[secretName] = await getSecret(secretName);
     }
-  } catch {
-    // for (let secretName of nameList) {
-    //   secrets[secretName] = keys[secretName];
-    // }
+  } else {
+    throw Error();
   }
+  // } catch {
+  //   // for (let secretName of nameList) {
+  //   //   secrets[secretName] = keys[secretName];
+  //   // }
+  // }
   return secrets;
 };
