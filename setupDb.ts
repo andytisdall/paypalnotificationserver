@@ -1,16 +1,13 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const getSecrets = require('./src/services/getSecrets');
+import getSecrets from './src/services/getSecrets';
 
 export const connectDb = async () => {
   const { MONGO_PASSWORD } = await getSecrets(['MONGO_PASSWORD']);
 
   const uri = `mongodb+srv://andytisdall:${MONGO_PASSWORD}@cluster0.vpgosgh.mongodb.net/CKdb?retryWrites=true&w=majority`;
 
-  mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  mongoose.connect(uri, {});
 
   mongoose.connection.on('connected', () => {
     console.log('Connected to mongo cloud');

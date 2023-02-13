@@ -35,26 +35,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDb = void 0;
-var mongoose = require('mongoose');
-var getSecrets = require('./src/services/getSecrets');
+var mongoose_1 = __importDefault(require("mongoose"));
+var getSecrets_1 = __importDefault(require("./src/services/getSecrets"));
 var connectDb = function () { return __awaiter(void 0, void 0, void 0, function () {
     var MONGO_PASSWORD, uri;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, getSecrets(['MONGO_PASSWORD'])];
+            case 0: return [4 /*yield*/, getSecrets_1.default(['MONGO_PASSWORD'])];
             case 1:
                 MONGO_PASSWORD = (_a.sent()).MONGO_PASSWORD;
                 uri = "mongodb+srv://andytisdall:" + MONGO_PASSWORD + "@cluster0.vpgosgh.mongodb.net/CKdb?retryWrites=true&w=majority";
-                mongoose.connect(uri, {
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                });
-                mongoose.connection.on('connected', function () {
+                mongoose_1.default.connect(uri, {});
+                mongoose_1.default.connection.on('connected', function () {
                     console.log('Connected to mongo cloud');
                 });
-                mongoose.connection.on('error', function (err) {
+                mongoose_1.default.connection.on('error', function (err) {
                     console.error('Error connecting to mongo');
                     console.log(err);
                 });
