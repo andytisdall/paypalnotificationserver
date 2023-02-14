@@ -14,7 +14,7 @@ interface FileMetaData {
   folder: string;
 }
 
-const fileInfo: Record<DocType, FileMetaData> = {
+export const fileInfo: Record<DocType, FileMetaData> = {
   BL: {
     title: 'Business License',
     description: '',
@@ -72,7 +72,7 @@ export const uploadFiles = async (
   await updateAccount(account.salesforceId, files, accountType, date);
   const insertPromises = files.map((f) => insertFile(account, f));
   await Promise.all(insertPromises);
-  return insertPromises.length;
+  return files.map((f) => fileInfo[f.docType].title);
 };
 
 const insertFile = async (account: Account, file: File) => {
@@ -154,6 +154,8 @@ export const updateAccount = async (
     Home_Chef_Food_Handler_Certification__c?: boolean;
     Home_Chef_Volunteeer_Agreement__c?: boolean;
   };
+
+  await fetcher.setService('salesforce');
 
   const data: FileTypes = {};
 

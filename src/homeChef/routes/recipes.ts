@@ -88,4 +88,16 @@ router.patch(
   }
 );
 
+router.delete(
+  '/recipe/:id',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const id: string = req.params.id;
+    await Recipe.deleteOne({ _id: id });
+    res.sendStatus(204);
+  }
+);
+
 export default router;

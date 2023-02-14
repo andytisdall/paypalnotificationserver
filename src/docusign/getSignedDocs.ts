@@ -1,9 +1,8 @@
 import fetcher from '../services/fetcher';
 import getSecrets from '../services/getSecrets';
-import urls from '../services/urls';
 
 const getSignedDocs = async (envelopeId: string) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService('docusign');
   const { DOCUSIGN_ACCOUNT_ID } = await getSecrets(['DOCUSIGN_ACCOUNT_ID']);
   if (!DOCUSIGN_ACCOUNT_ID) {
     throw Error('Docusign account ID not found');

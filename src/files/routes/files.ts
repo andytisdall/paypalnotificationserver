@@ -37,14 +37,14 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   // make api call to salesforce
 
-  const fileCount = await uploadFiles(
+  const filesAdded = await uploadFiles(
     accountId,
     fileList,
     accountType,
     expiration
   );
 
-  res.send({ numberOfFilesUploaded: fileCount });
+  res.send({ filesAdded });
 });
 
 export default router;

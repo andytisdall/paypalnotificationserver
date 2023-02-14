@@ -39,7 +39,7 @@ it('signs up for a job shift', async () => {
   const date = shift.GW_Volunteers__Start_Date_Time__c;
 
   const res = await request(app)
-    .post('/api/home-chef/job-listing')
+    .post('/api/home-chef/hours')
     .set('Authorization', token)
     .send({
       mealCount: '25',

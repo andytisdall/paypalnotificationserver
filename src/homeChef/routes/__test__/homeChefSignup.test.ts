@@ -1,9 +1,7 @@
 import app from '../../../../index';
 import request from 'supertest';
 import sgMail from '@sendgrid/mail';
-import { User } from '../../../models/user';
-
-import migrate from '../../../services/salesforce/migrateVolunteers';
+import { User } from '../../../auth/models/user';
 
 jest.mock('@sendgrid/mail');
 

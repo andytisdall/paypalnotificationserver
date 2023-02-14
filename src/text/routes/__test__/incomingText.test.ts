@@ -1,7 +1,7 @@
-import app from '../../../index';
+import app from '../../../../index';
 import request from 'supertest';
 
-import textResponses from '../textResponses';
+import textResponses from '../../textResponses';
 import { Phone, REGIONS } from '../../models/phone';
 
 jest.mock('twilio');

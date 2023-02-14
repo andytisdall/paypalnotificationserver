@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import getSecrets from './src/services/getSecrets';
+import getSecrets from './services/getSecrets';
 
 export const connectDb = async () => {
   const { MONGO_PASSWORD } = await getSecrets(['MONGO_PASSWORD']);

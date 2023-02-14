@@ -3,7 +3,7 @@ const passwordGenerator = require('generate-password');
 
 const urls = require('../urls');
 const getSFToken = require('./getSFToken');
-const { User } = require('../../models/user');
+const { User } = require('../../auth/models/user');
 
 const axiosInstance = axios.create({
   baseURL: urls.salesforce,

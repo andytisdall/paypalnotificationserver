@@ -5,38 +5,48 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
+import fetcher from '../../services/fetcher';
+import urls from '../../services/urls';
+import { fileInfo } from '../../files/uploadFilesToSalesforce';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
 const router = express.Router();
 
-router.post(
-  '/restaurant',
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { name, userId, salesforceId } = req.body;
-    const user = await User.findById(userId);
-    if (!user) {
-      throw new Error('User not found!');
-    }
-    const newRestaurant = new Restaurant({ name, user, salesforceId });
-    await newRestaurant.save();
-    res.status(201).send(newRestaurant);
-  }
-);
+const docs = Object.values({ ...fileInfo, HC: null, FH: null })
+  .filter((v) => v)
+  .map((info) => info && info.title);
 
-router.get('/restaurant', currentUser, requireAuth, async (req, res) => {
+router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const { name, userId, salesforceId } = req.body;
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error('User not found!');
+  }
+  const newRestaurant = new Restaurant({ name, user, salesforceId });
+  await newRestaurant.save();
+  res.status(201).send(newRestaurant);
+});
+
+router.get('/', currentUser, requireAuth, async (req, res) => {
   const restaurant = await Restaurant.findOne({ user: req.currentUser });
   if (!restaurant) {
     return res.sendStatus(404);
   }
-  return res.send(restaurant);
+  await fetcher.setService('salesforce');
+  const account = await fetcher.instance.get(
+    urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId
+  );
+  const completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
+  const extraInfo = {
+    completedDocs,
+    remainingDocs: docs.filter((d) => !completedDocs.includes(d)),
+  };
+  return res.send({ restaurant, extraInfo });
 });
 
 router.get(
-  '/restaurant/:restaurantId',
+  '/:restaurantId',
   currentUser,
   requireAuth,
   requireAdmin,
@@ -56,41 +66,29 @@ router.get(
   }
 );
 
-router.get(
-  '/restaurants',
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const restaurants = await Restaurant.find();
-    res.send(restaurants);
-  }
-);
+router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const restaurants = await Restaurant.find();
+  res.send(restaurants);
+});
 
-router.patch(
-  '/restaurant',
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { restaurantId, name, salesforceId, userId } = req.body;
+router.patch('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const { restaurantId, name, salesforceId, userId } = req.body;
 
-    const rest = await Restaurant.findById(restaurantId);
-    if (!rest) {
-      throw Error('Restaurant not found');
-    }
-    if (name) {
-      rest.name = name;
-    }
-    if (salesforceId) {
-      rest.salesforceId = salesforceId;
-    }
-    if (userId) {
-      rest.user = userId;
-    }
-    await rest.save();
-    res.send(rest);
+  const rest = await Restaurant.findById(restaurantId);
+  if (!rest) {
+    throw Error('Restaurant not found');
   }
-);
+  if (name) {
+    rest.name = name;
+  }
+  if (salesforceId) {
+    rest.salesforceId = salesforceId;
+  }
+  if (userId) {
+    rest.user = userId;
+  }
+  await rest.save();
+  res.send(rest);
+});
 
 export default router;

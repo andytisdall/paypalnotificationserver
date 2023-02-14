@@ -1,4 +1,4 @@
-import app from '../../../index';
+import app from '../../../../index';
 import request from 'supertest';
 
 it('submits a meal survey', async () => {

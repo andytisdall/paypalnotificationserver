@@ -62,7 +62,7 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
   res.send(redirectUrl);
 });
 
-router.post('/getDoc', async (req, res) => {
+router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   const {
     envelopeId,
     accountId,
@@ -79,10 +79,10 @@ router.post('/getDoc', async (req, res) => {
     },
   };
 
-  const fileCount = await uploadFiles(accountId, [file], accountType);
+  const filesAdded = await uploadFiles(accountId, [file], accountType);
 
   res.status(201);
-  res.send({ filesAdded: fileCount });
+  res.send({ filesAdded });
 });
 
 export default router;

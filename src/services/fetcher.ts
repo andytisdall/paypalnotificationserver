@@ -22,6 +22,7 @@ class fetcher {
       const baseURL = urls[service];
       this.instance.defaults.baseURL = baseURL;
       this.token = undefined;
+      console.log(this.instance.defaults.baseURL);
     }
     await this.getToken();
   }

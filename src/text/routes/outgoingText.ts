@@ -4,7 +4,7 @@ import path from 'path';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import { REGIONS, Region } from '../../models/phone';
+import { REGIONS, Region } from '../models/phone';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';

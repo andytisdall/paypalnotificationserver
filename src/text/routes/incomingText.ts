@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import twilio, { twiml } from 'twilio';
 import moment from 'moment';
 
-import { REGIONS, Region } from '../../models/phone';
+import { REGIONS, Region } from '../models/phone';
 import textResponses from '../textResponses';
 import { sendEmail } from '../../services/email';
 

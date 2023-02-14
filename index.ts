@@ -4,15 +4,15 @@ import fileUpload from 'express-fileupload';
 import { join } from 'path';
 import 'express-async-errors';
 
-import { connectDb } from './setupDb';
+import { connectDb } from './src/setupDb';
 
 // register models
-import './src/models/user';
-import './src/models/phone';
-import './src/models/restaurant';
-import './src/models/recipe';
-import './src/models/feedback';
-import './src/models/paypalTxn';
+import './src/auth/models/user';
+import './src/text/models/phone';
+import './src/mealProgram/models/restaurant';
+import './src/homeChef/models/recipe';
+import './src/text/models/feedback';
+import './src/paypal/models/paypalTxn';
 
 // routes
 
@@ -60,11 +60,11 @@ app.use(fileUpload());
 
 const apiRouter = express.Router({ mergeParams: true });
 
-apiRouter.use('/paypal', paypalRouter);
 apiRouter.use(authRouter);
+apiRouter.use('/paypal', paypalRouter);
 apiRouter.use('/user', userRouter);
 apiRouter.use('/text', textRouter);
-apiRouter.use(restaurantRouter);
+apiRouter.use('/restaurant', restaurantRouter);
 apiRouter.use('/files', fileRouter);
 apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);

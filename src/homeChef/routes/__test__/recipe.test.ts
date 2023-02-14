@@ -15,7 +15,7 @@ it('posts a recipe', async () => {
     .field('ingredients', 'pig')
     .field('description', 'a recipe from the old country')
     .field('instructions', 'fry it up!')
-    // .attach('image', 'src/routes/textService/__test__/photo.jpeg')
+    .attach('image', 'src/text/routes/__test__/photo.jpeg')
     .expect(201);
 
   expect(res.body.name).toEqual('bacon');
