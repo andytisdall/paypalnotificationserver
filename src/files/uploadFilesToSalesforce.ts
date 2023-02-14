@@ -32,7 +32,7 @@ export const fileInfo: Record<DocType, FileMetaData> = {
     description: '',
     folder: 'direct-deposit',
   },
-  HC: { title: 'Home Chef Contract', description: '', folder: 'home-chef' },
+  HC: { title: 'Volunteer Agreement', description: '', folder: 'home-chef' },
   FH: {
     title: 'Food Handler Certification',
     description: '',
