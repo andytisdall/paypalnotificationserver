@@ -1,0 +1,250 @@
+import FormData from 'form-data';
+import path from 'path';
+
+import urls from '../services/urls';
+import fetcher from '../services/fetcher';
+import { AccountType } from './getModel';
+import { getAccountForFileUpload } from './getModel';
+
+export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
+
+interface FileMetaData {
+  title: string;
+  description: string;
+  folder: string;
+}
+
+const fileInfo: Record<DocType, FileMetaData> = {
+  BL: {
+    title: 'Business License',
+    description: '',
+    folder: 'business-license',
+  },
+  HD: {
+    title: 'Health Department Permit',
+    description: '',
+    folder: 'health-department-permit',
+  },
+  RC: { title: 'Restaurant Contract', description: '', folder: 'contract' },
+  W9: { title: 'W9', description: '', folder: 'w9' },
+  DD: {
+    title: 'Direct Deposit Form',
+    description: '',
+    folder: 'direct-deposit',
+  },
+  HC: { title: 'Home Chef Contract', description: '', folder: 'home-chef' },
+  FH: {
+    title: 'Food Handler Certification',
+    description: '',
+    folder: 'home-chef',
+  },
+};
+
+export type Account = {
+  name: string;
+  salesforceId: string;
+};
+
+export interface File {
+  docType: DocType;
+  file: {
+    data: Buffer;
+    name: string;
+  };
+}
+
+export type FileList = File[];
+
+export const uploadFiles = async (
+  accountId: string,
+  files: FileList,
+  accountType: AccountType,
+  date?: string
+) => {
+  await fetcher.setService('salesforce');
+  const account: Account | undefined = await getAccountForFileUpload(
+    accountType,
+    accountId
+  );
+  if (!account) {
+    throw Error('Could not get account');
+  }
+  await updateAccount(account.salesforceId, files, accountType, date);
+  const insertPromises = files.map((f) => insertFile(account, f));
+  await Promise.all(insertPromises);
+  return insertPromises.length;
+};
+
+const insertFile = async (account: Account, file: File) => {
+  const typeOfFile = fileInfo[file.docType];
+
+  const fileMetaData = {
+    Title: typeOfFile.title,
+    Description: typeOfFile.description,
+    PathOnClient:
+      account.name + '/' + typeOfFile.folder + path.extname(file.file.name),
+  };
+
+  const postBody = new FormData();
+  postBody.append('entity_document', JSON.stringify(fileMetaData), {
+    contentType: 'application/json',
+  });
+
+  postBody.append('VersionData', file.file.data, { filename: file.file.name });
+  let contentVersionId;
+
+  let res = await fetcher.instance.post(
+    urls.SFOperationPrefix + '/ContentVersion/',
+    postBody,
+    {
+      headers: postBody.getHeaders(),
+    }
+  );
+  console.log('Content Version created: ' + res.data.id);
+  contentVersionId = res.data.id;
+
+  const ContentDocumentId = await getDocumentId(contentVersionId);
+  const accountId = account.salesforceId;
+
+  const CDLinkData = {
+    ShareType: 'I',
+    LinkedEntityId: accountId,
+    ContentDocumentId,
+  };
+
+  await fetcher.instance.post(
+    urls.SFOperationPrefix + '/ContentDocumentLink/',
+    CDLinkData,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  console.log('File Linked to Account: ' + res.data.id);
+};
+
+const getDocumentId = async (CVId: string) => {
+  const documentQuery = [
+    'SELECT',
+    'ContentDocumentId',
+    'from',
+    'ContentVersion',
+    'WHERE',
+    'Id',
+    '=',
+    `'${CVId}'`,
+  ];
+
+  const documentQueryUri = urls.SFQueryPrefix + documentQuery.join('+');
+
+  const documentQueryResponse = await fetcher.instance.get(documentQueryUri);
+  return documentQueryResponse.data.records[0].ContentDocumentId;
+};
+
+export const updateAccount = async (
+  accountId: string,
+  files: FileList,
+  accountType: AccountType,
+  date?: string
+) => {
+  type FileTypes = {
+    Health_Department_Expiration_Date__c?: string;
+    Meal_Program_Onboarding__c?: string;
+    Home_Chef_Food_Handler_Certification__c?: boolean;
+    Home_Chef_Volunteeer_Agreement__c?: boolean;
+  };
+
+  const data: FileTypes = {};
+
+  let account;
+  if (accountType === 'restaurant') {
+    account = '/Account/';
+  }
+  if (accountType === 'contact') {
+    account = '/Contact/';
+  }
+
+  const accountGetUri = urls.SFOperationPrefix + account + accountId;
+  const res: { data: FileTypes } = await fetcher.instance.get(accountGetUri);
+
+  const existingDocuments = {
+    mealProgram: res.data.Meal_Program_Onboarding__c,
+    healthExpiration: res.data.Health_Department_Expiration_Date__c,
+    foodHandler: res.data.Home_Chef_Food_Handler_Certification__c,
+    volunteerAgreement: res.data.Home_Chef_Volunteeer_Agreement__c,
+  };
+
+  const fileTitles = files.map((f) => fileInfo[f.docType].title);
+
+  if (accountType === 'restaurant') {
+    if (existingDocuments.mealProgram) {
+      const docs = [
+        ...new Set([
+          ...existingDocuments.mealProgram.split(';'),
+          ...fileTitles,
+        ]),
+      ];
+      data.Meal_Program_Onboarding__c = docs.join(';') + ';';
+    } else {
+      data.Meal_Program_Onboarding__c = fileTitles.join(';') + ';';
+    }
+    if (date) {
+      data.Health_Department_Expiration_Date__c = date;
+    }
+  }
+
+  if (accountType === 'contact') {
+    if (fileTitles.includes(fileInfo.FH.title)) {
+      data.Home_Chef_Food_Handler_Certification__c = true;
+    }
+    if (fileTitles.includes(fileInfo.HC.title)) {
+      data.Home_Chef_Volunteeer_Agreement__c = true;
+    }
+  }
+
+  const accountUpdateUri = urls.SFOperationPrefix + account + accountId;
+
+  await fetcher.instance.patch(accountUpdateUri, data);
+
+  if (Object.values(existingDocuments).every((v) => !v)) {
+    return;
+  }
+
+  // get all cdlinks tied to that account
+  const CDLinkQuery = `SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${accountId}'`;
+
+  const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
+
+  const CDLinkQueryResponse: {
+    data: { records: { ContentDocumentId: string }[] };
+  } = await fetcher.instance.get(CDLinkQueryUri);
+  // then get all content documents from the CDIds in the cdlinks
+  if (!CDLinkQueryResponse.data.records) {
+    throw Error('Failed querying for ContentDocumentLink');
+  }
+
+  const getPromises = CDLinkQueryResponse.data.records.map(
+    async ({ ContentDocumentId }) => {
+      const ContentDocUri =
+        urls.SFOperationPrefix + '/ContentDocument/' + ContentDocumentId;
+      const { data } = await fetcher.instance.get(ContentDocUri);
+      // then search those for the titles that we're replacing
+      return data;
+    }
+  );
+  const ContentDocs = await Promise.all(getPromises);
+  const DocsToDelete = ContentDocs.filter((cd) => {
+    return fileTitles.includes(cd.Title);
+  });
+  // then delete those
+  const deletePromises = DocsToDelete.map(async (cd) => {
+    const ContentDocUri = urls.SFOperationPrefix + '/ContentDocument/' + cd.Id;
+    await fetcher.instance.delete(ContentDocUri);
+  });
+  await Promise.all(deletePromises);
+
+  // and the links as well? or will it cascade
+
+  return;
+};

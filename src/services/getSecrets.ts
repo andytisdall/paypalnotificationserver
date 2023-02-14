@@ -18,7 +18,7 @@ interface secrets extends Record<string, string | undefined> {
 }
 
 export default async (nameList: string[]) => {
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV !== 'production') {
     return keys;
   }
   const secrets: secrets = {};

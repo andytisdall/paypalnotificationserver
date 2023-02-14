@@ -17,26 +17,26 @@ import './src/models/paypalTxn';
 // routes
 
 // paypal
-import paypalRouter from './src/routes/paypal/paypal';
+import paypalRouter from './src/paypal/routes/paypal';
 
 // text
-import textRouter from './src/routes/textService';
+import textRouter from './src/text/routes';
 
 // restaurant onboarding
-import restaurantRouter from './src/routes/restaurantOnboarding/restaurant';
-import fileRouter from './src/routes/restaurantOnboarding/files';
+import restaurantRouter from './src/mealProgram/routes/restaurant';
+
+//files
+import fileRouter from './src/files/routes/files';
 
 // home chef
-import homeChefRouter from './src/routes/homeChef';
+import homeChefRouter from './src/homeChef/routes';
 
 // shared
-import docusignRouter from './src/routes/signDocuments';
+import docusignRouter from './src/docusign/routes/signDocuments';
 
 // auth
-import signinRouter from './src/routes/auth/signin';
-import userRouter from './src/routes/auth/user';
-
-import dbRouter from './src/routes/db';
+import authRouter from './src/auth/routes/auth';
+import userRouter from './src/auth/routes/user';
 
 import { errorHandler } from './src/middlewares/error-handler';
 
@@ -44,6 +44,7 @@ const PORT = process.env.PORT || 3001;
 
 // initialize app and add middleware
 const app = express();
+app.set('trust proxy', true);
 app.use('/static', express.static(join('public', 'static')));
 app.use('/images', express.static(join('public', 'images')));
 app.get('/manifest.json', (req, res) =>
@@ -59,15 +60,14 @@ app.use(fileUpload());
 
 const apiRouter = express.Router({ mergeParams: true });
 
-apiRouter.use(paypalRouter);
-apiRouter.use(signinRouter);
-apiRouter.use(userRouter);
+apiRouter.use('/paypal', paypalRouter);
+apiRouter.use(authRouter);
+apiRouter.use('/user', userRouter);
 apiRouter.use('/text', textRouter);
 apiRouter.use(restaurantRouter);
-apiRouter.use(fileRouter);
-apiRouter.use(docusignRouter);
+apiRouter.use('/files', fileRouter);
+apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
-apiRouter.use(dbRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get('/*', (req, res) => {

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 
 import urls from './urls';
-import getDSJWT from './docusign/getDSJWT';
+import getDSJWT from '../docusign/getDSJWT';
 import getSFToken from './salesforce/getSFToken';
 
 type Service = 'salesforce' | 'docusign';
