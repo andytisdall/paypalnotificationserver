@@ -26,7 +26,7 @@ router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
     firstName: contact.FirstName,
     lastName: contact.LastName,
     volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
-    foodHandlerCertification: contact.Home_Chef_Food_Handler_Certification__c,
+    foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
     homeChefStatus: contact.Home_Chef_Status__c,
   });
 });

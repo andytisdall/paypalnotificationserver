@@ -14,7 +14,7 @@ interface FileMetaData {
   folder: string;
 }
 
-export const fileInfo: Record<DocType, FileMetaData> = {
+export const restaurantFileInfo = {
   BL: {
     title: 'Business License',
     description: '',
@@ -32,12 +32,20 @@ export const fileInfo: Record<DocType, FileMetaData> = {
     description: '',
     folder: 'direct-deposit',
   },
+};
+
+export const chefFileInfo = {
   HC: { title: 'Volunteer Agreement', description: '', folder: 'home-chef' },
   FH: {
     title: 'Food Handler Certification',
     description: '',
     folder: 'home-chef',
   },
+};
+
+const fileInfo: Record<DocType, FileMetaData> = {
+  ...restaurantFileInfo,
+  ...chefFileInfo,
 };
 
 export type Account = {
@@ -153,6 +161,8 @@ export const updateAccount = async (
     Meal_Program_Onboarding__c?: string;
     Home_Chef_Food_Handler_Certification__c?: boolean;
     Home_Chef_Volunteeer_Agreement__c?: boolean;
+    Home_Chef_Status__c?: string;
+    Meal_Program_Status__c?: string;
   };
 
   await fetcher.setService('salesforce');
@@ -177,6 +187,8 @@ export const updateAccount = async (
     volunteerAgreement: res.data.Home_Chef_Volunteeer_Agreement__c,
   };
 
+  //  mark account as active if all required docs are present
+
   const fileTitles = files.map((f) => fileInfo[f.docType].title);
 
   if (accountType === 'restaurant') {
@@ -194,6 +206,14 @@ export const updateAccount = async (
     if (date) {
       data.Health_Department_Expiration_Date__c = date;
     }
+    const allDocs = Object.values(restaurantFileInfo).map((doc) => doc.title);
+    const dateExists = !!(date || existingDocuments.healthExpiration);
+    if (
+      allDocs.every((doc) => Object.values(data).includes(doc)) &&
+      dateExists
+    ) {
+      data.Meal_Program_Status__c = 'Active';
+    }
   }
 
   if (accountType === 'contact') {
@@ -202,6 +222,14 @@ export const updateAccount = async (
     }
     if (fileTitles.includes(fileInfo.HC.title)) {
       data.Home_Chef_Volunteeer_Agreement__c = true;
+    }
+    if (
+      (data.Home_Chef_Food_Handler_Certification__c ||
+        existingDocuments.foodHandler) &&
+      (data.Home_Chef_Volunteeer_Agreement__c ||
+        existingDocuments.volunteerAgreement)
+    ) {
+      data.Home_Chef_Status__c = 'Active';
     }
   }
 

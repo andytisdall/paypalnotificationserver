@@ -26,5 +26,6 @@ export default async () => {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   });
+
   return SFResponse.data.access_token;
 };

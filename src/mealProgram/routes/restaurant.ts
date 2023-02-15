@@ -7,15 +7,11 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import fetcher from '../../services/fetcher';
 import urls from '../../services/urls';
-import { fileInfo } from '../../files/uploadFilesToSalesforce';
+import { restaurantFileInfo } from '../../files/uploadFilesToSalesforce';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
 const router = express.Router();
-
-const docs = Object.values({ ...fileInfo, HC: null, FH: null })
-  .filter((v) => v)
-  .map((info) => info && info.title);
 
 router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
   const { name, userId, salesforceId } = req.body;
@@ -40,7 +36,9 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   const completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
   const extraInfo = {
     completedDocs,
-    remainingDocs: docs.filter((d) => !completedDocs.includes(d)),
+    remainingDocs: Object.values(restaurantFileInfo).filter(
+      (d) => !completedDocs.includes(d)
+    ),
   };
   return res.send({ restaurant, extraInfo });
 });
