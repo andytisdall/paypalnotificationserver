@@ -46,23 +46,27 @@ var getSFToken_1 = __importDefault(require("./salesforce/getSFToken"));
 var fetcher = /** @class */ (function () {
     function fetcher() {
         this.instance = axios_1.default.create();
+        this.token = { salesforce: undefined, docusign: undefined };
     }
     fetcher.prototype.setService = function (service) {
         return __awaiter(this, void 0, void 0, function () {
-            var baseURL;
+            var baseURL, token;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (this.service !== service) {
-                            this.service = service;
-                            baseURL = urls_1.default[service];
-                            this.instance.defaults.baseURL = baseURL;
-                            this.token = undefined;
-                        }
-                        return [4 /*yield*/, this.getToken()];
-                    case 1:
+                        if (!(this.service !== service)) return [3 /*break*/, 3];
+                        this.service = service;
+                        baseURL = urls_1.default[service];
+                        this.instance.defaults.baseURL = baseURL;
+                        token = this.token[this.service];
+                        if (!token) return [3 /*break*/, 1];
+                        this.instance.defaults.headers.common['Authorization'] = "Bearer " + token;
+                        return [3 /*break*/, 3];
+                    case 1: return [4 /*yield*/, this.getToken()];
+                    case 2:
                         _a.sent();
-                        return [2 /*return*/];
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -76,8 +80,6 @@ var fetcher = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!!this.token) return [3 /*break*/, 5];
-                        token = void 0;
                         if (!(this.service === 'salesforce')) return [3 /*break*/, 2];
                         return [4 /*yield*/, getSFToken_1.default()];
                     case 1:
@@ -91,14 +93,12 @@ var fetcher = /** @class */ (function () {
                         _a.label = 4;
                     case 4:
                         if (!token) {
-                            throw Error('No token fetcher defined for this service');
+                            throw Error('Could not get token');
                         }
                         this.instance.defaults.headers.common['Authorization'] = "Bearer " + token;
-                        this.instance.defaults.headers.common['Content-Type'] =
-                            'application/json';
-                        this.token = token;
-                        _a.label = 5;
-                    case 5: return [2 /*return*/];
+                        this.instance.defaults.headers.common['Content-Type'] = 'application/json';
+                        this.token[this.service] = token;
+                        return [2 /*return*/];
                 }
             });
         });
@@ -109,22 +109,27 @@ var fetcher = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 5]);
-                        return [4 /*yield*/, this.instance.get(url, options)];
+                        if (!this.service) {
+                            throw Error('Base url has not been set');
+                        }
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 6]);
+                        return [4 /*yield*/, this.instance.get(url, options)];
+                    case 2:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 2:
-                        err_1 = _a.sent();
-                        this.token = undefined;
-                        return [4 /*yield*/, this.getToken()];
                     case 3:
+                        err_1 = _a.sent();
+                        this.token[this.service] = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 4:
                         _a.sent();
                         return [4 /*yield*/, this.instance.get(url, options)];
-                    case 4:
+                    case 5:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -135,22 +140,27 @@ var fetcher = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 5]);
-                        return [4 /*yield*/, this.instance.post(url, body, options)];
+                        if (!this.service) {
+                            throw Error('Base url has not been set');
+                        }
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 6]);
+                        return [4 /*yield*/, this.instance.post(url, body, options)];
+                    case 2:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 2:
-                        err_2 = _a.sent();
-                        this.token = undefined;
-                        return [4 /*yield*/, this.getToken()];
                     case 3:
+                        err_2 = _a.sent();
+                        this.token[this.service] = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 4:
                         _a.sent();
                         return [4 /*yield*/, this.instance.post(url, body, options)];
-                    case 4:
+                    case 5:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -161,22 +171,27 @@ var fetcher = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 5]);
-                        return [4 /*yield*/, this.instance.patch(url, body, options)];
+                        if (!this.service) {
+                            throw Error('Base url has not been set');
+                        }
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 6]);
+                        return [4 /*yield*/, this.instance.patch(url, body, options)];
+                    case 2:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 2:
-                        err_3 = _a.sent();
-                        this.token = undefined;
-                        return [4 /*yield*/, this.getToken()];
                     case 3:
+                        err_3 = _a.sent();
+                        this.token[this.service] = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 4:
                         _a.sent();
                         return [4 /*yield*/, this.instance.patch(url, body, options)];
-                    case 4:
+                    case 5:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -187,22 +202,27 @@ var fetcher = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 5]);
-                        return [4 /*yield*/, this.instance.delete(url, options)];
+                        if (!this.service) {
+                            throw Error('Base url has not been set');
+                        }
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 6]);
+                        return [4 /*yield*/, this.instance.delete(url, options)];
+                    case 2:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 2:
-                        err_4 = _a.sent();
-                        this.token = undefined;
-                        return [4 /*yield*/, this.getToken()];
                     case 3:
+                        err_4 = _a.sent();
+                        this.token[this.service] = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 4:
                         _a.sent();
                         return [4 /*yield*/, this.instance.delete(url, options)];
-                    case 4:
+                    case 5:
                         res = _a.sent();
                         return [2 /*return*/, res];
-                    case 5: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });

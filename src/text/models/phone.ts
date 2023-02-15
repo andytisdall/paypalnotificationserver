@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const REGIONS = {
+export const REGIONS: Record<Region, string> = {
   WEST_OAKLAND: '+15105297288',
   EAST_OAKLAND: '+15109301159',
 };

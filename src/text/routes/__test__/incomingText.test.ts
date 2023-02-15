@@ -1,8 +1,11 @@
 import app from '../../../../index';
 import request from 'supertest';
+import mongoose from 'mongoose';
 
 import textResponses from '../../textResponses';
 import { Phone, REGIONS } from '../../models/phone';
+
+const Feedback = mongoose.model('Feedback');
 
 jest.mock('twilio');
 
@@ -61,8 +64,9 @@ it('gets a duplicate response', async () => {
 });
 
 it('texts feedback', async () => {
+  const message = 'The meals are delicious';
   const incomingText = {
-    Body: 'The meals are delicious',
+    Body: message,
     From: from,
     To: REGIONS['WEST_OAKLAND'],
   };
@@ -71,7 +75,14 @@ it('texts feedback', async () => {
     .send(incomingText)
     .expect(200);
   expect(res.text).toEqual(textResponses.feedbackResponse(from));
+
   // check for feedback record in db
+  const fb = await Feedback.findOne({
+    message,
+    region: 'WEST_OAKLAND',
+    sender: from,
+  });
+  expect(fb).not.toBeUndefined();
 });
 
 it('unsubscribes', async () => {

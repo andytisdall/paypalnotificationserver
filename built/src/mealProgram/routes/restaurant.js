@@ -91,7 +91,9 @@ router.get('/', current_user_1.currentUser, require_auth_1.requireAuth, function
                 completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
                 extraInfo = {
                     completedDocs: completedDocs,
-                    remainingDocs: Object.values(uploadFilesToSalesforce_1.restaurantFileInfo).filter(function (d) { return !completedDocs.includes(d); }),
+                    remainingDocs: Object.values(uploadFilesToSalesforce_1.restaurantFileInfo)
+                        .map(function (f) { return f.title; })
+                        .filter(function (d) { return !completedDocs.includes(d); }),
                 };
                 return [2 /*return*/, res.send({ restaurant: restaurant, extraInfo: extraInfo })];
         }

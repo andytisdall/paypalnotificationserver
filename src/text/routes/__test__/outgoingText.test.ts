@@ -9,7 +9,7 @@ it('sends an outgoing text', async () => {
     .post('/api/text/outgoing')
     .set('Authorization', token)
     .field('message', 'There is food available')
-    .field('region', REGIONS.EAST_OAKLAND)
+    .field('region', 'EAST_OAKLAND')
     .attach('image', 'src/text/routes/__test__/photo.jpeg')
     .expect(200);
 

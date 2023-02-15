@@ -1,3 +1,5 @@
+import { RecipientViewRequest } from 'docusign-esign';
+
 interface CreateViewArgs {
   signerClientId: string;
   signerEmail: string;
@@ -20,7 +22,7 @@ export default ({
   // args.signerClientId
   // args.dsPingUrl
 
-  let viewRequest = {
+  let viewRequest: RecipientViewRequest = {
     // Set the url where you want the recipient to go once they are done signing
     // should typically be a callback route somewhere in your app.
     // The query parameter is included as an example of how

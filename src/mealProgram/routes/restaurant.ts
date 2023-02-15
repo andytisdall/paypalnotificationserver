@@ -43,6 +43,11 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   return res.send({ restaurant, extraInfo });
 });
 
+router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {
+  const restaurants = await Restaurant.find();
+  res.send(restaurants);
+});
+
 router.get(
   '/:restaurantId',
   currentUser,
@@ -64,11 +69,6 @@ router.get(
   }
 );
 
-router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  const restaurants = await Restaurant.find();
-  res.send(restaurants);
-});
-
 router.patch('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
   const { restaurantId, name, salesforceId, userId } = req.body;
 
@@ -88,5 +88,17 @@ router.patch('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
   await rest.save();
   res.send(rest);
 });
+
+router.delete(
+  '/:id',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const id: string = req.params.id;
+    await Restaurant.deleteOne({ _id: id });
+    res.send(id);
+  }
+);
 
 export default router;

@@ -37,6 +37,7 @@ var PORT = process.env.PORT || 3001;
 // initialize app and add middleware
 var app = express_1.default();
 // app.set('trust proxy', true);
+// app.set('etag', false);
 app.use('/static', express_1.default.static(path_1.join('public', 'static')));
 app.use('/images', express_1.default.static(path_1.join('public', 'images')));
 app.get('/manifest.json', function (req, res) {
@@ -62,7 +63,11 @@ apiRouter.get('/*', function (req, res) {
 });
 app.use('/api', apiRouter);
 app.get('/*', function (req, res) {
-    res.sendFile(path_1.join('public', 'index.html'), { root: __dirname });
+    res.sendFile(path_1.join('public', 'index.html'), {
+        root: __dirname,
+        lastModified: false,
+        etag: false,
+    });
 });
 if (process.env.NODE_ENV !== 'test') {
     setupDb_1.connectDb();

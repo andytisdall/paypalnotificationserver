@@ -1,6 +1,5 @@
 import express from 'express';
 import twilio from 'twilio';
-import path from 'path';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
@@ -10,7 +9,6 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import { storeFile } from '../../files/storeFile';
 import getSecrets from '../../services/getSecrets';
-import urls from '../../services/urls';
 
 const Phone = mongoose.model('Phone');
 const smsRouter = express.Router();

@@ -26,13 +26,18 @@ export default async () => {
 
   dsApiClient.setBasePath(urls.docusign);
 
-  const result = await dsApiClient.requestJWTUserToken(
-    DOCUSIGN_ID,
-    DOCUSIGN_USER_ID,
-    ['signature', 'impersonation'],
-    DPKBuffer,
-    10000
-  );
+  const result: { body: { access_token: string | undefined } } =
+    await dsApiClient.requestJWTUserToken(
+      DOCUSIGN_ID,
+      DOCUSIGN_USER_ID,
+      ['signature', 'impersonation'],
+      DPKBuffer,
+      10000
+    );
+
+  if (!result.body.access_token) {
+    throw Error('Could not get Docusign token');
+  }
 
   return result.body.access_token;
 };

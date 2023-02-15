@@ -200,9 +200,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
     var data, account, accountGetUri, res, existingDocuments, fileTitles, docs, allDocs, dateExists, accountUpdateUri, CDLinkQuery, CDLinkQueryUri, CDLinkQueryResponse, getPromises, ContentDocs, DocsToDelete, deletePromises;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
-            case 1:
-                _a.sent();
+            case 0:
                 data = {};
                 if (accountType === 'restaurant') {
                     account = '/Account/';
@@ -212,7 +210,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
                 }
                 accountGetUri = urls_1.default.SFOperationPrefix + account + accountId;
                 return [4 /*yield*/, fetcher_1.default.get(accountGetUri)];
-            case 2:
+            case 1:
                 res = _a.sent();
                 existingDocuments = {
                     mealProgram: res.data.Meal_Program_Onboarding__c,
@@ -255,7 +253,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
                 }
                 accountUpdateUri = urls_1.default.SFOperationPrefix + account + accountId;
                 return [4 /*yield*/, fetcher_1.default.patch(accountUpdateUri, data)];
-            case 3:
+            case 2:
                 _a.sent();
                 if (Object.values(existingDocuments).every(function (v) { return !v; })) {
                     return [2 /*return*/];
@@ -263,7 +261,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
                 CDLinkQuery = "SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '" + accountId + "'";
                 CDLinkQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
                 return [4 /*yield*/, fetcher_1.default.get(CDLinkQueryUri)];
-            case 4:
+            case 3:
                 CDLinkQueryResponse = _a.sent();
                 // then get all content documents from the CDIds in the cdlinks
                 if (!CDLinkQueryResponse.data.records) {
@@ -287,7 +285,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
                     });
                 });
                 return [4 /*yield*/, Promise.all(getPromises)];
-            case 5:
+            case 4:
                 ContentDocs = _a.sent();
                 DocsToDelete = ContentDocs.filter(function (cd) {
                     return fileTitles.includes(cd.Title);
@@ -306,7 +304,7 @@ var updateAccount = function (accountId, files, accountType, date) { return __aw
                     });
                 }); });
                 return [4 /*yield*/, Promise.all(deletePromises)];
-            case 6:
+            case 5:
                 _a.sent();
                 // and the links as well? or will it cascade
                 return [2 /*return*/];

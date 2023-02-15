@@ -126,6 +126,9 @@ var getContactById = function (id) { return __awaiter(void 0, void 0, void 0, fu
                 return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/Contact/' + id)];
             case 2:
                 res = _a.sent();
+                if (!res.data) {
+                    throw Error('Contact not found');
+                }
                 return [2 /*return*/, res.data];
         }
     });

@@ -1,12 +1,30 @@
 import fs from 'fs-extra';
 import path from 'path';
+import {
+  Tabs,
+  SignHere,
+  DateSigned,
+  FullName,
+  Recipients,
+  EnvelopeDefinition,
+  Document,
+  Signer,
+} from 'docusign-esign';
 
 const mapAccountTypeToFiles = {
-  restaurant: 'World_Wide_Corp_lorem.pdf',
-  contact: 'Joshi.pdf',
+  restaurant: {
+    file: 'World_Wide_Corp_lorem.pdf',
+    name: 'Restaurant Contact',
+    id: '1',
+  },
+  contact: {
+    file: 'volunteer_agreement.pdf',
+    name: 'Volunteer Agreement',
+    id: '2',
+  },
 };
 
-interface CreateEnvelopeArgs {
+export interface CreateEnvelopeArgs {
   signerEmail: string;
   signerName: string;
   signerClientId: string;
@@ -21,7 +39,7 @@ export default ({
 }: CreateEnvelopeArgs) => {
   const doc = path.resolve(
     __dirname,
-    'contracts/' + mapAccountTypeToFiles[accountType]
+    'contracts/' + mapAccountTypeToFiles[accountType].file
   );
 
   // read file from a local directory
@@ -30,11 +48,11 @@ export default ({
 
   let doc1b64 = Buffer.from(docPdfBytes).toString('base64');
   // add the documents
-  let doc1 = {
+  let doc1: Document = {
     documentBase64: doc1b64,
-    name: 'TestPDF', // can be different from actual file name
+    name: mapAccountTypeToFiles[accountType].name, // can be different from actual file name
     fileExtension: 'pdf',
-    documentId: '3',
+    documentId: mapAccountTypeToFiles[accountType].id,
   };
 
   // Create signHere fields (also known as tabs) on the documents,
@@ -42,20 +60,27 @@ export default ({
   //
   // The DocuSign platform seaches throughout your envelope's
   // documents for matching anchor strings.
-  let signHere1 = {
+  let signTab: SignHere = {
     anchorString: '/sn1/',
-    anchorYOffset: '10',
-    anchorUnits: 'pixels',
-    anchorXOffset: '20',
+  };
+
+  let dateTab: DateSigned = {
+    anchorString: '/dt1/',
+  };
+
+  let nameTab: FullName = {
+    anchorString: '/fn1/',
   };
   // Tabs are set per recipient / signer
-  let signer1Tabs = {
-    signHereTabs: [signHere1],
+  let signer1Tabs: Tabs = {
+    signHereTabs: [signTab],
+    dateSignedTabs: [dateTab],
+    fullNameTabs: [nameTab],
   };
   // Create a signer recipient to sign the document, identified by name and email
   // We set the clientUserId to enable embedded signing for the recipient
   // We're setting the parameters via the object creation
-  let signer1 = {
+  let signer1: Signer = {
     email: signerEmail,
     name: signerName,
     clientUserId: signerClientId,
@@ -64,7 +89,7 @@ export default ({
   };
 
   // Add the recipient to the envelope object
-  let recipients = {
+  let recipients: Recipients = {
     signers: [signer1],
   };
 
@@ -73,8 +98,8 @@ export default ({
 
   // create the envelope definition
   // The order in the docs array determines the order in the envelope
-  let env = {
-    emailSubject: 'Please sign this document',
+  let env: EnvelopeDefinition = {
+    emailSubject: 'Sign the CK Home Chef Volunteer Agreement',
     documents: [doc1],
     status: 'sent',
     recipients,
