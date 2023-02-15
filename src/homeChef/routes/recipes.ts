@@ -38,13 +38,12 @@ router.post(
 
     const ingredientsList = ingredients.split('\n');
     const instructionsList = instructions.split('\n');
-    let fileName = '';
+    let image = '';
 
     if (req.files?.image && !Array.isArray(req.files.image)) {
-      const extension = path.extname(req.files.image.name);
-      fileName = 'recipes-' + name + extension;
-      await storeFile({
-        data: req.files.image.data,
+      const fileName = 'recipes-' + name;
+      image = await storeFile({
+        file: req.files.image,
         name: fileName,
       });
     }
@@ -54,7 +53,7 @@ router.post(
       ingredients: ingredientsList,
       instructions: instructionsList,
       description,
-      image: fileName,
+      image,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);

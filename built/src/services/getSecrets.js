@@ -62,20 +62,23 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var secret_manager_1 = require("@google-cloud/secret-manager");
+var keys_1 = __importDefault(require("../keys"));
 exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0, function () {
-    var secrets, secretClient, projectId, getSecret, nameList_1, nameList_1_1, secretName, _a, _b, e_1_1;
+    var secrets, secretClient, getSecret, nameList_1, nameList_1_1, secretName, _a, _b, e_1_1;
     var e_1, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
+                if (process.env.NODE_ENV !== 'production') {
+                    return [2 /*return*/, keys_1.default];
+                }
                 secrets = {};
                 secretClient = new secret_manager_1.SecretManagerServiceClient();
-                return [4 /*yield*/, secretClient.getProjectId()];
-            case 1:
-                projectId = _d.sent();
-                if (!projectId) return [3 /*break*/, 10];
                 getSecret = function (name) { return __awaiter(void 0, void 0, void 0, function () {
                     var _a, version;
                     var _b, _c;
@@ -90,43 +93,35 @@ exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0
                         }
                     });
                 }); };
+                _d.label = 1;
+            case 1:
+                _d.trys.push([1, 6, 7, 8]);
+                nameList_1 = __values(nameList), nameList_1_1 = nameList_1.next();
                 _d.label = 2;
             case 2:
-                _d.trys.push([2, 7, 8, 9]);
-                nameList_1 = __values(nameList), nameList_1_1 = nameList_1.next();
-                _d.label = 3;
-            case 3:
-                if (!!nameList_1_1.done) return [3 /*break*/, 6];
+                if (!!nameList_1_1.done) return [3 /*break*/, 5];
                 secretName = nameList_1_1.value;
                 _a = secrets;
                 _b = secretName;
                 return [4 /*yield*/, getSecret(secretName)];
-            case 4:
+            case 3:
                 _a[_b] = _d.sent();
-                _d.label = 5;
-            case 5:
+                _d.label = 4;
+            case 4:
                 nameList_1_1 = nameList_1.next();
-                return [3 /*break*/, 3];
-            case 6: return [3 /*break*/, 9];
-            case 7:
+                return [3 /*break*/, 2];
+            case 5: return [3 /*break*/, 8];
+            case 6:
                 e_1_1 = _d.sent();
                 e_1 = { error: e_1_1 };
-                return [3 /*break*/, 9];
-            case 8:
+                return [3 /*break*/, 8];
+            case 7:
                 try {
                     if (nameList_1_1 && !nameList_1_1.done && (_c = nameList_1.return)) _c.call(nameList_1);
                 }
                 finally { if (e_1) throw e_1.error; }
                 return [7 /*endfinally*/];
-            case 9: return [3 /*break*/, 11];
-            case 10: throw Error();
-            case 11: 
-            // } catch {
-            //   // for (let secretName of nameList) {
-            //   //   secrets[secretName] = keys[secretName];
-            //   // }
-            // }
-            return [2 /*return*/, secrets];
+            case 8: return [2 /*return*/, secrets];
         }
     });
 }); });

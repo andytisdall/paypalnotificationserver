@@ -46,8 +46,15 @@ smsRouter.post(
       const allPhoneNumbers = await Phone.find({ region });
       formattedNumbers = allPhoneNumbers.map((p) => p.number);
     } else {
+      const phoneNumber = region.replace(/[^\d]/g, '');
+
+      if (phoneNumber.length !== 10) {
+        res.status(422);
+        throw new Error('Phone number must have 10 digits');
+      }
+
       responsePhoneNumber = REGIONS['EAST_OAKLAND'];
-      formattedNumbers = [region];
+      formattedNumbers = ['+1' + phoneNumber];
     }
 
     const outgoingText: OutgoingText = {
@@ -56,23 +63,24 @@ smsRouter.post(
     };
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
-      const extension = path.extname(req.files.photo.name);
-      const fileName =
-        'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a') + extension;
+      const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
 
       const imageId = await storeFile({
-        data: req.files.photo.data,
+        file: req.files.photo,
         name: fileName,
       });
 
       outgoingText.mediaUrl = [
-        urls.server + '/api/files/images/' + imageId + extension,
+        'https://coherent-vision-368820.uw.r.appspot.com' +
+          '/api/files/images/' +
+          imageId,
       ];
     }
 
     const createOutgoingText = async (phone: string) => {
       await twilioClient.messages.create({ ...outgoingText, to: phone });
     };
+
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
 

@@ -50,7 +50,7 @@ var axios = require('axios');
 var passwordGenerator = require('generate-password');
 var urls = require('../urls');
 var getSFToken = require('./getSFToken');
-var User = require('../../models/user').User;
+var User = require('../../auth/models/user').User;
 var axiosInstance = axios.create({
     baseURL: urls.salesforce,
 });

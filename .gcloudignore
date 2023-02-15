@@ -26,8 +26,6 @@
 
 # .gitignore
 
-keys.js
-
 # Node.js dependencies:
 
 node_modules/

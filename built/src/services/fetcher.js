@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var urls_1 = __importDefault(require("./urls"));
-var getDSJWT_1 = __importDefault(require("./docusign/getDSJWT"));
+var getDSJWT_1 = __importDefault(require("../docusign/getDSJWT"));
 var getSFToken_1 = __importDefault(require("./salesforce/getSFToken"));
 var fetcher = /** @class */ (function () {
     function fetcher() {
@@ -98,6 +98,110 @@ var fetcher = /** @class */ (function () {
                             'application/json';
                         this.token = token;
                         _a.label = 5;
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    fetcher.prototype.get = function (url, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var res, err_1, res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 5]);
+                        return [4 /*yield*/, this.instance.get(url, options)];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 2:
+                        err_1 = _a.sent();
+                        this.token = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.instance.get(url, options)];
+                    case 4:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    fetcher.prototype.post = function (url, body, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var res, err_2, res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 5]);
+                        return [4 /*yield*/, this.instance.post(url, body, options)];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 2:
+                        err_2 = _a.sent();
+                        this.token = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.instance.post(url, body, options)];
+                    case 4:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    fetcher.prototype.patch = function (url, body, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var res, err_3, res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 5]);
+                        return [4 /*yield*/, this.instance.patch(url, body, options)];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 2:
+                        err_3 = _a.sent();
+                        this.token = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.instance.patch(url, body, options)];
+                    case 4:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    fetcher.prototype.delete = function (url, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var res, err_4, res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 5]);
+                        return [4 /*yield*/, this.instance.delete(url, options)];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
+                    case 2:
+                        err_4 = _a.sent();
+                        this.token = undefined;
+                        return [4 /*yield*/, this.getToken()];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.instance.delete(url, options)];
+                    case 4:
+                        res = _a.sent();
+                        return [2 /*return*/, res];
                     case 5: return [2 /*return*/];
                 }
             });

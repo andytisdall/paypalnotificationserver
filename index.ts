@@ -44,7 +44,7 @@ const PORT = process.env.PORT || 3001;
 
 // initialize app and add middleware
 const app = express();
-app.set('trust proxy', true);
+// app.set('trust proxy', true);
 app.use('/static', express.static(join('public', 'static')));
 app.use('/images', express.static(join('public', 'images')));
 app.get('/manifest.json', (req, res) =>

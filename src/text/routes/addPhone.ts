@@ -3,22 +3,30 @@ import express from 'express';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import mongoose from 'mongoose';
+import { Region } from '../models/phone';
 
 const Phone = mongoose.model('Phone');
 const router = express.Router();
 
 router.post('/addphone', currentUser, requireAuth, async (req, res) => {
-  if (!req.body.phone) {
+  const { phone, region }: { phone: string; region: Region } = req.body;
+
+  if (!phone) {
     res.status(422);
     throw new Error('No Phone Number in Request Body');
   }
 
-  if (!req.body.region) {
+  if (!region) {
     res.status(422);
     throw new Error('No Region in Request Body');
   }
 
-  const phoneNumber = String(req.body.phone).replace(/[^\d]/g, '');
+  if (!['EAST_OAKLAND', 'WEST_OAKLAND'].includes(region)) {
+    res.status(422);
+    throw new Error('Region not recognized');
+  }
+
+  const phoneNumber = phone.replace(/[^\d]/g, '');
 
   if (phoneNumber.length !== 10) {
     res.status(422);
@@ -27,11 +35,11 @@ router.post('/addphone', currentUser, requireAuth, async (req, res) => {
 
   const existingNumber = await Phone.findOne({ number: '+1' + phoneNumber });
   if (existingNumber) {
-    if (existingNumber.region.includes(req.body.region)) {
+    if (existingNumber.region.includes(region)) {
       res.status(422);
       throw new Error('Phone number is already in database');
     } else {
-      existingNumber.region.push(req.body.region);
+      existingNumber.region.push(region);
       await existingNumber.save();
       return res.send(existingNumber);
     }
@@ -39,7 +47,7 @@ router.post('/addphone', currentUser, requireAuth, async (req, res) => {
 
   const newPhone = new Phone({
     number: '+1' + phoneNumber,
-    region: [req.body.region],
+    region: [region],
   });
   await newPhone.save();
   res.send(newPhone);

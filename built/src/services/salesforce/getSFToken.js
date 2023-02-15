@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = __importDefault(require("axios"));
+var fetcher_1 = __importDefault(require("../fetcher"));
 var urls_1 = __importDefault(require("../urls"));
 var getSecrets_1 = __importDefault(require("../getSecrets"));
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -60,7 +60,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                 SFAuthPost.append('client_secret', SF_CLIENT_SECRET);
                 SFAuthPost.append('grant_type', 'client_credentials');
                 SF_AUTH_URI = urls_1.default.salesforce + "/oauth2/token";
-                return [4 /*yield*/, axios_1.default.post(SF_AUTH_URI, SFAuthPost, {
+                return [4 /*yield*/, fetcher_1.default.post(SF_AUTH_URI, SFAuthPost, {
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },

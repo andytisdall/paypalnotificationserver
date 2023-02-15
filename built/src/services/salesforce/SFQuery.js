@@ -51,7 +51,7 @@ var getContact = function (lastName, email) { return __awaiter(void 0, void 0, v
                 _a.sent();
                 query = "SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '" + lastName + "' AND Email = '" + email + "'";
                 contactQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
-                return [4 /*yield*/, fetcher_1.default.instance.get(contactQueryUri)];
+                return [4 /*yield*/, fetcher_1.default.get(contactQueryUri)];
             case 2:
                 contactQueryResponse = _a.sent();
                 if (!contactQueryResponse.data.records ||
@@ -80,11 +80,11 @@ var addContact = function (contactToAdd) { return __awaiter(void 0, void 0, void
             case 1:
                 _b.sent();
                 contactInsertUri = urls_1.default.SFOperationPrefix + '/Contact';
-                return [4 /*yield*/, fetcher_1.default.instance.post(contactInsertUri, contactToAdd)];
+                return [4 /*yield*/, fetcher_1.default.post(contactInsertUri, contactToAdd)];
             case 2:
                 insertRes = _b.sent();
                 if (!insertRes.data.success) return [3 /*break*/, 4];
-                return [4 /*yield*/, fetcher_1.default.instance.get(contactInsertUri + '/' + insertRes.data.id)];
+                return [4 /*yield*/, fetcher_1.default.get(contactInsertUri + '/' + insertRes.data.id)];
             case 3:
                 newContact = _b.sent();
                 if (!((_a = newContact.data) === null || _a === void 0 ? void 0 : _a.Name)) {
@@ -108,7 +108,7 @@ var updateContact = function (id, contactToUpdate) { return __awaiter(void 0, vo
             case 1:
                 _a.sent();
                 contactUpdateUri = urls_1.default.SFOperationPrefix + '/Contact/' + id;
-                return [4 /*yield*/, fetcher_1.default.instance.patch(contactUpdateUri, contactToUpdate)];
+                return [4 /*yield*/, fetcher_1.default.patch(contactUpdateUri, contactToUpdate)];
             case 2:
                 _a.sent();
                 return [2 /*return*/];
@@ -123,7 +123,7 @@ var getContactById = function (id) { return __awaiter(void 0, void 0, void 0, fu
             case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, fetcher_1.default.instance.get(urls_1.default.SFOperationPrefix + '/Contact/' + id)];
+                return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/Contact/' + id)];
             case 2:
                 res = _a.sent();
                 return [2 /*return*/, res.data];
