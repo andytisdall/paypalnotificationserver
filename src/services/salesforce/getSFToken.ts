@@ -1,5 +1,4 @@
-import axios from 'axios';
-
+import fetcher from '../fetcher';
 import urls from '../urls';
 import getSecrets from '../getSecrets';
 
@@ -21,7 +20,7 @@ export default async () => {
 
   const SF_AUTH_URI = `${urls.salesforce}/oauth2/token`;
 
-  const SFResponse = await axios.post(SF_AUTH_URI, SFAuthPost, {
+  const SFResponse = await fetcher.post(SF_AUTH_URI, SFAuthPost, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },

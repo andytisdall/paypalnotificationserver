@@ -101,7 +101,7 @@ const insertFile = async (account: Account, file: File) => {
   postBody.append('VersionData', file.file.data, { filename: file.file.name });
   let contentVersionId;
 
-  let res = await fetcher.instance.post(
+  let res = await fetcher.post(
     urls.SFOperationPrefix + '/ContentVersion/',
     postBody,
     {
@@ -120,7 +120,7 @@ const insertFile = async (account: Account, file: File) => {
     ContentDocumentId,
   };
 
-  await fetcher.instance.post(
+  await fetcher.post(
     urls.SFOperationPrefix + '/ContentDocumentLink/',
     CDLinkData,
     {
@@ -146,7 +146,7 @@ const getDocumentId = async (CVId: string) => {
 
   const documentQueryUri = urls.SFQueryPrefix + documentQuery.join('+');
 
-  const documentQueryResponse = await fetcher.instance.get(documentQueryUri);
+  const documentQueryResponse = await fetcher.get(documentQueryUri);
   return documentQueryResponse.data.records[0].ContentDocumentId;
 };
 
@@ -178,7 +178,7 @@ export const updateAccount = async (
   }
 
   const accountGetUri = urls.SFOperationPrefix + account + accountId;
-  const res: { data: FileTypes } = await fetcher.instance.get(accountGetUri);
+  const res: { data: FileTypes } = await fetcher.get(accountGetUri);
 
   const existingDocuments = {
     mealProgram: res.data.Meal_Program_Onboarding__c,
@@ -235,7 +235,7 @@ export const updateAccount = async (
 
   const accountUpdateUri = urls.SFOperationPrefix + account + accountId;
 
-  await fetcher.instance.patch(accountUpdateUri, data);
+  await fetcher.patch(accountUpdateUri, data);
 
   if (Object.values(existingDocuments).every((v) => !v)) {
     return;
@@ -248,7 +248,7 @@ export const updateAccount = async (
 
   const CDLinkQueryResponse: {
     data: { records: { ContentDocumentId: string }[] };
-  } = await fetcher.instance.get(CDLinkQueryUri);
+  } = await fetcher.get(CDLinkQueryUri);
   // then get all content documents from the CDIds in the cdlinks
   if (!CDLinkQueryResponse.data.records) {
     throw Error('Failed querying for ContentDocumentLink');
@@ -258,7 +258,7 @@ export const updateAccount = async (
     async ({ ContentDocumentId }) => {
       const ContentDocUri =
         urls.SFOperationPrefix + '/ContentDocument/' + ContentDocumentId;
-      const { data } = await fetcher.instance.get(ContentDocUri);
+      const { data } = await fetcher.get(ContentDocUri);
       // then search those for the titles that we're replacing
       return data;
     }
@@ -270,7 +270,7 @@ export const updateAccount = async (
   // then delete those
   const deletePromises = DocsToDelete.map(async (cd) => {
     const ContentDocUri = urls.SFOperationPrefix + '/ContentDocument/' + cd.Id;
-    await fetcher.instance.delete(ContentDocUri);
+    await fetcher.delete(ContentDocUri);
   });
   await Promise.all(deletePromises);
 

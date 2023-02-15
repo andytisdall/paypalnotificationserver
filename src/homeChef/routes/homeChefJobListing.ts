@@ -15,7 +15,7 @@ export interface Shift {
   GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
 }
 
-interface FormattedShift {
+export interface FormattedShift {
   id: string;
   startTime: string;
   open: boolean;
@@ -78,8 +78,9 @@ const getJobs = async (id: string) => {
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const res: { data: { records: Job[] | undefined } } =
-    await fetcher.instance.get(jobQueryUri);
+  const res: { data: { records: Job[] | undefined } } = await fetcher.get(
+    jobQueryUri
+  );
   if (!res.data.records) {
     throw Error('failed querying volunteer Jobs');
   }

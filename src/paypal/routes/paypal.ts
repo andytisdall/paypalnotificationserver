@@ -194,10 +194,7 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
   const recurringInsertUri =
     urls.SFOperationPrefix + '/npe03__Recurring_Donation__c/';
 
-  const response = await fetcher.instance.post(
-    recurringInsertUri,
-    recurringToAdd
-  );
+  const response = await fetcher.post(recurringInsertUri, recurringToAdd);
   const summaryMessage = {
     success: response.data.success,
     name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -220,7 +217,7 @@ const cancelRecurring = async (paypalData: PaypalData, contact: Contact) => {
   const recurringQueryUri = urls.SFQueryPrefix + recurringQuery.join('+');
 
   let existingRecurring;
-  const recurringQueryResponse = await fetcher.instance.get(recurringQueryUri);
+  const recurringQueryResponse = await fetcher.get(recurringQueryUri);
   if (recurringQueryResponse.data.totalSize !== 0) {
     existingRecurring = recurringQueryResponse.data.records[0];
   }
@@ -237,10 +234,7 @@ const cancelRecurring = async (paypalData: PaypalData, contact: Contact) => {
       '/npe03__Recurring_Donation__c/' +
       existingRecurring.Id;
 
-    const response = await fetcher.instance.patch(
-      recurringUpdateUri,
-      recurringToUpdate
-    );
+    const response = await fetcher.patch(recurringUpdateUri, recurringToUpdate);
     const summaryMessage = {
       success: response.data.success,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -315,7 +309,7 @@ const updateRecurringOpp = async (
 
   let existingOpp;
 
-  const oppQueryResponse = await fetcher.instance.get(oppQueryUri);
+  const oppQueryResponse = await fetcher.get(oppQueryUri);
   if (oppQueryResponse.data.totalSize !== 0) {
     existingOpp = oppQueryResponse.data.records[0];
   }
@@ -329,7 +323,7 @@ const updateRecurringOpp = async (
     const oppUpdateUri =
       urls.SFOperationPrefix + '/Opportunity/' + existingOpp.Id;
 
-    const response = await fetcher.instance.patch(oppUpdateUri, oppToUpdate);
+    const response = await fetcher.patch(oppUpdateUri, oppToUpdate);
     const summaryMessage = {
       success: response.status === 204,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
@@ -368,7 +362,7 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
 
   const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';
 
-  const response = await fetcher.instance.post(oppInsertUri, oppToAdd);
+  const response = await fetcher.post(oppInsertUri, oppToAdd);
   const summaryMessage = {
     success: response.data.success,
     amount: oppToAdd.Amount,
@@ -385,7 +379,7 @@ const getContactByEmail = async (email: string) => {
   const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const contactQueryResponse = await fetcher.instance.get(contactQueryUri);
+  const contactQueryResponse = await fetcher.get(contactQueryUri);
   if (contactQueryResponse.data?.records?.length === 0) {
     return null;
   }

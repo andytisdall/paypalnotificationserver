@@ -13,7 +13,7 @@ const getSignedDocs = async (envelopeId: string) => {
 
   await fetcher.setService('docusign');
 
-  const docs = await fetcher.instance.get(
+  const docs = await fetcher.get(
     `/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/documents/combined`,
     { headers, responseType: 'arraybuffer', responseEncoding: 'binary' }
   );

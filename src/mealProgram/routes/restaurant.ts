@@ -30,7 +30,7 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
     return res.sendStatus(404);
   }
   await fetcher.setService('salesforce');
-  const account = await fetcher.instance.get(
+  const account = await fetcher.get(
     urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId
   );
   const completedDocs = account.data.Meal_Program_Onboarding__c.split(';');

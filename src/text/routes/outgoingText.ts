@@ -23,16 +23,10 @@ smsRouter.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
-      'TWILIO_ID',
-      'TWILIO_AUTH_TOKEN',
-    ]);
-    if (!TWILIO_ID || !TWILIO_AUTH_TOKEN) {
-      throw Error('Could not find twilio credentials');
-    }
-    const twilioClient = new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN);
+    const twilioClient = await getTwilioClient();
 
-    const { message, region }: { message: string; region: Region } = req.body;
+    const { message, region }: { message: string; region: Region | string } =
+      req.body;
 
     if (!message) {
       res.status(422);
@@ -44,12 +38,17 @@ smsRouter.post(
       throw new Error('No region specified');
     }
 
-    const responsePhoneNumber = REGIONS[region];
+    let formattedNumbers: string[] = [];
+    let responsePhoneNumber: string | undefined;
 
-    const allPhoneNumbers = await Phone.find({ region });
-
-    const formattedNumbers = allPhoneNumbers.map((p) => p.number);
-    // const formattedNumbers = ['+14158190251'];
+    if (region === 'WEST_OAKLAND' || region === 'EAST_OAKLAND') {
+      responsePhoneNumber = REGIONS[region];
+      const allPhoneNumbers = await Phone.find({ region });
+      formattedNumbers = allPhoneNumbers.map((p) => p.number);
+    } else {
+      responsePhoneNumber = REGIONS['EAST_OAKLAND'];
+      formattedNumbers = [region];
+    }
 
     const outgoingText: OutgoingText = {
       body: message,
@@ -67,7 +66,7 @@ smsRouter.post(
       });
 
       outgoingText.mediaUrl = [
-        urls.server + '/api/db/images/' + imageId + extension,
+        urls.server + '/api/files/images/' + imageId + extension,
       ];
     }
 
@@ -80,5 +79,16 @@ smsRouter.post(
     res.send({ message, region, photoUrl: outgoingText.mediaUrl });
   }
 );
+
+const getTwilioClient = async () => {
+  const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
+    'TWILIO_ID',
+    'TWILIO_AUTH_TOKEN',
+  ]);
+  if (!TWILIO_ID || !TWILIO_AUTH_TOKEN) {
+    throw Error('Could not find twilio credentials');
+  }
+  return new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN);
+};
 
 export default smsRouter;

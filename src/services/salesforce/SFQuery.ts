@@ -42,7 +42,7 @@ export const getContact = async (lastName: string, email: string) => {
 
   const contactQueryResponse: {
     data: { records: UnformattedContact[] | undefined; totalSize: number };
-  } = await fetcher.instance.get(contactQueryUri);
+  } = await fetcher.get(contactQueryUri);
   if (
     !contactQueryResponse.data.records ||
     contactQueryResponse.data.records.length === 0
@@ -61,12 +61,12 @@ export const getContact = async (lastName: string, email: string) => {
 export const addContact = async (contactToAdd: ContactInfo) => {
   await fetcher.setService('salesforce');
   const contactInsertUri = urls.SFOperationPrefix + '/Contact';
-  const insertRes = await fetcher.instance.post(contactInsertUri, contactToAdd);
+  const insertRes = await fetcher.post(contactInsertUri, contactToAdd);
   //Query new contact to get household account number for opp
   if (insertRes.data.success) {
     const newContact: {
       data: UnformattedContact | undefined;
-    } = await fetcher.instance.get(contactInsertUri + '/' + insertRes.data.id);
+    } = await fetcher.get(contactInsertUri + '/' + insertRes.data.id);
     if (!newContact.data?.Name) {
       throw Error('Could not get created contact');
     }
@@ -86,13 +86,11 @@ export const updateContact = async (
 ) => {
   await fetcher.setService('salesforce');
   const contactUpdateUri = urls.SFOperationPrefix + '/Contact/' + id;
-  await fetcher.instance.patch(contactUpdateUri, contactToUpdate);
+  await fetcher.patch(contactUpdateUri, contactToUpdate);
 };
 
 export const getContactById = async (id: string) => {
   await fetcher.setService('salesforce');
-  const res = await fetcher.instance.get(
-    urls.SFOperationPrefix + '/Contact/' + id
-  );
+  const res = await fetcher.get(urls.SFOperationPrefix + '/Contact/' + id);
   return res.data;
 };

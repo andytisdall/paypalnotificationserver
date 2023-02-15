@@ -13,13 +13,21 @@ interface HoursQueryResponse {
     | {
         records: {
           Id: string;
-          Number_of_Meals__c: number;
+          Number_of_Meals__c?: number;
           GW_Volunteers__Shift_Start_Date_Time__c: string;
           GW_Volunteers__Volunteer_Job__c: string;
           GW_Volunteers__Status__c: string;
         }[];
       }
     | undefined;
+}
+
+export interface FormattedHours {
+  id: string;
+  mealCount: string;
+  time: string;
+  job: string;
+  status: string;
 }
 
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
@@ -29,16 +37,18 @@ router.get('/hours', currentUser, requireAuth, async (req, res) => {
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const response: HoursQueryResponse = await fetcher.instance.get(
-    hoursQueryUri
-  );
+  const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
   if (!response.data?.records) {
     throw Error('Could not query volunteer hours');
   }
-  const hours = response.data.records.map((h) => {
+  const hours: FormattedHours[] = response.data.records.map((h) => {
+    let mealCount = h.Number_of_Meals__c;
+    if (!mealCount) {
+      mealCount = 0;
+    }
     return {
       id: h.Id,
-      mealCount: h.Number_of_Meals__c,
+      mealCount: mealCount.toString(),
       time: h.GW_Volunteers__Shift_Start_Date_Time__c,
       job: h.GW_Volunteers__Volunteer_Job__c,
       status: h.GW_Volunteers__Status__c,
@@ -79,7 +89,7 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
 
   const hoursUpdateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
-  await fetcher.instance.patch(hoursUpdateUri, hoursToUpdate);
+  await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 
   res.send({ id, mealCount });
 });
@@ -107,7 +117,7 @@ const createHours = async ({
   date: Date;
 }) => {
   await fetcher.setService('salesforce');
-  const { data } = await fetcher.instance.get(
+  const { data } = await fetcher.get(
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
   );
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
@@ -124,13 +134,13 @@ const createHours = async ({
 
   const hoursInsertUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
-  const insertRes: SFInsertResponse = await fetcher.instance.post(
+  const insertRes: SFInsertResponse = await fetcher.post(
     hoursInsertUri,
     hoursToAdd
   );
   //Query new contact to get household account number for opp
   if (insertRes.data?.success) {
-    const res = await fetcher.instance.get(
+    const res = await fetcher.get(
       urls.SFOperationPrefix + '/Contact/' + contactId
     );
     return res.data;

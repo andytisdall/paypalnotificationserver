@@ -31,7 +31,7 @@ export const getAccountForFileUpload = async (
     // const {
     //   data,
     // }: { data: { LastName: string; npsp__HHId__c: string } | undefined } =
-    //   await fetcher.instance.get(
+    //   await fetcher.get(
     //     urls.SFOperationPrefix + '/Contact/' + user.salesforceId
     //   );
     // if (!data?.LastName || !data.npsp__HHId__c) {

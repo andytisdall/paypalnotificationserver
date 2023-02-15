@@ -23,7 +23,7 @@ router.post('/meal-survey', async (req, res) => {
   };
 
   const insertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
-  const { data } = await fetcher.instance.post(insertUri, surveyData);
+  const { data } = await fetcher.post(insertUri, surveyData);
 
   if (!data.success) {
     throw new Error('Could not save the survey results');
@@ -52,14 +52,14 @@ router.post('/signup-survey', async (req, res) => {
   };
 
   const CDInsertUri = urls.SFOperationPrefix + '/Client_Data__c';
-  const CDRes = await fetcher.instance.post(CDInsertUri, clientData);
+  const CDRes = await fetcher.post(CDInsertUri, clientData);
 
   if (!CDRes.data.success) {
     throw new Error('Could not save the survey results');
   }
 
   const MSInsertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
-  const MSRes = await fetcher.instance.post(MSInsertUri, surveyData);
+  const MSRes = await fetcher.post(MSInsertUri, surveyData);
 
   if (!MSRes.data.success) {
     throw new Error('Could not save the survey results');

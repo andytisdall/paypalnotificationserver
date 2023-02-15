@@ -32,7 +32,7 @@ export default async ({ dsReturnUrl, accountType, userInfo }: EnvelopeArgs) => {
   // Call Envelopes::create API method
   await fetcher.setService('docusign');
 
-  const res = await fetcher.instance.post(
+  const res = await fetcher.post(
     `/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes`,
     envelope
   );
@@ -47,7 +47,7 @@ export default async ({ dsReturnUrl, accountType, userInfo }: EnvelopeArgs) => {
   });
 
   // // Call the CreateRecipientView API
-  const result = await fetcher.instance.post(
+  const result = await fetcher.post(
     `/v2/accounts/${DOCUSIGN_ACCOUNT_ID}/envelopes/${envelopeId}/views/recipient`,
     viewRequest
   );
