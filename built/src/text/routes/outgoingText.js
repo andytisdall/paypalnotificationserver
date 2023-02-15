@@ -52,7 +52,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var twilio_1 = __importDefault(require("twilio"));
-var path_1 = __importDefault(require("path"));
 var moment_1 = __importDefault(require("moment"));
 var mongoose_1 = __importDefault(require("mongoose"));
 var phone_1 = require("../models/phone");
@@ -61,11 +60,10 @@ var require_auth_1 = require("../../middlewares/require-auth");
 var require_admin_1 = require("../../middlewares/require-admin");
 var storeFile_1 = require("../../files/storeFile");
 var getSecrets_1 = __importDefault(require("../../services/getSecrets"));
-var urls_1 = __importDefault(require("../../services/urls"));
 var Phone = mongoose_1.default.model('Phone');
 var smsRouter = express_1.default.Router();
 smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var twilioClient, _a, message, region, formattedNumbers, responsePhoneNumber, allPhoneNumbers, phoneNumber, outgoingText, extension, fileName, imageId, createOutgoingText, textPromises;
+    var twilioClient, _a, message, region, formattedNumbers, responsePhoneNumber, allPhoneNumbers, phoneNumber, outgoingText, fileName, imageId, createOutgoingText, textPromises;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -104,15 +102,18 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
                     from: responsePhoneNumber,
                 };
                 if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 6];
-                extension = path_1.default.extname(req.files.photo.name);
-                fileName = 'outgoing-text-' + moment_1.default().format('YYYY-MM-DD-hh-ss-a') + extension;
+                fileName = 'outgoing-text-' + moment_1.default().format('YYYY-MM-DD-hh-ss-a');
                 return [4 /*yield*/, storeFile_1.storeFile({
-                        data: req.files.photo.data,
+                        file: req.files.photo,
                         name: fileName,
                     })];
             case 5:
                 imageId = _c.sent();
-                outgoingText.mediaUrl = [urls_1.default.server + '/api/files/images/' + imageId];
+                outgoingText.mediaUrl = [
+                    'https://coherent-vision-368820.uw.r.appspot.com' +
+                        '/api/files/images/' +
+                        imageId,
+                ];
                 _c.label = 6;
             case 6:
                 createOutgoingText = function (phone) { return __awaiter(void 0, void 0, void 0, function () {

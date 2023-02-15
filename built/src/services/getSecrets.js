@@ -67,7 +67,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var secret_manager_1 = require("@google-cloud/secret-manager");
-var keys_1 = __importDefault(require("../keys"));
+var keys_1 = __importDefault(require("../../keys"));
 exports.default = (function (nameList) { return __awaiter(void 0, void 0, void 0, function () {
     var secrets, secretClient, getSecret, nameList_1, nameList_1_1, secretName, _a, _b, e_1_1;
     var e_1, _c;

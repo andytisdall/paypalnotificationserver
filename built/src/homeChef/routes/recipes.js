@@ -40,7 +40,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var path_1 = __importDefault(require("path"));
 var mongoose_1 = __importDefault(require("mongoose"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
@@ -79,7 +78,7 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, ingredients, instructions, description, ingredientsList, instructionsList, fileName, extension, newRecipe;
+    var _a, name, ingredients, instructions, description, ingredientsList, instructionsList, image, fileName, newRecipe;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
@@ -87,16 +86,15 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                 _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
                 ingredientsList = ingredients.split('\n');
                 instructionsList = instructions.split('\n');
-                fileName = '';
+                image = '';
                 if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.image) && !Array.isArray(req.files.image))) return [3 /*break*/, 2];
-                extension = path_1.default.extname(req.files.image.name);
-                fileName = 'recipes-' + name + extension;
+                fileName = 'recipes-' + name;
                 return [4 /*yield*/, storeFile_1.storeFile({
-                        data: req.files.image.data,
+                        file: req.files.image,
                         name: fileName,
                     })];
             case 1:
-                _c.sent();
+                image = _c.sent();
                 _c.label = 2;
             case 2:
                 newRecipe = new Recipe({
@@ -104,7 +102,7 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     ingredients: ingredientsList,
                     instructions: instructionsList,
                     description: description,
-                    image: fileName,
+                    image: image,
                 });
                 return [4 /*yield*/, newRecipe.save()];
             case 3:

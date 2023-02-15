@@ -8,12 +8,13 @@ type Service = 'salesforce' | 'docusign';
 
 class fetcher {
   instance: AxiosInstance;
-  service: string | undefined;
-  token: string | undefined;
+  service: Service | undefined;
+  token: Record<Service, string | undefined>;
   tokenExpiration: Date | undefined;
 
   constructor() {
     this.instance = axios.create();
+    this.token = { salesforce: undefined, docusign: undefined };
   }
 
   async setService(service: Service) {
@@ -21,9 +22,15 @@ class fetcher {
       this.service = service;
       const baseURL = urls[service];
       this.instance.defaults.baseURL = baseURL;
-      this.token = undefined;
+      const token = this.token[this.service];
+      if (token) {
+        this.instance.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${token}`;
+      } else {
+        await this.getToken();
+      }
     }
-    await this.getToken();
   }
 
   getService() {
@@ -31,32 +38,30 @@ class fetcher {
   }
 
   private async getToken() {
-    if (!this.token) {
-      let token: string | undefined;
-      if (this.service === 'salesforce') {
-        token = await getSFToken();
-      }
-      if (this.service === 'docusign') {
-        token = await getDSJWT();
-      }
-      if (!token) {
-        throw Error('No token fetcher defined for this service');
-      }
-      this.instance.defaults.headers.common[
-        'Authorization'
-      ] = `Bearer ${token}`;
-      this.instance.defaults.headers.common['Content-Type'] =
-        'application/json';
-      this.token = token;
+    let token: string | undefined;
+    if (this.service === 'salesforce') {
+      token = await getSFToken();
     }
+    if (this.service === 'docusign') {
+      token = await getDSJWT();
+    }
+    if (!token) {
+      throw Error('Could not get token');
+    }
+    this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    this.instance.defaults.headers.common['Content-Type'] = 'application/json';
+    this.token[this.service!] = token;
   }
 
   async get(url: string, options?: AxiosRequestConfig) {
+    if (!this.service) {
+      throw Error('Base url has not been set');
+    }
     try {
       const res = await this.instance.get(url, options);
       return res;
     } catch (err) {
-      this.token = undefined;
+      this.token[this.service] = undefined;
       await this.getToken();
       const res = await this.instance.get(url, options);
       return res;
@@ -68,11 +73,14 @@ class fetcher {
     body: Record<string, any> | FormData,
     options?: AxiosRequestConfig
   ) {
+    if (!this.service) {
+      throw Error('Base url has not been set');
+    }
     try {
       const res = await this.instance.post(url, body, options);
       return res;
     } catch (err) {
-      this.token = undefined;
+      this.token[this.service] = undefined;
       await this.getToken();
       const res = await this.instance.post(url, body, options);
       return res;
@@ -84,11 +92,14 @@ class fetcher {
     body: Record<string, any> | FormData,
     options?: AxiosRequestConfig
   ) {
+    if (!this.service) {
+      throw Error('Base url has not been set');
+    }
     try {
       const res = await this.instance.patch(url, body, options);
       return res;
     } catch (err) {
-      this.token = undefined;
+      this.token[this.service] = undefined;
       await this.getToken();
       const res = await this.instance.patch(url, body, options);
       return res;
@@ -96,11 +107,14 @@ class fetcher {
   }
 
   async delete(url: string, options?: AxiosRequestConfig) {
+    if (!this.service) {
+      throw Error('Base url has not been set');
+    }
     try {
       const res = await this.instance.delete(url, options);
       return res;
     } catch (err) {
-      this.token = undefined;
+      this.token[this.service] = undefined;
       await this.getToken();
       const res = await this.instance.delete(url, options);
       return res;

@@ -20,6 +20,19 @@ interface ContactInfo {
   Portal_Username__c?: string;
   Portal_Temporary_Password__c?: string;
   Home_Chef_Status__c?: string;
+  Id?: string;
+}
+
+export interface IncomingContactInfo {
+  Name: string;
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  HomePhone: string;
+  Home_Chef_Status__c: string;
+  Id: string;
+  Home_Chef_Volunteeer_Agreement__c: string;
+  Home_Chef_Food_Handler_Certification__c: string;
 }
 
 export interface Contact {
@@ -34,7 +47,10 @@ export interface UnformattedContact {
   Name: string;
 }
 
-export const getContact = async (lastName: string, email: string) => {
+export const getContact = async (
+  lastName: string,
+  email: string
+): Promise<Contact | null> => {
   await fetcher.setService('salesforce');
   const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
 
@@ -58,7 +74,9 @@ export const getContact = async (lastName: string, email: string) => {
   }
 };
 
-export const addContact = async (contactToAdd: ContactInfo) => {
+export const addContact = async (
+  contactToAdd: ContactInfo
+): Promise<Contact> => {
   await fetcher.setService('salesforce');
   const contactInsertUri = urls.SFOperationPrefix + '/Contact';
   const insertRes = await fetcher.post(contactInsertUri, contactToAdd);
@@ -91,6 +109,11 @@ export const updateContact = async (
 
 export const getContactById = async (id: string) => {
   await fetcher.setService('salesforce');
-  const res = await fetcher.get(urls.SFOperationPrefix + '/Contact/' + id);
+  const res: { data: IncomingContactInfo | undefined } = await fetcher.get(
+    urls.SFOperationPrefix + '/Contact/' + id
+  );
+  if (!res.data) {
+    throw Error('Contact not found');
+  }
   return res.data;
 };

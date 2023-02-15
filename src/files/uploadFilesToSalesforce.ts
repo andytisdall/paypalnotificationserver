@@ -165,8 +165,6 @@ export const updateAccount = async (
     Meal_Program_Status__c?: string;
   };
 
-  await fetcher.setService('salesforce');
-
   const data: FileTypes = {};
 
   let account;

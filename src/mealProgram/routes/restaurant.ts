@@ -36,9 +36,9 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   const completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
   const extraInfo = {
     completedDocs,
-    remainingDocs: Object.values(restaurantFileInfo).filter(
-      (d) => !completedDocs.includes(d)
-    ),
+    remainingDocs: Object.values(restaurantFileInfo)
+      .map((f) => f.title)
+      .filter((d) => !completedDocs.includes(d)),
   };
   return res.send({ restaurant, extraInfo });
 });

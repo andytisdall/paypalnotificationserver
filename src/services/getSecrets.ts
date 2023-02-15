@@ -1,5 +1,5 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
-import keys from '../keys';
+import keys from '../../keys';
 
 interface secrets extends Record<string, string | undefined> {
   SF_CLIENT_ID?: string;
