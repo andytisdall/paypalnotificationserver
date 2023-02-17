@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
@@ -11,12 +12,10 @@ const router = express.Router();
 router.get('/images/:fileName', async (req, res) => {
   const { fileName } = req.params;
 
-  // const ext = fileName.split('.')[1];
-
   const file = bucket.file(fileName);
   const outputStream = file.createReadStream();
 
-  // res.type(ext);
+  res.type(path.extname(fileName));
   outputStream.pipe(res);
 });
 

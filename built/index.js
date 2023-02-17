@@ -36,8 +36,6 @@ var error_handler_1 = require("./src/middlewares/error-handler");
 var PORT = process.env.PORT || 3001;
 // initialize app and add middleware
 var app = express_1.default();
-// app.set('trust proxy', true);
-// app.set('etag', false);
 app.use('/static', express_1.default.static(path_1.join('public', 'static')));
 app.use('/images', express_1.default.static(path_1.join('public', 'images')));
 app.get('/manifest.json', function (req, res) {

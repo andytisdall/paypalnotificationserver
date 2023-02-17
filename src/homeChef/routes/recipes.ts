@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { storeFile } from '../../files/storeFile';
+import { storeFile, deleteFile } from '../../files/storeFile';
 
 const Recipe = mongoose.model('Recipe');
 
@@ -61,12 +61,13 @@ router.post(
 );
 
 router.patch(
-  '/recipe',
+  '/recipe/:id',
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { recipeId, name, ingredients, instructions, description } = req.body;
+    const recipeId: string = req.params.id;
+    const { name, ingredients, instructions, description } = req.body;
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) {
       res.status(404);
@@ -82,6 +83,18 @@ router.patch(
       recipe.instructions = instructions.split('\n');
     }
     recipe.description = description;
+
+    if (req.files?.image && !Array.isArray(req.files.image)) {
+      if (recipe.image) {
+        await deleteFile(recipe.image);
+      }
+      const fileName = 'recipes-' + name;
+      recipe.image = await storeFile({
+        file: req.files.image,
+        name: fileName,
+      });
+    }
+
     await recipe.save();
     res.send(recipe);
   }

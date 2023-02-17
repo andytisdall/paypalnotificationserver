@@ -68,6 +68,9 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                 return [4 /*yield*/, dsApiClient.requestJWTUserToken(DOCUSIGN_ID, DOCUSIGN_USER_ID, ['signature', 'impersonation'], DPKBuffer, 10000)];
             case 2:
                 result = _b.sent();
+                if (!result.body.access_token) {
+                    throw Error('Could not get Docusign token');
+                }
                 return [2 /*return*/, result.body.access_token];
         }
     });

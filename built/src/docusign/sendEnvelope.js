@@ -78,12 +78,18 @@ exports.default = (function (_a) {
                     return [4 /*yield*/, fetcher_1.default.post("/v2/accounts/" + DOCUSIGN_ACCOUNT_ID + "/envelopes", envelope)];
                 case 3:
                     res = _b.sent();
+                    if (!res.data.envelopeId) {
+                        throw Error('Failed sending the envelope to Docusign');
+                    }
                     envelopeId = res.data.envelopeId;
                     viewRequest = createView_1.default(__assign(__assign({}, makeEnvelopeArgs), { envelopeId: envelopeId,
                         dsReturnUrl: dsReturnUrl }));
                     return [4 /*yield*/, fetcher_1.default.post("/v2/accounts/" + DOCUSIGN_ACCOUNT_ID + "/envelopes/" + envelopeId + "/views/recipient", viewRequest)];
                 case 4:
                     result = _b.sent();
+                    if (!result.data.url) {
+                        throw Error('Failed creating the recipient view for Docusign');
+                    }
                     return [2 /*return*/, { redirectUrl: result.data.url }];
             }
         });

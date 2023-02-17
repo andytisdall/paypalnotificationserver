@@ -41,8 +41,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../../../../index"));
 var supertest_1 = __importDefault(require("supertest"));
+var mongoose_1 = __importDefault(require("mongoose"));
 var textResponses_1 = __importDefault(require("../../textResponses"));
 var phone_1 = require("../../models/phone");
+var Feedback = mongoose_1.default.model('Feedback');
 jest.mock('twilio');
 var from = '+14158190251';
 it('gets general info', function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -130,12 +132,13 @@ it('gets a duplicate response', function () { return __awaiter(void 0, void 0, v
     });
 }); });
 it('texts feedback', function () { return __awaiter(void 0, void 0, void 0, function () {
-    var incomingText, res;
+    var message, incomingText, res, fb;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                message = 'The meals are delicious';
                 incomingText = {
-                    Body: 'The meals are delicious',
+                    Body: message,
                     From: from,
                     To: phone_1.REGIONS['WEST_OAKLAND'],
                 };
@@ -146,6 +149,14 @@ it('texts feedback', function () { return __awaiter(void 0, void 0, void 0, func
             case 1:
                 res = _a.sent();
                 expect(res.text).toEqual(textResponses_1.default.feedbackResponse(from));
+                return [4 /*yield*/, Feedback.findOne({
+                        message: message,
+                        region: 'WEST_OAKLAND',
+                        sender: from,
+                    })];
+            case 2:
+                fb = _a.sent();
+                expect(fb).not.toBeUndefined();
                 return [2 /*return*/];
         }
     });

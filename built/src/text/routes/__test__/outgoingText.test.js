@@ -41,7 +41,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../../../../index"));
 var supertest_1 = __importDefault(require("supertest"));
-var phone_1 = require("../../models/phone");
 it('sends an outgoing text', function () { return __awaiter(void 0, void 0, void 0, function () {
     var token, res;
     return __generator(this, function (_a) {
@@ -53,7 +52,7 @@ it('sends an outgoing text', function () { return __awaiter(void 0, void 0, void
                         .post('/api/text/outgoing')
                         .set('Authorization', token)
                         .field('message', 'There is food available')
-                        .field('region', phone_1.REGIONS.EAST_OAKLAND)
+                        .field('region', 'EAST_OAKLAND')
                         .attach('image', 'src/text/routes/__test__/photo.jpeg')
                         .expect(200)];
             case 2:

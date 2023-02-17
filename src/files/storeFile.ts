@@ -15,6 +15,11 @@ const convertFile = async (data: Buffer) => {
   return outputBuffer;
 };
 
+export const deleteFile = async (name: string) => {
+  const file = bucket.file(name);
+  await file.delete();
+};
+
 export const storeFile = async ({
   file,
   name,
