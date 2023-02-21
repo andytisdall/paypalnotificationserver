@@ -73,14 +73,14 @@ router.post('/', current_user_1.currentUser, require_auth_1.requireAuth, require
     });
 }); });
 router.get('/', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var restaurant, account, completedDocs, extraInfo;
+    var restaurant, account, onboardingDocs, completedDocs, extraInfo;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, Restaurant.findOne({ user: req.currentUser.id })];
             case 1:
                 restaurant = _a.sent();
                 if (!restaurant) {
-                    return [2 /*return*/, res.sendStatus(404)];
+                    return [2 /*return*/, res.sendStatus(200)];
                 }
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 2:
@@ -88,7 +88,8 @@ router.get('/', current_user_1.currentUser, require_auth_1.requireAuth, function
                 return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/Account/' + restaurant.salesforceId)];
             case 3:
                 account = _a.sent();
-                completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
+                onboardingDocs = account.data.Meal_Program_Onboarding__c;
+                completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
                 extraInfo = {
                     completedDocs: completedDocs,
                     remainingDocs: Object.values(uploadFilesToSalesforce_1.restaurantFileInfo)

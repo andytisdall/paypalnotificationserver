@@ -27,13 +27,14 @@ router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
 router.get('/', currentUser, requireAuth, async (req, res) => {
   const restaurant = await Restaurant.findOne({ user: req.currentUser!.id });
   if (!restaurant) {
-    return res.sendStatus(404);
+    return res.sendStatus(200);
   }
   await fetcher.setService('salesforce');
   const account = await fetcher.get(
     urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId
   );
-  const completedDocs = account.data.Meal_Program_Onboarding__c.split(';');
+  const onboardingDocs = account.data.Meal_Program_Onboarding__c;
+  const completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
   const extraInfo = {
     completedDocs,
     remainingDocs: Object.values(restaurantFileInfo)
