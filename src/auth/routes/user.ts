@@ -41,7 +41,7 @@ router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
 
   const existingUsername = await User.findOne({ username });
   if (existingUsername) {
-    return res.status(400).send('Username is in use');
+    throw Error('Username is in use');
   }
 
   const newUser = new User({ username, password, salesforceId });
@@ -50,7 +50,7 @@ router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
 });
 
 router.patch('/', currentUser, requireAuth, async (req, res) => {
-  const { userId, username, password, salesforceId, householdId } = req.body;
+  const { userId, username, password, salesforceId } = req.body;
 
   if (!username && !password) {
     res.status(400);

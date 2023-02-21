@@ -26,5 +26,9 @@ export default async () => {
     },
   });
 
+  if (!SFResponse.data.access_token) {
+    throw Error('Did not get token from salesforce');
+  }
+
   return SFResponse.data.access_token;
 };

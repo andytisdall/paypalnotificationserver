@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.storeFile = void 0;
+exports.storeFile = exports.deleteFile = void 0;
 var stream_1 = __importDefault(require("stream"));
 var path_1 = __importDefault(require("path"));
 var heic_convert_1 = __importDefault(require("heic-convert"));
@@ -60,6 +60,20 @@ var convertFile = function (data) { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
+var deleteFile = function (name) { return __awaiter(void 0, void 0, void 0, function () {
+    var file;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                file = bucket_1.bucket.file(name);
+                return [4 /*yield*/, file.delete()];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+exports.deleteFile = deleteFile;
 var storeFile = function (_a) {
     var file = _a.file, name = _a.name;
     return __awaiter(void 0, void 0, void 0, function () {

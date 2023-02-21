@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+var path_1 = __importDefault(require("path"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var uploadFilesToSalesforce_1 = require("../uploadFilesToSalesforce");
@@ -51,7 +52,7 @@ router.get('/images/:fileName', function (req, res) { return __awaiter(void 0, v
         fileName = req.params.fileName;
         file = bucket_1.bucket.file(fileName);
         outputStream = file.createReadStream();
-        // res.type(ext);
+        res.type(path_1.default.extname(fileName));
         outputStream.pipe(res);
         return [2 /*return*/];
     });

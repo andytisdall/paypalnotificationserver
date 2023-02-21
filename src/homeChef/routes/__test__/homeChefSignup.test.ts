@@ -35,6 +35,39 @@ it('correctly makes the portal user and salesforce contact when the interest for
 
   const user = await User.findOne({ username: 'rsanchez' });
   expect(user).toBeDefined();
+  expect(user?.salesforceId).toBeDefined();
+
+  expect(sgMail.send).toHaveBeenCalled();
+});
+
+it('correctly updates an existing contact and makes a user when the interest form is submitted', async () => {
+  const formValues = {
+    email: 'joe@duplicate.fake',
+    firstName: 'Joe',
+    lastName: 'Duplicate',
+    phoneNumber: '510-677-6867',
+    instagramHandle: '@joejoe',
+    commit: true,
+    foodHandler: false,
+    daysAvailable: {
+      Monday: true,
+      Tuesday: false,
+      Wednesday: true,
+      Thursday: false,
+    },
+    experience: 'None',
+    attend: true,
+    pickup: false,
+    source: 'Heard about it on the news',
+    extraInfo: "I'm super psyched to help!",
+  };
+
+  await request(app).post('/api/home-chef/signup').send(formValues).expect(201);
+
+  const user = await User.findOne({ username: 'jduplicate' });
+
+  expect(user).toBeDefined();
+  expect(user?.salesforceId).toBeDefined();
 
   expect(sgMail.send).toHaveBeenCalled();
 });

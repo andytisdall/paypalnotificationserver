@@ -86,6 +86,45 @@ it('correctly makes the portal user and salesforce contact when the interest for
             case 2:
                 user = _a.sent();
                 expect(user).toBeDefined();
+                expect(user === null || user === void 0 ? void 0 : user.salesforceId).toBeDefined();
+                expect(mail_1.default.send).toHaveBeenCalled();
+                return [2 /*return*/];
+        }
+    });
+}); });
+it('correctly updates an existing contact and makes a user when the interest form is submitted', function () { return __awaiter(void 0, void 0, void 0, function () {
+    var formValues, user;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                formValues = {
+                    email: 'joe@duplicate.fake',
+                    firstName: 'Joe',
+                    lastName: 'Duplicate',
+                    phoneNumber: '510-677-6867',
+                    instagramHandle: '@joejoe',
+                    commit: true,
+                    foodHandler: false,
+                    daysAvailable: {
+                        Monday: true,
+                        Tuesday: false,
+                        Wednesday: true,
+                        Thursday: false,
+                    },
+                    experience: 'None',
+                    attend: true,
+                    pickup: false,
+                    source: 'Heard about it on the news',
+                    extraInfo: "I'm super psyched to help!",
+                };
+                return [4 /*yield*/, supertest_1.default(index_1.default).post('/api/home-chef/signup').send(formValues).expect(201)];
+            case 1:
+                _a.sent();
+                return [4 /*yield*/, user_1.User.findOne({ username: 'jduplicate' })];
+            case 2:
+                user = _a.sent();
+                expect(user).toBeDefined();
+                expect(user === null || user === void 0 ? void 0 : user.salesforceId).toBeDefined();
                 expect(mail_1.default.send).toHaveBeenCalled();
                 return [2 /*return*/];
         }

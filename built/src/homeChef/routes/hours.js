@@ -55,7 +55,7 @@ router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fun
             case 1:
                 _c.sent();
                 id = (_a = req.currentUser) === null || _a === void 0 ? void 0 : _a.salesforceId;
-                query = "SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '" + id + "'";
+                query = "SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '" + id + "' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')";
                 hoursQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
                 return [4 /*yield*/, fetcher_1.default.get(hoursQueryUri)];
             case 2:
@@ -111,22 +111,25 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
     });
 }); });
 router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, mealCount, hoursToUpdate, hoursUpdateUri;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var id, _a, mealCount, cancel, hoursToUpdate, hoursUpdateUri;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 id = req.params.id;
-                mealCount = req.body.mealCount;
+                _a = req.body, mealCount = _a.mealCount, cancel = _a.cancel;
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
-                _a.sent();
+                _b.sent();
                 hoursToUpdate = {
                     Number_of_Meals__c: mealCount,
                 };
+                if (cancel) {
+                    hoursToUpdate.GW_Volunteers__Status__c = 'Canceled';
+                }
                 hoursUpdateUri = urls_1.default.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
                 return [4 /*yield*/, fetcher_1.default.patch(hoursUpdateUri, hoursToUpdate)];
             case 2:
-                _a.sent();
+                _b.sent();
                 res.send({ id: id, mealCount: mealCount });
                 return [2 /*return*/];
         }

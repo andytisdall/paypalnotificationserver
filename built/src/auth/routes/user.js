@@ -100,7 +100,7 @@ router.post('/', current_user_1.currentUser, require_auth_1.requireAuth, require
             case 1:
                 existingUsername = _b.sent();
                 if (existingUsername) {
-                    return [2 /*return*/, res.status(400).send('Username is in use')];
+                    throw Error('Username is in use');
                 }
                 newUser = new User({ username: username, password: password, salesforceId: salesforceId });
                 return [4 /*yield*/, newUser.save()];
@@ -112,11 +112,11 @@ router.post('/', current_user_1.currentUser, require_auth_1.requireAuth, require
     });
 }); });
 router.patch('/', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, userId, username, password, salesforceId, householdId, u;
+    var _a, userId, username, password, salesforceId, u;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _a = req.body, userId = _a.userId, username = _a.username, password = _a.password, salesforceId = _a.salesforceId, householdId = _a.householdId;
+                _a = req.body, userId = _a.userId, username = _a.username, password = _a.password, salesforceId = _a.salesforceId;
                 if (!username && !password) {
                     res.status(400);
                     throw new Error('No username or password provided');

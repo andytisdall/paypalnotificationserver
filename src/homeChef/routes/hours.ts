@@ -33,7 +33,7 @@ export interface FormattedHours {
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
   const id = req.currentUser?.salesforceId;
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${id}'`;
+  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -79,13 +79,23 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
 
 router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   const { id } = req.params;
-  const { mealCount } = req.body;
+  const { mealCount, cancel }: { mealCount: number; cancel: boolean } =
+    req.body;
 
   await fetcher.setService('salesforce');
 
-  const hoursToUpdate = {
+  interface updateHours {
+    Number_of_Meals__c: number;
+    GW_Volunteers__Status__c?: string;
+  }
+
+  const hoursToUpdate: updateHours = {
     Number_of_Meals__c: mealCount,
   };
+
+  if (cancel) {
+    hoursToUpdate.GW_Volunteers__Status__c = 'Canceled';
+  }
 
   const hoursUpdateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;

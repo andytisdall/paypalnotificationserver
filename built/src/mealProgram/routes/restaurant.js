@@ -76,7 +76,7 @@ router.get('/', current_user_1.currentUser, require_auth_1.requireAuth, function
     var restaurant, account, completedDocs, extraInfo;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, Restaurant.findOne({ user: req.currentUser })];
+            case 0: return [4 /*yield*/, Restaurant.findOne({ user: req.currentUser.id })];
             case 1:
                 restaurant = _a.sent();
                 if (!restaurant) {

@@ -112,15 +112,17 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
         }
     });
 }); });
-router.patch('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, recipeId, name, ingredients, instructions, description, recipe;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var recipeId, _a, name, ingredients, instructions, description, recipe, fileName, _b;
+    var _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
-                _a = req.body, recipeId = _a.recipeId, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
+                recipeId = req.params.id;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
                 return [4 /*yield*/, Recipe.findById(recipeId)];
             case 1:
-                recipe = _b.sent();
+                recipe = _d.sent();
                 if (!recipe) {
                     res.status(404);
                     throw new Error('Recipe not found');
@@ -135,9 +137,25 @@ router.patch('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, 
                     recipe.instructions = instructions.split('\n');
                 }
                 recipe.description = description;
-                return [4 /*yield*/, recipe.save()];
+                if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.image) && !Array.isArray(req.files.image))) return [3 /*break*/, 5];
+                if (!recipe.image) return [3 /*break*/, 3];
+                return [4 /*yield*/, storeFile_1.deleteFile(recipe.image)];
             case 2:
-                _b.sent();
+                _d.sent();
+                _d.label = 3;
+            case 3:
+                fileName = 'recipes-' + name;
+                _b = recipe;
+                return [4 /*yield*/, storeFile_1.storeFile({
+                        file: req.files.image,
+                        name: fileName,
+                    })];
+            case 4:
+                _b.image = _d.sent();
+                _d.label = 5;
+            case 5: return [4 /*yield*/, recipe.save()];
+            case 6:
+                _d.sent();
                 res.send(recipe);
                 return [2 /*return*/];
         }

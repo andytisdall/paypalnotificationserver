@@ -62,6 +62,7 @@ router.post('/signup', async (req, res) => {
   };
 
   let existingContact = await getContact(lastName, email);
+  // console.log(existingContact);
   if (existingContact) {
     await updateContact(existingContact.id, contactInfo);
   } else {

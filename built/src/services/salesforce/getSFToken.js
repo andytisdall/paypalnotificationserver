@@ -67,6 +67,9 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                     })];
             case 2:
                 SFResponse = _b.sent();
+                if (!SFResponse.data.access_token) {
+                    throw Error('Did not get token from salesforce');
+                }
                 return [2 /*return*/, SFResponse.data.access_token];
         }
     });

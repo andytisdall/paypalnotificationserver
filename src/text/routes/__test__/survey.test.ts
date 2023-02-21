@@ -21,7 +21,7 @@ it('submits a text signup survey', async () => {
   await request(app)
     .post('/api/text/signup-survey')
     .send({
-      age: '10',
+      age: '27-50',
       ethnicity: 'African American/Black',
       zip: '94606',
       type: 'Vegetarian',

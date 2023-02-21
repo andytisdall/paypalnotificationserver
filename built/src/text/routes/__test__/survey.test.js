@@ -69,7 +69,7 @@ it('submits a text signup survey', function () { return __awaiter(void 0, void 0
             case 0: return [4 /*yield*/, supertest_1.default(index_1.default)
                     .post('/api/text/signup-survey')
                     .send({
-                    age: '10',
+                    age: '27-50',
                     ethnicity: 'African American/Black',
                     zip: '94606',
                     type: 'Vegetarian',
