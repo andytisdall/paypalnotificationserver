@@ -8,6 +8,7 @@ const recipeSchema = new mongoose.Schema(
     description: String,
     image: String,
     author: String,
+    category: String,
   },
 
   {

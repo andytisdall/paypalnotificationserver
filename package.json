@@ -32,6 +32,8 @@
     "mongodb-memory-server": "^8.11.0",
     "mongoose": "^6.7.4",
     "path": "^0.12.7",
+    "redux-thunk-error-handler": "^1.1.4",
+    "redux-thunk-recursion-detect": "^1.1.4",
     "supertest": "^6.3.3",
     "twilio": "^3.83.3"
   },
