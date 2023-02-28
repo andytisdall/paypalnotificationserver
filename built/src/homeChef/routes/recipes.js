@@ -78,19 +78,19 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, ingredients, instructions, description, ingredientsList, instructionsList, image, fileName, newRecipe;
+    var _a, name, ingredients, instructions, description, category, ingredientsList, instructionsList, image, fileName, newRecipe;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category;
                 ingredientsList = ingredients.split('\n');
                 instructionsList = instructions.split('\n');
                 image = '';
-                if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.image) && !Array.isArray(req.files.image))) return [3 /*break*/, 2];
+                if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 2];
                 fileName = 'recipes-' + name;
                 return [4 /*yield*/, storeFile_1.storeFile({
-                        file: req.files.image,
+                        file: req.files.photo,
                         name: fileName,
                     })];
             case 1:
@@ -102,6 +102,7 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     ingredients: ingredientsList,
                     instructions: instructionsList,
                     description: description,
+                    category: category,
                     image: image,
                 });
                 return [4 /*yield*/, newRecipe.save()];
@@ -113,13 +114,13 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
     });
 }); });
 router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var recipeId, _a, name, ingredients, instructions, description, recipe, fileName, _b;
+    var recipeId, _a, name, ingredients, instructions, description, category, recipe, fileName, _b;
     var _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
                 recipeId = req.params.id;
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category;
                 return [4 /*yield*/, Recipe.findById(recipeId)];
             case 1:
                 recipe = _d.sent();
@@ -136,8 +137,9 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                 if (instructions) {
                     recipe.instructions = instructions.split('\n');
                 }
+                recipe.category = category;
                 recipe.description = description;
-                if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.image) && !Array.isArray(req.files.image))) return [3 /*break*/, 5];
+                if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 5];
                 if (!recipe.image) return [3 /*break*/, 3];
                 return [4 /*yield*/, storeFile_1.deleteFile(recipe.image)];
             case 2:
@@ -147,7 +149,7 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                 fileName = 'recipes-' + name;
                 _b = recipe;
                 return [4 /*yield*/, storeFile_1.storeFile({
-                        file: req.files.image,
+                        file: req.files.photo,
                         name: fileName,
                     })];
             case 4:

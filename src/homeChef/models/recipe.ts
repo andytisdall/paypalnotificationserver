@@ -1,14 +1,21 @@
 import mongoose from 'mongoose';
 
+export type RecipeCategory =
+  | 'mains'
+  | 'sides'
+  | 'veggies'
+  | 'soups'
+  | 'desserts';
+
 const recipeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    ingredients: [String],
-    instructions: [String],
+    ingredients: { type: [String], required: true },
+    instructions: { type: [String], required: true },
     description: String,
     image: String,
     author: String,
-    category: String,
+    category: { type: String, required: true },
   },
 
   {

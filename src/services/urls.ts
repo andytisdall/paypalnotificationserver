@@ -1,16 +1,17 @@
 const SFQueryPrefix = '/data/v56.0/query/?q=';
 const SFOperationPrefix = '/data/v56.0/sobjects';
+const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
-  // docusign: 'https://www.docusign.net/restapi',
-  docusign: 'https://demo.docusign.net/restapi',
+  docusign: 'https://www.docusign.net/restapi',
   docusignOauth: 'https://account.docusign.com',
-  client: 'https://coherent-vision-368820.uw.r.appspot.com',
-  server: 'https://coherent-vision-368820.uw.r.appspot.com',
+  client: 'https://portal.ckoakland.org',
+  server: 'https://portal.ckoakland.org',
   SFOperationPrefix,
   SFQueryPrefix,
+  fileBucket,
 };
 
 const testUrls = {
@@ -23,6 +24,7 @@ const testUrls = {
   server: 'http://localhost:3001',
   SFOperationPrefix,
   SFQueryPrefix,
+  fileBucket,
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

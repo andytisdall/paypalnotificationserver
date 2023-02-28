@@ -9,6 +9,7 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import { storeFile } from '../../files/storeFile';
 import getSecrets from '../../services/getSecrets';
+import urls from '../../services/urls';
 
 const Phone = mongoose.model('Phone');
 const smsRouter = express.Router();
@@ -68,11 +69,7 @@ smsRouter.post(
         name: fileName,
       });
 
-      outgoingText.mediaUrl = [
-        'https://coherent-vision-368820.uw.r.appspot.com' +
-          '/api/files/images/' +
-          imageId,
-      ];
+      outgoingText.mediaUrl = [urls.client + '/api/files/images/' + imageId];
     }
 
     const createOutgoingText = async (phone: string) => {

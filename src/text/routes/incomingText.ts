@@ -6,11 +6,14 @@ import moment from 'moment';
 import { REGIONS, Region } from '../models/phone';
 import textResponses from '../textResponses';
 import { sendEmail } from '../../services/email';
+import urls from '../../services/urls';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
+
+const DROPOFF_SUBSCRIBERS = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
 
 type PhoneNumber =
   | (mongoose.Document<
@@ -52,14 +55,11 @@ router.post(
   '/incoming/dropoff',
   twilio.webhook({ protocol: 'https' }),
   async (req, res) => {
-    const emailsToSendTo = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
-
     const { Body, From, DateSent } = req.body;
 
     const images = getImages(req.body);
 
-    const textUrl =
-      'https://coherent-vision-368820.uw.r.appspot.com/text/send-text';
+    const textUrl = urls.client + '/text/send-text';
 
     let html = `
     <h4>This is a CK Home Chef drop off alert</h4>
@@ -83,7 +83,7 @@ router.post(
     }
 
     const msg = {
-      to: emailsToSendTo,
+      to: DROPOFF_SUBSCRIBERS,
       from: 'andy@ckoakland.org',
       subject: 'You got a text on the Home Chef drop-off line',
       mediaUrl: images,

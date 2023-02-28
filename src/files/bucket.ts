@@ -1,4 +1,6 @@
 import { Storage } from '@google-cloud/storage';
 
+import urls from '../services/urls';
+
 const storage = new Storage();
-export const bucket = storage.bucket('coherent-vision-368820.appspot.com');
+export const bucket = storage.bucket(urls.fileBucket);
