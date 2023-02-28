@@ -12,10 +12,11 @@ const recipeSchema = new mongoose.Schema(
     name: { type: String, required: true },
     ingredients: { type: [String], required: true },
     instructions: { type: [String], required: true },
+    category: { type: String, required: true },
     description: String,
     image: String,
     author: String,
-    category: { type: String, required: true },
+    bulk: Boolean,
   },
 
   {

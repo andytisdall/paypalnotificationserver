@@ -60,6 +60,7 @@ var require_auth_1 = require("../../middlewares/require-auth");
 var require_admin_1 = require("../../middlewares/require-admin");
 var storeFile_1 = require("../../files/storeFile");
 var getSecrets_1 = __importDefault(require("../../services/getSecrets"));
+var urls_1 = __importDefault(require("../../services/urls"));
 var Phone = mongoose_1.default.model('Phone');
 var smsRouter = express_1.default.Router();
 smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -109,11 +110,7 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
                     })];
             case 5:
                 imageId = _c.sent();
-                outgoingText.mediaUrl = [
-                    'https://coherent-vision-368820.uw.r.appspot.com' +
-                        '/api/files/images/' +
-                        imageId,
-                ];
+                outgoingText.mediaUrl = [urls_1.default.client + '/api/files/images/' + imageId];
                 _c.label = 6;
             case 6:
                 createOutgoingText = function (phone) { return __awaiter(void 0, void 0, void 0, function () {

@@ -32,8 +32,10 @@ interface RecipeFields {
   name: string;
   ingredients: string;
   instructions: string;
-  description: string;
   category: RecipeCategory;
+  description?: string;
+  author?: string;
+  bulk?: boolean;
 }
 
 router.post(
@@ -48,6 +50,8 @@ router.post(
       instructions,
       description,
       category,
+      bulk,
+      author,
     }: RecipeFields = req.body;
 
     const ingredientsList = ingredients.split('\n');
@@ -69,6 +73,8 @@ router.post(
       description,
       category,
       image,
+      author,
+      bulk,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);
@@ -88,6 +94,8 @@ router.patch(
       instructions,
       description,
       category,
+      bulk,
+      author,
     }: RecipeFields = req.body;
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) {
@@ -103,6 +111,8 @@ router.patch(
     if (instructions) {
       recipe.instructions = instructions.split('\n');
     }
+    recipe.author = author;
+    recipe.bulk = bulk;
     recipe.category = category;
     recipe.description = description;
 

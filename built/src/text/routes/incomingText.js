@@ -65,10 +65,12 @@ var moment_1 = __importDefault(require("moment"));
 var phone_1 = require("../models/phone");
 var textResponses_1 = __importDefault(require("../textResponses"));
 var email_1 = require("../../services/email");
+var urls_1 = __importDefault(require("../../services/urls"));
 var Feedback = mongoose_1.default.model('Feedback');
 var Phone = mongoose_1.default.model('Phone');
 var MessagingResponse = twilio_1.twiml.MessagingResponse;
 var router = express_1.default.Router();
+var DROPOFF_SUBSCRIBERS = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
 router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var response, images, responseMessage;
     return __generator(this, function (_a) {
@@ -89,14 +91,13 @@ router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), functi
     });
 }); });
 router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var emailsToSendTo, _a, Body, From, DateSent, images, textUrl, html, imagesHtml_1, msg, response;
+    var _a, Body, From, DateSent, images, textUrl, html, imagesHtml_1, msg, response;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                emailsToSendTo = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
                 _a = req.body, Body = _a.Body, From = _a.From, DateSent = _a.DateSent;
                 images = getImages(req.body);
-                textUrl = 'https://coherent-vision-368820.uw.r.appspot.com/text/send-text';
+                textUrl = urls_1.default.client + '/text/send-text';
                 html = "\n    <h4>This is a CK Home Chef drop off alert</h4>\n    <p>Go to the <a href='" + textUrl + "'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>\n    <p color='blue'>This message was received at <span color='black'>" + moment_1.default(DateSent)
                     .subtract(8, 'hours')
                     .format('MM/DD/YY hh:mm a') + "</span></p>\n    <p color='blue'>From: <span color='black'>" + From + "</span></p>\n    <p color='blue'>Message:</p>\n    <p>" + Body + "</p>\n    ";
@@ -108,7 +109,7 @@ router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' })
                     html += imagesHtml_1;
                 }
                 msg = {
-                    to: emailsToSendTo,
+                    to: DROPOFF_SUBSCRIBERS,
                     from: 'andy@ckoakland.org',
                     subject: 'You got a text on the Home Chef drop-off line',
                     mediaUrl: images,
