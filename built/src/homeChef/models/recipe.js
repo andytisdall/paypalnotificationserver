@@ -7,8 +7,8 @@ exports.Recipe = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
 var recipeSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
-    ingredients: { type: [String], required: true },
-    instructions: { type: [String], required: true },
+    ingredients: { type: [Object], required: true },
+    instructions: { type: [Object], required: true },
     category: { type: String, required: true },
     description: String,
     image: String,

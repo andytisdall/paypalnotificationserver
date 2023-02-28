@@ -74,7 +74,7 @@ router.post(
       name,
       ingredients: formatSections(ingredients),
       instructions: formatSections(instructions),
-      description,
+      description: description?.split('\n'),
       category,
       image,
       author,

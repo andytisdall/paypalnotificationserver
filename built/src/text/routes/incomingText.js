@@ -70,7 +70,11 @@ var Feedback = mongoose_1.default.model('Feedback');
 var Phone = mongoose_1.default.model('Phone');
 var MessagingResponse = twilio_1.twiml.MessagingResponse;
 var router = express_1.default.Router();
-var DROPOFF_SUBSCRIBERS = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
+var DROPOFF_SUBSCRIBERS = [
+    'andy@ckoakland.org',
+    'mollye@ckoakland.org',
+    'ali@ckoakland.org',
+];
 router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var response, images, responseMessage;
     return __generator(this, function (_a) {

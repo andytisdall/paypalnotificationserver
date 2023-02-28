@@ -77,15 +77,18 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
         }
     });
 }); });
+var formatSections = function (field) {
+    return JSON.parse(field).map(function (item) {
+        return { header: item.header, text: item.text.split('\n') };
+    });
+};
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, ingredients, instructions, description, category, bulk, author, ingredientsList, instructionsList, image, fileName, newRecipe;
+    var _a, name, ingredients, instructions, description, category, author, image, fileName, newRecipe;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, bulk = _a.bulk, author = _a.author;
-                ingredientsList = ingredients.split('\n');
-                instructionsList = instructions.split('\n');
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, author = _a.author;
                 image = '';
                 if (!(((_b = req.files) === null || _b === void 0 ? void 0 : _b.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 2];
                 fileName = 'recipes-' + name;
@@ -99,13 +102,12 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
             case 2:
                 newRecipe = new Recipe({
                     name: name,
-                    ingredients: ingredientsList,
-                    instructions: instructionsList,
+                    ingredients: formatSections(ingredients),
+                    instructions: formatSections(instructions),
                     description: description,
                     category: category,
                     image: image,
                     author: author,
-                    bulk: bulk,
                 });
                 return [4 /*yield*/, newRecipe.save()];
             case 3:
@@ -116,13 +118,13 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
     });
 }); });
 router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var recipeId, _a, name, ingredients, instructions, description, category, bulk, author, recipe, fileName, _b;
+    var recipeId, _a, name, ingredients, instructions, description, category, author, recipe, fileName, _b;
     var _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
                 recipeId = req.params.id;
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, bulk = _a.bulk, author = _a.author;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, author = _a.author;
                 return [4 /*yield*/, Recipe.findById(recipeId)];
             case 1:
                 recipe = _d.sent();
@@ -134,13 +136,12 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                     recipe.name = name;
                 }
                 if (ingredients) {
-                    recipe.ingredients = ingredients.split('\n');
+                    recipe.ingredients = formatSections(ingredients);
                 }
                 if (instructions) {
-                    recipe.instructions = instructions.split('\n');
+                    recipe.instructions = formatSections(ingredients);
                 }
                 recipe.author = author;
-                recipe.bulk = bulk;
                 recipe.category = category;
                 recipe.description = description;
                 if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 5];

@@ -47,7 +47,7 @@ var email_1 = require("../../services/email");
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
 router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, email, firstName, lastName, phoneNumber, instagramHandle, commit, foodHandler, daysAvailable, experience, attend, pickup, source, extraInfo, temporaryPassword, username, formattedDays, contactInfo, existingContact, existingUser, newUser;
+    var _a, email, firstName, lastName, phoneNumber, instagramHandle, commit, foodHandler, daysAvailable, experience, attend, pickup, source, extraInfo, temporaryPassword, username, formattedDays, contactInfo, existingContact, uniqueUsername, existingUser, i, newUser;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -93,21 +93,32 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                 // contact needs to be added first so that opp can have a contactid
                 existingContact = _b.sent();
                 _b.label = 5;
-            case 5: return [4 /*yield*/, User.findOne({ username: username })];
+            case 5:
+                uniqueUsername = username;
+                return [4 /*yield*/, User.findOne({ username: username })];
             case 6:
                 existingUser = _b.sent();
-                if (!!existingUser) return [3 /*break*/, 8];
+                _b.label = 7;
+            case 7:
+                if (!existingUser) return [3 /*break*/, 9];
+                i = 1;
+                uniqueUsername = username + i;
+                return [4 /*yield*/, User.findOne({ username: uniqueUsername })];
+            case 8:
+                existingUser = _b.sent();
+                i++;
+                return [3 /*break*/, 7];
+            case 9:
                 newUser = new User({
-                    username: username,
+                    username: uniqueUsername,
                     password: temporaryPassword,
                     salesforceId: existingContact.id,
                 });
                 return [4 /*yield*/, newUser.save()];
-            case 7:
+            case 10:
                 _b.sent();
-                _b.label = 8;
-            case 8: return [4 /*yield*/, email_1.sendHomeChefSignupEmail(req.body)];
-            case 9:
+                return [4 /*yield*/, email_1.sendHomeChefSignupEmail(req.body)];
+            case 11:
                 _b.sent();
                 res.sendStatus(201);
                 return [2 /*return*/];

@@ -13,7 +13,11 @@ const Phone = mongoose.model('Phone');
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
 
-const DROPOFF_SUBSCRIBERS = ['andy@ckoakland.org', 'mollye@ckoakland.org'];
+const DROPOFF_SUBSCRIBERS = [
+  'andy@ckoakland.org',
+  'mollye@ckoakland.org',
+  'ali@ckoakland.org',
+];
 
 type PhoneNumber =
   | (mongoose.Document<
