@@ -1,7 +1,7 @@
 import urls from '../urls';
 import fetcher from '../fetcher';
 
-interface ContactInfo {
+export interface ContactInfo {
   FirstName?: string;
   LastName?: string;
   Email?: string;
@@ -11,11 +11,11 @@ interface ContactInfo {
   GW_Volunteers__Volunteer_Status__c?: string;
   GW_Volunteers__Volunteer_Notes__c?: string;
   Instagram_Handle__c?: string;
-  Able_to_Commit__c?: string;
-  Able_to_get_food_handler_cert__c?: string;
-  Cooking_Experience__c?: string;
-  Able_to_attend_orientation__c?: string;
-  Meal_Transportation__c?: string;
+  Able_to_Commit__c?: boolean;
+  Able_to_get_food_handler_cert__c?: boolean;
+  Cooking_Experience__c?: 'Restaurant' | 'Home' | null;
+  Able_to_attend_orientation__c?: boolean;
+  Meal_Transportation__c?: boolean;
   How_did_they_hear_about_CK__c?: string;
   Portal_Username__c?: string;
   Portal_Temporary_Password__c?: string;

@@ -78,12 +78,12 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, ingredients, instructions, description, category, ingredientsList, instructionsList, image, fileName, newRecipe;
+    var _a, name, ingredients, instructions, description, category, bulk, author, ingredientsList, instructionsList, image, fileName, newRecipe;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, bulk = _a.bulk, author = _a.author;
                 ingredientsList = ingredients.split('\n');
                 instructionsList = instructions.split('\n');
                 image = '';
@@ -104,6 +104,8 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     description: description,
                     category: category,
                     image: image,
+                    author: author,
+                    bulk: bulk,
                 });
                 return [4 /*yield*/, newRecipe.save()];
             case 3:
@@ -114,13 +116,13 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
     });
 }); });
 router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var recipeId, _a, name, ingredients, instructions, description, category, recipe, fileName, _b;
+    var recipeId, _a, name, ingredients, instructions, description, category, bulk, author, recipe, fileName, _b;
     var _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
                 recipeId = req.params.id;
-                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category;
+                _a = req.body, name = _a.name, ingredients = _a.ingredients, instructions = _a.instructions, description = _a.description, category = _a.category, bulk = _a.bulk, author = _a.author;
                 return [4 /*yield*/, Recipe.findById(recipeId)];
             case 1:
                 recipe = _d.sent();
@@ -137,6 +139,8 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                 if (instructions) {
                     recipe.instructions = instructions.split('\n');
                 }
+                recipe.author = author;
+                recipe.bulk = bulk;
                 recipe.category = category;
                 recipe.description = description;
                 if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 5];

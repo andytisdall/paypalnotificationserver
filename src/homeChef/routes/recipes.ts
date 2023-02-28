@@ -28,6 +28,8 @@ router.get('/recipe/:recipeId', async (req, res) => {
   res.send(recipe);
 });
 
+type SectionField = { header: string; text: string };
+
 interface RecipeFields {
   name: string;
   ingredients: string;
@@ -37,6 +39,11 @@ interface RecipeFields {
   author?: string;
   bulk?: boolean;
 }
+
+const formatSections = (field: string) =>
+  JSON.parse(field).map((item: SectionField) => {
+    return { header: item.header, text: item.text.split('\n') };
+  });
 
 router.post(
   '/recipe',
@@ -50,12 +57,9 @@ router.post(
       instructions,
       description,
       category,
-      bulk,
       author,
     }: RecipeFields = req.body;
 
-    const ingredientsList = ingredients.split('\n');
-    const instructionsList = instructions.split('\n');
     let image = '';
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
@@ -68,13 +72,12 @@ router.post(
 
     const newRecipe = new Recipe({
       name,
-      ingredients: ingredientsList,
-      instructions: instructionsList,
+      ingredients: formatSections(ingredients),
+      instructions: formatSections(instructions),
       description,
       category,
       image,
       author,
-      bulk,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);
@@ -94,7 +97,6 @@ router.patch(
       instructions,
       description,
       category,
-      bulk,
       author,
     }: RecipeFields = req.body;
     const recipe = await Recipe.findById(recipeId);
@@ -106,13 +108,12 @@ router.patch(
       recipe.name = name;
     }
     if (ingredients) {
-      recipe.ingredients = ingredients.split('\n');
+      recipe.ingredients = formatSections(ingredients);
     }
     if (instructions) {
-      recipe.instructions = instructions.split('\n');
+      recipe.instructions = formatSections(ingredients);
     }
     recipe.author = author;
-    recipe.bulk = bulk;
     recipe.category = category;
     recipe.description = description;
 

@@ -5,12 +5,29 @@ import {
   getContact,
   addContact,
   updateContact,
+  ContactInfo,
 } from '../../services/salesforce/SFQuery';
 import mongoose from 'mongoose';
 import { sendHomeChefSignupEmail } from '../../services/email';
 
 const User = mongoose.model('User');
 const router = express.Router();
+
+interface HomeChefSignupForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  instagramHandle?: string;
+  commit: boolean;
+  foodHandler: boolean;
+  daysAvailable: Record<string, boolean>;
+  experience: 'Restaurant' | 'Home' | 'None';
+  attend: boolean;
+  pickup: boolean;
+  source: string;
+  extraInfo?: string;
+}
 
 router.post('/signup', async (req, res) => {
   const {
@@ -27,7 +44,7 @@ router.post('/signup', async (req, res) => {
     pickup,
     source,
     extraInfo,
-  } = req.body;
+  }: HomeChefSignupForm = req.body;
 
   const temporaryPassword = passwordGenerator.generate({
     length: 10,
@@ -40,7 +57,7 @@ router.post('/signup', async (req, res) => {
       .filter((d) => daysAvailable[d])
       .join(';') + ';';
 
-  const contactInfo = {
+  const contactInfo: ContactInfo = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,
@@ -70,15 +87,21 @@ router.post('/signup', async (req, res) => {
     existingContact = await addContact(contactInfo);
   }
 
-  const existingUser = await User.findOne({ username });
-  if (!existingUser) {
-    const newUser = new User({
-      username,
-      password: temporaryPassword,
-      salesforceId: existingContact.id,
-    });
-    await newUser.save();
+  let uniqueUsername = username;
+  let existingUser = await User.findOne({ username });
+  while (existingUser) {
+    let i = 1;
+    uniqueUsername = username + i;
+    existingUser = await User.findOne({ username: uniqueUsername });
+    i++;
   }
+
+  const newUser = new User({
+    username: uniqueUsername,
+    password: temporaryPassword,
+    salesforceId: existingContact.id,
+  });
+  await newUser.save();
 
   await sendHomeChefSignupEmail(req.body);
   res.sendStatus(201);

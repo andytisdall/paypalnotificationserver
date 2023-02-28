@@ -10,8 +10,8 @@ export type RecipeCategory =
 const recipeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    ingredients: { type: [String], required: true },
-    instructions: { type: [String], required: true },
+    ingredients: { type: [Object], required: true },
+    instructions: { type: [Object], required: true },
     category: { type: String, required: true },
     description: String,
     image: String,
