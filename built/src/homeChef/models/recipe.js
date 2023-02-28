@@ -10,10 +10,9 @@ var recipeSchema = new mongoose_1.default.Schema({
     ingredients: { type: [Object], required: true },
     instructions: { type: [Object], required: true },
     category: { type: String, required: true },
-    description: String,
+    description: [String],
     image: String,
     author: String,
-    bulk: Boolean,
 }, {
     toJSON: {
         transform: function (doc, ret) {

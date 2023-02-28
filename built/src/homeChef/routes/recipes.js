@@ -104,7 +104,7 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     name: name,
                     ingredients: formatSections(ingredients),
                     instructions: formatSections(instructions),
-                    description: description,
+                    description: description === null || description === void 0 ? void 0 : description.split('\n'),
                     category: category,
                     image: image,
                     author: author,
@@ -143,7 +143,7 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                 }
                 recipe.author = author;
                 recipe.category = category;
-                recipe.description = description;
+                recipe.description = description === null || description === void 0 ? void 0 : description.split('\n');
                 if (!(((_c = req.files) === null || _c === void 0 ? void 0 : _c.photo) && !Array.isArray(req.files.photo))) return [3 /*break*/, 5];
                 if (!recipe.image) return [3 /*break*/, 3];
                 return [4 /*yield*/, storeFile_1.deleteFile(recipe.image)];

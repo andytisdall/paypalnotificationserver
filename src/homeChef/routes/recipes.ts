@@ -115,7 +115,7 @@ router.patch(
     }
     recipe.author = author;
     recipe.category = category;
-    recipe.description = description;
+    recipe.description = description?.split('\n');
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       if (recipe.image) {
