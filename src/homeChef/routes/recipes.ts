@@ -42,7 +42,10 @@ interface RecipeFields {
 
 const formatSections = (field: string) =>
   JSON.parse(field).map((item: SectionField) => {
-    return { header: item.header, text: item.text.split('\n') };
+    return {
+      header: item.header,
+      text: item.text.replace('\r', '').split('\n'),
+    };
   });
 
 router.post(
@@ -74,7 +77,7 @@ router.post(
       name,
       ingredients: formatSections(ingredients),
       instructions: formatSections(instructions),
-      description: description?.split('\n'),
+      description: description?.replace('\r', '').split('\n'),
       category,
       image,
       author,
@@ -111,7 +114,7 @@ router.patch(
       recipe.ingredients = formatSections(ingredients);
     }
     if (instructions) {
-      recipe.instructions = formatSections(ingredients);
+      recipe.instructions = formatSections(instructions);
     }
     recipe.author = author;
     recipe.category = category;
