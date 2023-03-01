@@ -65,26 +65,26 @@ router.post(
 
     const textUrl = urls.client + '/text/send-text';
 
+    const formattedDate = moment(DateSent)
+      .subtract(8, 'hours')
+      .format('MM/DD/YY hh:mm a');
+
     let html = `
     <h4>This is a CK Home Chef drop off alert</h4>
-    <p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>
-    <p color='blue'>This message was received at <span color='black'>${moment(
-      DateSent
-    )
-      .subtract(8, 'hours')
-      .format('MM/DD/YY hh:mm a')}</span></p>
-    <p color='blue'>From: <span color='black'>${From}</span></p>
-    <p color='blue'>Message:</p>
+    <p>From: ${From.slice(2)}</p>
+    <p>${formattedDate}</p>
     <p>${Body}</p>
     `;
 
     if (images.length) {
       let imagesHtml = `<p>Images included with message:</p>`;
       images.forEach((url) => {
-        imagesHtml += `<br /><img src=${url} width='300px' height='auto'/>`;
+        imagesHtml += `<br /><img src=${url} width='300px' height='auto' download='${formattedDate}'/>`;
       });
       html += imagesHtml;
     }
+
+    html += `<p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>`;
 
     const msg = {
       to: DROPOFF_SUBSCRIBERS,

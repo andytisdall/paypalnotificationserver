@@ -79,7 +79,10 @@ router.get('/recipe/:recipeId', function (req, res) { return __awaiter(void 0, v
 }); });
 var formatSections = function (field) {
     return JSON.parse(field).map(function (item) {
-        return { header: item.header, text: item.text.split('\n') };
+        return {
+            header: item.header,
+            text: item.text.replace('\r', '').split('\n'),
+        };
     });
 };
 router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -104,7 +107,7 @@ router.post('/recipe', current_user_1.currentUser, require_auth_1.requireAuth, r
                     name: name,
                     ingredients: formatSections(ingredients),
                     instructions: formatSections(instructions),
-                    description: description === null || description === void 0 ? void 0 : description.split('\n'),
+                    description: description === null || description === void 0 ? void 0 : description.replace('\r', '').split('\n'),
                     category: category,
                     image: image,
                     author: author,
@@ -139,7 +142,7 @@ router.patch('/recipe/:id', current_user_1.currentUser, require_auth_1.requireAu
                     recipe.ingredients = formatSections(ingredients);
                 }
                 if (instructions) {
-                    recipe.instructions = formatSections(ingredients);
+                    recipe.instructions = formatSections(instructions);
                 }
                 recipe.author = author;
                 recipe.category = category;
