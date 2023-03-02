@@ -6,9 +6,12 @@ import {
   addContact,
   updateContact,
   ContactInfo,
+  insertCampaignMember,
+  CampaignMemberObject,
 } from '../../services/salesforce/SFQuery';
 import mongoose from 'mongoose';
 import { sendHomeChefSignupEmail } from '../../services/email';
+import urls from '../../services/urls';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -52,6 +55,15 @@ router.post('/signup', async (req, res) => {
   });
   const username = firstName.charAt(0).toLowerCase() + lastName.toLowerCase();
 
+  let uniqueUsername = username;
+  let existingUser = await User.findOne({ username });
+  while (existingUser) {
+    let i = 1;
+    uniqueUsername = username + i;
+    existingUser = await User.findOne({ username: uniqueUsername });
+    i++;
+  }
+
   const formattedDays =
     Object.keys(daysAvailable)
       .filter((d) => daysAvailable[d])
@@ -73,7 +85,7 @@ router.post('/signup', async (req, res) => {
     Able_to_attend_orientation__c: attend,
     Meal_Transportation__c: pickup,
     How_did_they_hear_about_CK__c: source,
-    Portal_Username__c: username,
+    Portal_Username__c: uniqueUsername,
     Portal_Temporary_Password__c: temporaryPassword,
     Home_Chef_Status__c: 'Prospective',
   };
@@ -87,14 +99,12 @@ router.post('/signup', async (req, res) => {
     existingContact = await addContact(contactInfo);
   }
 
-  let uniqueUsername = username;
-  let existingUser = await User.findOne({ username });
-  while (existingUser) {
-    let i = 1;
-    uniqueUsername = username + i;
-    existingUser = await User.findOne({ username: uniqueUsername });
-    i++;
-  }
+  const campaignMember: CampaignMemberObject = {
+    CampaignId: urls.townFridgeCampaignId,
+    ContactId: existingContact.id,
+    Status: 'Confirmed',
+  };
+  await insertCampaignMember(campaignMember);
 
   const newUser = new User({
     username: uniqueUsername,

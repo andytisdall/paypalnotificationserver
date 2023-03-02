@@ -95,23 +95,25 @@ router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), functi
     });
 }); });
 router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, Body, From, DateSent, images, textUrl, html, imagesHtml_1, msg, response;
+    var _a, Body, From, DateSent, images, textUrl, formattedDate, html, imagesHtml_1, msg, response;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, Body = _a.Body, From = _a.From, DateSent = _a.DateSent;
                 images = getImages(req.body);
                 textUrl = urls_1.default.client + '/text/send-text';
-                html = "\n    <h4>This is a CK Home Chef drop off alert</h4>\n    <p>Go to the <a href='" + textUrl + "'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>\n    <p color='blue'>This message was received at <span color='black'>" + moment_1.default(DateSent)
+                formattedDate = moment_1.default(DateSent)
                     .subtract(8, 'hours')
-                    .format('MM/DD/YY hh:mm a') + "</span></p>\n    <p color='blue'>From: <span color='black'>" + From + "</span></p>\n    <p color='blue'>Message:</p>\n    <p>" + Body + "</p>\n    ";
+                    .format('MM/DD/YY hh:mm a');
+                html = "\n    <h4>This is a CK Home Chef drop off alert</h4>\n    <p>From: " + From.slice(2) + "</p>\n    <p>" + formattedDate + "</p>\n    <p>" + Body + "</p>\n    ";
                 if (images.length) {
                     imagesHtml_1 = "<p>Images included with message:</p>";
                     images.forEach(function (url) {
-                        imagesHtml_1 += "<br /><img src=" + url + " width='300px' height='auto'/>";
+                        imagesHtml_1 += "<br /><img src=" + url + " width='300px' height='auto' download='" + formattedDate + "'/>";
                     });
                     html += imagesHtml_1;
                 }
+                html += "<p>Go to the <a href='" + textUrl + "'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>";
                 msg = {
                     to: DROPOFF_SUBSCRIBERS,
                     from: 'andy@ckoakland.org',

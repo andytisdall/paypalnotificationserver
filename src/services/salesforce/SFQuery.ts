@@ -47,6 +47,17 @@ export interface UnformattedContact {
   Name: string;
 }
 
+export interface InsertSuccessResponse {
+  success: boolean;
+  id: string;
+}
+
+export interface CampaignMemberObject {
+  CampaignId: string;
+  ContactId: string;
+  Status: string;
+}
+
 export const getContact = async (
   lastName: string,
   email: string
@@ -79,9 +90,10 @@ export const addContact = async (
 ): Promise<Contact> => {
   await fetcher.setService('salesforce');
   const contactInsertUri = urls.SFOperationPrefix + '/Contact';
-  const insertRes = await fetcher.post(contactInsertUri, contactToAdd);
+  const insertRes: { data: InsertSuccessResponse | undefined } =
+    await fetcher.post(contactInsertUri, contactToAdd);
   //Query new contact to get household account number for opp
-  if (insertRes.data.success) {
+  if (insertRes.data?.success) {
     const newContact: {
       data: UnformattedContact | undefined;
     } = await fetcher.get(contactInsertUri + '/' + insertRes.data.id);
@@ -116,4 +128,18 @@ export const getContactById = async (id: string) => {
     throw Error('Contact not found');
   }
   return res.data;
+};
+
+export const insertCampaignMember = async (
+  campaignMember: CampaignMemberObject
+) => {
+  await fetcher.setService('salesforce');
+  const url = urls.SFOperationPrefix + '/CampaignMember';
+  const res: { data: InsertSuccessResponse | undefined } = await fetcher.post(
+    url,
+    campaignMember
+  );
+  if (!res.data?.success) {
+    throw Error('Could not insert campagin member object');
+  }
 };

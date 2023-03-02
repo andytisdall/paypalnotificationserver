@@ -37,10 +37,8 @@ export default ({
   signerClientId,
   accountType,
 }: CreateEnvelopeArgs) => {
-  const doc = path.resolve(
-    __dirname,
-    'contracts/' + mapAccountTypeToFiles[accountType].file
-  );
+  const doc =
+    'built/public/images/contracts/' + mapAccountTypeToFiles[accountType].file;
 
   // read file from a local directory
   // The read could raise an exception if the file is not available!

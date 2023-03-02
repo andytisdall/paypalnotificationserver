@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getContactById = exports.updateContact = exports.addContact = exports.getContact = void 0;
+exports.insertCampaignMember = exports.getContactById = exports.updateContact = exports.addContact = exports.getContact = void 0;
 var urls_1 = __importDefault(require("../urls"));
 var fetcher_1 = __importDefault(require("../fetcher"));
 var getContact = function (lastName, email) { return __awaiter(void 0, void 0, void 0, function () {
@@ -73,21 +73,21 @@ var getContact = function (lastName, email) { return __awaiter(void 0, void 0, v
 exports.getContact = getContact;
 var addContact = function (contactToAdd) { return __awaiter(void 0, void 0, void 0, function () {
     var contactInsertUri, insertRes, newContact;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
-                _b.sent();
+                _c.sent();
                 contactInsertUri = urls_1.default.SFOperationPrefix + '/Contact';
                 return [4 /*yield*/, fetcher_1.default.post(contactInsertUri, contactToAdd)];
             case 2:
-                insertRes = _b.sent();
-                if (!insertRes.data.success) return [3 /*break*/, 4];
+                insertRes = _c.sent();
+                if (!((_a = insertRes.data) === null || _a === void 0 ? void 0 : _a.success)) return [3 /*break*/, 4];
                 return [4 /*yield*/, fetcher_1.default.get(contactInsertUri + '/' + insertRes.data.id)];
             case 3:
-                newContact = _b.sent();
-                if (!((_a = newContact.data) === null || _a === void 0 ? void 0 : _a.Name)) {
+                newContact = _c.sent();
+                if (!((_b = newContact.data) === null || _b === void 0 ? void 0 : _b.Name)) {
                     throw Error('Could not get created contact');
                 }
                 return [2 /*return*/, {
@@ -134,3 +134,23 @@ var getContactById = function (id) { return __awaiter(void 0, void 0, void 0, fu
     });
 }); };
 exports.getContactById = getContactById;
+var insertCampaignMember = function (campaignMember) { return __awaiter(void 0, void 0, void 0, function () {
+    var url, res;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
+            case 1:
+                _b.sent();
+                url = urls_1.default.SFOperationPrefix + '/CampaignMember';
+                return [4 /*yield*/, fetcher_1.default.post(url, campaignMember)];
+            case 2:
+                res = _b.sent();
+                if (!((_a = res.data) === null || _a === void 0 ? void 0 : _a.success)) {
+                    throw Error('Could not insert campagin member object');
+                }
+                return [2 /*return*/];
+        }
+    });
+}); };
+exports.insertCampaignMember = insertCampaignMember;

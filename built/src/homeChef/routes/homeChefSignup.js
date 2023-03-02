@@ -44,10 +44,11 @@ var generate_password_1 = __importDefault(require("generate-password"));
 var SFQuery_1 = require("../../services/salesforce/SFQuery");
 var mongoose_1 = __importDefault(require("mongoose"));
 var email_1 = require("../../services/email");
+var urls_1 = __importDefault(require("../../services/urls"));
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
 router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, email, firstName, lastName, phoneNumber, instagramHandle, commit, foodHandler, daysAvailable, experience, attend, pickup, source, extraInfo, temporaryPassword, username, formattedDays, contactInfo, existingContact, uniqueUsername, existingUser, i, newUser;
+    var _a, email, firstName, lastName, phoneNumber, instagramHandle, commit, foodHandler, daysAvailable, experience, attend, pickup, source, extraInfo, temporaryPassword, username, uniqueUsername, existingUser, i, formattedDays, contactInfo, existingContact, campaignMember, newUser;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -57,6 +58,21 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     numbers: true,
                 });
                 username = firstName.charAt(0).toLowerCase() + lastName.toLowerCase();
+                uniqueUsername = username;
+                return [4 /*yield*/, User.findOne({ username: username })];
+            case 1:
+                existingUser = _b.sent();
+                _b.label = 2;
+            case 2:
+                if (!existingUser) return [3 /*break*/, 4];
+                i = 1;
+                uniqueUsername = username + i;
+                return [4 /*yield*/, User.findOne({ username: uniqueUsername })];
+            case 3:
+                existingUser = _b.sent();
+                i++;
+                return [3 /*break*/, 2];
+            case 4:
                 formattedDays = Object.keys(daysAvailable)
                     .filter(function (d) { return daysAvailable[d]; })
                     .join(';') + ';';
@@ -76,49 +92,42 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     Able_to_attend_orientation__c: attend,
                     Meal_Transportation__c: pickup,
                     How_did_they_hear_about_CK__c: source,
-                    Portal_Username__c: username,
+                    Portal_Username__c: uniqueUsername,
                     Portal_Temporary_Password__c: temporaryPassword,
                     Home_Chef_Status__c: 'Prospective',
                 };
                 return [4 /*yield*/, SFQuery_1.getContact(lastName, email)];
-            case 1:
+            case 5:
                 existingContact = _b.sent();
-                if (!existingContact) return [3 /*break*/, 3];
+                if (!existingContact) return [3 /*break*/, 7];
                 return [4 /*yield*/, SFQuery_1.updateContact(existingContact.id, contactInfo)];
-            case 2:
+            case 6:
                 _b.sent();
-                return [3 /*break*/, 5];
-            case 3: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
-            case 4:
+                return [3 /*break*/, 9];
+            case 7: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
+            case 8:
                 // contact needs to be added first so that opp can have a contactid
                 existingContact = _b.sent();
-                _b.label = 5;
-            case 5:
-                uniqueUsername = username;
-                return [4 /*yield*/, User.findOne({ username: username })];
-            case 6:
-                existingUser = _b.sent();
-                _b.label = 7;
-            case 7:
-                if (!existingUser) return [3 /*break*/, 9];
-                i = 1;
-                uniqueUsername = username + i;
-                return [4 /*yield*/, User.findOne({ username: uniqueUsername })];
-            case 8:
-                existingUser = _b.sent();
-                i++;
-                return [3 /*break*/, 7];
+                _b.label = 9;
             case 9:
+                campaignMember = {
+                    CampaignId: urls_1.default.townFridgeCampaignId,
+                    ContactId: existingContact.id,
+                    Status: 'Confirmed',
+                };
+                return [4 /*yield*/, SFQuery_1.insertCampaignMember(campaignMember)];
+            case 10:
+                _b.sent();
                 newUser = new User({
                     username: uniqueUsername,
                     password: temporaryPassword,
                     salesforceId: existingContact.id,
                 });
                 return [4 /*yield*/, newUser.save()];
-            case 10:
+            case 11:
                 _b.sent();
                 return [4 /*yield*/, email_1.sendHomeChefSignupEmail(req.body)];
-            case 11:
+            case 12:
                 _b.sent();
                 res.sendStatus(201);
                 return [2 /*return*/];
