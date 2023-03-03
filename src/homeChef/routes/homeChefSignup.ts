@@ -56,8 +56,8 @@ router.post('/signup', async (req, res) => {
 
   let uniqueUsername = username;
   let existingUser = await User.findOne({ username });
+  let i = 1;
   while (existingUser) {
-    let i = 1;
     uniqueUsername = username + i;
     existingUser = await User.findOne({ username: uniqueUsername });
     i++;
@@ -90,7 +90,6 @@ router.post('/signup', async (req, res) => {
   };
 
   let existingContact = await getContact(lastName, email);
-  console.log(existingContact);
   if (existingContact) {
     await updateContact(existingContact.id, contactInfo);
   } else {

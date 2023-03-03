@@ -61,10 +61,10 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, User.findOne({ username: username })];
             case 1:
                 existingUser = _b.sent();
+                i = 1;
                 _b.label = 2;
             case 2:
                 if (!existingUser) return [3 /*break*/, 4];
-                i = 1;
                 uniqueUsername = username + i;
                 return [4 /*yield*/, User.findOne({ username: uniqueUsername })];
             case 3:
@@ -98,21 +98,24 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, SFQuery_1.getContact(lastName, email)];
             case 5:
                 existingContact = _b.sent();
-                if (!existingContact) return [3 /*break*/, 6];
-                return [3 /*break*/, 8];
-            case 6: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
-            case 7:
+                if (!existingContact) return [3 /*break*/, 7];
+                return [4 /*yield*/, SFQuery_1.updateContact(existingContact.id, contactInfo)];
+            case 6:
+                _b.sent();
+                return [3 /*break*/, 9];
+            case 7: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
+            case 8:
                 // contact needs to be added first so that opp can have a contactid
                 existingContact = _b.sent();
-                _b.label = 8;
-            case 8:
+                _b.label = 9;
+            case 9:
                 campaignMember = {
                     CampaignId: urls_1.default.townFridgeCampaignId,
                     ContactId: existingContact.id,
                     Status: 'Confirmed',
                 };
                 return [4 /*yield*/, SFQuery_1.insertCampaignMember(campaignMember)];
-            case 9:
+            case 10:
                 _b.sent();
                 newUser = new User({
                     username: uniqueUsername,
@@ -120,7 +123,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     salesforceId: existingContact.id,
                 });
                 return [4 /*yield*/, newUser.save()];
-            case 10:
+            case 11:
                 _b.sent();
                 res.sendStatus(201);
                 return [2 /*return*/];
