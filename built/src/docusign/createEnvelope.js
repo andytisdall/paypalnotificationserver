@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_extra_1 = __importDefault(require("fs-extra"));
+var path_1 = __importDefault(require("path"));
 var mapAccountTypeToFiles = {
     restaurant: {
         file: 'World_Wide_Corp_lorem.pdf',
@@ -18,8 +19,7 @@ var mapAccountTypeToFiles = {
 };
 exports.default = (function (_a) {
     var signerEmail = _a.signerEmail, signerName = _a.signerName, signerClientId = _a.signerClientId, accountType = _a.accountType;
-    var doc = '../../../public/images/contracts/' +
-        mapAccountTypeToFiles[accountType].file;
+    var doc = path_1.default.resolve(__dirname, 'contracts', mapAccountTypeToFiles[accountType].file);
     // read file from a local directory
     // The read could raise an exception if the file is not available!
     var docPdfBytes = fs_extra_1.default.readFileSync(doc);

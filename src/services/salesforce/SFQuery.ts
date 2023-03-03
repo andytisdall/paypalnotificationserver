@@ -134,6 +134,14 @@ export const insertCampaignMember = async (
   campaignMember: CampaignMemberObject
 ) => {
   await fetcher.setService('salesforce');
+  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${campaignMember.ContactId}' AND CampaignId = '${campaignMember.CampaignId}'`;
+  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
+  const existingCampaignMember: {
+    data: { records: { Id: string }[] } | undefined;
+  } = await fetcher.get(getUrl);
+  if (existingCampaignMember.data?.records[0]) {
+    return;
+  }
   const url = urls.SFOperationPrefix + '/CampaignMember';
   const res: { data: InsertSuccessResponse | undefined } = await fetcher.post(
     url,

@@ -25,17 +25,20 @@ export default async () => {
   const DPKBuffer = Buffer.from(DOCUSIGN_PRIVATE_KEY);
 
   dsApiClient.setBasePath(urls.docusign);
-
-  const result: { body: { access_token: string | undefined } } =
-    await dsApiClient.requestJWTUserToken(
+  let result: { body: { access_token: string | undefined } } | undefined;
+  try {
+    result = await dsApiClient.requestJWTUserToken(
       DOCUSIGN_ID,
       DOCUSIGN_USER_ID,
       ['signature', 'impersonation'],
       DPKBuffer,
       10000
     );
+  } catch (err) {
+    throw Error('This is where the error happened');
+  }
 
-  if (!result.body.access_token) {
+  if (!result?.body.access_token) {
     throw Error('Could not get Docusign token');
   }
 

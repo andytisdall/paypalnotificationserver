@@ -37,12 +37,20 @@ export default ({
   signerClientId,
   accountType,
 }: CreateEnvelopeArgs) => {
-  const doc =
-    'built/public/images/contracts/' + mapAccountTypeToFiles[accountType].file;
+  const doc = path.resolve(
+    __dirname,
+    'contracts',
+    mapAccountTypeToFiles[accountType].file
+  );
 
   // read file from a local directory
   // The read could raise an exception if the file is not available!
-  const docPdfBytes = fs.readFileSync(doc);
+  let docPdfBytes: Buffer;
+  try {
+    docPdfBytes = fs.readFileSync(doc);
+  } catch {
+    throw Error('Could not find contract on CK server');
+  }
 
   let doc1b64 = Buffer.from(docPdfBytes).toString('base64');
   // add the documents

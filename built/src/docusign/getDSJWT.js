@@ -44,7 +44,7 @@ var getSecrets_1 = __importDefault(require("../services/getSecrets"));
 var urls_1 = __importDefault(require("../services/urls"));
 var dsApiClient = new docusign_esign_1.default.ApiClient();
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, DOCUSIGN_ID, DOCUSIGN_USER_ID, DOCUSIGN_PRIVATE_KEY, DPKBuffer, result;
+    var _a, DOCUSIGN_ID, DOCUSIGN_USER_ID, DOCUSIGN_PRIVATE_KEY, DPKBuffer, result, err_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0: return [4 /*yield*/, getSecrets_1.default([
@@ -65,10 +65,18 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                 }
                 DPKBuffer = Buffer.from(DOCUSIGN_PRIVATE_KEY);
                 dsApiClient.setBasePath(urls_1.default.docusign);
-                return [4 /*yield*/, dsApiClient.requestJWTUserToken(DOCUSIGN_ID, DOCUSIGN_USER_ID, ['signature', 'impersonation'], DPKBuffer, 10000)];
+                _b.label = 2;
             case 2:
+                _b.trys.push([2, 4, , 5]);
+                return [4 /*yield*/, dsApiClient.requestJWTUserToken(DOCUSIGN_ID, DOCUSIGN_USER_ID, ['signature', 'impersonation'], DPKBuffer, 10000)];
+            case 3:
                 result = _b.sent();
-                if (!result.body.access_token) {
+                return [3 /*break*/, 5];
+            case 4:
+                err_1 = _b.sent();
+                throw Error('This is where the error happened');
+            case 5:
+                if (!(result === null || result === void 0 ? void 0 : result.body.access_token)) {
                     throw Error('Could not get Docusign token');
                 }
                 return [2 /*return*/, result.body.access_token];

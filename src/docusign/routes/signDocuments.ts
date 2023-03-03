@@ -27,7 +27,7 @@ const accountConfig: {
 } = {
   restaurant: {
     name: 'restaurant-contract',
-    url: '/onboarding/docusign',
+    url: '/meal-program/docusign',
     docType: 'RC',
   },
   contact: {
