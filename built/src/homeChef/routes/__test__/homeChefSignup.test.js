@@ -41,7 +41,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../../../../index"));
 var supertest_1 = __importDefault(require("supertest"));
-var mail_1 = __importDefault(require("@sendgrid/mail"));
 var user_1 = require("../../../auth/models/user");
 jest.mock('@sendgrid/mail');
 afterEach(function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -87,7 +86,6 @@ it('correctly makes the portal user and salesforce contact when the interest for
                 user = _a.sent();
                 expect(user).toBeDefined();
                 expect(user === null || user === void 0 ? void 0 : user.salesforceId).toBeDefined();
-                expect(mail_1.default.send).toHaveBeenCalled();
                 return [2 /*return*/];
         }
     });
@@ -125,7 +123,6 @@ it('correctly updates an existing contact and makes a user when the interest for
                 user = _a.sent();
                 expect(user).toBeDefined();
                 expect(user === null || user === void 0 ? void 0 : user.salesforceId).toBeDefined();
-                expect(mail_1.default.send).toHaveBeenCalled();
                 return [2 /*return*/];
         }
     });

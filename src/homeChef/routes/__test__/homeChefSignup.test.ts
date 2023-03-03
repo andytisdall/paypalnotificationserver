@@ -36,8 +36,6 @@ it('correctly makes the portal user and salesforce contact when the interest for
   const user = await User.findOne({ username: 'rsanchez' });
   expect(user).toBeDefined();
   expect(user?.salesforceId).toBeDefined();
-
-  expect(sgMail.send).toHaveBeenCalled();
 });
 
 it('correctly updates an existing contact and makes a user when the interest form is submitted', async () => {
@@ -68,8 +66,6 @@ it('correctly updates an existing contact and makes a user when the interest for
 
   expect(user).toBeDefined();
   expect(user?.salesforceId).toBeDefined();
-
-  expect(sgMail.send).toHaveBeenCalled();
 });
 
 // it('migrates existing users into the portal', async () => {

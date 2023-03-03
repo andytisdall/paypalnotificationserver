@@ -22,7 +22,13 @@ exports.default = (function (_a) {
     var doc = path_1.default.resolve(__dirname, 'contracts', mapAccountTypeToFiles[accountType].file);
     // read file from a local directory
     // The read could raise an exception if the file is not available!
-    var docPdfBytes = fs_extra_1.default.readFileSync(doc);
+    var docPdfBytes;
+    try {
+        docPdfBytes = fs_extra_1.default.readFileSync(doc);
+    }
+    catch (_b) {
+        throw Error('Could not find contract on CK server');
+    }
     var doc1b64 = Buffer.from(docPdfBytes).toString('base64');
     // add the documents
     var doc1 = {

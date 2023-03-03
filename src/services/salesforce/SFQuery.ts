@@ -148,6 +148,6 @@ export const insertCampaignMember = async (
     campaignMember
   );
   if (!res.data?.success) {
-    throw Error('Could not insert campagin member object');
+    throw Error('Could not insert campaign member object');
   }
 };

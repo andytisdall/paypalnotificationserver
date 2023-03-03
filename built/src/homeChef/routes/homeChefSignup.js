@@ -43,7 +43,6 @@ var express_1 = __importDefault(require("express"));
 var generate_password_1 = __importDefault(require("generate-password"));
 var SFQuery_1 = require("../../services/salesforce/SFQuery");
 var mongoose_1 = __importDefault(require("mongoose"));
-var email_1 = require("../../services/email");
 var urls_1 = __importDefault(require("../../services/urls"));
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
@@ -99,24 +98,21 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, SFQuery_1.getContact(lastName, email)];
             case 5:
                 existingContact = _b.sent();
-                if (!existingContact) return [3 /*break*/, 7];
-                return [4 /*yield*/, SFQuery_1.updateContact(existingContact.id, contactInfo)];
-            case 6:
-                _b.sent();
-                return [3 /*break*/, 9];
-            case 7: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
-            case 8:
+                if (!existingContact) return [3 /*break*/, 6];
+                return [3 /*break*/, 8];
+            case 6: return [4 /*yield*/, SFQuery_1.addContact(contactInfo)];
+            case 7:
                 // contact needs to be added first so that opp can have a contactid
                 existingContact = _b.sent();
-                _b.label = 9;
-            case 9:
+                _b.label = 8;
+            case 8:
                 campaignMember = {
                     CampaignId: urls_1.default.townFridgeCampaignId,
                     ContactId: existingContact.id,
                     Status: 'Confirmed',
                 };
                 return [4 /*yield*/, SFQuery_1.insertCampaignMember(campaignMember)];
-            case 10:
+            case 9:
                 _b.sent();
                 newUser = new User({
                     username: uniqueUsername,
@@ -124,10 +120,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     salesforceId: existingContact.id,
                 });
                 return [4 /*yield*/, newUser.save()];
-            case 11:
-                _b.sent();
-                return [4 /*yield*/, email_1.sendHomeChefSignupEmail(req.body)];
-            case 12:
+            case 10:
                 _b.sent();
                 res.sendStatus(201);
                 return [2 /*return*/];

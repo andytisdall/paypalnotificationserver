@@ -64,9 +64,16 @@ it('posts a recipe', function () { return __awaiter(void 0, void 0, void 0, func
                         .post('/api/home-chef/recipe')
                         .set('Authorization', token)
                         .field('name', 'bacon')
-                        .field('ingredients', 'pig')
+                        .field('ingredients', JSON.stringify([{ header: 'pork', text: 'pig\nbacon' }]))
                         .field('description', 'a recipe from the old country')
-                        .field('instructions', 'fry it up!')
+                        .field('instructions', JSON.stringify([
+                        {
+                            header: 'fry the bacon',
+                            text: 'Fry it up\n\r\nPut it on a paper Towel',
+                        },
+                        { header: '', text: 'now you have bacon!' },
+                    ]))
+                        .field('category', 'veggies')
                         .attach('image', 'src/text/routes/__test__/photo.jpeg')
                         .expect(201)];
             case 2:

@@ -51,7 +51,7 @@ var router = express_1.default.Router();
 var accountConfig = {
     restaurant: {
         name: 'restaurant-contract',
-        url: '/onboarding/docusign',
+        url: '/meal-program/docusign',
         docType: 'RC',
     },
     contact: {

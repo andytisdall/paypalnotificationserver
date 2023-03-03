@@ -10,7 +10,6 @@ import {
   CampaignMemberObject,
 } from '../../services/salesforce/SFQuery';
 import mongoose from 'mongoose';
-import { sendHomeChefSignupEmail } from '../../services/email';
 import urls from '../../services/urls';
 
 const User = mongoose.model('User');
@@ -91,7 +90,7 @@ router.post('/signup', async (req, res) => {
   };
 
   let existingContact = await getContact(lastName, email);
-  // console.log(existingContact);
+  console.log(existingContact);
   if (existingContact) {
     await updateContact(existingContact.id, contactInfo);
   } else {
@@ -113,7 +112,6 @@ router.post('/signup', async (req, res) => {
   });
   await newUser.save();
 
-  // await sendHomeChefSignupEmail(req.body);
   res.sendStatus(201);
 });
 

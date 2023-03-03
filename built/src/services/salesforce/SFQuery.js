@@ -135,19 +135,27 @@ var getContactById = function (id) { return __awaiter(void 0, void 0, void 0, fu
 }); };
 exports.getContactById = getContactById;
 var insertCampaignMember = function (campaignMember) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, res;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var query, getUrl, existingCampaignMember, url, res;
+    var _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
-                _b.sent();
+                _c.sent();
+                query = "SELECT Id FROM CampaignMember WHERE ContactId = '" + campaignMember.ContactId + "' AND CampaignId = '" + campaignMember.CampaignId + "'";
+                getUrl = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
+                return [4 /*yield*/, fetcher_1.default.get(getUrl)];
+            case 2:
+                existingCampaignMember = _c.sent();
+                if ((_a = existingCampaignMember.data) === null || _a === void 0 ? void 0 : _a.records[0]) {
+                    return [2 /*return*/];
+                }
                 url = urls_1.default.SFOperationPrefix + '/CampaignMember';
                 return [4 /*yield*/, fetcher_1.default.post(url, campaignMember)];
-            case 2:
-                res = _b.sent();
-                if (!((_a = res.data) === null || _a === void 0 ? void 0 : _a.success)) {
-                    throw Error('Could not insert campagin member object');
+            case 3:
+                res = _c.sent();
+                if (!((_b = res.data) === null || _b === void 0 ? void 0 : _b.success)) {
+                    throw Error('Could not insert campaign member object');
                 }
                 return [2 /*return*/];
         }
