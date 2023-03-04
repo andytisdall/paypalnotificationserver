@@ -23,11 +23,36 @@ interface PaypalData {
   ipn_track_id: string;
   payment_date?: string;
   time_created: string;
+  item_number?: string;
+  test_ipn?: string;
 }
 
 interface SFInsertResponse {
   success: boolean;
   id: string;
+}
+
+interface OppObject {
+  Amount: string;
+  AccountId: string;
+  npsp__Primary_Contact__c: string;
+  StageName: string;
+  CloseDate: string;
+  Name: string;
+  RecordTypeId: string;
+  Processing_Fee__c?: string;
+  CampaignId?: string;
+}
+
+interface RecurringDonationObject {
+  npe03__Contact__c: string;
+  npe03__Date_Established__c: string;
+  npe03__Amount__c: string;
+  npsp__RecurringType__c: string;
+  npsp__Day_of_Month__c: string;
+  npe03__Installment_Period__c: string;
+  npsp__StartDate__c: string;
+  npe03__Recurring_Donation_Campaign__c?: string;
 }
 
 // listener for paypal message
@@ -36,6 +61,10 @@ paypalRouter.post('/', async (req, res) => {
 
   const paypalData: PaypalData = req.body;
   // console.log(paypalData);
+  if (paypalData.test_ipn) {
+    await verifyPaypalMessage(paypalData);
+    return res.sendStatus(200);
+  }
 
   // check for already processed transaction
   const existingTxn = await PaypalTxn.findOne({
@@ -110,37 +139,28 @@ const formatDate = (date: string) => {
   return moment(splitDate, 'HH:mm:ss MMM D, YYYY').format();
 };
 
-// const verifyPaypalMessage = async (paypalData: PaypalData) => {
-//   const paypalUrl = 'https://ipnpb.paypal.com/cgi-bin/webscr';
-//   const verificationPost = new URLSearchParams();
-//   verificationPost.append('cmd', '_notify_validate');
-//   for (let field in paypalData) {
-//     verificationPost.append(field, paypalData[field]);
-//   }
+const verifyPaypalMessage = async (paypalData: PaypalData) => {
+  const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
+  const verificationPost = new URLSearchParams();
+  verificationPost.append('cmd', '_notify_validate');
+  for (let field in paypalData) {
+    // @ts-ignore
+    verificationPost.append(field, paypalData[field]);
+  }
 
-//   try {
-//     const paypalResponse = await axiosInstance.post(
-//       paypalUrl,
-//       verificationPost,
-//       {
-//         headers: {
-//           'User-Agent': 'Node-IPN-VerificationScript',
-//         },
-//       }
-//     );
+  const paypalResponse = await fetcher.post(paypalUrl, verificationPost, {
+    headers: {
+      'User-Agent': 'Node-IPN-VerificationScript',
+    },
+  });
 
-//     // console.log(paypalResponse);
-//     if (paypalResponse.data !== 'VERIFIED') {
-//       console.log(paypalResponse);
-//       return { success: true };
-//     } else {
-//       console.log('succccess');
-//     }
-//   } catch (err) {
-//     paypalErrorReport(err);
-//     return;
-//   }
-// };
+  console.log(paypalResponse);
+  if (paypalResponse.data !== 'VERIFIED') {
+    return { success: true };
+  } else {
+    console.log('Invalid');
+  }
+};
 
 const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
   // check for recurring payment message
@@ -181,15 +201,20 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
     dayOfMonth = 'Last_Day';
   }
 
-  const recurringToAdd = {
+  const recurringToAdd: RecurringDonationObject = {
     npe03__Contact__c: contact.id,
     npe03__Date_Established__c: formattedDate,
-    npe03__Amount__c: paypalData.amount,
+    npe03__Amount__c: paypalData.amount!,
     npsp__RecurringType__c: 'Open',
     npsp__Day_of_Month__c: dayOfMonth,
-    npe03__Installment_Period__c: paypalData.payment_cycle,
+    npe03__Installment_Period__c: paypalData.payment_cycle!,
     npsp__StartDate__c: moment().format(),
   };
+
+  if (paypalData.item_number === 'community_course') {
+    recurringToAdd.npe03__Recurring_Donation_Campaign__c =
+      urls.communityCourseCampaignId;
+  }
 
   const recurringInsertUri =
     urls.SFOperationPrefix + '/npe03__Recurring_Donation__c/';
@@ -236,14 +261,14 @@ const cancelRecurring = async (paypalData: PaypalData, contact: Contact) => {
 
     const response = await fetcher.patch(recurringUpdateUri, recurringToUpdate);
     const summaryMessage = {
-      success: response.data.success,
+      success: response.status === 204,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
     };
     console.log(
       'Recurring Donation Canceled: ' + JSON.stringify(summaryMessage)
     );
   } else {
-    console.log('Recurring donation not found');
+    throw Error('Recurring donation not found');
   }
 };
 
@@ -330,7 +355,7 @@ const updateRecurringOpp = async (
     };
     console.log('Donation Updated: ' + JSON.stringify(summaryMessage));
   } else {
-    return console.log('Existing opportunity not found');
+    throw Error('Existing opportunity not found');
   }
 };
 const addDonation = async (paypalData: PaypalData, contact: Contact) => {
@@ -347,7 +372,7 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
 
   const formattedDate = formatDate(paypalData.payment_date);
 
-  const oppToAdd = {
+  const oppToAdd: OppObject = {
     Amount: paypalData.payment_gross,
     AccountId: contact.householdId,
     npsp__Primary_Contact__c: contact.id,
@@ -359,12 +384,18 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
     RecordTypeId: '0128Z000001BIZJQA4',
     Processing_Fee__c: paypalData.payment_fee,
   };
+  if (paypalData.item_number === 'community_course') {
+    oppToAdd.CampaignId = urls.communityCourseCampaignId;
+  }
 
   const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';
 
-  const response = await fetcher.post(oppInsertUri, oppToAdd);
+  const response: { data: SFInsertResponse | undefined } = await fetcher.post(
+    oppInsertUri,
+    oppToAdd
+  );
   const summaryMessage = {
-    success: response.data.success,
+    success: response.data?.success,
     amount: oppToAdd.Amount,
     name: `${paypalData.first_name} ${paypalData.last_name}`,
     date: paypalData.payment_date,
@@ -379,11 +410,13 @@ const getContactByEmail = async (email: string) => {
   const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const contactQueryResponse = await fetcher.get(contactQueryUri);
-  if (contactQueryResponse.data?.records?.length === 0) {
+  const contactQueryResponse: {
+    data: { records: { Id: string; npsp__HHId__c: string }[] } | undefined;
+  } = await fetcher.get(contactQueryUri);
+  if (!contactQueryResponse.data?.records[0]) {
     return null;
   }
-  const contact = contactQueryResponse.data.records[0];
+  const contact = contactQueryResponse.data?.records[0];
   return {
     id: contact.Id,
     householdId: contact.npsp__HHId__c,
