@@ -3,8 +3,7 @@ import path from 'path';
 
 import urls from '../services/urls';
 import fetcher from '../services/fetcher';
-import { AccountType } from './getModel';
-import { getAccountForFileUpload } from './getModel';
+import { Account, AccountType, getAccountForFileUpload } from './getModel';
 
 export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
 
@@ -13,6 +12,8 @@ interface FileMetaData {
   description: string;
   folder: string;
 }
+
+type FileInfo = Record<DocType, FileMetaData>;
 
 export const restaurantFileInfo = {
   BL: {
@@ -35,22 +36,17 @@ export const restaurantFileInfo = {
 };
 
 export const chefFileInfo = {
-  HC: { title: 'Volunteer Agreement', description: '', folder: 'home-chef' },
+  HC: { title: 'VOL_AGREEMENT_', description: '', folder: 'home-chef' },
   FH: {
-    title: 'Food Handler Certification',
+    title: 'FOOD_HANDLER_',
     description: '',
     folder: 'home-chef',
   },
 };
 
-const fileInfo: Record<DocType, FileMetaData> = {
+const fileInfo: FileInfo = {
   ...restaurantFileInfo,
   ...chefFileInfo,
-};
-
-export type Account = {
-  name: string;
-  salesforceId: string;
 };
 
 export interface File {
@@ -77,7 +73,7 @@ export const uploadFiles = async (
   if (!account) {
     throw Error('Could not get account');
   }
-  await updateAccount(account.salesforceId, files, accountType, date);
+  await updateAccount(account, files, accountType, date);
   const insertPromises = files.map((f) => insertFile(account, f));
   await Promise.all(insertPromises);
   return files.map((f) => fileInfo[f.docType].title);
@@ -86,8 +82,12 @@ export const uploadFiles = async (
 const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
 
+  const title = account.lastName
+    ? typeOfFile.title + account.lastName.toUpperCase()
+    : typeOfFile.title;
+
   const fileMetaData = {
-    Title: typeOfFile.title,
+    Title: title,
     Description: typeOfFile.description,
     PathOnClient:
       account.name + '/' + typeOfFile.folder + path.extname(file.file.name),
@@ -151,7 +151,7 @@ const getDocumentId = async (CVId: string) => {
 };
 
 export const updateAccount = async (
-  accountId: string,
+  account: Account,
   files: FileList,
   accountType: AccountType,
   date?: string
@@ -167,15 +167,16 @@ export const updateAccount = async (
 
   const data: FileTypes = {};
 
-  let account;
+  let accountURL;
   if (accountType === 'restaurant') {
-    account = '/Account/';
+    accountURL = '/Account/';
   }
   if (accountType === 'contact') {
-    account = '/Contact/';
+    accountURL = '/Contact/';
   }
 
-  const accountGetUri = urls.SFOperationPrefix + account + accountId;
+  const accountGetUri =
+    urls.SFOperationPrefix + accountURL + account.salesforceId;
   const res: { data: FileTypes } = await fetcher.get(accountGetUri);
 
   const existingDocuments = {
@@ -187,7 +188,7 @@ export const updateAccount = async (
 
   //  mark account as active if all required docs are present
 
-  const fileTitles = files.map((f) => fileInfo[f.docType].title);
+  let fileTitles = files.map((f) => fileInfo[f.docType].title);
 
   if (accountType === 'restaurant') {
     if (existingDocuments.mealProgram) {
@@ -231,7 +232,8 @@ export const updateAccount = async (
     }
   }
 
-  const accountUpdateUri = urls.SFOperationPrefix + account + accountId;
+  const accountUpdateUri =
+    urls.SFOperationPrefix + accountURL + account.salesforceId;
 
   await fetcher.patch(accountUpdateUri, data);
 
@@ -240,7 +242,7 @@ export const updateAccount = async (
   }
 
   // get all cdlinks tied to that account
-  const CDLinkQuery = `SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${accountId}'`;
+  const CDLinkQuery = `SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${account.salesforceId}'`;
 
   const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
 
@@ -262,6 +264,13 @@ export const updateAccount = async (
     }
   );
   const ContentDocs = await Promise.all(getPromises);
+
+  // add uppercase last name to home chef files because that's the naming scheme
+  if (accountType === 'contact') {
+    fileTitles = fileTitles.map(
+      (title) => title + account.lastName?.toUpperCase()
+    );
+  }
   const DocsToDelete = ContentDocs.filter((cd) => {
     return fileTitles.includes(cd.Title);
   });
@@ -272,7 +281,7 @@ export const updateAccount = async (
   });
   await Promise.all(deletePromises);
 
-  // and the links as well? or will it cascade
+  // links will be deleted automatically
 
   return;
 };

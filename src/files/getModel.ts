@@ -1,17 +1,22 @@
 import mongoose from 'mongoose';
 
-import urls from '../services/urls';
-import fetcher from '../services/fetcher';
+import { getContactById } from '../services/salesforce/SFQuery';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
 
 export type AccountType = 'restaurant' | 'contact';
 
+export type Account = {
+  name: string;
+  salesforceId: string;
+  lastName?: string;
+};
+
 export const getAccountForFileUpload = async (
   accountType: AccountType,
   accountId: string
-): Promise<{ name: string; salesforceId: string } | undefined> => {
+): Promise<Account | undefined> => {
   if (accountType === 'restaurant') {
     const restaurant = await Restaurant.findById(accountId);
     if (!restaurant) {
@@ -27,19 +32,14 @@ export const getAccountForFileUpload = async (
     if (!user) {
       throw new Error('User not found');
     }
-    // await fetcher.setService('salesforce');
-    // const {
-    //   data,
-    // }: { data: { LastName: string; npsp__HHId__c: string } | undefined } =
-    //   await fetcher.get(
-    //     urls.SFOperationPrefix + '/Contact/' + user.salesforceId
-    //   );
-    // if (!data?.LastName || !data.npsp__HHId__c) {
-    //   throw Error('Did not get expected contact data from salesforce');
-    // }
+    const contact = await getContactById(user.salesforceId);
+    if (!contact) {
+      throw Error('Could not fetch contact from salesforce');
+    }
     return {
       name: user.username,
       salesforceId: user.salesforceId,
+      lastName: contact.LastName,
     };
   }
 };
