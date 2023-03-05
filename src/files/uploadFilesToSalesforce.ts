@@ -3,7 +3,10 @@ import path from 'path';
 
 import urls from '../utils/urls';
 import fetcher from '../utils/fetcher';
-import { Account, AccountType } from './getModel';
+import { Account } from './getModel';
+import { sendEmail } from '../utils/email';
+
+const homeChefEmailRecipient = ['andy@ckoakland.org'];
 
 export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
 
@@ -221,6 +224,12 @@ export const updateAccount = async (
         existingDocuments.volunteerAgreement)
     ) {
       data.Home_Chef_Status__c = 'Active';
+      await sendEmail({
+        to: homeChefEmailRecipient,
+        from: 'andy@ckoakland.org',
+        subject: 'A Home Chef volunteer has become active',
+        text: `${account.lastName} has uploaded all the onboarding documents. Please review the documents on Salesforce`,
+      });
     }
   }
 

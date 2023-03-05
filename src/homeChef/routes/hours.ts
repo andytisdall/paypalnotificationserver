@@ -100,6 +100,26 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   const hoursUpdateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
+  const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
+  const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  // update the opportunity linked to the vol hours
+  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
+    giftQueryUri
+  );
+  // don't crash if opp is not found
+  if (data.records?.length) {
+    const giftUpdateUri =
+      urls.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
+    if (cancel) {
+      // delete opp
+      await fetcher.delete(giftUpdateUri);
+    } else {
+      // patch opp with new deets: meals * 10 for amount, etc etc
+      const newAmount = mealCount * 10;
+      await fetcher.patch(giftUpdateUri, { amount: newAmount });
+    }
+  }
 
   res.send({ id, mealCount });
 });
