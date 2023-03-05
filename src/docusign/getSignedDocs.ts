@@ -1,5 +1,5 @@
-import fetcher from '../services/fetcher';
-import getSecrets from '../services/getSecrets';
+import fetcher from '../utils/fetcher';
+import getSecrets from '../utils/getSecrets';
 
 const getSignedDocs = async (envelopeId: string) => {
   await fetcher.setService('docusign');

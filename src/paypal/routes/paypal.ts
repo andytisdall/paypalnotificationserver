@@ -2,10 +2,10 @@ import express from 'express';
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import { sendDonationAckEmail } from '../../services/email';
-import { addContact, Contact } from '../../services/salesforce/SFQuery';
-import urls from '../../services/urls';
-import fetcher from '../../services/fetcher';
+import { sendDonationAckEmail } from '../../utils/email';
+import { addContact, Contact } from '../../utils/salesforce/SFQuery';
+import urls from '../../utils/urls';
+import fetcher from '../../utils/fetcher';
 
 const PaypalTxn = mongoose.model('PaypalTxn');
 const paypalRouter = express.Router();
@@ -61,10 +61,6 @@ paypalRouter.post('/', async (req, res) => {
 
   const paypalData: PaypalData = req.body;
   // console.log(paypalData);
-  if (paypalData.test_ipn) {
-    await verifyPaypalMessage(paypalData);
-    return res.sendStatus(200);
-  }
 
   // check for already processed transaction
   const existingTxn = await PaypalTxn.findOne({
@@ -139,28 +135,29 @@ const formatDate = (date: string) => {
   return moment(splitDate, 'HH:mm:ss MMM D, YYYY').format();
 };
 
-const verifyPaypalMessage = async (paypalData: PaypalData) => {
-  const paypalUrl = 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr';
-  const verificationPost = new URLSearchParams();
-  verificationPost.append('cmd', '_notify_validate');
-  for (let field in paypalData) {
-    // @ts-ignore
-    verificationPost.append(field, paypalData[field]);
-  }
+// const verifyPaypalMessage = async (paypalData: PaypalData) => {
+//   await fetcher.setService('paypal');
+//   const verificationPost = new URLSearchParams();
+//   verificationPost.append('cmd', '_notify_validate');
+//   for (let field in paypalData) {
+//     // @ts-ignore
+//     verificationPost.append(field, paypalData[field]);
+//   }
 
-  const paypalResponse = await fetcher.post(paypalUrl, verificationPost, {
-    headers: {
-      'User-Agent': 'Node-IPN-VerificationScript',
-    },
-  });
+//   const paypalResponse = await fetcher.post('/', verificationPost, {
+//     headers: {
+//       'User-Agent': 'Node-IPN-VerificationScript',
+//       'Content-type': 'application/x-www-form-urlencoded',
+//     },
+//   });
 
-  console.log(paypalResponse);
-  if (paypalResponse.data !== 'VERIFIED') {
-    return { success: true };
-  } else {
-    console.log('Invalid');
-  }
-};
+//   console.log(paypalResponse);
+//   if (paypalResponse?.data !== 'VERIFIED') {
+//     return { success: true };
+//   } else {
+//     console.log('Invalid');
+//   }
+// };
 
 const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
   // check for recurring payment message
@@ -221,6 +218,7 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
 
   const response = await fetcher.post(recurringInsertUri, recurringToAdd);
   const summaryMessage = {
+    // @ts-ignore
     success: response.data.success,
     name: `${paypalData.first_name} ${paypalData.last_name}`,
   };
@@ -389,7 +387,7 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
   }
 
   const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';
-
+  // @ts-ignore
   const response: { data: SFInsertResponse | undefined } = await fetcher.post(
     oppInsertUri,
     oppToAdd

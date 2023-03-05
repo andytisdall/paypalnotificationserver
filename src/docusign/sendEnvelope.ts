@@ -1,7 +1,7 @@
-import getSecrets from '../services/getSecrets';
+import getSecrets from '../utils/getSecrets';
 import makeEnvelope from './createEnvelope';
 import makeRecipientViewRequest from './createView';
-import fetcher from '../services/fetcher';
+import fetcher from '../utils/fetcher';
 import { CreateEnvelopeArgs } from './createEnvelope';
 
 interface UserInfo {

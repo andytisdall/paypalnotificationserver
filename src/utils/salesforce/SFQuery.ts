@@ -31,8 +31,8 @@ export interface IncomingContactInfo {
   HomePhone: string;
   Home_Chef_Status__c: string;
   Id: string;
-  Home_Chef_Volunteeer_Agreement__c: string;
-  Home_Chef_Food_Handler_Certification__c: string;
+  Home_Chef_Volunteeer_Agreement__c: boolean;
+  Home_Chef_Food_Handler_Certification__c: boolean;
 }
 
 export interface Contact {
@@ -56,6 +56,14 @@ export interface CampaignMemberObject {
   CampaignId: string;
   ContactId: string;
   Status: string;
+}
+
+export interface UnformattedRestaurant {
+  Meal_Program_Onboarding__c: string;
+}
+
+export interface Restaurant {
+  onboarding: string;
 }
 
 export const getContact = async (
@@ -150,4 +158,15 @@ export const insertCampaignMember = async (
   if (!res.data?.success) {
     throw Error('Could not insert campaign member object');
   }
+};
+
+export const getAccountById = async (id: string) => {
+  await fetcher.setService('salesforce');
+  const res: { data: UnformattedRestaurant | undefined } = await fetcher.get(
+    urls.SFOperationPrefix + '/Account/' + id
+  );
+  if (!res.data) {
+    throw Error('Could not fetch restaurant');
+  }
+  return res.data;
 };

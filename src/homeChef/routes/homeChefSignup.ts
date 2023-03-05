@@ -8,9 +8,9 @@ import {
   ContactInfo,
   insertCampaignMember,
   CampaignMemberObject,
-} from '../../services/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery';
 import mongoose from 'mongoose';
-import urls from '../../services/urls';
+import urls from '../../utils/urls';
 
 const User = mongoose.model('User');
 const router = express.Router();

@@ -4,8 +4,8 @@ import { decode } from 'html-entities';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
-import urls from '../../services/urls';
-import fetcher from '../../services/fetcher';
+import urls from '../../utils/urls';
+import fetcher from '../../utils/fetcher';
 
 const router = express.Router();
 

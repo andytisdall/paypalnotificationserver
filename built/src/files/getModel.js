@@ -41,10 +41,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAccountForFileUpload = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
+var SFQuery_1 = require("../services/salesforce/SFQuery");
 var User = mongoose_1.default.model('User');
 var Restaurant = mongoose_1.default.model('Restaurant');
 var getAccountForFileUpload = function (accountType, accountId) { return __awaiter(void 0, void 0, void 0, function () {
-    var restaurant, user;
+    var restaurant, user, contact;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -60,28 +61,25 @@ var getAccountForFileUpload = function (accountType, accountId) { return __await
                         salesforceId: restaurant.salesforceId,
                     }];
             case 2:
-                if (!(accountType === 'contact')) return [3 /*break*/, 4];
+                if (!(accountType === 'contact')) return [3 /*break*/, 5];
                 return [4 /*yield*/, User.findById(accountId)];
             case 3:
                 user = _a.sent();
                 if (!user) {
                     throw new Error('User not found');
                 }
-                // await fetcher.setService('salesforce');
-                // const {
-                //   data,
-                // }: { data: { LastName: string; npsp__HHId__c: string } | undefined } =
-                //   await fetcher.get(
-                //     urls.SFOperationPrefix + '/Contact/' + user.salesforceId
-                //   );
-                // if (!data?.LastName || !data.npsp__HHId__c) {
-                //   throw Error('Did not get expected contact data from salesforce');
-                // }
+                return [4 /*yield*/, SFQuery_1.getContactById(user.salesforceId)];
+            case 4:
+                contact = _a.sent();
+                if (!contact) {
+                    throw Error('Could not fetch contact from salesforce');
+                }
                 return [2 /*return*/, {
                         name: user.username,
                         salesforceId: user.salesforceId,
+                        lastName: contact.LastName,
                     }];
-            case 4: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };

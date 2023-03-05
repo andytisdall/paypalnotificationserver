@@ -5,8 +5,8 @@ import moment from 'moment';
 
 import { REGIONS, Region } from '../models/phone';
 import textResponses from '../textResponses';
-import { sendEmail } from '../../services/email';
-import urls from '../../services/urls';
+import { sendEmail } from '../../utils/email';
+import urls from '../../utils/urls';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');

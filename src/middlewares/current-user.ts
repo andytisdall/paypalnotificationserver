@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 
-import getSecrets from '../services/getSecrets';
+import getSecrets from '../utils/getSecrets';
 
 const User = mongoose.model('User');
 

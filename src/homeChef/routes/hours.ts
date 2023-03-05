@@ -2,9 +2,9 @@ import express from 'express';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
-import fetcher from '../../services/fetcher';
-import urls from '../../services/urls';
-import { sendShiftSignupEmail } from '../../services/email';
+import fetcher from '../../utils/fetcher';
+import urls from '../../utils/urls';
+import { sendShiftSignupEmail } from '../../utils/email';
 
 const router = express.Router();
 

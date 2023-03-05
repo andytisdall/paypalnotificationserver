@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 
-import getSecrets from '../../services/getSecrets';
+import getSecrets from '../../utils/getSecrets';
 import { Password } from '../password';
 import jwt from 'jsonwebtoken';
 

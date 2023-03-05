@@ -1,7 +1,7 @@
 import express from 'express';
 
-import urls from '../../services/urls';
-import fetcher from '../../services/fetcher';
+import urls from '../../utils/urls';
+import fetcher from '../../utils/fetcher';
 
 const router = express.Router();
 

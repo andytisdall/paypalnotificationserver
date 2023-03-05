@@ -1,17 +1,28 @@
 import mongoose from 'mongoose';
 
-import { getContactById } from '../services/salesforce/SFQuery';
+import { getContactById } from '../utils/salesforce/SFQuery';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
 
 export type AccountType = 'restaurant' | 'contact';
 
-export type Account = {
+export type ContactAccount = {
   name: string;
   salesforceId: string;
-  lastName?: string;
+  lastName: string;
+  volunteerAgreement: boolean;
+  type: 'contact';
 };
+
+export type RestaurantAccount = {
+  name: string;
+  salesforceId: string;
+  onboarding: string;
+  type: 'restaurant';
+};
+
+export type Account = ContactAccount | RestaurantAccount;
 
 export const getAccountForFileUpload = async (
   accountType: AccountType,
@@ -25,6 +36,8 @@ export const getAccountForFileUpload = async (
     return {
       name: restaurant.name,
       salesforceId: restaurant.salesforceId,
+      onboarding: restaurant.Meal_Program_Onboarding__c,
+      type: accountType,
     };
   }
   if (accountType === 'contact') {
@@ -40,6 +53,8 @@ export const getAccountForFileUpload = async (
       name: user.username,
       salesforceId: user.salesforceId,
       lastName: contact.LastName,
+      volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+      type: accountType,
     };
   }
 };

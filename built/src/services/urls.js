@@ -4,6 +4,7 @@ var SFQueryPrefix = '/data/v56.0/query/?q=';
 var SFOperationPrefix = '/data/v56.0/sobjects';
 var fileBucket = 'coherent-vision-368820.appspot.com';
 var prodUrls = {
+    communityCourseCampaignId: '7018Z000003C7YEQA0',
     townFridgeCampaignId: '7018Z000003C3MxQAK',
     salesforce: 'https://communitykitchens.my.salesforce.com/services',
     docusign: 'https://www.docusign.net/restapi',
@@ -15,6 +16,7 @@ var prodUrls = {
     fileBucket: fileBucket,
 };
 var testUrls = {
+    communityCourseCampaignId: '7018Z000003C7YEQA0',
     townFridgeCampaignId: '70179000000I0skAAC',
     salesforce: 'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
     docusign: 'https://demo.docusign.net/restapi',

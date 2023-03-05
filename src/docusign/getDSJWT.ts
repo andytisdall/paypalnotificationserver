@@ -1,6 +1,6 @@
 import docusign from 'docusign-esign';
-import getSecrets from '../services/getSecrets';
-import urls from '../services/urls';
+import getSecrets from '../utils/getSecrets';
+import urls from '../utils/urls';
 
 let dsApiClient = new docusign.ApiClient();
 

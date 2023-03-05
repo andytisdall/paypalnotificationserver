@@ -1,4 +1,4 @@
-import urls from '../services/urls';
+import urls from '../utils/urls';
 
 const formatPhone = (phone: string) => {
   return phone.substring(2);

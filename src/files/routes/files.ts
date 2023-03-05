@@ -4,7 +4,7 @@ import path from 'path';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { uploadFiles, DocType, FileList } from '../uploadFilesToSalesforce';
-import { AccountType } from '../getModel';
+import { AccountType, Account, getAccountForFileUpload } from '../getModel';
 import { bucket } from '../bucket';
 
 const router = express.Router();
@@ -36,12 +36,15 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   // make api call to salesforce
 
-  const filesAdded = await uploadFiles(
-    accountId,
-    fileList,
+  const account: Account | undefined = await getAccountForFileUpload(
     accountType,
-    expiration
+    accountId
   );
+  if (!account) {
+    throw Error('Could not get account');
+  }
+
+  const filesAdded = await uploadFiles(account, fileList, expiration);
 
   res.send({ filesAdded });
 });

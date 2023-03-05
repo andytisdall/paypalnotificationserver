@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 
-import getSecrets from '../services/getSecrets';
+import getSecrets from '../utils/getSecrets';
 
 declare global {
   function getToken({ admin }: { admin: boolean }): Promise<string>;
+  function signIn(username: string): Promise<string>;
 }
 
 jest.mock('@sendgrid/mail');
@@ -27,6 +28,21 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   return jwt.sign(
     {
       id: newUser.id,
+    },
+    JWT_KEY
+  );
+};
+
+global.signIn = async (username: string) => {
+  const User = mongoose.model('User');
+  const user = await User.findOne({ username });
+  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  if (!JWT_KEY) {
+    throw new Error('No JWT key found');
+  }
+  return jwt.sign(
+    {
+      id: user.id,
     },
     JWT_KEY
   );

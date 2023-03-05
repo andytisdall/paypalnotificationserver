@@ -9,9 +9,14 @@ import {
   File,
   DocType,
 } from '../../files/uploadFilesToSalesforce';
-import urls from '../../services/urls';
-import { AccountType } from '../../files/getModel';
-import { getContactById } from '../../services/salesforce/SFQuery';
+import urls from '../../utils/urls';
+import {
+  AccountType,
+  getAccountForFileUpload,
+  RestaurantAccount,
+  ContactAccount,
+} from '../../files/getModel';
+import { getContactById } from '../../utils/salesforce/SFQuery';
 
 const router = express.Router();
 
@@ -70,6 +75,17 @@ router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   }: { envelopeId: string; accountId: string; accountType: AccountType } =
     req.body;
 
+  const account = await getAccountForFileUpload(accountType, accountId);
+  if (!account) {
+    throw Error('Could not get account');
+  }
+  if (account.type === 'contact' && account.volunteerAgreement) {
+    throw Error('Volunteer Agreement has already been uploaded.');
+  }
+  if (account.type === 'restaurant' && account.onboarding) {
+    throw Error('Restaurant Agreement has already been uploaded');
+  }
+
   const docs = await getSignedDocs(envelopeId);
   const file: File = {
     docType: accountConfig[accountType].docType,
@@ -79,7 +95,7 @@ router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
     },
   };
 
-  const filesAdded = await uploadFiles(accountId, [file], accountType);
+  const filesAdded = await uploadFiles(account, [file]);
 
   res.status(201);
   res.send({ filesAdded });

@@ -5,9 +5,8 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import fetcher from '../../services/fetcher';
-import urls from '../../services/urls';
 import { restaurantFileInfo } from '../../files/uploadFilesToSalesforce';
+import { getAccountById } from '../../utils/salesforce/SFQuery';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
@@ -29,11 +28,9 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   if (!restaurant) {
     return res.sendStatus(200);
   }
-  await fetcher.setService('salesforce');
-  const account = await fetcher.get(
-    urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId
-  );
-  const onboardingDocs = account.data.Meal_Program_Onboarding__c;
+  const account = await getAccountById(restaurant.salesforceId);
+
+  const onboardingDocs = account.Meal_Program_Onboarding__c;
   const completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
   const extraInfo = {
     completedDocs,

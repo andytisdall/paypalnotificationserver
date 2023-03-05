@@ -8,8 +8,8 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import { storeFile } from '../../files/storeFile';
-import getSecrets from '../../services/getSecrets';
-import urls from '../../services/urls';
+import getSecrets from '../../utils/getSecrets';
+import urls from '../../utils/urls';
 
 const Phone = mongoose.model('Phone');
 const smsRouter = express.Router();

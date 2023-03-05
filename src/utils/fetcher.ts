@@ -10,7 +10,6 @@ class fetcher {
   instance: AxiosInstance;
   service: Service | undefined;
   token: Record<Service, string | undefined>;
-  tokenExpiration: Date | undefined;
 
   constructor() {
     this.instance = axios.create();

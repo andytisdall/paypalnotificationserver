@@ -1,9 +1,9 @@
 import FormData from 'form-data';
 import path from 'path';
 
-import urls from '../services/urls';
-import fetcher from '../services/fetcher';
-import { Account, AccountType, getAccountForFileUpload } from './getModel';
+import urls from '../utils/urls';
+import fetcher from '../utils/fetcher';
+import { Account, AccountType } from './getModel';
 
 export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
 
@@ -60,20 +60,12 @@ export interface File {
 export type FileList = File[];
 
 export const uploadFiles = async (
-  accountId: string,
+  account: Account,
   files: FileList,
-  accountType: AccountType,
   date?: string
 ) => {
   await fetcher.setService('salesforce');
-  const account: Account | undefined = await getAccountForFileUpload(
-    accountType,
-    accountId
-  );
-  if (!account) {
-    throw Error('Could not get account');
-  }
-  await updateAccount(account, files, accountType, date);
+  await updateAccount(account, files, date);
   const insertPromises = files.map((f) => insertFile(account, f));
   await Promise.all(insertPromises);
   return files.map((f) => fileInfo[f.docType].title);
@@ -82,9 +74,10 @@ export const uploadFiles = async (
 const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
 
-  const title = account.lastName
-    ? typeOfFile.title + account.lastName.toUpperCase()
-    : typeOfFile.title;
+  const title =
+    account.type === 'contact'
+      ? typeOfFile.title + account.lastName.toUpperCase()
+      : typeOfFile.title;
 
   const fileMetaData = {
     Title: title,
@@ -153,7 +146,6 @@ const getDocumentId = async (CVId: string) => {
 export const updateAccount = async (
   account: Account,
   files: FileList,
-  accountType: AccountType,
   date?: string
 ) => {
   type FileTypes = {
@@ -168,10 +160,10 @@ export const updateAccount = async (
   const data: FileTypes = {};
 
   let accountURL;
-  if (accountType === 'restaurant') {
+  if (account.type === 'restaurant') {
     accountURL = '/Account/';
   }
-  if (accountType === 'contact') {
+  if (account.type === 'contact') {
     accountURL = '/Contact/';
   }
 
@@ -190,7 +182,7 @@ export const updateAccount = async (
 
   let fileTitles = files.map((f) => fileInfo[f.docType].title);
 
-  if (accountType === 'restaurant') {
+  if (account.type === 'restaurant') {
     if (existingDocuments.mealProgram) {
       const docs = [
         ...new Set([
@@ -215,7 +207,7 @@ export const updateAccount = async (
     }
   }
 
-  if (accountType === 'contact') {
+  if (account.type === 'contact') {
     if (fileTitles.includes(fileInfo.FH.title)) {
       data.Home_Chef_Food_Handler_Certification__c = true;
     }
@@ -266,7 +258,7 @@ export const updateAccount = async (
   const ContentDocs = await Promise.all(getPromises);
 
   // add uppercase last name to home chef files because that's the naming scheme
-  if (accountType === 'contact') {
+  if (account.type === 'contact') {
     fileTitles = fileTitles.map(
       (title) => title + account.lastName?.toUpperCase()
     );
