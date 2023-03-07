@@ -79,8 +79,11 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
 
 router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   const { id } = req.params;
-  const { mealCount, cancel }: { mealCount: number; cancel: boolean } =
-    req.body;
+  const {
+    mealCount,
+    cancel,
+    completed,
+  }: { mealCount: number; cancel: boolean; completed: boolean } = req.body;
 
   await fetcher.setService('salesforce');
 
@@ -100,25 +103,10 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   const hoursUpdateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
-  const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
-  const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   // update the opportunity linked to the vol hours
-  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
-    giftQueryUri
-  );
-  // don't crash if opp is not found
-  if (data.records?.length) {
-    const giftUpdateUri =
-      urls.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
-    if (cancel) {
-      // delete opp
-      await fetcher.delete(giftUpdateUri);
-    } else {
-      // patch opp with new deets: meals * 10 for amount, etc etc
-      const newAmount = mealCount * 10;
-      await fetcher.patch(giftUpdateUri, { amount: newAmount });
-    }
+  if (completed) {
+    await editOpp(id, cancel, mealCount);
   }
 
   res.send({ id, mealCount });
@@ -176,6 +164,28 @@ const createHours = async ({
     return res.data;
   } else {
     throw new Error('Unable to insert hours!');
+  }
+};
+
+const editOpp = async (id: string, cancel: boolean, mealCount: number) => {
+  const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
+  const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
+    giftQueryUri
+  );
+  // don't crash if opp is not found
+  if (data.records?.length) {
+    const giftUpdateUri =
+      urls.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
+    if (cancel) {
+      // delete opp
+      await fetcher.delete(giftUpdateUri);
+    } else {
+      // patch opp with new deets: meals * 10 for amount, etc etc
+      const newAmount = mealCount * 10;
+      await fetcher.patch(giftUpdateUri, { amount: newAmount });
+    }
   }
 };
 
