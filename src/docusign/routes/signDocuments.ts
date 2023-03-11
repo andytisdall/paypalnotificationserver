@@ -10,12 +10,7 @@ import {
   DocType,
 } from '../../files/uploadFilesToSalesforce';
 import urls from '../../utils/urls';
-import {
-  AccountType,
-  getAccountForFileUpload,
-  RestaurantAccount,
-  ContactAccount,
-} from '../../files/getModel';
+import { AccountType, getAccountForFileUpload } from '../../files/getModel';
 import { getContactById } from '../../utils/salesforce/SFQuery';
 
 const router = express.Router();

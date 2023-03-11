@@ -96,7 +96,7 @@ interface EmailWithHTML extends EmailMetaData {
   html: string;
 }
 
-type EmailMessage =
+export type EmailMessage =
   | EmailWithHTML
   | EmailWithText
   | (EmailWithHTML & EmailWithText);

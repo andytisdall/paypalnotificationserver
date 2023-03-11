@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 
+import '../auth/models/user';
+import '../mealProgram/models/restaurant';
 import getSecrets from '../utils/getSecrets';
 
 declare global {

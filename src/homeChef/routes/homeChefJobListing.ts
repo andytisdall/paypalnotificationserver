@@ -74,7 +74,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 });
 
 const getJobs = async (id: string) => {
-  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
+  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Inactive__c = False`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

@@ -4,6 +4,7 @@ import jobListingRouter from './homeChefJobListing';
 import signupRouter from '../../homeChef/routes/homeChefSignup';
 import recipeRouter from './recipes';
 import hoursRouter from './hours';
+import inviteRouter from './invite';
 
 const homeChefRouter = express.Router({ mergeParams: true });
 
@@ -11,5 +12,6 @@ homeChefRouter.use(jobListingRouter);
 homeChefRouter.use(signupRouter);
 homeChefRouter.use(recipeRouter);
 homeChefRouter.use(hoursRouter);
+homeChefRouter.use(inviteRouter);
 
 export default homeChefRouter;
