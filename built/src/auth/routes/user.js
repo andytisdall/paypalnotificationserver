@@ -44,7 +44,7 @@ var mongoose_1 = __importDefault(require("mongoose"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var require_admin_1 = require("../../middlewares/require-admin");
-var SFQuery_1 = require("../../services/salesforce/SFQuery");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
 router.get('/', current_user_1.currentUser, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {

@@ -73,9 +73,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateAccount = exports.uploadFiles = exports.chefFileInfo = exports.restaurantFileInfo = void 0;
 var form_data_1 = __importDefault(require("form-data"));
 var path_1 = __importDefault(require("path"));
-var urls_1 = __importDefault(require("../services/urls"));
-var fetcher_1 = __importDefault(require("../services/fetcher"));
-var getModel_1 = require("./getModel");
+var urls_1 = __importDefault(require("../utils/urls"));
+var fetcher_1 = __importDefault(require("../utils/fetcher"));
+var email_1 = require("../utils/email");
+var homeChefEmailRecipient = ['andy@ckoakland.org'];
 exports.restaurantFileInfo = {
     BL: {
         title: 'Business License',
@@ -104,25 +105,19 @@ exports.chefFileInfo = {
     },
 };
 var fileInfo = __assign(__assign({}, exports.restaurantFileInfo), exports.chefFileInfo);
-var uploadFiles = function (accountId, files, accountType, date) { return __awaiter(void 0, void 0, void 0, function () {
-    var account, insertPromises;
+var uploadFiles = function (account, files, date) { return __awaiter(void 0, void 0, void 0, function () {
+    var insertPromises;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, getModel_1.getAccountForFileUpload(accountType, accountId)];
+                return [4 /*yield*/, exports.updateAccount(account, files, date)];
             case 2:
-                account = _a.sent();
-                if (!account) {
-                    throw Error('Could not get account');
-                }
-                return [4 /*yield*/, exports.updateAccount(account, files, accountType, date)];
-            case 3:
                 _a.sent();
                 insertPromises = files.map(function (f) { return insertFile(account, f); });
                 return [4 /*yield*/, Promise.all(insertPromises)];
-            case 4:
+            case 3:
                 _a.sent();
                 return [2 /*return*/, files.map(function (f) { return fileInfo[f.docType].title; })];
         }
@@ -135,7 +130,7 @@ var insertFile = function (account, file) { return __awaiter(void 0, void 0, voi
         switch (_a.label) {
             case 0:
                 typeOfFile = fileInfo[file.docType];
-                title = account.lastName
+                title = account.type === 'contact'
                     ? typeOfFile.title + account.lastName.toUpperCase()
                     : typeOfFile.title;
                 fileMetaData = {
@@ -199,16 +194,16 @@ var getDocumentId = function (CVId) { return __awaiter(void 0, void 0, void 0, f
         }
     });
 }); };
-var updateAccount = function (account, files, accountType, date) { return __awaiter(void 0, void 0, void 0, function () {
+var updateAccount = function (account, files, date) { return __awaiter(void 0, void 0, void 0, function () {
     var data, accountURL, accountGetUri, res, existingDocuments, fileTitles, docs, allDocs, dateExists, accountUpdateUri, CDLinkQuery, CDLinkQueryUri, CDLinkQueryResponse, getPromises, ContentDocs, DocsToDelete, deletePromises;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 data = {};
-                if (accountType === 'restaurant') {
+                if (account.type === 'restaurant') {
                     accountURL = '/Account/';
                 }
-                if (accountType === 'contact') {
+                if (account.type === 'contact') {
                     accountURL = '/Contact/';
                 }
                 accountGetUri = urls_1.default.SFOperationPrefix + accountURL + account.salesforceId;
@@ -222,7 +217,7 @@ var updateAccount = function (account, files, accountType, date) { return __awai
                     volunteerAgreement: res.data.Home_Chef_Volunteeer_Agreement__c,
                 };
                 fileTitles = files.map(function (f) { return fileInfo[f.docType].title; });
-                if (accountType === 'restaurant') {
+                if (account.type === 'restaurant') {
                     if (existingDocuments.mealProgram) {
                         docs = __spread(new Set(__spread(existingDocuments.mealProgram.split(';'), fileTitles)));
                         data.Meal_Program_Onboarding__c = docs.join(';') + ';';
@@ -240,23 +235,31 @@ var updateAccount = function (account, files, accountType, date) { return __awai
                         data.Meal_Program_Status__c = 'Active';
                     }
                 }
-                if (accountType === 'contact') {
-                    if (fileTitles.includes(fileInfo.FH.title)) {
-                        data.Home_Chef_Food_Handler_Certification__c = true;
-                    }
-                    if (fileTitles.includes(fileInfo.HC.title)) {
-                        data.Home_Chef_Volunteeer_Agreement__c = true;
-                    }
-                    if ((data.Home_Chef_Food_Handler_Certification__c ||
-                        existingDocuments.foodHandler) &&
-                        (data.Home_Chef_Volunteeer_Agreement__c ||
-                            existingDocuments.volunteerAgreement)) {
-                        data.Home_Chef_Status__c = 'Active';
-                    }
+                if (!(account.type === 'contact')) return [3 /*break*/, 3];
+                if (fileTitles.includes(fileInfo.FH.title)) {
+                    data.Home_Chef_Food_Handler_Certification__c = true;
                 }
+                if (fileTitles.includes(fileInfo.HC.title)) {
+                    data.Home_Chef_Volunteeer_Agreement__c = true;
+                }
+                if (!((data.Home_Chef_Food_Handler_Certification__c ||
+                    existingDocuments.foodHandler) &&
+                    (data.Home_Chef_Volunteeer_Agreement__c ||
+                        existingDocuments.volunteerAgreement))) return [3 /*break*/, 3];
+                data.Home_Chef_Status__c = 'Active';
+                return [4 /*yield*/, email_1.sendEmail({
+                        to: homeChefEmailRecipient,
+                        from: 'andy@ckoakland.org',
+                        subject: 'A Home Chef volunteer has become active',
+                        text: account.lastName + " has uploaded all the onboarding documents. Please review the documents on Salesforce",
+                    })];
+            case 2:
+                _a.sent();
+                _a.label = 3;
+            case 3:
                 accountUpdateUri = urls_1.default.SFOperationPrefix + accountURL + account.salesforceId;
                 return [4 /*yield*/, fetcher_1.default.patch(accountUpdateUri, data)];
-            case 2:
+            case 4:
                 _a.sent();
                 if (Object.values(existingDocuments).every(function (v) { return !v; })) {
                     return [2 /*return*/];
@@ -264,7 +267,7 @@ var updateAccount = function (account, files, accountType, date) { return __awai
                 CDLinkQuery = "SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '" + account.salesforceId + "'";
                 CDLinkQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
                 return [4 /*yield*/, fetcher_1.default.get(CDLinkQueryUri)];
-            case 3:
+            case 5:
                 CDLinkQueryResponse = _a.sent();
                 // then get all content documents from the CDIds in the cdlinks
                 if (!CDLinkQueryResponse.data.records) {
@@ -288,10 +291,10 @@ var updateAccount = function (account, files, accountType, date) { return __awai
                     });
                 });
                 return [4 /*yield*/, Promise.all(getPromises)];
-            case 4:
+            case 6:
                 ContentDocs = _a.sent();
                 // add uppercase last name to home chef files because that's the naming scheme
-                if (accountType === 'contact') {
+                if (account.type === 'contact') {
                     fileTitles = fileTitles.map(function (title) { var _a; return title + ((_a = account.lastName) === null || _a === void 0 ? void 0 : _a.toUpperCase()); });
                 }
                 DocsToDelete = ContentDocs.filter(function (cd) {
@@ -311,7 +314,7 @@ var updateAccount = function (account, files, accountType, date) { return __awai
                     });
                 }); });
                 return [4 /*yield*/, Promise.all(deletePromises)];
-            case 5:
+            case 7:
                 _a.sent();
                 // links will be deleted automatically
                 return [2 /*return*/];

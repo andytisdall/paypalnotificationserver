@@ -45,8 +45,9 @@ var require_auth_1 = require("../../middlewares/require-auth");
 var sendEnvelope_1 = __importDefault(require("../sendEnvelope"));
 var getSignedDocs_1 = __importDefault(require("../getSignedDocs"));
 var uploadFilesToSalesforce_1 = require("../../files/uploadFilesToSalesforce");
-var urls_1 = __importDefault(require("../../services/urls"));
-var SFQuery_1 = require("../../services/salesforce/SFQuery");
+var urls_1 = __importDefault(require("../../utils/urls"));
+var getModel_1 = require("../../files/getModel");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
 var router = express_1.default.Router();
 var accountConfig = {
     restaurant: {
@@ -92,13 +93,25 @@ router.post('/sign', current_user_1.currentUser, require_auth_1.requireAuth, fun
     });
 }); });
 router.post('/getDoc', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, envelopeId, accountId, accountType, docs, file, filesAdded;
+    var _a, envelopeId, accountId, accountType, account, docs, file, filesAdded;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, envelopeId = _a.envelopeId, accountId = _a.accountId, accountType = _a.accountType;
-                return [4 /*yield*/, getSignedDocs_1.default(envelopeId)];
+                return [4 /*yield*/, getModel_1.getAccountForFileUpload(accountType, accountId)];
             case 1:
+                account = _b.sent();
+                if (!account) {
+                    throw Error('Could not get account');
+                }
+                if (account.type === 'contact' && account.volunteerAgreement) {
+                    throw Error('Volunteer Agreement has already been uploaded.');
+                }
+                if (account.type === 'restaurant' && account.onboarding) {
+                    throw Error('Restaurant Agreement has already been uploaded');
+                }
+                return [4 /*yield*/, getSignedDocs_1.default(envelopeId)];
+            case 2:
                 docs = _b.sent();
                 file = {
                     docType: accountConfig[accountType].docType,
@@ -107,8 +120,8 @@ router.post('/getDoc', current_user_1.currentUser, require_auth_1.requireAuth, f
                         data: Buffer.from(docs.data),
                     },
                 };
-                return [4 /*yield*/, uploadFilesToSalesforce_1.uploadFiles(accountId, [file], accountType)];
-            case 2:
+                return [4 /*yield*/, uploadFilesToSalesforce_1.uploadFiles(account, [file])];
+            case 3:
                 filesAdded = _b.sent();
                 res.status(201);
                 res.send({ filesAdded: filesAdded });

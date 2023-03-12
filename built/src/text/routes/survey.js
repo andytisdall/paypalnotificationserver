@@ -40,8 +40,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var urls_1 = __importDefault(require("../../services/urls"));
-var fetcher_1 = __importDefault(require("../../services/fetcher"));
+var urls_1 = __importDefault(require("../../utils/urls"));
+var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var router = express_1.default.Router();
 router.post('/meal-survey', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, mealName, location, taste, size, type, ingredients, days, phone, surveyData, insertUri, data;

@@ -50,10 +50,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
+var getSecrets_1 = __importDefault(require("../utils/getSecrets"));
 var createEnvelope_1 = __importDefault(require("./createEnvelope"));
 var createView_1 = __importDefault(require("./createView"));
-var fetcher_1 = __importDefault(require("../services/fetcher"));
+var fetcher_1 = __importDefault(require("../utils/fetcher"));
 exports.default = (function (_a) {
     var dsReturnUrl = _a.dsReturnUrl, accountType = _a.accountType, userInfo = _a.userInfo;
     return __awaiter(void 0, void 0, void 0, function () {

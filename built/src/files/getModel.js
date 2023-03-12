@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAccountForFileUpload = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
-var SFQuery_1 = require("../services/salesforce/SFQuery");
+var SFQuery_1 = require("../utils/salesforce/SFQuery");
 var User = mongoose_1.default.model('User');
 var Restaurant = mongoose_1.default.model('Restaurant');
 var getAccountForFileUpload = function (accountType, accountId) { return __awaiter(void 0, void 0, void 0, function () {
@@ -59,6 +59,8 @@ var getAccountForFileUpload = function (accountType, accountId) { return __await
                 return [2 /*return*/, {
                         name: restaurant.name,
                         salesforceId: restaurant.salesforceId,
+                        onboarding: restaurant.Meal_Program_Onboarding__c,
+                        type: accountType,
                     }];
             case 2:
                 if (!(accountType === 'contact')) return [3 /*break*/, 5];
@@ -78,6 +80,8 @@ var getAccountForFileUpload = function (accountType, accountId) { return __await
                         name: user.username,
                         salesforceId: user.salesforceId,
                         lastName: contact.LastName,
+                        volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+                        type: accountType,
                     }];
             case 5: return [2 /*return*/];
         }

@@ -44,6 +44,7 @@ var path_1 = __importDefault(require("path"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var uploadFilesToSalesforce_1 = require("../uploadFilesToSalesforce");
+var getModel_1 = require("../getModel");
 var bucket_1 = require("../bucket");
 var router = express_1.default.Router();
 router.get('/images/:fileName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -58,7 +59,7 @@ router.get('/images/:fileName', function (req, res) { return __awaiter(void 0, v
     });
 }); });
 router.post('/', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, expiration, accountId, accountType, fileList, entry, filesAdded;
+    var _a, expiration, accountId, accountType, fileList, entry, account, filesAdded;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -70,8 +71,14 @@ router.post('/', current_user_1.currentUser, require_auth_1.requireAuth, functio
                         fileList.push({ docType: entry, file: req.files[entry] });
                     }
                 }
-                return [4 /*yield*/, uploadFilesToSalesforce_1.uploadFiles(accountId, fileList, accountType, expiration)];
+                return [4 /*yield*/, getModel_1.getAccountForFileUpload(accountType, accountId)];
             case 1:
+                account = _b.sent();
+                if (!account) {
+                    throw Error('Could not get account');
+                }
+                return [4 /*yield*/, uploadFilesToSalesforce_1.uploadFiles(account, fileList, expiration)];
+            case 2:
                 filesAdded = _b.sent();
                 res.send({ filesAdded: filesAdded });
                 return [2 /*return*/];

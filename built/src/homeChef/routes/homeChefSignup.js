@@ -41,9 +41,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var generate_password_1 = __importDefault(require("generate-password"));
-var SFQuery_1 = require("../../services/salesforce/SFQuery");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
 var mongoose_1 = __importDefault(require("mongoose"));
-var urls_1 = __importDefault(require("../../services/urls"));
+var urls_1 = __importDefault(require("../../utils/urls"));
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
 router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {

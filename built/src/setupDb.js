@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDb = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
-var getSecrets_1 = __importDefault(require("./services/getSecrets"));
+var getSecrets_1 = __importDefault(require("./utils/getSecrets"));
 var connectDb = function () { return __awaiter(void 0, void 0, void 0, function () {
     var MONGO_PASSWORD, uri;
     return __generator(this, function (_a) {

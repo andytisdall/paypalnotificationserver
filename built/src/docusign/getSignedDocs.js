@@ -39,8 +39,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fetcher_1 = __importDefault(require("../services/fetcher"));
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
+var fetcher_1 = __importDefault(require("../utils/fetcher"));
+var getSecrets_1 = __importDefault(require("../utils/getSecrets"));
 var getSignedDocs = function (envelopeId) { return __awaiter(void 0, void 0, void 0, function () {
     var DOCUSIGN_ACCOUNT_ID, headers, docs;
     return __generator(this, function (_a) {

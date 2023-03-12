@@ -59,8 +59,8 @@ var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var require_admin_1 = require("../../middlewares/require-admin");
 var storeFile_1 = require("../../files/storeFile");
-var getSecrets_1 = __importDefault(require("../../services/getSecrets"));
-var urls_1 = __importDefault(require("../../services/urls"));
+var getSecrets_1 = __importDefault(require("../../utils/getSecrets"));
+var urls_1 = __importDefault(require("../../utils/urls"));
 var Phone = mongoose_1.default.model('Phone');
 var smsRouter = express_1.default.Router();
 smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAuth, require_admin_1.requireAdmin, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {

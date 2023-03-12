@@ -40,8 +40,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var docusign_esign_1 = __importDefault(require("docusign-esign"));
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
-var urls_1 = __importDefault(require("../services/urls"));
+var getSecrets_1 = __importDefault(require("../utils/getSecrets"));
+var urls_1 = __importDefault(require("../utils/urls"));
 var dsApiClient = new docusign_esign_1.default.ApiClient();
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var _a, DOCUSIGN_ID, DOCUSIGN_USER_ID, DOCUSIGN_PRIVATE_KEY, DPKBuffer, result, err_1;

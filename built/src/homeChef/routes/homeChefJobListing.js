@@ -64,8 +64,8 @@ var moment_1 = __importDefault(require("moment"));
 var html_entities_1 = require("html-entities");
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
-var urls_1 = __importDefault(require("../../services/urls"));
-var fetcher_1 = __importDefault(require("../../services/fetcher"));
+var urls_1 = __importDefault(require("../../utils/urls"));
+var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var router = express_1.default.Router();
 router.get('/job-listing', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var jobs, renamedJobs, shifts, shiftPromises;
@@ -122,7 +122,7 @@ var getJobs = function (id) { return __awaiter(void 0, void 0, void 0, function 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                query = "SELECT Id, Name, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '" + id + "'";
+                query = "SELECT Id, Name, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '" + id + "' AND GW_Volunteers__Inactive__c = False";
                 jobQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
                 return [4 /*yield*/, fetcher_1.default.get(jobQueryUri)];
             case 1:
@@ -140,7 +140,7 @@ var getShifts = function (id) { return __awaiter(void 0, void 0, void 0, functio
         switch (_a.label) {
             case 0:
                 ThirtyDaysFromNow = moment_1.default().add(30, 'day').format();
-                query = "SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '" + id + "' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= " + ThirtyDaysFromNow;
+                query = "SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '" + id + "' AND GW_Volunteers__Start_Date_time__c > TODAY AND  GW_Volunteers__Start_Date_time__c <= " + ThirtyDaysFromNow;
                 shiftQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
                 return [4 /*yield*/, fetcher_1.default.instance.get(shiftQueryUri)];
             case 1:

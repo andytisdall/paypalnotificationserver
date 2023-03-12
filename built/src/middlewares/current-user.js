@@ -42,7 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.currentUser = void 0;
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var mongoose_1 = __importDefault(require("mongoose"));
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
+var getSecrets_1 = __importDefault(require("../utils/getSecrets"));
 var User = mongoose_1.default.model('User');
 var currentUser = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var authorization, JWT_KEY, payload, _a;

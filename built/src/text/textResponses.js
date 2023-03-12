@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var urls_1 = __importDefault(require("../services/urls"));
+var urls_1 = __importDefault(require("../utils/urls"));
 var formatPhone = function (phone) {
     return phone.substring(2);
 };

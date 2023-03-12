@@ -42,32 +42,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var moment_1 = __importDefault(require("moment"));
 var mongoose_1 = __importDefault(require("mongoose"));
-var email_1 = require("../../services/email");
-var SFQuery_1 = require("../../services/salesforce/SFQuery");
-var urls_1 = __importDefault(require("../../services/urls"));
-var fetcher_1 = __importDefault(require("../../services/fetcher"));
+var email_1 = require("../../utils/email");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
+var urls_1 = __importDefault(require("../../utils/urls"));
+var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var PaypalTxn = mongoose_1.default.model('PaypalTxn');
 var paypalRouter = express_1.default.Router();
 // listener for paypal message
 paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var paypalData, existingContact, contactToAdd, canceledSubscriptionStatuses, newTxn;
+    var paypalData, existingTxn, existingContact, contactToAdd, canceledSubscriptionStatuses, newTxn;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 paypalData = req.body;
-                // console.log(paypalData);
-                // if (paypalData.test_ipn) {
-                //   await verifyPaypalMessage(paypalData);
-                //   return res.sendStatus(200);
-                // }
-                // check for already processed transaction
-                // const existingTxn = await PaypalTxn.findOne({
-                //   txnId: paypalData.ipn_track_id,
-                // });
-                // if (existingTxn) {
-                //   console.log('Already processed this transaction, this is a duplicate');
-                //   return res.sendStatus(200);
-                // }
+                return [4 /*yield*/, PaypalTxn.findOne({
+                        txnId: paypalData.ipn_track_id,
+                    })];
+            case 1:
+                existingTxn = _a.sent();
+                if (existingTxn) {
+                    console.log('Already processed this transaction, this is a duplicate');
+                    return [2 /*return*/, res.sendStatus(200)];
+                }
                 if (paypalData.payment_gross && parseFloat(paypalData.payment_gross) < 0) {
                     console.log('not a credit');
                     return [2 /*return*/, res.sendStatus(200)];
@@ -75,24 +71,24 @@ paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
                 // post a verification to paypal - not working
                 // verifyPaypalMessage(paypalData);
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
-            case 1:
+            case 2:
                 // post a verification to paypal - not working
                 // verifyPaypalMessage(paypalData);
                 _a.sent();
                 return [4 /*yield*/, getContactByEmail(paypalData.payer_email)];
-            case 2:
+            case 3:
                 existingContact = _a.sent();
-                if (!!existingContact) return [3 /*break*/, 4];
+                if (!!existingContact) return [3 /*break*/, 5];
                 contactToAdd = {
                     FirstName: paypalData.first_name,
                     LastName: paypalData.last_name,
                     Email: paypalData.payer_email,
                 };
                 return [4 /*yield*/, SFQuery_1.addContact(contactToAdd)];
-            case 3:
-                existingContact = _a.sent();
-                _a.label = 4;
             case 4:
+                existingContact = _a.sent();
+                _a.label = 5;
+            case 5:
                 canceledSubscriptionStatuses = [
                     'recurring_payment_suspended_due_to_max_failed_payment',
                     'recurring_payment_profile_cancel',
@@ -100,54 +96,54 @@ paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
                     'recurring_payment_suspended',
                     'recurring_payment_failed',
                 ];
-                if (!(paypalData.txn_type === 'recurring_payment_profile_created')) return [3 /*break*/, 6];
+                if (!(paypalData.txn_type === 'recurring_payment_profile_created')) return [3 /*break*/, 7];
                 return [4 /*yield*/, addRecurring(paypalData, existingContact)];
-            case 5:
-                _a.sent();
-                return [3 /*break*/, 15];
             case 6:
-                if (!(paypalData.txn_type === 'recurring_payment_skipped')) return [3 /*break*/, 8];
-                return [4 /*yield*/, updateRecurringOpp(paypalData, existingContact, 'Closed Lost')];
+                _a.sent();
+                return [3 /*break*/, 16];
             case 7:
-                _a.sent();
-                return [3 /*break*/, 15];
+                if (!(paypalData.txn_type === 'recurring_payment_skipped')) return [3 /*break*/, 9];
+                return [4 /*yield*/, updateRecurringOpp(paypalData, existingContact, 'Closed Lost')];
             case 8:
-                if (!canceledSubscriptionStatuses.includes(paypalData.txn_type)) return [3 /*break*/, 10];
-                return [4 /*yield*/, cancelRecurring(paypalData, existingContact)];
-            case 9:
                 _a.sent();
-                return [3 /*break*/, 15];
+                return [3 /*break*/, 16];
+            case 9:
+                if (!canceledSubscriptionStatuses.includes(paypalData.txn_type)) return [3 /*break*/, 11];
+                return [4 /*yield*/, cancelRecurring(paypalData, existingContact)];
             case 10:
-                if (!!paypalData.payment_date) return [3 /*break*/, 11];
+                _a.sent();
+                return [3 /*break*/, 16];
+            case 11:
+                if (!!paypalData.payment_date) return [3 /*break*/, 12];
                 // catch all clause for unknown transaction type
                 console.log('Unknown type of message: no payment date');
-                return [3 /*break*/, 15];
-            case 11:
-                if (!paypalData.amount_per_cycle) return [3 /*break*/, 13];
+                return [3 /*break*/, 16];
+            case 12:
+                if (!paypalData.amount_per_cycle) return [3 /*break*/, 14];
                 // if donation is recurring, pledged opp will already exist in sf
                 // update payment amount and stage
                 return [4 /*yield*/, updateRecurringOpp(paypalData, existingContact, 'Posted')];
-            case 12:
+            case 13:
                 // if donation is recurring, pledged opp will already exist in sf
                 // update payment amount and stage
                 _a.sent();
-                return [3 /*break*/, 15];
-            case 13: 
+                return [3 /*break*/, 16];
+            case 14: 
             // insert opportunity
             return [4 /*yield*/, addDonation(paypalData, existingContact)];
-            case 14:
+            case 15:
                 // insert opportunity
                 _a.sent();
-                _a.label = 15;
-            case 15: 
+                _a.label = 16;
+            case 16: 
             // thank you email
             return [4 /*yield*/, email_1.sendDonationAckEmail(paypalData)];
-            case 16:
+            case 17:
                 // thank you email
                 _a.sent();
                 newTxn = new PaypalTxn({ txnId: paypalData.ipn_track_id });
                 return [4 /*yield*/, newTxn.save()];
-            case 17:
+            case 18:
                 _a.sent();
                 // send paypal back a 200
                 res.sendStatus(200);

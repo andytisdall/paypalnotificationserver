@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var mongoose_1 = __importDefault(require("mongoose"));
-var getSecrets_1 = __importDefault(require("../../services/getSecrets"));
+var getSecrets_1 = __importDefault(require("../../utils/getSecrets"));
 var password_1 = require("../password");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var User = mongoose_1.default.model('User');

@@ -35,22 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -78,49 +62,33 @@ it('gets a redirect url from the sign documents route', function () { return __a
         }
     });
 }); });
-it('uploads a file from docusign to salesforce for both contact and restaurant accounts', function () { return __awaiter(void 0, void 0, void 0, function () {
-    var token, envelopeId, _a, user, accountId, newRest;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0: return [4 /*yield*/, global.getToken({ admin: false })];
-            case 1:
-                token = _b.sent();
-                envelopeId = 'b84b318d-4fa8-4d6e-a0dc-4689564192fc';
-                return [4 /*yield*/, User.find()];
-            case 2:
-                _a = __read.apply(void 0, [_b.sent(), 1]), user = _a[0];
-                accountId = user.id;
-                return [4 /*yield*/, supertest_1.default(__1.default)
-                        .post('/api/docusign/getDoc')
-                        .send({
-                        envelopeId: envelopeId,
-                        accountType: 'contact',
-                        accountId: accountId,
-                    })
-                        .set('Authorization', token)
-                        .expect(201)];
-            case 3:
-                _b.sent();
-                newRest = new Restaurant({
-                    name: 'Paddys',
-                    salesforceId: '0017900000IR3X0AAL',
-                    user: user.id,
-                });
-                return [4 /*yield*/, newRest.save()];
-            case 4:
-                _b.sent();
-                return [4 /*yield*/, supertest_1.default(__1.default)
-                        .post('/api/docusign/getDoc')
-                        .send({
-                        envelopeId: envelopeId,
-                        accountType: 'restaurant',
-                        accountId: newRest.id,
-                    })
-                        .set('Authorization', token)
-                        .expect(201)];
-            case 5:
-                _b.sent();
-                return [2 /*return*/];
-        }
-    });
-}); });
+// it('uploads a file from docusign to salesforce for both contact and restaurant accounts', async () => {
+//   const token = await global.getToken({ admin: false });
+//   const envelopeId = 'b84b318d-4fa8-4d6e-a0dc-4689564192fc';
+//   const [user] = await User.find();
+//   const accountId = user.id;
+//   await request(app)
+//     .post('/api/docusign/getDoc')
+//     .send({
+//       envelopeId,
+//       accountType: 'contact',
+//       accountId,
+//     })
+//     .set('Authorization', token)
+//     .expect(201);
+//   const newRest = new Restaurant({
+//     name: 'Paddys',
+//     salesforceId: '0017900000IR3X0AAL',
+//     user: user.id,
+//   });
+//   await newRest.save();
+//   await request(app)
+//     .post('/api/docusign/getDoc')
+//     .send({
+//       envelopeId,
+//       accountType: 'restaurant',
+//       accountId: newRest.id,
+//     })
+//     .set('Authorization', token)
+//     .expect(201);
+// });

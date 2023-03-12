@@ -42,9 +42,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
-var fetcher_1 = __importDefault(require("../../services/fetcher"));
-var urls_1 = __importDefault(require("../../services/urls"));
-var email_1 = require("../../services/email");
+var fetcher_1 = __importDefault(require("../../utils/fetcher"));
+var urls_1 = __importDefault(require("../../utils/urls"));
+var email_1 = require("../../utils/email");
 var router = express_1.default.Router();
 router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id, query, hoursQueryUri, response, hours;
@@ -111,12 +111,12 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
     });
 }); });
 router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, _a, mealCount, cancel, hoursToUpdate, hoursUpdateUri;
+    var id, _a, mealCount, cancel, completed, hoursToUpdate, hoursUpdateUri;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 id = req.params.id;
-                _a = req.body, mealCount = _a.mealCount, cancel = _a.cancel;
+                _a = req.body, mealCount = _a.mealCount, cancel = _a.cancel, completed = _a.completed;
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
                 _b.sent();
@@ -130,6 +130,12 @@ router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAut
                 return [4 /*yield*/, fetcher_1.default.patch(hoursUpdateUri, hoursToUpdate)];
             case 2:
                 _b.sent();
+                if (!completed) return [3 /*break*/, 4];
+                return [4 /*yield*/, editOpp(id, cancel, mealCount)];
+            case 3:
+                _b.sent();
+                _b.label = 4;
+            case 4:
                 res.send({ id: id, mealCount: mealCount });
                 return [2 /*return*/];
         }
@@ -173,4 +179,34 @@ var createHours = function (_a) {
         });
     });
 };
+var editOpp = function (id, cancel, mealCount) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, giftQueryUri, data, giftUpdateUri, newAmount;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                query = "SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '" + id + "'";
+                giftQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
+                return [4 /*yield*/, fetcher_1.default.get(giftQueryUri)];
+            case 1:
+                data = (_b.sent()).data;
+                if (!((_a = data.records) === null || _a === void 0 ? void 0 : _a.length)) return [3 /*break*/, 5];
+                giftUpdateUri = urls_1.default.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
+                if (!cancel) return [3 /*break*/, 3];
+                // delete opp
+                return [4 /*yield*/, fetcher_1.default.delete(giftUpdateUri)];
+            case 2:
+                // delete opp
+                _b.sent();
+                return [3 /*break*/, 5];
+            case 3:
+                newAmount = mealCount * 10;
+                return [4 /*yield*/, fetcher_1.default.patch(giftUpdateUri, { amount: newAmount })];
+            case 4:
+                _b.sent();
+                _b.label = 5;
+            case 5: return [2 /*return*/];
+        }
+    });
+}); };
 exports.default = router;

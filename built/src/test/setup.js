@@ -41,7 +41,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importDefault(require("mongoose"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-var getSecrets_1 = __importDefault(require("../services/getSecrets"));
+require("../auth/models/user");
+require("../mealProgram/models/restaurant");
+var getSecrets_1 = __importDefault(require("../utils/getSecrets"));
 jest.mock('@sendgrid/mail');
 jest.mock('twilio');
 global.getToken = function (_a) {
@@ -75,6 +77,27 @@ global.getToken = function (_a) {
         });
     });
 };
+global.signIn = function (username) { return __awaiter(void 0, void 0, void 0, function () {
+    var User, user, JWT_KEY;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                User = mongoose_1.default.model('User');
+                return [4 /*yield*/, User.findOne({ username: username })];
+            case 1:
+                user = _a.sent();
+                return [4 /*yield*/, getSecrets_1.default(['JWT_KEY'])];
+            case 2:
+                JWT_KEY = (_a.sent()).JWT_KEY;
+                if (!JWT_KEY) {
+                    throw new Error('No JWT key found');
+                }
+                return [2 /*return*/, jsonwebtoken_1.default.sign({
+                        id: user.id,
+                    }, JWT_KEY)];
+        }
+    });
+}); };
 beforeAll(function () {
     // put your client connection code here, example with mongoose:
     var uri = process.env['MONGO_URI'];

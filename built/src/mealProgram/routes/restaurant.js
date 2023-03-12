@@ -45,9 +45,8 @@ var mongoose_1 = __importDefault(require("mongoose"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var require_admin_1 = require("../../middlewares/require-admin");
-var fetcher_1 = __importDefault(require("../../services/fetcher"));
-var urls_1 = __importDefault(require("../../services/urls"));
 var uploadFilesToSalesforce_1 = require("../../files/uploadFilesToSalesforce");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
 var User = mongoose_1.default.model('User');
 var Restaurant = mongoose_1.default.model('Restaurant');
 var router = express_1.default.Router();
@@ -82,13 +81,10 @@ router.get('/', current_user_1.currentUser, require_auth_1.requireAuth, function
                 if (!restaurant) {
                     return [2 /*return*/, res.sendStatus(200)];
                 }
-                return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
+                return [4 /*yield*/, SFQuery_1.getAccountById(restaurant.salesforceId)];
             case 2:
-                _a.sent();
-                return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/Account/' + restaurant.salesforceId)];
-            case 3:
                 account = _a.sent();
-                onboardingDocs = account.data.Meal_Program_Onboarding__c;
+                onboardingDocs = account.Meal_Program_Onboarding__c;
                 completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
                 extraInfo = {
                     completedDocs: completedDocs,
