@@ -115,14 +115,18 @@ paypalRouter.post('/', async (req, res) => {
     // if donation is recurring, pledged opp will already exist in sf
     // update payment amount and stage
     await updateRecurringOpp(paypalData, existingContact, 'Posted');
+
+    // thank you email
+
+    await sendDonationAckEmail(paypalData);
   } else {
     // insert opportunity
     await addDonation(paypalData, existingContact);
+
+    // thank you email
+
+    await sendDonationAckEmail(paypalData);
   }
-
-  // thank you email
-
-  await sendDonationAckEmail(paypalData);
 
   const newTxn = new PaypalTxn({ txnId: paypalData.ipn_track_id });
   await newTxn.save();

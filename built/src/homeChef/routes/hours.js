@@ -44,7 +44,6 @@ var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var urls_1 = __importDefault(require("../../utils/urls"));
-var email_1 = require("../../utils/email");
 var router = express_1.default.Router();
 router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id, query, hoursQueryUri, response, hours;
@@ -101,9 +100,7 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
                     })];
             case 1:
                 chef = _c.sent();
-                return [4 /*yield*/, email_1.sendShiftSignupEmail(chef.Email)];
-            case 2:
-                _c.sent();
+                // await sendShiftSignupEmail(chef.Email);
                 res.status(201);
                 res.send(shiftId);
                 return [2 /*return*/];

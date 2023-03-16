@@ -71,7 +71,7 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
     date,
   });
 
-  await sendShiftSignupEmail(chef.Email);
+  // await sendShiftSignupEmail(chef.Email);
 
   res.status(201);
   res.send(shiftId);

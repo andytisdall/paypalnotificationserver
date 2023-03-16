@@ -2,6 +2,7 @@ import sgMail from '@sendgrid/mail';
 
 import getSecrets from './getSecrets';
 import createDonationAckEmail from './emailTemplates/donationAck';
+import createCommCourseAckEmail from './emailTemplates/commCourseAck';
 import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
 import createShiftSignupEmail from './emailTemplates/shiftSignup';
 
@@ -35,12 +36,25 @@ export const sendDonationAckEmail = async (donationData: {
   last_name: string;
   payment_gross: string;
   payer_email: string;
+  item_number?: string;
 }) => {
-  const html = createDonationAckEmail(
-    donationData.first_name,
-    donationData.last_name,
-    donationData.payment_gross
-  );
+  let html;
+  if (
+    donationData.item_number &&
+    donationData.item_number === 'community_course'
+  ) {
+    html = createCommCourseAckEmail(
+      donationData.first_name,
+      donationData.last_name,
+      donationData.payment_gross
+    );
+  } else {
+    html = createDonationAckEmail(
+      donationData.first_name,
+      donationData.last_name,
+      donationData.payment_gross
+    );
+  }
 
   const msg = {
     to: donationData.payer_email,

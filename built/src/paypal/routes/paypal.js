@@ -100,26 +100,26 @@ paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
                 return [4 /*yield*/, addRecurring(paypalData, existingContact)];
             case 6:
                 _a.sent();
-                return [3 /*break*/, 16];
+                return [3 /*break*/, 18];
             case 7:
                 if (!(paypalData.txn_type === 'recurring_payment_skipped')) return [3 /*break*/, 9];
                 return [4 /*yield*/, updateRecurringOpp(paypalData, existingContact, 'Closed Lost')];
             case 8:
                 _a.sent();
-                return [3 /*break*/, 16];
+                return [3 /*break*/, 18];
             case 9:
                 if (!canceledSubscriptionStatuses.includes(paypalData.txn_type)) return [3 /*break*/, 11];
                 return [4 /*yield*/, cancelRecurring(paypalData, existingContact)];
             case 10:
                 _a.sent();
-                return [3 /*break*/, 16];
+                return [3 /*break*/, 18];
             case 11:
                 if (!!paypalData.payment_date) return [3 /*break*/, 12];
                 // catch all clause for unknown transaction type
                 console.log('Unknown type of message: no payment date');
-                return [3 /*break*/, 16];
+                return [3 /*break*/, 18];
             case 12:
-                if (!paypalData.amount_per_cycle) return [3 /*break*/, 14];
+                if (!paypalData.amount_per_cycle) return [3 /*break*/, 15];
                 // if donation is recurring, pledged opp will already exist in sf
                 // update payment amount and stage
                 return [4 /*yield*/, updateRecurringOpp(paypalData, existingContact, 'Posted')];
@@ -127,23 +127,28 @@ paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
                 // if donation is recurring, pledged opp will already exist in sf
                 // update payment amount and stage
                 _a.sent();
-                return [3 /*break*/, 16];
-            case 14: 
+                // thank you email
+                return [4 /*yield*/, email_1.sendDonationAckEmail(paypalData)];
+            case 14:
+                // thank you email
+                _a.sent();
+                return [3 /*break*/, 18];
+            case 15: 
             // insert opportunity
             return [4 /*yield*/, addDonation(paypalData, existingContact)];
-            case 15:
+            case 16:
                 // insert opportunity
                 _a.sent();
-                _a.label = 16;
-            case 16: 
-            // thank you email
-            return [4 /*yield*/, email_1.sendDonationAckEmail(paypalData)];
+                // thank you email
+                return [4 /*yield*/, email_1.sendDonationAckEmail(paypalData)];
             case 17:
                 // thank you email
                 _a.sent();
+                _a.label = 18;
+            case 18:
                 newTxn = new PaypalTxn({ txnId: paypalData.ipn_track_id });
                 return [4 /*yield*/, newTxn.save()];
-            case 18:
+            case 19:
                 _a.sent();
                 // send paypal back a 200
                 res.sendStatus(200);
