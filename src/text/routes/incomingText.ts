@@ -3,21 +3,24 @@ import mongoose from 'mongoose';
 import twilio, { twiml } from 'twilio';
 import moment from 'moment';
 
-import { REGIONS, Region } from '../models/phone';
+import { REGIONS, Region, DROPOFF_NUMBER } from '../models/phone';
 import textResponses from '../textResponses';
 import { sendEmail } from '../../utils/email';
 import urls from '../../utils/urls';
+import { OutgoingText, getTwilioClient } from './outgoingText';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
 
-const DROPOFF_SUBSCRIBERS = [
+const DROPOFF_EMAIL_SUBSCRIBERS = [
   'andy@ckoakland.org',
   'mollye@ckoakland.org',
   'ali@ckoakland.org',
 ];
+
+const DROPOFF_PHONE_SUBSCRIBER = '+15107354458';
 
 type PhoneNumber =
   | (mongoose.Document<
@@ -87,7 +90,7 @@ router.post(
     html += `<p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>`;
 
     const msg = {
-      to: DROPOFF_SUBSCRIBERS,
+      to: DROPOFF_EMAIL_SUBSCRIBERS,
       from: 'andy@ckoakland.org',
       subject: 'You got a text on the Home Chef drop-off line',
       mediaUrl: images,
@@ -95,6 +98,16 @@ router.post(
     };
 
     await sendEmail(msg);
+
+    const twilioClient = await getTwilioClient();
+    const alertText: OutgoingText = {
+      from: DROPOFF_NUMBER,
+      body: Body,
+    };
+    await twilioClient.messages.create({
+      ...alertText,
+      to: DROPOFF_PHONE_SUBSCRIBER,
+    });
 
     const response = new MessagingResponse();
     response.message(textResponses.dropOffResponse);

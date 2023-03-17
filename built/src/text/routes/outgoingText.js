@@ -50,6 +50,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getTwilioClient = void 0;
 var express_1 = __importDefault(require("express"));
 var twilio_1 = __importDefault(require("twilio"));
 var moment_1 = __importDefault(require("moment"));
@@ -68,7 +69,7 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
-            case 0: return [4 /*yield*/, getTwilioClient()];
+            case 0: return [4 /*yield*/, exports.getTwilioClient()];
             case 1:
                 twilioClient = _c.sent();
                 _a = req.body, message = _a.message, region = _a.region;
@@ -149,4 +150,5 @@ var getTwilioClient = function () { return __awaiter(void 0, void 0, void 0, fun
         }
     });
 }); };
+exports.getTwilioClient = getTwilioClient;
 exports.default = smsRouter;

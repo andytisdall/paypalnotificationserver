@@ -5,6 +5,8 @@ export const REGIONS: Record<Region, string> = {
   EAST_OAKLAND: '+15109301159',
 };
 
+export const DROPOFF_NUMBER = '+15106944697';
+
 export type Region = 'EAST_OAKLAND' | 'WEST_OAKLAND';
 
 const phoneSchema = new mongoose.Schema(

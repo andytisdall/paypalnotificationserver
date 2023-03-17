@@ -14,7 +14,7 @@ import urls from '../../utils/urls';
 const Phone = mongoose.model('Phone');
 const smsRouter = express.Router();
 
-type OutgoingText = { from: string; body: string; mediaUrl?: string[] };
+export type OutgoingText = { from: string; body: string; mediaUrl?: string[] };
 
 smsRouter.post(
   '/outgoing',
@@ -83,7 +83,7 @@ smsRouter.post(
   }
 );
 
-const getTwilioClient = async () => {
+export const getTwilioClient = async () => {
   const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
     'TWILIO_ID',
     'TWILIO_AUTH_TOKEN',

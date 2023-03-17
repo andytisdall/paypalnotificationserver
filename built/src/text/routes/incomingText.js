@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
@@ -66,15 +77,17 @@ var phone_1 = require("../models/phone");
 var textResponses_1 = __importDefault(require("../textResponses"));
 var email_1 = require("../../utils/email");
 var urls_1 = __importDefault(require("../../utils/urls"));
+var outgoingText_1 = require("./outgoingText");
 var Feedback = mongoose_1.default.model('Feedback');
 var Phone = mongoose_1.default.model('Phone');
 var MessagingResponse = twilio_1.twiml.MessagingResponse;
 var router = express_1.default.Router();
-var DROPOFF_SUBSCRIBERS = [
+var DROPOFF_EMAIL_SUBSCRIBERS = [
     'andy@ckoakland.org',
     'mollye@ckoakland.org',
     'ali@ckoakland.org',
 ];
+var DROPOFF_PHONE_SUBSCRIBER = '+15107354458';
 router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var response, images, responseMessage;
     return __generator(this, function (_a) {
@@ -95,7 +108,7 @@ router.post('/incoming', twilio_1.default.webhook({ protocol: 'https' }), functi
     });
 }); });
 router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' }), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, Body, From, DateSent, images, textUrl, formattedDate, html, imagesHtml_1, msg, response;
+    var _a, Body, From, DateSent, images, textUrl, formattedDate, html, imagesHtml_1, msg, twilioClient, alertText, response;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -115,7 +128,7 @@ router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' })
                 }
                 html += "<p>Go to the <a href='" + textUrl + "'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>";
                 msg = {
-                    to: DROPOFF_SUBSCRIBERS,
+                    to: DROPOFF_EMAIL_SUBSCRIBERS,
                     from: 'andy@ckoakland.org',
                     subject: 'You got a text on the Home Chef drop-off line',
                     mediaUrl: images,
@@ -123,6 +136,16 @@ router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' })
                 };
                 return [4 /*yield*/, email_1.sendEmail(msg)];
             case 1:
+                _b.sent();
+                return [4 /*yield*/, outgoingText_1.getTwilioClient()];
+            case 2:
+                twilioClient = _b.sent();
+                alertText = {
+                    from: phone_1.DROPOFF_NUMBER,
+                    body: Body,
+                };
+                return [4 /*yield*/, twilioClient.messages.create(__assign(__assign({}, alertText), { to: DROPOFF_PHONE_SUBSCRIBER }))];
+            case 3:
                 _b.sent();
                 response = new MessagingResponse();
                 response.message(textResponses_1.default.dropOffResponse);
