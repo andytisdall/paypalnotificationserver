@@ -168,7 +168,7 @@ const createHours = async ({
   }
   const res: { data: Hours | undefined } = await fetcher.get(
     urls.SFOperationPrefix +
-      '/GW_Volunteers__Volunteer_Hours__c' +
+      '/GW_Volunteers__Volunteer_Hours__c/' +
       insertRes.data.id
   );
   if (!res.data) {

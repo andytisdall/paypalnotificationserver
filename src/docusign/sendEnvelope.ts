@@ -10,7 +10,7 @@ interface UserInfo {
   id: string;
 }
 
-interface EnvelopeArgs {
+export interface EnvelopeArgs {
   dsReturnUrl: string;
   accountType: 'restaurant' | 'contact';
   userInfo: UserInfo;

@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { AxiosError } from 'axios';
 
 export const errorHandler = (
-  err: Error | AxiosError,
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   console.error(err);
-  if (err instanceof AxiosError) {
-    console.log(err.response?.data);
+  if (err.response?.data) {
+    console.log(JSON.stringify(err.response?.data));
   }
   if (res.statusCode === 200) {
     res.status(400);

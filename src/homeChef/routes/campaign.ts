@@ -12,7 +12,7 @@ router.get('/campaign', currentUser, requireAuth, async (req, res) => {
     await fetcher.get(
       urls.SFOperationPrefix + '/Campaign/' + urls.townFridgeCampaignId
     );
-  if (!data?.Total_Meals_Donated__c) {
+  if (!data?.Total_Meals_Donated__c && data?.Total_Meals_Donated__c !== 0) {
     throw Error('Could not get campaign info');
   }
   res.send({

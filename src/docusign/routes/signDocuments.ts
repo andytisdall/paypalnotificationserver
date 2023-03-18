@@ -2,7 +2,7 @@ import express from 'express';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
-import sendEnvelope from '../sendEnvelope';
+import sendEnvelope, { EnvelopeArgs } from '../sendEnvelope';
 import getSignedDocs from '../getSignedDocs';
 import {
   uploadFiles,
@@ -44,6 +44,11 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
   }
 
   const contact = await getContactById(req.currentUser!.salesforceId);
+
+  if (!contact.Email) {
+    throw Error('Contact has no email, which is required for document signing');
+  }
+
   const userInfo = {
     name: contact.Name,
     email: contact.Email,
@@ -51,7 +56,7 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
   };
 
   const returnUrl = urls.client + accountConfig[accountType].url + '/success';
-  const envelopeArgs = {
+  const envelopeArgs: EnvelopeArgs = {
     dsReturnUrl: returnUrl,
     accountType,
     userInfo,

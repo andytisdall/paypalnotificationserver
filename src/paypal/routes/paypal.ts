@@ -3,7 +3,11 @@ import moment from 'moment';
 import mongoose from 'mongoose';
 
 import { sendDonationAckEmail } from '../../utils/email';
-import { addContact, Contact } from '../../utils/salesforce/SFQuery';
+import {
+  addContact,
+  Contact,
+  getContactByEmail,
+} from '../../utils/salesforce/SFQuery';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
 
@@ -403,26 +407,6 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
     date: paypalData.payment_date,
   };
   console.log('Donation Added: ' + JSON.stringify(summaryMessage));
-};
-
-// this contact query just searches by email because people's names and
-// email addresses don't always match up on paypal
-
-const getContactByEmail = async (email: string) => {
-  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '${email}'`;
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
-
-  const contactQueryResponse: {
-    data: { records: { Id: string; npsp__HHId__c: string }[] } | undefined;
-  } = await fetcher.get(contactQueryUri);
-  if (!contactQueryResponse.data?.records[0]) {
-    return null;
-  }
-  const contact = contactQueryResponse.data?.records[0];
-  return {
-    id: contact.Id,
-    householdId: contact.npsp__HHId__c,
-  };
 };
 
 export default paypalRouter;

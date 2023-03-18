@@ -68,10 +68,10 @@ export interface Restaurant {
 
 export const getContact = async (
   lastName: string,
-  email: string
+  firstName: string
 ): Promise<Contact | null> => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
+  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '${lastName}' AND FirstName = '${firstName}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -169,4 +169,26 @@ export const getAccountById = async (id: string) => {
     throw Error('Could not fetch restaurant');
   }
   return res.data;
+};
+
+// this contact query just searches by email because people's names and
+// email addresses don't always match up on paypal
+
+export const getContactByEmail = async (
+  email: string
+): Promise<Contact | null> => {
+  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '${email}'`;
+  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const contactQueryResponse: {
+    data: { records: UnformattedContact[] } | undefined;
+  } = await fetcher.get(contactQueryUri);
+  if (!contactQueryResponse.data?.records[0]) {
+    return null;
+  }
+  const contact = contactQueryResponse.data?.records[0];
+  return {
+    id: contact.Id,
+    householdId: contact.npsp__HHId__c,
+  };
 };

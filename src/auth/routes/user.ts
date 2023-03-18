@@ -19,7 +19,7 @@ router.get('/', currentUser, async (req, res) => {
 
 router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
   if (!req.currentUser!.salesforceId) {
-    return res.send(null);
+    throw Error('User does not have a salesforce ID');
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
   res.send({

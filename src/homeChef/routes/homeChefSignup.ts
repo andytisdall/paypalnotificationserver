@@ -52,7 +52,9 @@ router.post('/signup', async (req, res) => {
     length: 10,
     numbers: true,
   });
-  const username = firstName.charAt(0).toLowerCase() + lastName.toLowerCase();
+  const username = (
+    firstName.charAt(0).toLowerCase() + lastName.toLowerCase()
+  ).replace(' ', '');
 
   let uniqueUsername = username;
   let existingUser = await User.findOne({ username });
@@ -89,7 +91,7 @@ router.post('/signup', async (req, res) => {
     Home_Chef_Status__c: 'Prospective',
   };
 
-  let existingContact = await getContact(lastName, email);
+  let existingContact = await getContact(lastName, firstName);
   if (existingContact) {
     await updateContact(existingContact.id, contactInfo);
   } else {

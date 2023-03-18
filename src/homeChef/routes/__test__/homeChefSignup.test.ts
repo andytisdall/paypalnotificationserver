@@ -1,6 +1,5 @@
 import app from '../../../../index';
 import request from 'supertest';
-import sgMail from '@sendgrid/mail';
 import { User } from '../../../auth/models/user';
 
 jest.mock('@sendgrid/mail');
@@ -11,7 +10,7 @@ afterEach(async () => {
 
 it('correctly makes the portal user and salesforce contact when the interest form is submitted', async () => {
   const formValues = {
-    email: 'test@fake.com',
+    email: 'fake@gogo.com',
     firstName: 'Rocky',
     lastName: 'Sanchez',
     phoneNumber: '510-677-6867',
