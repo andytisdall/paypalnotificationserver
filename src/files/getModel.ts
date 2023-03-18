@@ -11,6 +11,7 @@ export type ContactAccount = {
   name: string;
   salesforceId: string;
   lastName: string;
+  firstName: string;
   volunteerAgreement: boolean;
   type: 'contact';
 };
@@ -52,6 +53,7 @@ export const getAccountForFileUpload = async (
     return {
       name: user.username,
       salesforceId: user.salesforceId,
+      firstName: contact.FirstName,
       lastName: contact.LastName,
       volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
       type: accountType,

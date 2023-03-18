@@ -116,7 +116,7 @@ router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' })
                 images = getImages(req.body);
                 textUrl = urls_1.default.client + '/text/send-text';
                 formattedDate = moment_1.default(DateSent)
-                    .subtract(8, 'hours')
+                    .subtract(7, 'hours')
                     .format('MM/DD/YY hh:mm a');
                 html = "\n    <h4>This is a CK Home Chef drop off alert</h4>\n    <p>From: " + From.slice(2) + "</p>\n    <p>" + formattedDate + "</p>\n    <p>" + Body + "</p>\n    ";
                 if (images.length) {
@@ -143,6 +143,7 @@ router.post('/incoming/dropoff', twilio_1.default.webhook({ protocol: 'https' })
                 alertText = {
                     from: phone_1.DROPOFF_NUMBER,
                     body: Body,
+                    mediaUrl: images,
                 };
                 return [4 /*yield*/, twilioClient.messages.create(__assign(__assign({}, alertText), { to: DROPOFF_PHONE_SUBSCRIBER }))];
             case 3:

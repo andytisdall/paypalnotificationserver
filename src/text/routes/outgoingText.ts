@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { REGIONS, Region } from '../models/phone';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
+import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { storeFile } from '../../files/storeFile';
 import getSecrets from '../../utils/getSecrets';
 import urls from '../../utils/urls';
@@ -20,7 +20,7 @@ smsRouter.post(
   '/outgoing',
   currentUser,
   requireAuth,
-  requireAdmin,
+  requireTextPermission,
   async (req, res) => {
     const twilioClient = await getTwilioClient();
 

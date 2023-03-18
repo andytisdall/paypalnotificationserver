@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     salesforceId: String,
+    textPermission: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: {

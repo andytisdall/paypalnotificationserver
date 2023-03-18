@@ -69,7 +69,7 @@ router.post(
     const textUrl = urls.client + '/text/send-text';
 
     const formattedDate = moment(DateSent)
-      .subtract(8, 'hours')
+      .subtract(7, 'hours')
       .format('MM/DD/YY hh:mm a');
 
     let html = `
@@ -103,6 +103,7 @@ router.post(
     const alertText: OutgoingText = {
       from: DROPOFF_NUMBER,
       body: Body,
+      mediaUrl: images,
     };
     await twilioClient.messages.create({
       ...alertText,

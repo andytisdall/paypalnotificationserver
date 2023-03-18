@@ -228,7 +228,7 @@ export const updateAccount = async (
         to: homeChefEmailRecipient,
         from: 'andy@ckoakland.org',
         subject: 'A Home Chef volunteer has become active',
-        text: `${account.lastName} has uploaded all the onboarding documents. Please review the documents on Salesforce`,
+        text: `${account.firstName} ${account.lastName} has uploaded all the required onboarding documents to become a CK Home Chef. Please review the documents on Salesforce`,
       });
     }
   }
