@@ -6,18 +6,31 @@ import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
 import { sendShiftSignupEmail } from '../../utils/email';
 
+const MEAL_PRICE = 11;
+
 const router = express.Router();
+
+interface SFInsertResponse {
+  data:
+    | {
+        success: boolean;
+        id: string;
+      }
+    | undefined;
+}
+interface Hours {
+  Id: string;
+  Number_of_Meals__c?: number;
+  GW_Volunteers__Shift_Start_Date_Time__c: string;
+  GW_Volunteers__Volunteer_Job__c: string;
+  GW_Volunteers__Volunteer_Shift__c: string;
+  GW_Volunteers__Status__c: string;
+}
 
 interface HoursQueryResponse {
   data:
     | {
-        records: {
-          Id: string;
-          Number_of_Meals__c?: number;
-          GW_Volunteers__Shift_Start_Date_Time__c: string;
-          GW_Volunteers__Volunteer_Job__c: string;
-          GW_Volunteers__Status__c: string;
-        }[];
+        records: Hours[];
       }
     | undefined;
 }
@@ -28,12 +41,21 @@ export interface FormattedHours {
   time: string;
   job: string;
   status: string;
+  shift: string;
+}
+
+interface CreateHoursParams {
+  contactId: string;
+  shiftId: string;
+  mealCount: string;
+  jobId: string;
+  date: Date;
 }
 
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
   const id = req.currentUser?.salesforceId;
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
+  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -52,6 +74,7 @@ router.get('/hours', currentUser, requireAuth, async (req, res) => {
       time: h.GW_Volunteers__Shift_Start_Date_Time__c,
       job: h.GW_Volunteers__Volunteer_Job__c,
       status: h.GW_Volunteers__Status__c,
+      shift: h.GW_Volunteers__Volunteer_Shift__c,
     };
   });
   res.send(hours);
@@ -59,11 +82,11 @@ router.get('/hours', currentUser, requireAuth, async (req, res) => {
 
 router.post('/hours', currentUser, requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date } = req.body;
-  const salesforceId = req.currentUser?.salesforceId;
+  const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {
     throw Error('User does not have a salesforce ID');
   }
-  const chef = await createHours({
+  const hours = await createHours({
     contactId: salesforceId,
     mealCount,
     shiftId,
@@ -71,10 +94,8 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
     date,
   });
 
-  // await sendShiftSignupEmail(chef.Email);
-
   res.status(201);
-  res.send(shiftId);
+  res.send(hours);
 });
 
 router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
@@ -112,28 +133,13 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   res.send({ id, mealCount });
 });
 
-interface SFInsertResponse {
-  data:
-    | {
-        success: boolean;
-        id: string;
-      }
-    | undefined;
-}
-
 const createHours = async ({
   contactId,
   shiftId,
   mealCount,
   jobId,
   date,
-}: {
-  contactId: string;
-  shiftId: string;
-  mealCount: string;
-  jobId: string;
-  date: Date;
-}) => {
+}: CreateHoursParams): Promise<FormattedHours> => {
   await fetcher.setService('salesforce');
   const { data } = await fetcher.get(
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
@@ -156,15 +162,26 @@ const createHours = async ({
     hoursInsertUri,
     hoursToAdd
   );
-  //Query new contact to get household account number for opp
-  if (insertRes.data?.success) {
-    const res = await fetcher.get(
-      urls.SFOperationPrefix + '/Contact/' + contactId
-    );
-    return res.data;
-  } else {
+
+  if (!insertRes.data?.success) {
     throw new Error('Unable to insert hours!');
   }
+  const res: { data: Hours | undefined } = await fetcher.get(
+    urls.SFOperationPrefix +
+      '/GW_Volunteers__Volunteer_Hours__c' +
+      insertRes.data.id
+  );
+  if (!res.data) {
+    throw Error('Could not get newly created volunteer hours');
+  }
+  return {
+    id: res.data.Id,
+    mealCount: res.data.Number_of_Meals__c?.toString() || '0',
+    shift: res.data.GW_Volunteers__Volunteer_Shift__c,
+    job: res.data.GW_Volunteers__Volunteer_Job__c,
+    time: res.data.GW_Volunteers__Shift_Start_Date_Time__c,
+    status: res.data.GW_Volunteers__Status__c,
+  };
 };
 
 const editOpp = async (id: string, cancel: boolean, mealCount: number) => {
@@ -182,8 +199,8 @@ const editOpp = async (id: string, cancel: boolean, mealCount: number) => {
       // delete opp
       await fetcher.delete(giftUpdateUri);
     } else {
-      // patch opp with new deets: meals * 10 for amount, etc etc
-      const newAmount = mealCount * 10;
+      // patch opp with new deets: meals * 11 for amount, etc etc
+      const newAmount = mealCount * MEAL_PRICE;
       await fetcher.patch(giftUpdateUri, { amount: newAmount });
     }
   }
