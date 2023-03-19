@@ -39,9 +39,9 @@ it('correctly makes the portal user and salesforce contact when the interest for
 
 it('correctly updates an existing contact and makes a user when the interest form is submitted', async () => {
   const formValues = {
-    email: 'joe@duplicate.fake',
-    firstName: 'Joe',
-    lastName: 'Duplicate',
+    email: 'andrew.tisdall@gmail.com',
+    firstName: 'Testy',
+    lastName: 'Test',
     phoneNumber: '510-677-6867',
     instagramHandle: '@joejoe',
     commit: true,
@@ -61,7 +61,7 @@ it('correctly updates an existing contact and makes a user when the interest for
 
   await request(app).post('/api/home-chef/signup').send(formValues).expect(201);
 
-  const user = await User.findOne({ username: 'jduplicate' });
+  const user = await User.findOne({ username: 'ttest' });
 
   expect(user).toBeDefined();
   expect(user?.salesforceId).toBeDefined();

@@ -75,7 +75,7 @@ paypalRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, vo
                 // post a verification to paypal - not working
                 // verifyPaypalMessage(paypalData);
                 _a.sent();
-                return [4 /*yield*/, getContactByEmail(paypalData.payer_email)];
+                return [4 /*yield*/, SFQuery_1.getContactByEmail(paypalData.payer_email)];
             case 3:
                 existingContact = _a.sent();
                 if (!!existingContact) return [3 /*break*/, 5];
@@ -352,30 +352,6 @@ var addDonation = function (paypalData, contact) { return __awaiter(void 0, void
                 };
                 console.log('Donation Added: ' + JSON.stringify(summaryMessage));
                 return [2 /*return*/];
-        }
-    });
-}); };
-// this contact query just searches by email because people's names and
-// email addresses don't always match up on paypal
-var getContactByEmail = function (email) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, contactQueryUri, contactQueryResponse, contact;
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                query = "SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '" + email + "'";
-                contactQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
-                return [4 /*yield*/, fetcher_1.default.get(contactQueryUri)];
-            case 1:
-                contactQueryResponse = _c.sent();
-                if (!((_a = contactQueryResponse.data) === null || _a === void 0 ? void 0 : _a.records[0])) {
-                    return [2 /*return*/, null];
-                }
-                contact = (_b = contactQueryResponse.data) === null || _b === void 0 ? void 0 : _b.records[0];
-                return [2 /*return*/, {
-                        id: contact.Id,
-                        householdId: contact.npsp__HHId__c,
-                    }];
         }
     });
 }); };

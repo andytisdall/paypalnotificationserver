@@ -62,7 +62,7 @@ router.get('/userInfo', current_user_1.currentUser, require_auth_1.requireAuth, 
         switch (_a.label) {
             case 0:
                 if (!req.currentUser.salesforceId) {
-                    return [2 /*return*/, res.send(null)];
+                    throw Error('User does not have a salesforce ID');
                 }
                 return [4 /*yield*/, SFQuery_1.getContactById(req.currentUser.salesforceId)];
             case 1:

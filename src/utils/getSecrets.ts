@@ -1,5 +1,4 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
-import keys from '../../keys';
 
 interface secrets extends Record<string, string | undefined> {
   SF_CLIENT_ID?: string;
@@ -19,6 +18,7 @@ interface secrets extends Record<string, string | undefined> {
 
 export default async (nameList: string[]) => {
   if (process.env.NODE_ENV !== 'production') {
+    const keys: any = await import('../../keys');
     return keys;
   }
   const secrets: secrets = {};

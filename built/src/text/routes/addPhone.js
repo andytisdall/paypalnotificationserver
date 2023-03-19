@@ -40,12 +40,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+var mongoose_1 = __importDefault(require("mongoose"));
 var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
-var mongoose_1 = __importDefault(require("mongoose"));
+var require_text_permission_1 = require("../../middlewares/require-text-permission");
 var Phone = mongoose_1.default.model('Phone');
 var router = express_1.default.Router();
-router.post('/addphone', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+router.post('/addphone', current_user_1.currentUser, require_auth_1.requireAuth, require_text_permission_1.requireTextPermission, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, phone, region, phoneNumber, existingNumber, newPhone;
     return __generator(this, function (_b) {
         switch (_b.label) {

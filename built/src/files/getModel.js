@@ -79,6 +79,7 @@ var getAccountForFileUpload = function (accountType, accountId) { return __await
                 return [2 /*return*/, {
                         name: user.username,
                         salesforceId: user.salesforceId,
+                        firstName: contact.FirstName,
                         lastName: contact.LastName,
                         volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
                         type: accountType,

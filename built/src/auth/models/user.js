@@ -61,6 +61,10 @@ var userSchema = new mongoose_1.default.Schema({
         default: false,
     },
     salesforceId: String,
+    textPermission: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     toJSON: {
         transform: function (doc, ret) {

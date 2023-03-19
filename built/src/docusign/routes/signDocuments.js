@@ -73,6 +73,9 @@ router.post('/sign', current_user_1.currentUser, require_auth_1.requireAuth, fun
                 return [4 /*yield*/, SFQuery_1.getContactById(req.currentUser.salesforceId)];
             case 1:
                 contact = _a.sent();
+                if (!contact.Email) {
+                    throw Error('Contact has no email, which is required for document signing');
+                }
                 userInfo = {
                     name: contact.Name,
                     email: contact.Email,

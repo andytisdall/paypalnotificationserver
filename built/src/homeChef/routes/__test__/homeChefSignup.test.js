@@ -59,7 +59,7 @@ it('correctly makes the portal user and salesforce contact when the interest for
         switch (_a.label) {
             case 0:
                 formValues = {
-                    email: 'test@fake.com',
+                    email: 'fake@gogo.com',
                     firstName: 'Rocky',
                     lastName: 'Sanchez',
                     phoneNumber: '510-677-6867',
@@ -96,9 +96,9 @@ it('correctly updates an existing contact and makes a user when the interest for
         switch (_a.label) {
             case 0:
                 formValues = {
-                    email: 'joe@duplicate.fake',
-                    firstName: 'Joe',
-                    lastName: 'Duplicate',
+                    email: 'andrew.tisdall@gmail.com',
+                    firstName: 'Testy',
+                    lastName: 'Test',
                     phoneNumber: '510-677-6867',
                     instagramHandle: '@joejoe',
                     commit: true,
@@ -118,7 +118,7 @@ it('correctly updates an existing contact and makes a user when the interest for
                 return [4 /*yield*/, supertest_1.default(index_1.default).post('/api/home-chef/signup').send(formValues).expect(201)];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, user_1.User.findOne({ username: 'jduplicate' })];
+                return [4 /*yield*/, user_1.User.findOne({ username: 'ttest' })];
             case 2:
                 user = _a.sent();
                 expect(user).toBeDefined();

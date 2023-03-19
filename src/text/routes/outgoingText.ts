@@ -12,6 +12,8 @@ import getSecrets from '../../utils/getSecrets';
 import urls from '../../utils/urls';
 
 const Phone = mongoose.model('Phone');
+const Feedback = mongoose.model('Feedback');
+
 const smsRouter = express.Router();
 
 export type OutgoingText = { from: string; body: string; mediaUrl?: string[] };
@@ -24,7 +26,11 @@ smsRouter.post(
   async (req, res) => {
     const twilioClient = await getTwilioClient();
 
-    const { message, region }: { message: string; region: Region | string } =
+    const {
+      message,
+      region,
+      feedbackId,
+    }: { message: string; region: Region | string; feedbackId?: string } =
       req.body;
 
     if (!message) {
@@ -78,6 +84,18 @@ smsRouter.post(
 
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
+
+    if (feedbackId) {
+      const feedback = await Feedback.findById(feedbackId);
+      if (feedback) {
+        const response = { message, date: moment().format() };
+        if (feedback.response) {
+          feedback.response.push();
+        } else {
+          feedback.response = [response];
+        }
+      }
+    }
 
     res.send({ message, region, photoUrl: outgoingText.mediaUrl });
   }

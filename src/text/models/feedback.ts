@@ -8,6 +8,7 @@ const feedbackSchema = new Schema(
     region: String,
     read: { type: Boolean, default: false },
     images: [String],
+    response: [Object],
   },
   {
     toJSON: {

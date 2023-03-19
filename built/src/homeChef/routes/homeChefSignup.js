@@ -56,7 +56,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     length: 10,
                     numbers: true,
                 });
-                username = firstName.charAt(0).toLowerCase() + lastName.toLowerCase();
+                username = (firstName.charAt(0).toLowerCase() + lastName.toLowerCase()).replace(' ', '');
                 uniqueUsername = username;
                 return [4 /*yield*/, User.findOne({ username: username })];
             case 1:
@@ -95,7 +95,7 @@ router.post('/signup', function (req, res) { return __awaiter(void 0, void 0, vo
                     Portal_Temporary_Password__c: temporaryPassword,
                     Home_Chef_Status__c: 'Prospective',
                 };
-                return [4 /*yield*/, SFQuery_1.getContact(lastName, email)];
+                return [4 /*yield*/, SFQuery_1.getContact(lastName, firstName)];
             case 5:
                 existingContact = _b.sent();
                 if (!existingContact) return [3 /*break*/, 7];

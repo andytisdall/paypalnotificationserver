@@ -44,6 +44,7 @@ var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var urls_1 = __importDefault(require("../../utils/urls"));
+var MEAL_PRICE = 11;
 var router = express_1.default.Router();
 router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id, query, hoursQueryUri, response, hours;
@@ -54,7 +55,7 @@ router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fun
             case 1:
                 _c.sent();
                 id = (_a = req.currentUser) === null || _a === void 0 ? void 0 : _a.salesforceId;
-                query = "SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '" + id + "' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')";
+                query = "SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '" + id + "' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')";
                 hoursQueryUri = urls_1.default.SFQueryPrefix + encodeURIComponent(query);
                 return [4 /*yield*/, fetcher_1.default.get(hoursQueryUri)];
             case 2:
@@ -73,6 +74,7 @@ router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fun
                         time: h.GW_Volunteers__Shift_Start_Date_Time__c,
                         job: h.GW_Volunteers__Volunteer_Job__c,
                         status: h.GW_Volunteers__Status__c,
+                        shift: h.GW_Volunteers__Volunteer_Shift__c,
                     };
                 });
                 res.send(hours);
@@ -81,13 +83,12 @@ router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fun
     });
 }); });
 router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, mealCount, shiftId, jobId, date, salesforceId, chef;
-    var _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var _a, mealCount, shiftId, jobId, date, salesforceId, hours;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 _a = req.body, mealCount = _a.mealCount, shiftId = _a.shiftId, jobId = _a.jobId, date = _a.date;
-                salesforceId = (_b = req.currentUser) === null || _b === void 0 ? void 0 : _b.salesforceId;
+                salesforceId = req.currentUser.salesforceId;
                 if (!salesforceId) {
                     throw Error('User does not have a salesforce ID');
                 }
@@ -99,10 +100,9 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
                         date: date,
                     })];
             case 1:
-                chef = _c.sent();
-                // await sendShiftSignupEmail(chef.Email);
+                hours = _b.sent();
                 res.status(201);
-                res.send(shiftId);
+                res.send(hours);
                 return [2 /*return*/];
         }
     });
@@ -142,15 +142,15 @@ var createHours = function (_a) {
     var contactId = _a.contactId, shiftId = _a.shiftId, mealCount = _a.mealCount, jobId = _a.jobId, date = _a.date;
     return __awaiter(void 0, void 0, void 0, function () {
         var data, hoursToAdd, hoursInsertUri, insertRes, res;
-        var _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var _b, _c;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0: return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
                 case 1:
-                    _c.sent();
+                    _d.sent();
                     return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId)];
                 case 2:
-                    data = (_c.sent()).data;
+                    data = (_d.sent()).data;
                     if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
                         throw new Error('This shift has no available slots');
                     }
@@ -165,13 +165,26 @@ var createHours = function (_a) {
                     hoursInsertUri = urls_1.default.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
                     return [4 /*yield*/, fetcher_1.default.post(hoursInsertUri, hoursToAdd)];
                 case 3:
-                    insertRes = _c.sent();
-                    if (!((_b = insertRes.data) === null || _b === void 0 ? void 0 : _b.success)) return [3 /*break*/, 5];
-                    return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix + '/Contact/' + contactId)];
+                    insertRes = _d.sent();
+                    if (!((_b = insertRes.data) === null || _b === void 0 ? void 0 : _b.success)) {
+                        throw new Error('Unable to insert hours!');
+                    }
+                    return [4 /*yield*/, fetcher_1.default.get(urls_1.default.SFOperationPrefix +
+                            '/GW_Volunteers__Volunteer_Hours__c/' +
+                            insertRes.data.id)];
                 case 4:
-                    res = _c.sent();
-                    return [2 /*return*/, res.data];
-                case 5: throw new Error('Unable to insert hours!');
+                    res = _d.sent();
+                    if (!res.data) {
+                        throw Error('Could not get newly created volunteer hours');
+                    }
+                    return [2 /*return*/, {
+                            id: res.data.Id,
+                            mealCount: ((_c = res.data.Number_of_Meals__c) === null || _c === void 0 ? void 0 : _c.toString()) || '0',
+                            shift: res.data.GW_Volunteers__Volunteer_Shift__c,
+                            job: res.data.GW_Volunteers__Volunteer_Job__c,
+                            time: res.data.GW_Volunteers__Shift_Start_Date_Time__c,
+                            status: res.data.GW_Volunteers__Status__c,
+                        }];
             }
         });
     });
@@ -197,7 +210,7 @@ var editOpp = function (id, cancel, mealCount) { return __awaiter(void 0, void 0
                 _b.sent();
                 return [3 /*break*/, 5];
             case 3:
-                newAmount = mealCount * 10;
+                newAmount = mealCount * MEAL_PRICE;
                 return [4 /*yield*/, fetcher_1.default.patch(giftUpdateUri, { amount: newAmount })];
             case 4:
                 _b.sent();

@@ -57,7 +57,7 @@ global.getToken = function (_a) {
                     userInfo = {
                         username: 'test',
                         password: 'password',
-                        salesforceId: '0037900000DX4noAAD',
+                        salesforceId: '0037500000MxUQhAAN',
                         admin: admin,
                     };
                     newUser = new User(userInfo);
