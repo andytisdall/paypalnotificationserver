@@ -9,6 +9,7 @@ var feedbackSchema = new mongoose_1.Schema({
     region: String,
     read: { type: Boolean, default: false },
     images: [String],
+    response: [Object],
 }, {
     toJSON: {
         transform: function (doc, ret) {

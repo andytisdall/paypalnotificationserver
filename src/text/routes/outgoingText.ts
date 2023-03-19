@@ -30,8 +30,13 @@ smsRouter.post(
       message,
       region,
       feedbackId,
-    }: { message: string; region: Region | string; feedbackId?: string } =
-      req.body;
+      number,
+    }: {
+      message: string;
+      region: Region;
+      feedbackId?: string;
+      number?: string;
+    } = req.body;
 
     if (!message) {
       res.status(422);
@@ -44,21 +49,19 @@ smsRouter.post(
     }
 
     let formattedNumbers: string[] = [];
-    let responsePhoneNumber: string | undefined;
+    const responsePhoneNumber = REGIONS[region];
 
-    if (region === 'WEST_OAKLAND' || region === 'EAST_OAKLAND') {
-      responsePhoneNumber = REGIONS[region];
+    if (!number || Object.keys(REGIONS).includes(number)) {
       const allPhoneNumbers = await Phone.find({ region });
       formattedNumbers = allPhoneNumbers.map((p) => p.number);
     } else {
-      const phoneNumber = region.replace(/[^\d]/g, '');
+      const phoneNumber = number.replace(/[^\d]/g, '');
 
       if (phoneNumber.length !== 10) {
         res.status(422);
         throw new Error('Phone number must have 10 digits');
       }
 
-      responsePhoneNumber = REGIONS['EAST_OAKLAND'];
       formattedNumbers = ['+1' + phoneNumber];
     }
 
@@ -79,6 +82,7 @@ smsRouter.post(
     }
 
     const createOutgoingText = async (phone: string) => {
+      console.log(phone);
       await twilioClient.messages.create({ ...outgoingText, to: phone });
     };
 
@@ -90,11 +94,12 @@ smsRouter.post(
       if (feedback) {
         const response = { message, date: moment().format() };
         if (feedback.response) {
-          feedback.response.push();
+          feedback.response.push(response);
         } else {
           feedback.response = [response];
         }
       }
+      await feedback.save();
     }
 
     res.send({ message, region, photoUrl: outgoingText.mediaUrl });
