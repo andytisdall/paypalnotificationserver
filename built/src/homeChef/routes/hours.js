@@ -44,8 +44,9 @@ var current_user_1 = require("../../middlewares/current-user");
 var require_auth_1 = require("../../middlewares/require-auth");
 var fetcher_1 = __importDefault(require("../../utils/fetcher"));
 var urls_1 = __importDefault(require("../../utils/urls"));
-var MEAL_PRICE = 11;
 var router = express_1.default.Router();
+var SOUP_PRICE = 5.5;
+var ENTREE_PRICE = 11;
 router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id, query, hoursQueryUri, response, hours;
     var _a, _b;
@@ -83,11 +84,11 @@ router.get('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fun
     });
 }); });
 router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, mealCount, shiftId, jobId, date, salesforceId, hours;
+    var _a, mealCount, shiftId, jobId, date, soup, salesforceId, hours;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _a = req.body, mealCount = _a.mealCount, shiftId = _a.shiftId, jobId = _a.jobId, date = _a.date;
+                _a = req.body, mealCount = _a.mealCount, shiftId = _a.shiftId, jobId = _a.jobId, date = _a.date, soup = _a.soup;
                 salesforceId = req.currentUser.salesforceId;
                 if (!salesforceId) {
                     throw Error('User does not have a salesforce ID');
@@ -98,6 +99,7 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
                         shiftId: shiftId,
                         jobId: jobId,
                         date: date,
+                        soup: soup,
                     })];
             case 1:
                 hours = _b.sent();
@@ -108,17 +110,18 @@ router.post('/hours', current_user_1.currentUser, require_auth_1.requireAuth, fu
     });
 }); });
 router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAuth, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, _a, mealCount, cancel, completed, hoursToUpdate, hoursUpdateUri;
+    var id, _a, mealCount, cancel, completed, soup, hoursToUpdate, hoursUpdateUri;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 id = req.params.id;
-                _a = req.body, mealCount = _a.mealCount, cancel = _a.cancel, completed = _a.completed;
+                _a = req.body, mealCount = _a.mealCount, cancel = _a.cancel, completed = _a.completed, soup = _a.soup;
                 return [4 /*yield*/, fetcher_1.default.setService('salesforce')];
             case 1:
                 _b.sent();
                 hoursToUpdate = {
                     Number_of_Meals__c: mealCount,
+                    Type_of_Meal__c: soup ? 'Soup' : 'Entree',
                 };
                 if (cancel) {
                     hoursToUpdate.GW_Volunteers__Status__c = 'Canceled';
@@ -128,7 +131,7 @@ router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAut
             case 2:
                 _b.sent();
                 if (!completed) return [3 /*break*/, 4];
-                return [4 /*yield*/, editOpp(id, cancel, mealCount)];
+                return [4 /*yield*/, editOpp(id, cancel, mealCount, soup)];
             case 3:
                 _b.sent();
                 _b.label = 4;
@@ -139,9 +142,9 @@ router.patch('/hours/:id', current_user_1.currentUser, require_auth_1.requireAut
     });
 }); });
 var createHours = function (_a) {
-    var contactId = _a.contactId, shiftId = _a.shiftId, mealCount = _a.mealCount, jobId = _a.jobId, date = _a.date;
+    var contactId = _a.contactId, shiftId = _a.shiftId, mealCount = _a.mealCount, jobId = _a.jobId, date = _a.date, soup = _a.soup;
     return __awaiter(void 0, void 0, void 0, function () {
-        var data, hoursToAdd, hoursInsertUri, insertRes, res;
+        var data, mealType, hoursToAdd, hoursInsertUri, insertRes, res;
         var _b, _c;
         return __generator(this, function (_d) {
             switch (_d.label) {
@@ -154,6 +157,7 @@ var createHours = function (_a) {
                     if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
                         throw new Error('This shift has no available slots');
                     }
+                    mealType = soup ? 'Soup' : 'Entree';
                     hoursToAdd = {
                         GW_Volunteers__Contact__c: contactId,
                         GW_Volunteers__Volunteer_Shift__c: shiftId,
@@ -161,6 +165,7 @@ var createHours = function (_a) {
                         Number_of_Meals__c: mealCount,
                         GW_Volunteers__Volunteer_Job__c: jobId,
                         GW_Volunteers__Start_Date__c: date,
+                        Type_of_Meal__c: mealType,
                     };
                     hoursInsertUri = urls_1.default.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
                     return [4 /*yield*/, fetcher_1.default.post(hoursInsertUri, hoursToAdd)];
@@ -189,8 +194,8 @@ var createHours = function (_a) {
         });
     });
 };
-var editOpp = function (id, cancel, mealCount) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, giftQueryUri, data, giftUpdateUri, newAmount;
+var editOpp = function (id, cancel, mealCount, soup) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, giftQueryUri, data, giftUpdateUri, mealPrice, newAmount;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -210,7 +215,8 @@ var editOpp = function (id, cancel, mealCount) { return __awaiter(void 0, void 0
                 _b.sent();
                 return [3 /*break*/, 5];
             case 3:
-                newAmount = mealCount * MEAL_PRICE;
+                mealPrice = soup ? SOUP_PRICE : ENTREE_PRICE;
+                newAmount = mealCount * mealPrice;
                 return [4 /*yield*/, fetcher_1.default.patch(giftUpdateUri, { amount: newAmount })];
             case 4:
                 _b.sent();

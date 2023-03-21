@@ -66,14 +66,14 @@ var Phone = mongoose_1.default.model('Phone');
 var Feedback = mongoose_1.default.model('Feedback');
 var smsRouter = express_1.default.Router();
 smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAuth, require_text_permission_1.requireTextPermission, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var twilioClient, _a, message, region, feedbackId, formattedNumbers, responsePhoneNumber, allPhoneNumbers, phoneNumber, outgoingText, fileName, imageId, createOutgoingText, textPromises, feedback, response;
+    var twilioClient, _a, message, region, feedbackId, number, formattedNumbers, responsePhoneNumber, allPhoneNumbers, phoneNumber, outgoingText, fileName, imageId, createOutgoingText, textPromises, feedback, response;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0: return [4 /*yield*/, exports.getTwilioClient()];
             case 1:
                 twilioClient = _c.sent();
-                _a = req.body, message = _a.message, region = _a.region, feedbackId = _a.feedbackId;
+                _a = req.body, message = _a.message, region = _a.region, feedbackId = _a.feedbackId, number = _a.number;
                 if (!message) {
                     res.status(422);
                     throw new Error('No message to send');
@@ -83,20 +83,19 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
                     throw new Error('No region specified');
                 }
                 formattedNumbers = [];
-                if (!(region === 'WEST_OAKLAND' || region === 'EAST_OAKLAND')) return [3 /*break*/, 3];
                 responsePhoneNumber = phone_1.REGIONS[region];
+                if (!(!number || Object.keys(phone_1.REGIONS).includes(number))) return [3 /*break*/, 3];
                 return [4 /*yield*/, Phone.find({ region: region })];
             case 2:
                 allPhoneNumbers = _c.sent();
                 formattedNumbers = allPhoneNumbers.map(function (p) { return p.number; });
                 return [3 /*break*/, 4];
             case 3:
-                phoneNumber = region.replace(/[^\d]/g, '');
+                phoneNumber = number.replace(/[^\d]/g, '');
                 if (phoneNumber.length !== 10) {
                     res.status(422);
                     throw new Error('Phone number must have 10 digits');
                 }
-                responsePhoneNumber = phone_1.REGIONS['EAST_OAKLAND'];
                 formattedNumbers = ['+1' + phoneNumber];
                 _c.label = 4;
             case 4:
@@ -129,21 +128,24 @@ smsRouter.post('/outgoing', current_user_1.currentUser, require_auth_1.requireAu
                 return [4 /*yield*/, Promise.all(textPromises)];
             case 7:
                 _c.sent();
-                if (!feedbackId) return [3 /*break*/, 9];
+                if (!feedbackId) return [3 /*break*/, 10];
                 return [4 /*yield*/, Feedback.findById(feedbackId)];
             case 8:
                 feedback = _c.sent();
                 if (feedback) {
                     response = { message: message, date: moment_1.default().format() };
                     if (feedback.response) {
-                        feedback.response.push();
+                        feedback.response.push(response);
                     }
                     else {
                         feedback.response = [response];
                     }
                 }
-                _c.label = 9;
+                return [4 /*yield*/, feedback.save()];
             case 9:
+                _c.sent();
+                _c.label = 10;
+            case 10:
                 res.send({ message: message, region: region, photoUrl: outgoingText.mediaUrl });
                 return [2 /*return*/];
         }

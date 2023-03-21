@@ -135,9 +135,13 @@ router.patch('/', current_user_1.currentUser, require_auth_1.requireAuth, functi
                     res.status(403);
                     throw new Error('Admin users can only be modified by themselves');
                 }
-                if (username && username !== u.username) {
-                    u.username = username;
-                }
+                if (!(username && username !== u.username)) return [3 /*break*/, 3];
+                u.username = username;
+                return [4 /*yield*/, SFQuery_1.updateContact(u.salesforceId, { Portal_Username__c: username })];
+            case 2:
+                _b.sent();
+                _b.label = 3;
+            case 3:
                 if (password) {
                     u.password = password;
                 }
@@ -148,7 +152,7 @@ router.patch('/', current_user_1.currentUser, require_auth_1.requireAuth, functi
                     u.active = true;
                 }
                 return [4 /*yield*/, u.save()];
-            case 2:
+            case 4:
                 _b.sent();
                 res.send(u);
                 return [2 /*return*/];

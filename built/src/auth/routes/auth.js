@@ -44,6 +44,8 @@ var mongoose_1 = __importDefault(require("mongoose"));
 var getSecrets_1 = __importDefault(require("../../utils/getSecrets"));
 var password_1 = require("../password");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var google_auth_library_1 = require("google-auth-library");
+var SFQuery_1 = require("../../utils/salesforce/SFQuery");
 var User = mongoose_1.default.model('User');
 var router = express_1.default.Router();
 router.post('/signin', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -75,6 +77,86 @@ router.post('/signin', function (req, res) { return __awaiter(void 0, void 0, vo
                     id: existingUser.id,
                 }, JWT_KEY);
                 res.send({ user: existingUser, token: token });
+                return [2 /*return*/];
+        }
+    });
+}); });
+router.post('/google-signin', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, JWT_KEY, GOOGLE_CLIENT_ID, credential, googleClient, ticket, googleProfile, existingUser, contact, JWT;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0: return [4 /*yield*/, getSecrets_1.default([
+                    'JWT_KEY',
+                    'GOOGLE_CLIENT_ID',
+                ])];
+            case 1:
+                _a = _b.sent(), JWT_KEY = _a.JWT_KEY, GOOGLE_CLIENT_ID = _a.GOOGLE_CLIENT_ID;
+                if (!JWT_KEY) {
+                    throw Error('No JWT key found');
+                }
+                if (!GOOGLE_CLIENT_ID) {
+                    throw Error('No Google Client Id found');
+                }
+                credential = req.body.credential;
+                googleClient = new google_auth_library_1.OAuth2Client(GOOGLE_CLIENT_ID);
+                return [4 /*yield*/, googleClient.verifyIdToken({
+                        idToken: credential,
+                        audience: GOOGLE_CLIENT_ID,
+                    })];
+            case 2:
+                ticket = _b.sent();
+                googleProfile = ticket.getPayload();
+                if (!googleProfile ||
+                    !googleProfile.email ||
+                    !googleProfile.given_name ||
+                    !googleProfile.family_name) {
+                    throw Error('Could not get google profile');
+                }
+                return [4 /*yield*/, User.findOne({ googleId: googleProfile.sub })];
+            case 3:
+                existingUser = _b.sent();
+                if (!!existingUser) return [3 /*break*/, 12];
+                return [4 /*yield*/, SFQuery_1.getContact(googleProfile.family_name, googleProfile.given_name)];
+            case 4:
+                contact = _b.sent();
+                if (!!contact) return [3 /*break*/, 6];
+                return [4 /*yield*/, SFQuery_1.getContactByEmail(googleProfile.email)];
+            case 5:
+                contact = _b.sent();
+                _b.label = 6;
+            case 6:
+                if (!contact) return [3 /*break*/, 11];
+                if (!contact.portalUsername) return [3 /*break*/, 9];
+                // check if they have username already?
+                // assign existing user a google id
+                console.log(contact);
+                return [4 /*yield*/, User.findOne({ username: contact.portalUsername })];
+            case 7:
+                existingUser = _b.sent();
+                if (!existingUser) {
+                    // create user
+                }
+                existingUser.googleId = googleProfile.sub;
+                return [4 /*yield*/, existingUser.save()];
+            case 8:
+                _b.sent();
+                return [3 /*break*/, 10];
+            case 9: 
+            // create user?
+            throw Error('Contact does not have portal username');
+            case 10: return [3 /*break*/, 12];
+            case 11: 
+            //   // if contact not in sf
+            //   // their google name and salesforce name don't match
+            //   // have them give us the name they used to sign up for home chef
+            //   // and email us i guess
+            //   // so we can manually add the google id to the portal user
+            throw Error('We could not find a person in our database based on your google profile');
+            case 12:
+                JWT = jsonwebtoken_1.default.sign({
+                    id: existingUser.id,
+                }, JWT_KEY);
+                res.send({ user: existingUser, token: JWT });
                 return [2 /*return*/];
         }
     });

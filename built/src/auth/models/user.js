@@ -65,6 +65,7 @@ var userSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
+    googleId: String,
 }, {
     toJSON: {
         transform: function (doc, ret) {

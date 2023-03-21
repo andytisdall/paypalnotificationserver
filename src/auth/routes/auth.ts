@@ -46,7 +46,10 @@ router.post('/signin', async (req, res) => {
 });
 
 router.post('/google-signin', async (req, res) => {
-  const { JWT_KEY, GOOGLE_CLIENT_ID } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY, GOOGLE_CLIENT_ID } = await getSecrets([
+    'JWT_KEY',
+    'GOOGLE_CLIENT_ID',
+  ]);
   if (!JWT_KEY) {
     throw Error('No JWT key found');
   }
