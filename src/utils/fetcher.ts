@@ -22,7 +22,7 @@ class fetcher {
   async setService(service: Service) {
     if (this.service !== service) {
       this.service = service;
-      let baseURL = urls[service];
+      const baseURL = urls[service];
       this.instance.defaults.baseURL = baseURL;
       const token = this.token[this.service];
       if (token) {
@@ -37,12 +37,6 @@ class fetcher {
 
   getService() {
     return this.service;
-  }
-
-  private async retryCall(callback: () => Promise<AxiosResponse<any, any>>) {
-    this.token[this.service!] = undefined;
-    await this.getToken();
-    return callback();
   }
 
   private async getToken() {
@@ -61,18 +55,24 @@ class fetcher {
     this.token[this.service!] = token;
   }
 
+  private async retryCall(callback: () => Promise<AxiosResponse<any, any>>) {
+    this.token[this.service!] = undefined;
+    await this.getToken();
+    return await callback();
+  }
+
   async get(url: string, options?: AxiosRequestConfig) {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
-    const get = () => {
-      const res = this.instance.get(url, options);
+    const get = async () => {
+      const res = await this.instance.get(url, options);
       return res;
     };
     try {
-      return get();
+      return await get();
     } catch (err) {
-      return this.retryCall(get);
+      return await this.retryCall(get);
     }
   }
 
@@ -84,14 +84,13 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
-    const post = () => {
-      const res = this.instance.post(url, body, options);
-      return res;
+    const post = async () => {
+      return await this.instance.post(url, body, options);
     };
     try {
-      return post();
+      return await post();
     } catch (err) {
-      return this.retryCall(post);
+      return await this.retryCall(post);
     }
   }
 
@@ -103,14 +102,13 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
-    const patch = () => {
-      const res = this.instance.patch(url, body, options);
-      return res;
+    const patch = async () => {
+      return await this.instance.patch(url, body, options);
     };
     try {
-      return patch();
+      return await patch();
     } catch (err) {
-      return this.retryCall(patch);
+      return await this.retryCall(patch);
     }
   }
 
@@ -119,13 +117,12 @@ class fetcher {
       throw Error('Base url has not been set');
     }
     const del = async () => {
-      const res = await this.instance.delete(url, options);
-      return res;
+      return await this.instance.delete(url, options);
     };
     try {
-      return del();
+      return await del();
     } catch (err) {
-      return this.retryCall(del);
+      return await this.retryCall(del);
     }
   }
 }

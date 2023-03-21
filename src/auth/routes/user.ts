@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { getContactById } from '../../utils/salesforce/SFQuery';
+import { getContactById, updateContact } from '../../utils/salesforce/SFQuery';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -74,6 +74,7 @@ router.patch('/', currentUser, requireAuth, async (req, res) => {
 
   if (username && username !== u.username) {
     u.username = username;
+    await updateContact(u.salesforceId, { Portal_Username__c: username });
   }
   if (password) {
     u.password = password;

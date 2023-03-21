@@ -6,10 +6,12 @@ import { sendEmail, EmailMessage } from '../../utils/email';
 const router = express.Router();
 
 router.post('/invite', currentUser, requireAuth, async (req, res) => {
-  const { recipients, message }: { recipients: string[]; message: string } =
-    req.body;
+  const {
+    recipients,
+    message,
+    subject,
+  }: { recipients: string[]; message: string; subject: string } = req.body;
 
-  const subject = '';
   const from = 'mollye@ckoakland.org';
 
   const msg: EmailMessage = {

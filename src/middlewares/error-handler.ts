@@ -9,8 +9,10 @@ export const errorHandler = (
   let message = err.message;
   if (err.response?.data) {
     message = JSON.stringify(err.response?.data);
+  } else if (err.response?.body) {
+    message = JSON.stringify(err.response?.body);
   }
-  console.error(message);
+  console.error(err);
   if (res.statusCode === 200) {
     res.status(400);
   }
