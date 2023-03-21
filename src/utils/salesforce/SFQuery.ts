@@ -39,12 +39,14 @@ export interface Contact {
   householdId: string;
   name?: string;
   id: string;
+  portalUsername?: string;
 }
 
 export interface UnformattedContact {
   npsp__HHId__c: string;
   Id: string;
   Name: string;
+  Portal_Username__c?: string;
 }
 
 export interface InsertSuccessResponse {
@@ -71,7 +73,7 @@ export const getContact = async (
   firstName: string
 ): Promise<Contact | null> => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE LastName = '${lastName}' AND FirstName = '${firstName}'`;
+  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE LastName = '${lastName}' AND FirstName = '${firstName}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -89,6 +91,7 @@ export const getContact = async (
       id: contact.Id,
       name: contact.Name,
       householdId: contact.npsp__HHId__c,
+      portalUsername: contact.Portal_Username__c,
     };
   }
 };
@@ -177,7 +180,7 @@ export const getAccountById = async (id: string) => {
 export const getContactByEmail = async (
   email: string
 ): Promise<Contact | null> => {
-  const query = `SELECT Name, npsp__HHId__c, Id from Contact WHERE Email = '${email}'`;
+  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse: {
@@ -190,5 +193,6 @@ export const getContactByEmail = async (
   return {
     id: contact.Id,
     householdId: contact.npsp__HHId__c,
+    portalUsername: contact.Portal_Username__c,
   };
 };

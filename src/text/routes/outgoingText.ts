@@ -82,7 +82,6 @@ smsRouter.post(
     }
 
     const createOutgoingText = async (phone: string) => {
-      console.log(phone);
       await twilioClient.messages.create({ ...outgoingText, to: phone });
     };
 

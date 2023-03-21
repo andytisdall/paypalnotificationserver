@@ -6,12 +6,13 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error(err);
+  let message = err.message;
   if (err.response?.data) {
-    console.log(JSON.stringify(err.response?.data));
+    message = JSON.stringify(err.response?.data);
   }
+  console.error(message);
   if (res.statusCode === 200) {
     res.status(400);
   }
-  res.send({ error: err.message });
+  res.send({ error: message });
 };

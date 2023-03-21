@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import urls from './urls';
 import getDSJWT from '../docusign/getDSJWT';
@@ -13,13 +13,16 @@ class fetcher {
 
   constructor() {
     this.instance = axios.create();
-    this.token = { salesforce: undefined, docusign: undefined };
+    this.token = {
+      salesforce: undefined,
+      docusign: undefined,
+    };
   }
 
   async setService(service: Service) {
     if (this.service !== service) {
       this.service = service;
-      const baseURL = urls[service];
+      let baseURL = urls[service];
       this.instance.defaults.baseURL = baseURL;
       const token = this.token[this.service];
       if (token) {
@@ -34,6 +37,12 @@ class fetcher {
 
   getService() {
     return this.service;
+  }
+
+  private async retryCall(callback: () => Promise<AxiosResponse<any, any>>) {
+    this.token[this.service!] = undefined;
+    await this.getToken();
+    return callback();
   }
 
   private async getToken() {
@@ -56,14 +65,14 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
+    const get = () => {
+      const res = this.instance.get(url, options);
+      return res;
+    };
     try {
-      const res = await this.instance.get(url, options);
-      return res;
+      return get();
     } catch (err) {
-      this.token[this.service] = undefined;
-      await this.getToken();
-      const res = await this.instance.get(url, options);
-      return res;
+      return this.retryCall(get);
     }
   }
 
@@ -75,14 +84,14 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
+    const post = () => {
+      const res = this.instance.post(url, body, options);
+      return res;
+    };
     try {
-      const res = await this.instance.post(url, body, options);
-      return res;
+      return post();
     } catch (err) {
-      this.token[this.service] = undefined;
-      await this.getToken();
-      const res = await this.instance.post(url, body, options);
-      return res;
+      return this.retryCall(post);
     }
   }
 
@@ -94,14 +103,14 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
+    const patch = () => {
+      const res = this.instance.patch(url, body, options);
+      return res;
+    };
     try {
-      const res = await this.instance.patch(url, body, options);
-      return res;
+      return patch();
     } catch (err) {
-      this.token[this.service] = undefined;
-      await this.getToken();
-      const res = await this.instance.patch(url, body, options);
-      return res;
+      return this.retryCall(patch);
     }
   }
 
@@ -109,14 +118,14 @@ class fetcher {
     if (!this.service) {
       throw Error('Base url has not been set');
     }
+    const del = async () => {
+      const res = await this.instance.delete(url, options);
+      return res;
+    };
     try {
-      const res = await this.instance.delete(url, options);
-      return res;
+      return del();
     } catch (err) {
-      this.token[this.service] = undefined;
-      await this.getToken();
-      const res = await this.instance.delete(url, options);
-      return res;
+      return this.retryCall(del);
     }
   }
 }

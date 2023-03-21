@@ -4,11 +4,11 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
-import { sendShiftSignupEmail } from '../../utils/email';
-
-const MEAL_PRICE = 11;
 
 const router = express.Router();
+
+const SOUP_PRICE = 5.5;
+const ENTREE_PRICE = 11;
 
 interface SFInsertResponse {
   data:
@@ -47,9 +47,10 @@ export interface FormattedHours {
 interface CreateHoursParams {
   contactId: string;
   shiftId: string;
-  mealCount: string;
+  mealCount: number;
   jobId: string;
-  date: Date;
+  date: string;
+  soup: boolean;
 }
 
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
@@ -80,8 +81,16 @@ router.get('/hours', currentUser, requireAuth, async (req, res) => {
   res.send(hours);
 });
 
+interface HoursPostParams {
+  mealCount: number;
+  shiftId: string;
+  jobId: string;
+  date: string;
+  soup: boolean;
+}
+
 router.post('/hours', currentUser, requireAuth, async (req, res) => {
-  const { mealCount, shiftId, jobId, date } = req.body;
+  const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
   const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {
     throw Error('User does not have a salesforce ID');
@@ -92,6 +101,7 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
     shiftId,
     jobId,
     date,
+    soup,
   });
 
   res.status(201);
@@ -104,17 +114,21 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
     mealCount,
     cancel,
     completed,
-  }: { mealCount: number; cancel: boolean; completed: boolean } = req.body;
+    soup,
+  }: { mealCount: number; cancel: boolean; completed: boolean; soup: boolean } =
+    req.body;
 
   await fetcher.setService('salesforce');
 
   interface updateHours {
     Number_of_Meals__c: number;
+    Type_of_Meal__c: string;
     GW_Volunteers__Status__c?: string;
   }
 
   const hoursToUpdate: updateHours = {
     Number_of_Meals__c: mealCount,
+    Type_of_Meal__c: soup ? 'Soup' : 'Entree',
   };
 
   if (cancel) {
@@ -127,7 +141,7 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
 
   // update the opportunity linked to the vol hours
   if (completed) {
-    await editOpp(id, cancel, mealCount);
+    await editOpp(id, cancel, mealCount, soup);
   }
 
   res.send({ id, mealCount });
@@ -139,6 +153,7 @@ const createHours = async ({
   mealCount,
   jobId,
   date,
+  soup,
 }: CreateHoursParams): Promise<FormattedHours> => {
   await fetcher.setService('salesforce');
   const { data } = await fetcher.get(
@@ -147,6 +162,7 @@ const createHours = async ({
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
     throw new Error('This shift has no available slots');
   }
+  const mealType = soup ? 'Soup' : 'Entree';
   const hoursToAdd = {
     GW_Volunteers__Contact__c: contactId,
     GW_Volunteers__Volunteer_Shift__c: shiftId,
@@ -154,6 +170,7 @@ const createHours = async ({
     Number_of_Meals__c: mealCount,
     GW_Volunteers__Volunteer_Job__c: jobId,
     GW_Volunteers__Start_Date__c: date,
+    Type_of_Meal__c: mealType,
   };
 
   const hoursInsertUri =
@@ -184,7 +201,12 @@ const createHours = async ({
   };
 };
 
-const editOpp = async (id: string, cancel: boolean, mealCount: number) => {
+const editOpp = async (
+  id: string,
+  cancel: boolean,
+  mealCount: number,
+  soup: boolean
+) => {
   const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
   const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -200,7 +222,8 @@ const editOpp = async (id: string, cancel: boolean, mealCount: number) => {
       await fetcher.delete(giftUpdateUri);
     } else {
       // patch opp with new deets: meals * 11 for amount, etc etc
-      const newAmount = mealCount * MEAL_PRICE;
+      const mealPrice = soup ? SOUP_PRICE : ENTREE_PRICE;
+      const newAmount = mealCount * mealPrice;
       await fetcher.patch(giftUpdateUri, { amount: newAmount });
     }
   }
