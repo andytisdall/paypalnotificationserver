@@ -30,7 +30,7 @@ const SIGNUP_SURVEY_URL = urls.client + '/forms/text-signup-survey';
 const signUpResponse = (region: string, phone: string) => {
   return `Thank you for signing up for ${
     regionKey[region]
-  } meal notifications! If you are able to complete our short survey, we won't share your data and it helps greatly with funding to provide free meals to the people: ${
+  } meal notifications! For help, reply "help". To opt-out, reply "stop". If you are able to complete our short survey, we won't share your data and it helps greatly with funding to provide free meals to the people: ${
     SIGNUP_SURVEY_URL + '?phone=' + formatPhone(phone)
   }`;
 };
