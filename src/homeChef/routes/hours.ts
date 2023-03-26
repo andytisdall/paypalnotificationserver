@@ -115,8 +115,12 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
     cancel,
     completed,
     soup,
-  }: { mealCount: number; cancel: boolean; completed: boolean; soup: boolean } =
-    req.body;
+  }: {
+    mealCount: number;
+    cancel: boolean;
+    completed: boolean;
+    soup: boolean;
+  } = req.body;
 
   await fetcher.setService('salesforce');
 
@@ -143,6 +147,9 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   if (completed) {
     await editOpp(id, cancel, mealCount, soup);
   }
+
+  //email
+  // get user email, date of shift, and fridge name
 
   res.send({ id, mealCount });
 });

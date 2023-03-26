@@ -4,7 +4,7 @@ import getSecrets from './getSecrets';
 import createDonationAckEmail from './emailTemplates/donationAck';
 import createCommCourseAckEmail from './emailTemplates/commCourseAck';
 import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
-import createShiftSignupEmail from './emailTemplates/shiftSignup';
+import createShiftEditEmail from './emailTemplates/shiftEdit';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -82,13 +82,13 @@ export const sendHomeChefSignupEmail = async (chef: {
   await sendEmail(msg);
 };
 
-export const sendShiftSignupEmail = async (email: string) => {
-  const html = createShiftSignupEmail();
+export const sendShiftEditEmail = async (email: string) => {
+  const html = createShiftEditEmail();
 
   const msg = {
     to: email,
     from: 'mollye@ckoakland.org',
-    subject: 'Thank you for signing up for a Town Fridge!',
+    subject: 'You have edited a home chef shift',
     html,
   };
 
