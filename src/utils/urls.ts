@@ -21,14 +21,14 @@ const testUrls = {
   townFridgeCampaignId: '7018B000000LnmmQAC',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
-  docusign: 'https://demo.docusign.net/restapi',
-  docusignOauth: 'https://account-d.docusign.com',
-  client: 'http://localhost:3000',
-  server: 'http://localhost:3001',
+  docusign: 'https://na4.docusign.net/restapi',
+  docusignOauth: 'https://account.docusign.com',
+  client: 'https://ck-test-portal.wl.r.appspot.com/',
+  server: 'https://ck-test-portal.wl.r.appspot.com/',
   google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
 };
 
-export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
+export default testUrls;
