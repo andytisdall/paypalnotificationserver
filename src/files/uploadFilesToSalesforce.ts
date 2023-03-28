@@ -4,9 +4,6 @@ import path from 'path';
 import urls from '../utils/urls';
 import fetcher from '../utils/fetcher';
 import { Account } from './getModel';
-import { sendEmail } from '../utils/email';
-
-const homeChefEmailRecipient = ['andy@ckoakland.org'];
 
 export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
 
@@ -224,12 +221,6 @@ export const updateAccount = async (
         existingDocuments.volunteerAgreement)
     ) {
       data.Home_Chef_Status__c = 'Active';
-      await sendEmail({
-        to: homeChefEmailRecipient,
-        from: 'andy@ckoakland.org',
-        subject: 'A Home Chef volunteer has become active',
-        text: `${account.firstName} ${account.lastName} has uploaded all the required onboarding documents to become a CK Home Chef. Please review the documents on Salesforce`,
-      });
     }
   }
 
@@ -243,7 +234,7 @@ export const updateAccount = async (
   }
 
   // get all cdlinks tied to that account
-  const CDLinkQuery = `SELECT Id, ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${account.salesforceId}'`;
+  const CDLinkQuery = `SELECT ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${account.salesforceId}'`;
 
   const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
 
@@ -282,7 +273,7 @@ export const updateAccount = async (
   });
   await Promise.all(deletePromises);
 
-  // links will be deleted automatically
+  // content document links will be deleted automatically
 
   return;
 };

@@ -82,13 +82,18 @@ export const sendHomeChefSignupEmail = async (chef: {
   await sendEmail(msg);
 };
 
-export const sendShiftEditEmail = async (email: string) => {
-  const html = createShiftEditEmail();
+export const sendShiftEditEmail = async (
+  email: string,
+  shift: { date: string; cancel: boolean; mealCount: number; fridge: string }
+) => {
+  const html = createShiftEditEmail(shift);
+
+  const action = shift.cancel ? 'canceled' : 'edited';
 
   const msg = {
     to: email,
     from: 'mollye@ckoakland.org',
-    subject: 'You have edited a home chef shift',
+    subject: `You have ${action} a home chef shift`,
     html,
   };
 

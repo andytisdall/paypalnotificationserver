@@ -4,6 +4,8 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
+import { getContactById } from '../../utils/salesforce/SFQuery';
+import { sendShiftEditEmail } from '../../utils/email';
 
 const router = express.Router();
 
@@ -115,11 +117,13 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
     cancel,
     completed,
     soup,
+    emailData,
   }: {
     mealCount: number;
     cancel: boolean;
     completed: boolean;
     soup: boolean;
+    emailData: { fridge: string; date: string };
   } = req.body;
 
   await fetcher.setService('salesforce');
@@ -150,6 +154,14 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
 
   //email
   // get user email, date of shift, and fridge name
+  const { Email } = await getContactById(req.currentUser!.salesforceId);
+  // email user confirmation
+  await sendShiftEditEmail(Email, {
+    date: emailData.date,
+    fridge: emailData.fridge,
+    cancel,
+    mealCount,
+  });
 
   res.send({ id, mealCount });
 });

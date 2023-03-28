@@ -26,6 +26,7 @@ interface Job {
   Id: string;
   Name: string;
   GW_Volunteers__Location_Information__c: string;
+  GW_Volunteers__Inactive__c: boolean;
 }
 
 interface FormattedJob {
@@ -33,6 +34,7 @@ interface FormattedJob {
   name: string;
   location: string;
   shifts: string[];
+  active: boolean;
 }
 
 router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
@@ -45,6 +47,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
       id: j.Id,
       name: j.Name,
       shifts: [],
+      active: !j.GW_Volunteers__Inactive__c,
       location: decode(
         j.GW_Volunteers__Location_Information__c?.replace('<p>', '').replace(
           '</p>',
@@ -74,7 +77,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 });
 
 const getJobs = async (id: string) => {
-  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Inactive__c = False`;
+  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c, GW_Volunteers__Inactive__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
