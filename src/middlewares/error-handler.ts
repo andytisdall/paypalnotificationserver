@@ -13,6 +13,7 @@ export const errorHandler = (
     message = JSON.stringify(err.response?.body);
   }
   console.error(err);
+  console.log(message);
   if (res.statusCode === 200) {
     res.status(400);
   }

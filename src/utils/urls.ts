@@ -6,7 +6,7 @@ const prodUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
   townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
-  docusign: 'https://www.docusign.net/restapi',
+  docusign: 'https://na4.docusign.net/restapi',
   docusignOauth: 'https://account.docusign.com',
   client: 'https://portal.ckoakland.org',
   server: 'https://portal.ckoakland.org',

@@ -47,6 +47,11 @@ it('gets the hours for a contact and then edits one', async () => {
   await request(app)
     .patch(`/api/home-chef/hours/${hour.id}`)
     .set('Authorization', token)
-    .send({ mealCount: '50' })
+    .send({
+      mealCount: '50',
+      cancel: false,
+      completed: false,
+      emailData: { fridge: 'Homies', date: new Date() },
+    })
     .expect(200);
 });
