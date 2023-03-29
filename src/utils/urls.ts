@@ -18,10 +18,10 @@ const prodUrls = {
 
 const testUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
-  townFridgeCampaignId: '7018B000000LnmmQAC',
+  townFridgeCampaignId: '70179000000FFL3AAO',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
-  docusign: 'https://na4.docusign.net/restapi',
+  docusign: 'https://demo.docusign.net/restapi',
   docusignOauth: 'https://account.docusign.com',
   client: 'https://ck-test-portal.wl.r.appspot.com/',
   server: 'https://ck-test-portal.wl.r.appspot.com/',
