@@ -1,4 +1,4 @@
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+// import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 interface secrets extends Record<string, string | undefined> {
   SF_CLIENT_ID?: string;
@@ -17,23 +17,22 @@ interface secrets extends Record<string, string | undefined> {
 }
 
 export default async (nameList: string[]) => {
-  if (process.env.NODE_ENV !== 'production') {
-    const keys: any = await import('../../keys');
-    return keys;
-  }
-  const secrets: secrets = {};
-  const secretClient = new SecretManagerServiceClient();
+  const keys: any = await import('../../keys');
+  return keys;
 
-  const getSecret = async (name: string) => {
-    const [version] = await secretClient.accessSecretVersion({
-      name: `projects/385802469502/secrets/${name}/versions/latest`,
-    });
-    return version.payload?.data?.toString();
-  };
+  // const secrets: secrets = {};
+  // const secretClient = new SecretManagerServiceClient();
 
-  for (let secretName of nameList) {
-    secrets[secretName] = await getSecret(secretName);
-  }
+  // const getSecret = async (name: string) => {
+  //   const [version] = await secretClient.accessSecretVersion({
+  //     name: `projects/385802469502/secrets/${name}/versions/latest`,
+  //   });
+  //   return version.payload?.data?.toString();
+  // };
 
-  return secrets;
+  // for (let secretName of nameList) {
+  //   secrets[secretName] = await getSecret(secretName);
+  // }
+
+  // return secrets;
 };
