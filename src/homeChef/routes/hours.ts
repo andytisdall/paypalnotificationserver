@@ -9,7 +9,7 @@ import { sendShiftEditEmail } from '../../utils/email';
 
 const router = express.Router();
 
-const SOUP_PRICE = 5.5;
+const SOUP_PRICE = 6;
 const ENTREE_PRICE = 11;
 
 interface SFInsertResponse {
