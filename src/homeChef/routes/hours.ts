@@ -2,10 +2,12 @@ import express from 'express';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
 import { getContactById } from '../../utils/salesforce/SFQuery';
 import { sendShiftEditEmail } from '../../utils/email';
+import migrate from '../../utils/salesforce/migrateVolunteers';
 
 const router = express.Router();
 
@@ -247,5 +249,16 @@ const editOpp = async (
     }
   }
 };
+
+router.get(
+  '/migrate-users',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    await migrate();
+    res.sendStatus(200);
+  }
+);
 
 export default router;

@@ -18,7 +18,7 @@ const prodUrls = {
 
 const testUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
-  townFridgeCampaignId: '7018B000000LnmmQAC',
+  townFridgeCampaignId: '70179000000FFL3AAO',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',

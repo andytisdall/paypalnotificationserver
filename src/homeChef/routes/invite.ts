@@ -15,7 +15,7 @@ router.post('/invite', currentUser, requireAuth, async (req, res) => {
   const from = 'mollye@ckoakland.org';
 
   const msg: EmailMessage = {
-    text: message,
+    html: `<p>${message}</p>`,
     to: recipients,
     from,
     subject,
