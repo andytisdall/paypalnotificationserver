@@ -4,3 +4,4 @@ app.yaml
 node_modules
 built
 client
+.DS_Store

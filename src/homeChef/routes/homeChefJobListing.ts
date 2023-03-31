@@ -49,10 +49,9 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
       shifts: [],
       active: !j.GW_Volunteers__Inactive__c,
       location: decode(
-        j.GW_Volunteers__Location_Information__c?.replace('<p>', '').replace(
-          '</p>',
-          ''
-        )
+        j.GW_Volunteers__Location_Information__c?.replace(/<p>/g, '')
+          .replace(/<\/p>/g, '')
+          .replace(/<br>/g, '')
       ),
     };
   });
