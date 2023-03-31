@@ -11,11 +11,11 @@ router.post('/invite', currentUser, requireAuth, async (req, res) => {
     message,
     subject,
   }: { recipients: string[]; message: string; subject: string } = req.body;
-
+  console.log(`${message}`);
   const from = 'mollye@ckoakland.org';
 
   const msg: EmailMessage = {
-    html: `<p>${message}</p>`,
+    html: `<p>${message.replace(/\n/g, '<p></p>')}</p>`,
     to: recipients,
     from,
     subject,
