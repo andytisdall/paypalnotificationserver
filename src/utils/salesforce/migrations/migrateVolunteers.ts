@@ -1,9 +1,9 @@
 import passwordGenerator from 'generate-password';
 import mongoose from 'mongoose';
 
-import urls from '../urls';
-import fetcher from '../fetcher';
-import { ContactInfo } from './SFQuery';
+import urls from '../../urls';
+import fetcher from '../../fetcher';
+import { ContactInfo } from '../SFQuery';
 
 const User = mongoose.model('User');
 
