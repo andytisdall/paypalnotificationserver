@@ -7,7 +7,6 @@ const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://na4.docusign.net/restapi',
-  docusignOauth: 'https://account.docusign.com',
   client: 'https://portal.ckoakland.org',
   server: 'https://portal.ckoakland.org',
   google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
@@ -22,7 +21,6 @@ const testUrls = {
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
-  docusignOauth: 'https://account-d.docusign.com',
   client: 'http://localhost:3000',
   server: 'http://localhost:3001',
   google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
