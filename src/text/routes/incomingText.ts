@@ -8,6 +8,10 @@ import textResponses from '../textResponses';
 import { sendEmail } from '../../utils/email';
 import urls from '../../utils/urls';
 import { OutgoingText, getTwilioClient } from './outgoingText';
+import {
+  addTextSubscriber,
+  editTextSubscriber,
+} from '../../utils/salesforce/SFQuery';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');
@@ -22,7 +26,7 @@ const DROPOFF_EMAIL_SUBSCRIBERS = [
 
 const DROPOFF_PHONE_SUBSCRIBER = '+15107354458';
 
-type PhoneNumber =
+export type PhoneNumber =
   | (mongoose.Document<
       unknown,
       any,
@@ -188,9 +192,11 @@ const addPhoneNumber = async (
   if (user) {
     user.region.push(region);
     await user.save();
+    await editTextSubscriber(user.number, user.region);
   } else {
     const newPhone = new Phone({ number, region: [region] });
     await newPhone.save();
+    await addTextSubscriber(newPhone.number, newPhone.region);
   }
   return textResponses.signUpResponse(region, number);
 };

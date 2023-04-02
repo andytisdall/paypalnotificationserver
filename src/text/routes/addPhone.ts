@@ -5,6 +5,7 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { Region } from '../models/phone';
+import { addTextSubscriber } from '../../utils/salesforce/SFQuery';
 
 const Phone = mongoose.model('Phone');
 const router = express.Router();
@@ -56,6 +57,7 @@ router.post(
       region: [region],
     });
     await newPhone.save();
+    await addTextSubscriber(newPhone.number, newPhone.region);
     res.send(newPhone);
   }
 );

@@ -180,6 +180,8 @@ export const getAccountById = async (id: string) => {
 export const getContactByEmail = async (
   email: string
 ): Promise<Contact | null> => {
+  await fetcher.setService('salesforce');
+
   const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -195,4 +197,44 @@ export const getContactByEmail = async (
     householdId: contact.npsp__HHId__c,
     portalUsername: contact.Portal_Username__c,
   };
+};
+
+interface TextSubscriber {
+  Name?: string;
+  Regions__c: string;
+}
+
+export const editTextSubscriber = async (number: string, regions: string[]) => {
+  await fetcher.setService('salesforce');
+
+  const query = `SELECT Id from Text_Service_Subscriber__c WHERE Name = '${number}'`;
+  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const res = await fetcher.get(queryUri);
+  if (!res.data?.records?.length) {
+    throw Error('Text subscriber not found in salesforce');
+  }
+  const { Id } = res.data.records[0];
+  const regionsString = regions.length ? regions.join('; ') + ';' : '';
+  const patchUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c/' + Id;
+  const patchData: TextSubscriber = {
+    Regions__c: regionsString,
+  };
+  await fetcher.patch(patchUri, patchData);
+};
+
+export const addTextSubscriber = async (number: string, regions: string[]) => {
+  await fetcher.setService('salesforce');
+  const insertUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c';
+  const regionsString = regions.length ? regions.join('; ') + ';' : '';
+  const insertData: TextSubscriber = {
+    Name: number,
+    Regions__c: regionsString,
+  };
+  const { data }: { data: { success?: boolean } } = await fetcher.post(
+    insertUri,
+    insertData
+  );
+  if (!data.success) {
+    throw Error('Unable to insert new text subscriber');
+  }
 };
