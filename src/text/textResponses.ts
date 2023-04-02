@@ -9,7 +9,7 @@ interface regions extends Record<string, string> {
   WEST_OAKLAND: string;
 }
 
-const regionKey: regions = {
+export const regionKey: regions = {
   EAST_OAKLAND: 'East Oakland',
   WEST_OAKLAND: 'West Oakland',
 };

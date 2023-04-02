@@ -1,5 +1,6 @@
 import urls from '../urls';
 import fetcher from '../fetcher';
+import { regionKey } from '../../text/textResponses';
 
 export interface ContactInfo {
   FirstName?: string;
@@ -214,7 +215,9 @@ export const editTextSubscriber = async (number: string, regions: string[]) => {
     throw Error('Text subscriber not found in salesforce');
   }
   const { Id } = res.data.records[0];
-  const regionsString = regions.length ? regions.join('; ') + ';' : '';
+  const regionsString = regions.length
+    ? regions.map((r) => regionKey[r]).join('; ') + ';'
+    : '';
   const patchUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c/' + Id;
   const patchData: TextSubscriber = {
     Regions__c: regionsString,
@@ -225,7 +228,9 @@ export const editTextSubscriber = async (number: string, regions: string[]) => {
 export const addTextSubscriber = async (number: string, regions: string[]) => {
   await fetcher.setService('salesforce');
   const insertUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c';
-  const regionsString = regions.length ? regions.join('; ') + ';' : '';
+  const regionsString = regions.length
+    ? regions.map((r) => regionKey[r]).join('; ') + ';'
+    : '';
   const insertData: TextSubscriber = {
     Name: number,
     Regions__c: regionsString,

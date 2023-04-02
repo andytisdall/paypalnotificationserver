@@ -206,6 +206,7 @@ const removePhoneNumber = async (user: PhoneNumber, region: Region) => {
     return;
   }
   user.region = user.region.filter((r) => r !== region);
+  await editTextSubscriber(user.number, user.region);
   await user.save();
 };
 
