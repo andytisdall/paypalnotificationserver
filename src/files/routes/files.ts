@@ -23,7 +23,8 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
   const {
     accountId,
     accountType,
-  }: { accountId: string; accountType: AccountType } = req.body;
+    date,
+  }: { accountId: string; accountType: AccountType; date?: string } = req.body;
   const fileList: FileList = [];
   for (let entry in req.files) {
     if (!Array.isArray(req.files[entry])) {
@@ -42,7 +43,7 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
     throw Error('Could not get account');
   }
 
-  const filesAdded = await uploadFiles(account, fileList);
+  const filesAdded = await uploadFiles(account, fileList, date);
 
   res.send({ filesAdded });
 });

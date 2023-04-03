@@ -5,10 +5,7 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import {
-  restaurantFileInfo,
-  updateExpiration,
-} from '../../files/uploadFilesToSalesforce';
+import { restaurantFileInfo } from '../../files/uploadFilesToSalesforce';
 import { getAccountById } from '../../utils/salesforce/SFQuery';
 
 const User = mongoose.model('User');
@@ -101,16 +98,5 @@ router.delete(
     res.send(id);
   }
 );
-
-router.post('/expiration', currentUser, requireAuth, async (req, res) => {
-  const { date, restaurantId }: { date: string; restaurantId: string } =
-    req.body;
-  const restaurant = await Restaurant.findById(restaurantId);
-  if (!restaurant) {
-    throw Error('Could not get restaurant');
-  }
-  await updateExpiration(restaurant.id, date);
-  res.sendStatus(204);
-});
 
 export default router;

@@ -28,19 +28,19 @@ export const restaurantFileInfo = {
   BL: {
     title: 'Business License',
     description: '',
-    folder: 'business-license',
+    folder: 'meal-program',
   },
   HD: {
     title: 'Health Department Permit',
     description: '',
-    folder: 'health-department-permit',
+    folder: 'meal-program',
   },
-  RC: { title: 'Restaurant Contract', description: '', folder: 'contract' },
-  W9: { title: 'W9', description: '', folder: 'w9' },
+  RC: { title: 'Restaurant Contract', description: '', folder: 'meal-program' },
+  W9: { title: 'W9', description: '', folder: 'meal-program' },
   DD: {
     title: 'Direct Deposit Form',
     description: '',
-    folder: 'direct-deposit',
+    folder: 'meal-program',
   },
 };
 
@@ -68,18 +68,11 @@ export interface File {
 
 export type FileList = File[];
 
-export const updateExpiration = async (
-  account: RestaurantAccount,
-  date: string
+export const uploadFiles = async (
+  account: Account,
+  files: FileList,
+  date?: string
 ) => {
-  await fetcher.setService('salesforce');
-  const accountGetUri =
-    urls.SFOperationPrefix + '/Account/' + account.salesforceId;
-  const { data }: { data: AccountData } = await fetcher.get(accountGetUri);
-  await updateRestaurant([], data, account, date);
-};
-
-export const uploadFiles = async (account: Account, files: FileList) => {
   await fetcher.setService('salesforce');
   const objectType = { contact: '/Contact/', restaurant: '/Account/' };
   const accountGetUri =
@@ -88,6 +81,13 @@ export const uploadFiles = async (account: Account, files: FileList) => {
 
   let fileTitles = files.map((f) => fileInfo[f.docType].title);
 
+  // make sure health permit and expiration date are together
+  const healthPermitPresent = fileTitles.includes('Health Department Permit');
+  if ((healthPermitPresent && !date) || (date && !healthPermitPresent)) {
+    throw Error(
+      'Health Permit must be updated at the same time as expiration date'
+    );
+  }
   // if there are existing files that will be replaced, delete them
   if (
     data.Home_Chef_Food_Handler_Certification__c ||
@@ -111,7 +111,7 @@ export const uploadFiles = async (account: Account, files: FileList) => {
     await updateContact(fileTitles, data, account);
   }
   if (account.type === 'restaurant') {
-    await updateRestaurant(fileTitles, data, account);
+    await updateRestaurant(fileTitles, data, account, date);
   }
 
   return files.map((f) => fileInfo[f.docType].title);
@@ -221,7 +221,13 @@ const updateRestaurant = async (
   const restaurantUpdateUri =
     urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId;
 
-  await fetcher.patch(restaurantUpdateUri, data);
+  const updateData: Partial<AccountData> = {
+    Health_Department_Expiration_Date__c: date,
+    Meal_Program_Status__c: data.Meal_Program_Status__c,
+    Meal_Program_Onboarding__c: data.Meal_Program_Onboarding__c,
+  };
+
+  await fetcher.patch(restaurantUpdateUri, updateData);
 };
 
 const updateContact = async (
@@ -246,7 +252,14 @@ const updateContact = async (
   const accountUpdateUri =
     urls.SFOperationPrefix + '/Contact/' + contact.salesforceId;
 
-  await fetcher.patch(accountUpdateUri, data);
+  const updateData: Partial<AccountData> = {
+    Home_Chef_Food_Handler_Certification__c:
+      data.Home_Chef_Food_Handler_Certification__c,
+    Home_Chef_Volunteeer_Agreement__c: data.Home_Chef_Volunteeer_Agreement__c,
+    Home_Chef_Status__c: data.Home_Chef_Status__c,
+  };
+
+  await fetcher.patch(accountUpdateUri, updateData);
 };
 
 const deleteFiles = async (id: string, newFiles: string[]) => {

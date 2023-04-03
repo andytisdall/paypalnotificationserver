@@ -82,7 +82,10 @@ router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   if (account.type === 'contact' && account.volunteerAgreement) {
     throw Error('Volunteer Agreement has already been uploaded.');
   }
-  if (account.type === 'restaurant' && account.onboarding) {
+  if (
+    account.type === 'restaurant' &&
+    account.onboarding.split(';').includes('Health Department Permit')
+  ) {
     throw Error('Restaurant Agreement has already been uploaded');
   }
 
