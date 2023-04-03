@@ -3,7 +3,7 @@ import path from 'path';
 
 import urls from '../utils/urls';
 import fetcher from '../utils/fetcher';
-import { Account } from './getModel';
+import { Account, RestaurantAccount, ContactAccount } from './getModel';
 
 export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
 
@@ -14,6 +14,15 @@ interface FileMetaData {
 }
 
 type FileInfo = Record<DocType, FileMetaData>;
+
+type AccountData = {
+  Health_Department_Expiration_Date__c?: string;
+  Meal_Program_Onboarding__c?: string;
+  Meal_Program_Status__c?: string;
+  Home_Chef_Food_Handler_Certification__c?: boolean;
+  Home_Chef_Volunteeer_Agreement__c?: boolean;
+  Home_Chef_Status__c?: string;
+};
 
 export const restaurantFileInfo = {
   BL: {
@@ -59,15 +68,52 @@ export interface File {
 
 export type FileList = File[];
 
-export const uploadFiles = async (
-  account: Account,
-  files: FileList,
-  date?: string
+export const updateExpiration = async (
+  account: RestaurantAccount,
+  date: string
 ) => {
   await fetcher.setService('salesforce');
-  await updateAccount(account, files, date);
+  const accountGetUri =
+    urls.SFOperationPrefix + '/Account/' + account.salesforceId;
+  const { data }: { data: AccountData } = await fetcher.get(accountGetUri);
+  await updateRestaurant([], data, account, date);
+};
+
+export const uploadFiles = async (account: Account, files: FileList) => {
+  await fetcher.setService('salesforce');
+  const objectType = { contact: '/Contact/', restaurant: '/Account/' };
+  const accountGetUri =
+    urls.SFOperationPrefix + objectType[account.type] + account.salesforceId;
+  const { data }: { data: AccountData } = await fetcher.get(accountGetUri);
+
+  let fileTitles = files.map((f) => fileInfo[f.docType].title);
+
+  // if there are existing files that will be replaced, delete them
+  if (
+    data.Home_Chef_Food_Handler_Certification__c ||
+    data.Home_Chef_Volunteeer_Agreement__c ||
+    data.Meal_Program_Onboarding__c
+  ) {
+    if (account.type === 'contact') {
+      fileTitles = fileTitles.map(
+        (title) => title + account.lastName?.toUpperCase()
+      );
+    }
+    await deleteFiles(account.salesforceId, fileTitles);
+  }
+
+  // add files
   const insertPromises = files.map((f) => insertFile(account, f));
   await Promise.all(insertPromises);
+
+  // update account
+  if (account.type === 'contact') {
+    await updateContact(fileTitles, data, account);
+  }
+  if (account.type === 'restaurant') {
+    await updateRestaurant(fileTitles, data, account);
+  }
+
   return files.map((f) => fileInfo[f.docType].title);
 };
 
@@ -143,98 +189,69 @@ const getDocumentId = async (CVId: string) => {
   return documentQueryResponse.data.records[0].ContentDocumentId;
 };
 
-export const updateAccount = async (
-  account: Account,
-  files: FileList,
+const updateRestaurant = async (
+  fileTitles: string[],
+  data: AccountData,
+  restaurant: RestaurantAccount,
   date?: string
 ) => {
-  type FileTypes = {
-    Health_Department_Expiration_Date__c?: string;
-    Meal_Program_Onboarding__c?: string;
-    Home_Chef_Food_Handler_Certification__c?: boolean;
-    Home_Chef_Volunteeer_Agreement__c?: boolean;
-    Home_Chef_Status__c?: string;
-    Meal_Program_Status__c?: string;
-  };
-
-  const data: FileTypes = {};
-
-  let accountURL;
-  if (account.type === 'restaurant') {
-    accountURL = '/Account/';
-  }
-  if (account.type === 'contact') {
-    accountURL = '/Contact/';
+  if (data.Meal_Program_Onboarding__c) {
+    const docs = [
+      ...new Set([
+        ...data.Meal_Program_Onboarding__c.split(';'),
+        ...fileTitles,
+      ]),
+    ];
+    data.Meal_Program_Onboarding__c = docs.join(';') + ';';
+  } else {
+    data.Meal_Program_Onboarding__c = fileTitles.join(';') + ';';
   }
 
-  const accountGetUri =
-    urls.SFOperationPrefix + accountURL + account.salesforceId;
-  const res: { data: FileTypes } = await fetcher.get(accountGetUri);
-
-  const existingDocuments = {
-    mealProgram: res.data.Meal_Program_Onboarding__c,
-    healthExpiration: res.data.Health_Department_Expiration_Date__c,
-    foodHandler: res.data.Home_Chef_Food_Handler_Certification__c,
-    volunteerAgreement: res.data.Home_Chef_Volunteeer_Agreement__c,
-  };
-
+  if (date) {
+    data.Health_Department_Expiration_Date__c = date;
+  }
   //  mark account as active if all required docs are present
 
-  let fileTitles = files.map((f) => fileInfo[f.docType].title);
-
-  if (account.type === 'restaurant') {
-    if (existingDocuments.mealProgram) {
-      const docs = [
-        ...new Set([
-          ...existingDocuments.mealProgram.split(';'),
-          ...fileTitles,
-        ]),
-      ];
-      data.Meal_Program_Onboarding__c = docs.join(';') + ';';
-    } else {
-      data.Meal_Program_Onboarding__c = fileTitles.join(';') + ';';
-    }
-    if (date) {
-      data.Health_Department_Expiration_Date__c = date;
-    }
-    const allDocs = Object.values(restaurantFileInfo).map((doc) => doc.title);
-    const dateExists = !!(date || existingDocuments.healthExpiration);
-    if (
-      allDocs.every((doc) => Object.values(data).includes(doc)) &&
-      dateExists
-    ) {
-      data.Meal_Program_Status__c = 'Active';
-    }
+  const allDocs = Object.values(restaurantFileInfo).map((doc) => doc.title);
+  const dateExists = !!(date || data.Health_Department_Expiration_Date__c);
+  if (allDocs.every((doc) => Object.values(data).includes(doc)) && dateExists) {
+    data.Meal_Program_Status__c = 'Active';
   }
 
-  if (account.type === 'contact') {
-    if (fileTitles.includes(fileInfo.FH.title)) {
-      data.Home_Chef_Food_Handler_Certification__c = true;
-    }
-    if (fileTitles.includes(fileInfo.HC.title)) {
-      data.Home_Chef_Volunteeer_Agreement__c = true;
-    }
-    if (
-      (data.Home_Chef_Food_Handler_Certification__c ||
-        existingDocuments.foodHandler) &&
-      (data.Home_Chef_Volunteeer_Agreement__c ||
-        existingDocuments.volunteerAgreement)
-    ) {
-      data.Home_Chef_Status__c = 'Active';
-    }
+  const restaurantUpdateUri =
+    urls.SFOperationPrefix + '/Account/' + restaurant.salesforceId;
+
+  await fetcher.patch(restaurantUpdateUri, data);
+};
+
+const updateContact = async (
+  fileTitles: string[],
+  data: AccountData,
+  contact: ContactAccount
+) => {
+  if (fileTitles.includes(fileInfo.FH.title)) {
+    data.Home_Chef_Food_Handler_Certification__c = true;
+  }
+  if (fileTitles.includes(fileInfo.HC.title)) {
+    data.Home_Chef_Volunteeer_Agreement__c = true;
+  }
+  //  mark account as active if all required docs are present
+  if (
+    data.Home_Chef_Food_Handler_Certification__c &&
+    data.Home_Chef_Volunteeer_Agreement__c
+  ) {
+    data.Home_Chef_Status__c = 'Active';
   }
 
   const accountUpdateUri =
-    urls.SFOperationPrefix + accountURL + account.salesforceId;
+    urls.SFOperationPrefix + '/Contact/' + contact.salesforceId;
 
   await fetcher.patch(accountUpdateUri, data);
+};
 
-  if (Object.values(existingDocuments).every((v) => !v)) {
-    return;
-  }
-
+const deleteFiles = async (id: string, newFiles: string[]) => {
   // get all cdlinks tied to that account
-  const CDLinkQuery = `SELECT ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${account.salesforceId}'`;
+  const CDLinkQuery = `SELECT ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${id}'`;
 
   const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
 
@@ -257,14 +274,8 @@ export const updateAccount = async (
   );
   const ContentDocs = await Promise.all(getPromises);
 
-  // add uppercase last name to home chef files because that's the naming scheme
-  if (account.type === 'contact') {
-    fileTitles = fileTitles.map(
-      (title) => title + account.lastName?.toUpperCase()
-    );
-  }
   const DocsToDelete = ContentDocs.filter((cd) => {
-    return fileTitles.includes(cd.Title);
+    return newFiles.includes(cd.Title);
   });
   // then delete those
   const deletePromises = DocsToDelete.map(async (cd) => {
@@ -274,6 +285,4 @@ export const updateAccount = async (
   await Promise.all(deletePromises);
 
   // content document links will be deleted automatically
-
-  return;
 };
