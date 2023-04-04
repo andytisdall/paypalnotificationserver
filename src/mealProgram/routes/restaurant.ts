@@ -5,7 +5,10 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { restaurantFileInfo } from '../../files/uploadFilesToSalesforce';
+import {
+  restaurantFileInfo,
+  RestaurantDocType,
+} from '../../files/uploadFilesToSalesforce';
 import { getAccountById } from '../../utils/salesforce/SFQuery';
 
 const User = mongoose.model('User');
@@ -32,11 +35,14 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
 
   const onboardingDocs = account.Meal_Program_Onboarding__c;
   const completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
+  const docTypes = Object.keys(restaurantFileInfo) as RestaurantDocType[];
   const extraInfo = {
     completedDocs,
-    remainingDocs: Object.values(restaurantFileInfo)
-      .map((f) => f.title)
-      .filter((d) => !completedDocs.includes(d)),
+    remainingDocs: docTypes
+      .map((d) => {
+        return { docType: d, ...restaurantFileInfo[d] };
+      })
+      .filter((d) => !completedDocs.includes(d.title)),
   };
   return res.send({ restaurant, extraInfo });
 });

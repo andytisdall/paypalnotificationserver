@@ -5,7 +5,9 @@ import urls from '../utils/urls';
 import fetcher from '../utils/fetcher';
 import { Account, RestaurantAccount, ContactAccount } from './getModel';
 
-export type DocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'HC' | 'FH';
+export type RestaurantDocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'IN';
+export type ContactDocType = 'HC' | 'FH';
+export type DocType = RestaurantDocType | ContactDocType;
 
 interface FileMetaData {
   title: string;
@@ -24,7 +26,7 @@ type AccountData = {
   Home_Chef_Status__c?: string;
 };
 
-export const restaurantFileInfo = {
+export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
   BL: {
     title: 'Business License',
     description: '',
@@ -42,9 +44,14 @@ export const restaurantFileInfo = {
     description: '',
     folder: 'meal-program',
   },
+  IN: {
+    title: 'Insurance',
+    description: '',
+    folder: 'meal-program',
+  },
 };
 
-export const chefFileInfo = {
+export const chefFileInfo: Record<ContactDocType, FileMetaData> = {
   HC: { title: 'VOL_AGREEMENT_', description: '', folder: 'home-chef' },
   FH: {
     title: 'FOOD_HANDLER_',
