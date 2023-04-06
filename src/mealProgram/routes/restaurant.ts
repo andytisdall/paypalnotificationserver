@@ -16,7 +16,11 @@ const Restaurant = mongoose.model('Restaurant');
 const router = express.Router();
 
 router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  const { name, userId, salesforceId } = req.body;
+  const {
+    name,
+    userId,
+    salesforceId,
+  }: { name: string; userId: string; salesforceId: string } = req.body;
   const user = await User.findById(userId);
   if (!user) {
     throw new Error('User not found!');
@@ -36,15 +40,19 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   const onboardingDocs = account.Meal_Program_Onboarding__c;
   const completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
   const docTypes = Object.keys(restaurantFileInfo) as RestaurantDocType[];
-  const extraInfo = {
+  const remainingDocs = docTypes
+    .map((d) => {
+      return { docType: d, ...restaurantFileInfo[d] };
+    })
+    .filter((d) => !completedDocs.includes(d.title));
+
+  return res.send({
+    name: restaurant.name,
+    id: restaurant._id,
+    salesforceId: restaurant.salesforceId,
+    remainingDocs,
     completedDocs,
-    remainingDocs: docTypes
-      .map((d) => {
-        return { docType: d, ...restaurantFileInfo[d] };
-      })
-      .filter((d) => !completedDocs.includes(d.title)),
-  };
-  return res.send({ restaurant, extraInfo });
+  });
 });
 
 router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {
@@ -74,7 +82,17 @@ router.get(
 );
 
 router.patch('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
-  const { restaurantId, name, salesforceId, userId } = req.body;
+  const {
+    restaurantId,
+    name,
+    salesforceId,
+    userId,
+  }: {
+    restaurantId: string;
+    name: string;
+    salesforceId: string;
+    userId: string;
+  } = req.body;
 
   const rest = await Restaurant.findById(restaurantId);
   if (!rest) {

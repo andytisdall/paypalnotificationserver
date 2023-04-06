@@ -6,7 +6,8 @@ import getSecrets from '../utils/getSecrets';
 
 const User = mongoose.model('User');
 
-interface UserPayload {
+export interface UserPayload {
+  username: string;
   id: string;
   admin: boolean;
   active: boolean;

@@ -1,6 +1,8 @@
 import app from '../../../../index';
 import request from 'supertest';
-import { User } from '../../../auth/models/user';
+import mongoose from 'mongoose';
+
+const User = mongoose.model('User');
 
 jest.mock('@sendgrid/mail');
 

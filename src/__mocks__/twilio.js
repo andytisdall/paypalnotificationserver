@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   Twilio: jest.fn(() => {
     return {
       messages: {
@@ -8,15 +8,14 @@ export default {
   }),
 
   webhook: jest.fn(() => (req, res, next) => next()),
-};
-
-export const twiml = {
-  MessagingResponse: jest.fn(() => {
-    return {
-      message: jest.fn((msg) => {
-        this.message = msg;
-      }),
-      toString: jest.fn(() => this.message),
-    };
-  }),
+  twiml: {
+    MessagingResponse: jest.fn(() => {
+      return {
+        message: jest.fn((msg) => {
+          this.message = msg;
+        }),
+        toString: jest.fn(() => this.message),
+      };
+    }),
+  },
 };

@@ -8,6 +8,7 @@ import getSecrets from '../utils/getSecrets';
 declare global {
   function getToken({ admin }: { admin: boolean }): Promise<string>;
   function signIn(username: string): Promise<string>;
+  var userId: string;
 }
 
 jest.mock('@sendgrid/mail');
@@ -27,6 +28,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   if (!JWT_KEY) {
     throw new Error('No JWT key found');
   }
+  global.userId = newUser.id;
   return jwt.sign(
     {
       id: newUser.id,
@@ -51,20 +53,20 @@ global.signIn = async (username: string) => {
 };
 
 beforeAll(() => {
-  // put your client connection code here, example with mongoose:
   const uri = process.env['MONGO_URI'];
   if (!uri) {
-    throw new Error('could not fing mongo memory server uri');
+    throw new Error('could not find mongo memory server uri');
   }
   mongoose.connect(uri);
 });
 
 afterEach(async () => {
   const User = mongoose.model('User');
+  const Restaurant = mongoose.model('Restaurant');
   await User.deleteMany();
+  await Restaurant.deleteMany();
 });
 
 afterAll(async () => {
-  // put your client disconnection code here, example with mongodb:
   await mongoose.disconnect();
 });

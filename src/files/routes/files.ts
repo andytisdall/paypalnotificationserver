@@ -21,7 +21,6 @@ router.get('/images/:fileName', async (req, res) => {
 
 router.post('/', currentUser, requireAuth, async (req, res) => {
   const {
-    accountId,
     accountType,
     expiration,
   }: { accountId: string; accountType: AccountType; expiration?: string } =
@@ -38,7 +37,7 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   const account: Account | undefined = await getAccountForFileUpload(
     accountType,
-    accountId
+    req.currentUser!
   );
   if (!account) {
     throw Error('Could not get account');

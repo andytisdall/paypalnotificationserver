@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 import { getContactById } from '../utils/salesforce/SFQuery';
+import { UserPayload } from '../middlewares/current-user';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
@@ -27,10 +28,13 @@ export type Account = ContactAccount | RestaurantAccount;
 
 export const getAccountForFileUpload = async (
   accountType: AccountType,
-  accountId: string
+  user: UserPayload
 ): Promise<Account | undefined> => {
+  if (!accountType) {
+    throw Error('No account type specified');
+  }
   if (accountType === 'restaurant') {
-    const restaurant = await Restaurant.findById(accountId);
+    const restaurant = await Restaurant.findOne({ user: user.id });
     if (!restaurant) {
       throw Error('Restaurant not found');
     }
@@ -42,10 +46,6 @@ export const getAccountForFileUpload = async (
     };
   }
   if (accountType === 'contact') {
-    const user = await User.findById(accountId);
-    if (!user) {
-      throw new Error('User not found');
-    }
     const contact = await getContactById(user.salesforceId);
     if (!contact) {
       throw Error('Could not fetch contact from salesforce');
