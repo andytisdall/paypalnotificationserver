@@ -162,7 +162,6 @@ const insertFile = async (account: Account, file: File) => {
       headers: postBody.getHeaders(),
     }
   );
-  console.log('Content Version created: ' + res.data.id);
   contentVersionId = res.data.id;
 
   const ContentDocumentId = await getDocumentId(contentVersionId);
@@ -183,7 +182,6 @@ const insertFile = async (account: Account, file: File) => {
       },
     }
   );
-  console.log('File Linked to Account: ' + res.data.id);
 };
 
 const getDocumentId = async (CVId: string) => {

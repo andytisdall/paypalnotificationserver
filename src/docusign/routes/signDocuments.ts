@@ -70,12 +70,11 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
 router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   const {
     envelopeId,
-    accountId,
     accountType,
   }: { envelopeId: string; accountId: string; accountType: AccountType } =
     req.body;
 
-  const account = await getAccountForFileUpload(accountType, accountId);
+  const account = await getAccountForFileUpload(accountType, req.currentUser!);
   if (!account) {
     throw Error('Could not get account');
   }
