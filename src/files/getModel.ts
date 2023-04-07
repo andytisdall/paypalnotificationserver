@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { getContactById } from '../utils/salesforce/SFQuery';
 import { UserPayload } from '../middlewares/current-user';
 
-const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');
 
 export type AccountType = 'restaurant' | 'contact';

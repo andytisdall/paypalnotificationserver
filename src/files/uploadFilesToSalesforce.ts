@@ -40,7 +40,7 @@ export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
   RC: { title: 'Restaurant Contract', description: '', folder: 'meal-program' },
   W9: { title: 'W9', description: '', folder: 'meal-program' },
   DD: {
-    title: 'Direct Deposit Form',
+    title: 'Direct Deposit',
     description: '',
     folder: 'meal-program',
   },
@@ -52,9 +52,9 @@ export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
 };
 
 export const chefFileInfo: Record<ContactDocType, FileMetaData> = {
-  HC: { title: 'VOL_AGREEMENT_', description: '', folder: 'home-chef' },
+  HC: { title: 'VOL_AGREEMENT', description: '', folder: 'home-chef' },
   FH: {
-    title: 'FOOD_HANDLER_',
+    title: 'FOOD_HANDLER',
     description: '',
     folder: 'home-chef',
   },
@@ -87,6 +87,9 @@ export const uploadFiles = async (
   const { data }: { data: AccountData } = await fetcher.get(accountGetUri);
 
   let fileTitles = files.map((f) => fileInfo[f.docType].title);
+  const formattedTitles = files.map((file) => {
+    return formatFilename(fileInfo[file.docType], account);
+  });
 
   const restaurantContractPresent = data.Meal_Program_Onboarding__c?.split(
     ';'
@@ -109,12 +112,7 @@ export const uploadFiles = async (
     data.Home_Chef_Volunteeer_Agreement__c ||
     data.Meal_Program_Onboarding__c
   ) {
-    if (account.type === 'contact') {
-      fileTitles = fileTitles.map(
-        (title) => title + account.lastName?.toUpperCase()
-      );
-    }
-    await deleteFiles(account.salesforceId, fileTitles);
+    await deleteFiles(account.salesforceId, formattedTitles);
   }
 
   // add files
@@ -132,13 +130,15 @@ export const uploadFiles = async (
   return files.map((f) => fileInfo[f.docType].title);
 };
 
+const formatFilename = (file: FileMetaData, account: Account) => {
+  const accountName =
+    account.type === 'contact' ? account.lastName : account.name;
+  return file.title + '_' + accountName.replace(/ /g, '_').toUpperCase();
+};
+
 const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
-
-  const title =
-    account.type === 'contact'
-      ? typeOfFile.title + account.lastName.toUpperCase()
-      : typeOfFile.title;
+  const title = formatFilename(typeOfFile, account);
 
   const fileMetaData = {
     Title: title,
