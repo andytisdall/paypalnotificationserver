@@ -131,9 +131,10 @@ export const uploadFiles = async (
 };
 
 const formatFilename = (file: FileMetaData, account: Account) => {
+  const format = (string: string) => string.replace(/ /g, '_').toUpperCase();
   const accountName =
     account.type === 'contact' ? account.lastName : account.name;
-  return file.title + '_' + accountName.replace(/ /g, '_').toUpperCase();
+  return format(file.title) + '_' + format(accountName);
 };
 
 const insertFile = async (account: Account, file: File) => {

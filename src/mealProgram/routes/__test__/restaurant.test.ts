@@ -43,6 +43,6 @@ it('uploads a file for the restaurant', async () => {
     .post('/api/files')
     .set('Authorization', token)
     .field('accountType', 'restaurant')
-    .attach('W9', 'src/text/routes/__test__/photo.jpeg')
+    .attach('BL', 'src/text/routes/__test__/photo.jpeg')
     .expect(200);
 });
