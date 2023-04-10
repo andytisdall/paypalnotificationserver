@@ -64,7 +64,10 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
         j.shifts.push(js.Id);
         return {
           id: js.Id,
-          startTime: js.GW_Volunteers__Start_Date_Time__c,
+          startTime: moment(
+            js.GW_Volunteers__Start_Date_Time__c,
+            'YYYY-MM-DDTHH:mm:ssZ'
+          ).format('YYYY-MM-DD'),
           open: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
           job: j.id,
         };
