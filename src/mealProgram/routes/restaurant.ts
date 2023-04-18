@@ -35,6 +35,14 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
   if (!restaurant) {
     return res.sendStatus(200);
   }
+  res.send(restaurant);
+});
+
+router.get('/meal-program', currentUser, requireAuth, async (req, res) => {
+  const restaurant = await Restaurant.findOne({ user: req.currentUser!.id });
+  if (!restaurant) {
+    throw Error('No restaurant found');
+  }
   const account = await getAccountById(restaurant.salesforceId);
 
   const onboardingDocs = account.Meal_Program_Onboarding__c;
@@ -47,9 +55,6 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
     .filter((d) => !completedDocs.includes(d.title));
 
   return res.send({
-    name: restaurant.name,
-    id: restaurant._id,
-    salesforceId: restaurant.salesforceId,
     remainingDocs,
     completedDocs,
   });
