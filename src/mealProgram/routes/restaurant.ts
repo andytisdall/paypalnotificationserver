@@ -33,7 +33,7 @@ router.post('/', currentUser, requireAuth, requireAdmin, async (req, res) => {
 router.get('/', currentUser, requireAuth, async (req, res) => {
   const restaurant = await Restaurant.findOne({ user: req.currentUser!.id });
   if (!restaurant) {
-    return res.sendStatus(200);
+    return res.sendStatus(204);
   }
   res.send(restaurant);
 });
