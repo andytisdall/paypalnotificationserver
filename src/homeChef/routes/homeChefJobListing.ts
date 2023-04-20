@@ -58,8 +58,15 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   const shifts: FormattedShift[] = [];
   const shiftPromises = renamedJobs.map(async (j) => {
     const jobShifts = await getShifts(j.id);
+    const jobShiftsExcludingMonday = jobShifts.filter(
+      (js: Shift) =>
+        moment(
+          js.GW_Volunteers__Start_Date_Time__c,
+          'YYYY-MM-DDTHH:mm:ssZ'
+        ).format('d') !== '1'
+    );
     shifts.push(
-      ...jobShifts.map((js: Shift) => {
+      ...jobShiftsExcludingMonday.map((js: Shift) => {
         // rename attributes to something sane
         j.shifts.push(js.Id);
         return {
