@@ -27,6 +27,7 @@ interface Job {
   Name: string;
   GW_Volunteers__Location_Information__c: string;
   GW_Volunteers__Inactive__c: boolean;
+  GW_Volunteers__Ongoing__c: boolean;
 }
 
 interface FormattedJob {
@@ -35,6 +36,7 @@ interface FormattedJob {
   location: string;
   shifts: string[];
   active: boolean;
+  ongoing: boolean;
 }
 
 router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
@@ -48,6 +50,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
       name: j.Name,
       shifts: [],
       active: !j.GW_Volunteers__Inactive__c,
+      ongoing: j.GW_Volunteers__Ongoing__c,
       location: decode(
         j.GW_Volunteers__Location_Information__c?.replace(/<p>/g, '')
           .replace(/<\/p>/g, '')
@@ -86,7 +89,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 });
 
 const getJobs = async (id: string) => {
-  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c, GW_Volunteers__Inactive__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Ongoing__c = True`;
+  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c, GW_Volunteers__Inactive__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
