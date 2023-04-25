@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get('/', currentUser, async (req, res) => {
   if (!req.currentUser) {
-    return res.send(null);
+    throw Error('User not found');
   }
 
   res.send(req.currentUser);
