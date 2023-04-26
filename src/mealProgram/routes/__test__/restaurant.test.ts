@@ -33,8 +33,16 @@ it('gets the restaurant', async () => {
     .get('/api/restaurant')
     .set('Authorization', token)
     .expect(200);
+});
 
-  expect(rest.body.remainingDocs.length).toBeGreaterThan(0);
+it('gets the restaurant meal program info', async () => {
+  const token = await createRestaurant();
+  const rest = await request(app)
+    .get('/api/restaurant/meal-program')
+    .set('Authorization', token)
+    .expect(200);
+
+  expect(rest.body.remainingDocs?.length).toBeGreaterThan(0);
 });
 
 it('uploads a file for the restaurant', async () => {
