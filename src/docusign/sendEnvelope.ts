@@ -23,7 +23,6 @@ export default async ({ dsReturnUrl, accountType, userInfo }: EnvelopeArgs) => {
     signerName: userInfo.name,
     signerEmail: userInfo.email,
     signerClientId: userInfo.id,
-    accountType,
   };
 
   // Make the envelope request body

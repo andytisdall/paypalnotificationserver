@@ -6,7 +6,7 @@ import {
   DateSigned,
   FullName,
   Text,
-  Recipients,
+  TemplateRole,
   EnvelopeDefinition,
   Document,
   Signer,
@@ -29,7 +29,6 @@ export interface CreateEnvelopeArgs {
   signerEmail: string;
   signerName: string;
   signerClientId: string;
-  doc: string;
 }
 
 interface DocInfo {
@@ -97,9 +96,8 @@ export default ({
   signerEmail,
   signerName,
   signerClientId,
-  doc,
 }: CreateEnvelopeArgs) => {
-  const document = createDocument(doc);
+  // const document = createDocument(doc);
 
   // change account type to doc name and find the doc that way
   // refactor tab creation into function that can output the different docs
@@ -109,18 +107,15 @@ export default ({
   // Create a signer recipient to sign the document, identified by name and email
   // We set the clientUserId to enable embedded signing for the recipient
   // We're setting the parameters via the object creation
-  let signer: Signer = {
+  let signer: TemplateRole = {
     email: signerEmail,
     name: signerName,
     clientUserId: signerClientId,
-    recipientId: '1',
-    tabs: document.tabs,
+    roleName: 'Signer',
+    // tabs: document.tabs,
   };
 
   // Add the recipient to the envelope object
-  let recipients: Recipients = {
-    signers: [signer],
-  };
 
   // Request that the envelope be sent by setting |status| to "sent".
   // To request that the envelope be created as a draft, set to "created"
@@ -128,10 +123,12 @@ export default ({
   // create the envelope definition
   // The order in the docs array determines the order in the envelope
   let env: EnvelopeDefinition = {
-    emailSubject: document.emailSubject,
-    documents: [document.document],
+    emailSubject: 'CK: Sign this W9',
+    // documents: [document.document],
     status: 'sent',
-    recipients,
+    templateId: 'f06440a2-388d-433a-8fa4-394ce1248c1d',
+    templateRoles: [signer],
+    // recipients,
   };
 
   return env;
