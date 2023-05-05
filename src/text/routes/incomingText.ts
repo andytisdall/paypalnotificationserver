@@ -219,7 +219,27 @@ interface Feedback {
 const receiveFeedback = async (feedbackArgs: Feedback) => {
   const newFeedback = new Feedback(feedbackArgs);
   await newFeedback.save();
+  await sendFBNotification(feedbackArgs);
   return textResponses.feedbackResponse(feedbackArgs.sender);
+};
+
+const sendFBNotification = async (feedbackArgs: Feedback) => {
+  const html = `
+  <p>You received feedback through the CK Text Service:</p>
+  <p><b>Message:</b> ${feedbackArgs.message}</p>
+  <p><b>From:</b> ${feedbackArgs.sender}</p>
+  <p><b>Region:</b> ${feedbackArgs.region}</p>
+  `;
+
+  const RECIPIENT = 'mollye@ckoakland.org';
+  const SUBJECT = 'CK Text Service: You received feedback';
+  await sendEmail({
+    to: RECIPIENT,
+    from: RECIPIENT,
+    subject: SUBJECT,
+    html,
+    mediaUrl: feedbackArgs.images,
+  });
 };
 
 export default router;
