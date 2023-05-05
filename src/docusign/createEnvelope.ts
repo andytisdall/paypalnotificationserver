@@ -126,7 +126,7 @@ export default ({
     emailSubject: 'CK: Sign this W9',
     // documents: [document.document],
     status: 'sent',
-    templateId: 'f06440a2-388d-433a-8fa4-394ce1248c1d',
+    templateId: '334537f2-683b-4fc5-9d39-f4083347fd01',
     templateRoles: [signer],
     // recipients,
   };
