@@ -40,7 +40,7 @@ export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
   RC: { title: 'Restaurant Contract', description: '', folder: 'meal-program' },
   W9: { title: 'W9', description: '', folder: 'meal-program' },
   DD: {
-    title: 'Direct Deposit',
+    title: 'Direct Deposit Form',
     description: '',
     folder: 'meal-program',
   },
