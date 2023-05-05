@@ -5,19 +5,20 @@ import {
   SignHere,
   DateSigned,
   FullName,
+  Text,
   Recipients,
   EnvelopeDefinition,
   Document,
   Signer,
 } from 'docusign-esign';
 
-const mapAccountTypeToFiles = {
-  restaurant: {
+const mapDocNameToFiles: Record<string, Record<string, string>> = {
+  restaurantContract: {
     file: 'World_Wide_Corp_lorem.pdf',
     name: 'Restaurant Contact',
     id: '1',
   },
-  contact: {
+  volunteerAgreement: {
     file: 'volunteer_agreement.pdf',
     name: 'Volunteer Agreement',
     id: '2',
@@ -28,37 +29,32 @@ export interface CreateEnvelopeArgs {
   signerEmail: string;
   signerName: string;
   signerClientId: string;
-  accountType: 'restaurant' | 'contact';
+  doc: string;
 }
 
-export default ({
-  signerEmail,
-  signerName,
-  signerClientId,
-  accountType,
-}: CreateEnvelopeArgs) => {
-  const doc = path.resolve(
-    __dirname,
-    'contracts',
-    mapAccountTypeToFiles[accountType].file
-  );
+interface DocInfo {
+  tabs: Tabs;
+  emailSubject: string;
+  document: Document;
+}
 
+const createDocument = (docName: string): DocInfo => {
+  const fileName = path.resolve(__dirname, 'contracts', docName);
   // read file from a local directory
   // The read could raise an exception if the file is not available!
   let docPdfBytes: Buffer;
   try {
-    docPdfBytes = fs.readFileSync(doc);
+    docPdfBytes = fs.readFileSync(fileName);
   } catch {
     throw Error('Could not find contract on CK server');
   }
 
-  let doc1b64 = Buffer.from(docPdfBytes).toString('base64');
   // add the documents
-  let doc1: Document = {
-    documentBase64: doc1b64,
-    name: mapAccountTypeToFiles[accountType].name, // can be different from actual file name
+  const doc: Document = {
+    documentBase64: Buffer.from(docPdfBytes).toString('base64'),
+    name: mapDocNameToFiles[docName].name, // can be different from actual file name
     fileExtension: 'pdf',
-    documentId: mapAccountTypeToFiles[accountType].id,
+    documentId: mapDocNameToFiles[docName].id,
   };
 
   // Create signHere fields (also known as tabs) on the documents,
@@ -77,26 +73,53 @@ export default ({
   let nameTab: FullName = {
     anchorString: '/fn1/',
   };
+
+  let textTab: Text = {
+    anchorString: '/txt1/',
+  };
+
   // Tabs are set per recipient / signer
-  let signer1Tabs: Tabs = {
+  let tabs: Tabs = {
     signHereTabs: [signTab],
     dateSignedTabs: [dateTab],
     fullNameTabs: [nameTab],
+    textTabs: [textTab],
   };
+
+  return {
+    document: doc,
+    emailSubject: mapDocNameToFiles[docName].subject,
+    tabs,
+  };
+};
+
+export default ({
+  signerEmail,
+  signerName,
+  signerClientId,
+  doc,
+}: CreateEnvelopeArgs) => {
+  const document = createDocument(doc);
+
+  // change account type to doc name and find the doc that way
+  // refactor tab creation into function that can output the different docs
+  // also needs to output email subject
+  // might as well merge that with mapAccountToFiles
+
   // Create a signer recipient to sign the document, identified by name and email
   // We set the clientUserId to enable embedded signing for the recipient
   // We're setting the parameters via the object creation
-  let signer1: Signer = {
+  let signer: Signer = {
     email: signerEmail,
     name: signerName,
     clientUserId: signerClientId,
     recipientId: '1',
-    tabs: signer1Tabs,
+    tabs: document.tabs,
   };
 
   // Add the recipient to the envelope object
   let recipients: Recipients = {
-    signers: [signer1],
+    signers: [signer],
   };
 
   // Request that the envelope be sent by setting |status| to "sent".
@@ -105,8 +128,8 @@ export default ({
   // create the envelope definition
   // The order in the docs array determines the order in the envelope
   let env: EnvelopeDefinition = {
-    emailSubject: 'Sign the CK Home Chef Volunteer Agreement',
-    documents: [doc1],
+    emailSubject: document.emailSubject,
+    documents: [document.document],
     status: 'sent',
     recipients,
   };
