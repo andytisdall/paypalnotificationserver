@@ -57,6 +57,7 @@ router.get('/meal-program', currentUser, requireAuth, async (req, res) => {
   return res.send({
     remainingDocs,
     completedDocs,
+    status: account.Meal_Program_Status__c,
   });
 });
 
