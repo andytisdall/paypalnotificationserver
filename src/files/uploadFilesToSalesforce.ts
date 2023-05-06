@@ -52,9 +52,9 @@ export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
 };
 
 export const chefFileInfo: Record<ContactDocType, FileMetaData> = {
-  HC: { title: 'VOL_AGREEMENT', description: '', folder: 'home-chef' },
+  HC: { title: 'Vol Agreement', description: '', folder: 'home-chef' },
   FH: {
-    title: 'FOOD_HANDLER',
+    title: 'Food Handler',
     description: '',
     folder: 'home-chef',
   },
@@ -119,7 +119,9 @@ export const uploadFiles = async (
     await updateRestaurant(fileTitles, data, account, date);
   }
 
-  return files.map((f) => fileInfo[f.docType].title);
+  return files.map((f) => {
+    return { docType: f.docType, ...fileInfo[f.docType] };
+  });
 };
 
 const formatFilename = (file: FileMetaData, account: Account) => {
