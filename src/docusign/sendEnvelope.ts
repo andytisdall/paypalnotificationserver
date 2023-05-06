@@ -12,17 +12,18 @@ interface UserInfo {
 
 export interface EnvelopeArgs {
   dsReturnUrl: string;
-  accountType: 'restaurant' | 'contact';
   userInfo: UserInfo;
+  doc: string;
 }
 
-export default async ({ dsReturnUrl, accountType, userInfo }: EnvelopeArgs) => {
+export default async ({ dsReturnUrl, userInfo, doc }: EnvelopeArgs) => {
   const { DOCUSIGN_ACCOUNT_ID } = await getSecrets(['DOCUSIGN_ACCOUNT_ID']);
 
   const makeEnvelopeArgs: CreateEnvelopeArgs = {
     signerName: userInfo.name,
     signerEmail: userInfo.email,
     signerClientId: userInfo.id,
+    doc,
   };
 
   // Make the envelope request body
@@ -47,6 +48,7 @@ export default async ({ dsReturnUrl, accountType, userInfo }: EnvelopeArgs) => {
     ...makeEnvelopeArgs,
     envelopeId,
     dsReturnUrl,
+    doc,
   });
 
   // // Call the CreateRecipientView API

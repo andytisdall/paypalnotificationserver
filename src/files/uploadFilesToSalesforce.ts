@@ -91,14 +91,6 @@ export const uploadFiles = async (
     return formatFilename(fileInfo[file.docType], account);
   });
 
-  const restaurantContractPresent = data.Meal_Program_Onboarding__c?.split(
-    ';'
-  ).includes('Restaurant Contract');
-
-  if (restaurantContractPresent && fileTitles.includes('Restaurant Contract')) {
-    throw Error('Restaurant Agreement has already been uploaded');
-  }
-
   // make sure health permit and expiration date are together
   const healthPermitPresent = fileTitles.includes('Health Department Permit');
   if ((healthPermitPresent && !date) || (date && !healthPermitPresent)) {
