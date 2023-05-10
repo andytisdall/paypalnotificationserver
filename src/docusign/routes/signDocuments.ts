@@ -20,7 +20,8 @@ type AccountInfo = {
   url: string;
 };
 
-const MEAL_PROGRAM_RETURN_URL = '/meal-program/sign-documents/success';
+const MEAL_PROGRAM_RETURN_URL =
+  '/meal-program/onboarding/sign-documents/success';
 
 const accountConfig: Record<string, AccountInfo> = {
   RC: {
