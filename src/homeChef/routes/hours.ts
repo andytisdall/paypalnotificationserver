@@ -148,9 +148,9 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 
   // update the opportunity linked to the vol hours
-  if (completed) {
-    await editOpp(id, cancel, mealCount, soup);
-  }
+  // if (completed) {
+  //   await editOpp(id, cancel, mealCount, soup);
+  // }
 
   //email
   // get user email, date of shift, and fridge name
@@ -220,32 +220,32 @@ const createHours = async ({
   };
 };
 
-const editOpp = async (
-  id: string,
-  cancel: boolean,
-  mealCount: number,
-  soup: boolean
-) => {
-  const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
-  const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+// const editOpp = async (
+//   id: string,
+//   cancel: boolean,
+//   mealCount: number,
+//   soup: boolean
+// ) => {
+//   const query = `SELECT Id FROM Opportunity WHERE Volunteer_Hours__c = '${id}'`;
+//   const giftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
-    giftQueryUri
-  );
-  // don't crash if opp is not found
-  if (data.records?.length) {
-    const giftUpdateUri =
-      urls.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
-    if (cancel) {
-      // delete opp
-      await fetcher.delete(giftUpdateUri);
-    } else {
-      // patch opp with new deets: meals * 11 for amount, etc etc
-      const mealPrice = soup ? SOUP_PRICE : ENTREE_PRICE;
-      const newAmount = mealCount * mealPrice;
-      await fetcher.patch(giftUpdateUri, { amount: newAmount });
-    }
-  }
-};
+//   const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
+//     giftQueryUri
+//   );
+//   // don't crash if opp is not found
+//   if (data.records?.length) {
+//     const giftUpdateUri =
+//       urls.SFOperationPrefix + '/Opportunity/' + data.records[0].Id;
+//     if (cancel) {
+//       // delete opp
+//       await fetcher.delete(giftUpdateUri);
+//     } else {
+//       // patch opp with new deets: meals * 11 for amount, etc etc
+//       const mealPrice = soup ? SOUP_PRICE : ENTREE_PRICE;
+//       const newAmount = mealCount * mealPrice;
+//       await fetcher.patch(giftUpdateUri, { amount: newAmount });
+//     }
+//   }
+// };
 
 export default router;
