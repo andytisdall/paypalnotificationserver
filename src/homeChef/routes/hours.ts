@@ -148,9 +148,7 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 
   // update the opportunity linked to the vol hours
-  // if (completed) {
-  //   await editOpp(id, cancel, mealCount, soup);
-  // }
+  // opp is updated by a salesforce flow
 
   //email
   // get user email, date of shift, and fridge name

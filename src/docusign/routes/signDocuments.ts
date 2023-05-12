@@ -10,38 +10,40 @@ import {
   DocType,
 } from '../../files/uploadFilesToSalesforce';
 import urls from '../../utils/urls';
-import { AccountType, getAccountForFileUpload } from '../../files/getModel';
+import { getAccountForFileUpload } from '../../files/getModel';
 import { getContactById } from '../../utils/salesforce/SFQuery';
 
 const router = express.Router();
 
 type AccountInfo = {
-  name: string;
+  filename: string;
   url: string;
-  docType: DocType;
 };
 
-const accountConfig: {
-  restaurant: AccountInfo;
-  contact: AccountInfo;
-} = {
-  restaurant: {
-    name: 'restaurant-contract',
-    url: '/meal-program/docusign',
-    docType: 'RC',
+const MEAL_PROGRAM_RETURN_URL =
+  '/meal-program/onboarding/sign-documents/success';
+
+const accountConfig: Record<string, AccountInfo> = {
+  RC: {
+    filename: 'restaurant-contract',
+    url: MEAL_PROGRAM_RETURN_URL,
   },
-  contact: {
-    name: 'home-chef-agreement',
-    url: '/home-chef/onboarding/docusign',
-    docType: 'HC',
+  HC: {
+    filename: 'home-chef-agreement',
+    url: '/home-chef/onboarding/docusign/success',
+  },
+  W9: {
+    filename: 'W9',
+    url: MEAL_PROGRAM_RETURN_URL,
+  },
+  DD: {
+    filename: 'direct-deposit',
+    url: MEAL_PROGRAM_RETURN_URL,
   },
 };
 
 router.post('/sign', currentUser, requireAuth, async (req, res) => {
-  const accountType: AccountType = req.body.accountType;
-  if (!accountType || !['restaurant', 'contact'].includes(accountType)) {
-    throw Error('Incorrect account type provided');
-  }
+  const doc: DocType = req.body.doc;
 
   const contact = await getContactById(req.currentUser!.salesforceId);
 
@@ -55,11 +57,11 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
     id: contact.Id,
   };
 
-  const returnUrl = urls.client + accountConfig[accountType].url + '/success';
+  const returnUrl = urls.client + accountConfig[doc].url;
   const envelopeArgs: EnvelopeArgs = {
     dsReturnUrl: returnUrl,
-    accountType,
     userInfo,
+    doc,
   };
 
   const { redirectUrl } = await sendEnvelope(envelopeArgs);
@@ -70,23 +72,24 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
 router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   const {
     envelopeId,
-    accountType,
-  }: { envelopeId: string; accountId: string; accountType: AccountType } =
-    req.body;
+    doc,
+  }: {
+    envelopeId: string;
+    doc: DocType;
+  } = req.body;
+
+  const accountType = doc === 'HC' ? 'contact' : 'restaurant';
 
   const account = await getAccountForFileUpload(accountType, req.currentUser!);
   if (!account) {
     throw Error('Could not get account');
   }
-  if (account.type === 'contact' && account.volunteerAgreement) {
-    throw Error('Volunteer Agreement has already been uploaded.');
-  }
 
   const docs = await getSignedDocs(envelopeId);
   const file: File = {
-    docType: accountConfig[accountType].docType,
+    docType: doc,
     file: {
-      name: accountConfig[accountType].name + '.pdf',
+      name: accountConfig[doc].filename + '.pdf',
       data: Buffer.from(docs.data),
     },
   };
