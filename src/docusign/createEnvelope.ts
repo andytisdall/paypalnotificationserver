@@ -1,11 +1,21 @@
 import { TemplateRole, EnvelopeDefinition } from 'docusign-esign';
 
-const templates: Record<string, string> = {
+const prodTemplates: Record<string, string> = {
+  W9: '9fc27ab6-ceb6-471f-a7a4-bc875cd06942',
+  RC: '44e64a6a-a0a1-4c5a-87de-bb62d5f28b1e',
+  DD: 'ec16dfbd-9b80-4a0a-858f-ac5cb404df70',
+  HC: '1b7dd9f3-cf35-4f6c-b667-69b9fd670b9e',
+};
+
+const devTemplates: Record<string, string> = {
   HC: '',
   RC: '2a79af69-4b0d-400a-90d5-c2a760ecb29b',
   W9: '334537f2-683b-4fc5-9d39-f4083347fd01',
   DD: '131c6a3f-6b05-4ca5-bae3-b5fd1c2cfbea',
 };
+
+const templates =
+  process.env.NODE_ENV === 'production' ? prodTemplates : devTemplates;
 
 export interface CreateEnvelopeArgs {
   signerEmail: string;
