@@ -43,7 +43,7 @@ smsRouter.post(
       throw new Error('No message to send');
     }
 
-    if (!region || !number) {
+    if (!region && !number) {
       res.status(422);
       throw new Error('No region or number specified');
     }
