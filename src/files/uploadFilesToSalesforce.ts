@@ -203,14 +203,16 @@ const updateRestaurant = async (
   restaurant: RestaurantAccount,
   date?: string
 ) => {
+  let allCompletedDocs = fileTitles;
+
   if (data.Meal_Program_Onboarding__c) {
-    const docs = [
+    allCompletedDocs = [
       ...new Set([
         ...data.Meal_Program_Onboarding__c.split(';'),
         ...fileTitles,
       ]),
     ];
-    data.Meal_Program_Onboarding__c = docs.join(';') + ';';
+    data.Meal_Program_Onboarding__c = allCompletedDocs.join(';') + ';';
   } else {
     data.Meal_Program_Onboarding__c = fileTitles.join(';') + ';';
   }
@@ -222,7 +224,10 @@ const updateRestaurant = async (
 
   const allDocs = Object.values(restaurantFileInfo).map((doc) => doc.title);
   const dateExists = !!(date || data.Health_Department_Expiration_Date__c);
-  if (allDocs.every((doc) => Object.values(data).includes(doc)) && dateExists) {
+  if (
+    allDocs.every((doc) => Object.values(allCompletedDocs).includes(doc)) &&
+    dateExists
+  ) {
     data.Meal_Program_Status__c = 'Active';
   }
 
