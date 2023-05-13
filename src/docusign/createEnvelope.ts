@@ -8,7 +8,7 @@ const prodTemplates: Record<string, string> = {
 };
 
 const devTemplates: Record<string, string> = {
-  HC: '',
+  HC: '614f613e-bf2f-4dfc-8802-34e9ce4b5418',
   RC: '2a79af69-4b0d-400a-90d5-c2a760ecb29b',
   W9: '334537f2-683b-4fc5-9d39-f4083347fd01',
   DD: '131c6a3f-6b05-4ca5-bae3-b5fd1c2cfbea',
