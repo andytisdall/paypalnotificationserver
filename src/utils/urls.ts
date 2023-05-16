@@ -18,7 +18,7 @@ const prodUrls = {
 
 const testUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
-  feedTheHoodCampaignId: '70179000000FIX9AAO',
+  feedTheHoodCampaignId: '70179000000FIX9',
   townFridgeCampaignId: '70179000000FFL3AAO',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',

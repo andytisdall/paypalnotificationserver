@@ -25,9 +25,10 @@ export interface FormattedShift {
 export interface Job {
   Id: string;
   Name: string;
-  GW_Volunteers__Location_Information__c: string;
   GW_Volunteers__Inactive__c: boolean;
   GW_Volunteers__Ongoing__c: boolean;
+  GW_Volunteers__Description__c: string;
+  GW_Volunteers__Location_Street__c: string;
 }
 
 export interface FormattedJob {
@@ -37,6 +38,7 @@ export interface FormattedJob {
   shifts: string[];
   active: boolean;
   ongoing: boolean;
+  description: string;
 }
 
 router.get(
@@ -74,7 +76,7 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
 });
 
 const getJobs = async (id: string): Promise<FormattedJob[]> => {
-  const query = `SELECT Id, Name, GW_Volunteers__Location_Information__c, GW_Volunteers__Inactive__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
+  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -92,8 +94,9 @@ const getJobs = async (id: string): Promise<FormattedJob[]> => {
       shifts: [],
       active: !j.GW_Volunteers__Inactive__c,
       ongoing: j.GW_Volunteers__Ongoing__c,
-      location: decode(
-        j.GW_Volunteers__Location_Information__c?.replace(/<p>/g, '')
+      location: j.GW_Volunteers__Location_Street__c,
+      description: decode(
+        j.GW_Volunteers__Description__c?.replace(/<p>/g, '')
           .replace(/<\/p>/g, '')
           .replace(/<br>/g, '')
       ),

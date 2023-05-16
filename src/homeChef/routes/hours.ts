@@ -55,6 +55,29 @@ interface CreateHoursParams {
   soup: boolean;
 }
 
+router.get('/hours/event', currentUser, requireAuth, async (req, res) => {
+  await fetcher.setService('salesforce');
+  const id = req.currentUser?.salesforceId;
+  const query = `SELECT Id, GW_Volunteers__Status__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${urls.feedTheHoodCampaignId}' AND GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
+
+  const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
+  if (!response.data?.records) {
+    throw Error('Could not query volunteer hours');
+  }
+  const hours = response.data.records.map((h) => {
+    return {
+      id: h.Id,
+      time: h.GW_Volunteers__Shift_Start_Date_Time__c,
+      job: h.GW_Volunteers__Volunteer_Job__c,
+      status: h.GW_Volunteers__Status__c,
+      shift: h.GW_Volunteers__Volunteer_Shift__c,
+    };
+  });
+  res.send(hours);
+});
+
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
   const id = req.currentUser?.salesforceId;
@@ -90,6 +113,58 @@ interface HoursPostParams {
   date: string;
   soup: boolean;
 }
+
+router.post('/hours/event', currentUser, requireAuth, async (req, res) => {
+  const { shiftId, jobId, date }: Partial<HoursPostParams> = req.body;
+  const salesforceId = req.currentUser!.salesforceId;
+  if (!salesforceId) {
+    throw Error('User does not have a salesforce ID');
+  }
+
+  await fetcher.setService('salesforce');
+  const { data } = await fetcher.get(
+    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
+  );
+  if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
+    throw new Error('This shift has no available slots');
+  }
+  const hoursToAdd = {
+    GW_Volunteers__Contact__c: salesforceId,
+    GW_Volunteers__Volunteer_Shift__c: shiftId,
+    GW_Volunteers__Status__c: 'Confirmed',
+    GW_Volunteers__Volunteer_Job__c: jobId,
+    GW_Volunteers__Start_Date__c: date,
+  };
+
+  const hoursInsertUri =
+    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
+  const insertRes: SFInsertResponse = await fetcher.post(
+    hoursInsertUri,
+    hoursToAdd
+  );
+
+  if (!insertRes.data?.success) {
+    throw new Error('Unable to insert hours!');
+  }
+  const response: { data: Hours | undefined } = await fetcher.get(
+    urls.SFOperationPrefix +
+      '/GW_Volunteers__Volunteer_Hours__c/' +
+      insertRes.data.id
+  );
+  if (!response.data) {
+    throw Error('Could not get newly created volunteer hours');
+  }
+  const hours = {
+    id: response.data.Id,
+    shift: response.data.GW_Volunteers__Volunteer_Shift__c,
+    job: response.data.GW_Volunteers__Volunteer_Job__c,
+    time: response.data.GW_Volunteers__Shift_Start_Date_Time__c,
+    status: response.data.GW_Volunteers__Status__c,
+  };
+
+  res.status(201);
+  res.send(hours);
+});
 
 router.post('/hours', currentUser, requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
