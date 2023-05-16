@@ -9,8 +9,8 @@ import { sendShiftEditEmail } from '../../utils/email';
 
 const router = express.Router();
 
-const SOUP_PRICE = 6;
-const ENTREE_PRICE = 11;
+// const SOUP_PRICE = 6;
+// const ENTREE_PRICE = 11;
 
 interface SFInsertResponse {
   data:
@@ -58,7 +58,7 @@ interface CreateHoursParams {
 router.get('/hours', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
   const id = req.currentUser?.salesforceId;
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
+  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${urls.townFridgeCampaignId}' AND GW_Volunteers__Contact__c = '${id}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
