@@ -3,9 +3,9 @@ const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
-  communityCourseCampaignId: '7018Z000003C7YEQA0',
+  communityCourseCampaignId: '7018Z000003C7YE',
   feedTheHoodCampaignId: '7018Z0000033K3W',
-  townFridgeCampaignId: '7018Z000003C3MxQAK',
+  townFridgeCampaignId: '7018Z000003C3Mx',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://na4.docusign.net/restapi',
   client: 'https://portal.ckoakland.org',
@@ -17,9 +17,9 @@ const prodUrls = {
 };
 
 const testUrls = {
-  communityCourseCampaignId: '7018Z000003C7YEQA0',
+  communityCourseCampaignId: '7018Z000003C7YE',
   feedTheHoodCampaignId: '70179000000FIX9',
-  townFridgeCampaignId: '70179000000FFL3AAO',
+  townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
