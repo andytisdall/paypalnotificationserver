@@ -4,7 +4,7 @@ const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
-  feedTheHoodCampaignId: '7018Z0000033K3WQAU',
+  feedTheHoodCampaignId: '7018Z0000033K3W',
   townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://na4.docusign.net/restapi',
