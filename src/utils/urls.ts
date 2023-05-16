@@ -4,6 +4,7 @@ const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
+  feedTheHoodCampaignId: '7018Z0000033K3WQAU',
   townFridgeCampaignId: '7018Z000003C3MxQAK',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://na4.docusign.net/restapi',
@@ -17,6 +18,7 @@ const prodUrls = {
 
 const testUrls = {
   communityCourseCampaignId: '7018Z000003C7YEQA0',
+  feedTheHoodCampaignId: '70179000000FIX9AAO',
   townFridgeCampaignId: '70179000000FFL3AAO',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
