@@ -23,7 +23,7 @@ const DROPOFF_EMAIL_SUBSCRIBERS = [
   'mollye@ckoakland.org',
 ];
 
-// const DROPOFF_PHONE_SUBSCRIBER = '+15107354458';
+const DROPOFF_PHONE_SUBSCRIBER = '+17185017050';
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -102,16 +102,16 @@ router.post(
 
     await sendEmail(msg);
 
-    // const twilioClient = await getTwilioClient();
-    // const alertText: OutgoingText = {
-    //   from: DROPOFF_NUMBER,
-    //   body: Body,
-    //   mediaUrl: images,
-    // };
-    // await twilioClient.messages.create({
-    //   ...alertText,
-    //   to: DROPOFF_PHONE_SUBSCRIBER,
-    // });
+    const twilioClient = await getTwilioClient();
+    const alertText: OutgoingText = {
+      from: DROPOFF_NUMBER,
+      body: Body,
+      mediaUrl: images,
+    };
+    await twilioClient.messages.create({
+      ...alertText,
+      to: DROPOFF_PHONE_SUBSCRIBER,
+    });
 
     const response = new MessagingResponse();
     response.message(textResponses.dropOffResponse);

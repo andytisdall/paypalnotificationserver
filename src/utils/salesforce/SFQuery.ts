@@ -137,7 +137,7 @@ export const getContactById = async (id: string) => {
   const res: { data: IncomingContactInfo | undefined } = await fetcher.get(
     urls.SFOperationPrefix + '/Contact/' + id
   );
-  if (!res.data?.FirstName) {
+  if (!res.data?.LastName) {
     throw Error('Contact not found');
   }
   return res.data;

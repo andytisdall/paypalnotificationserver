@@ -4,7 +4,12 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { getContactById, updateContact } from '../../utils/salesforce/SFQuery';
+import {
+  getContactById,
+  updateContact,
+  IncomingContactInfo,
+} from '../../utils/salesforce/SFQuery';
+import { sendEmail } from '../../utils/email';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -21,14 +26,27 @@ router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
   if (!req.currentUser!.salesforceId) {
     throw Error('User does not have a salesforce ID');
   }
-  const contact = await getContactById(req.currentUser!.salesforceId);
-  res.send({
-    firstName: contact.FirstName,
-    lastName: contact.LastName,
-    volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
-    foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
-    homeChefStatus: contact.Home_Chef_Status__c,
-  });
+  try {
+    const contact = await getContactById(req.currentUser!.salesforceId);
+    res.send({
+      firstName: contact.FirstName,
+      lastName: contact.LastName,
+      volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+      foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
+      homeChefStatus: contact.Home_Chef_Status__c,
+    });
+  } catch (err) {
+    await sendEmail({
+      to: 'andy@ckoakland.org',
+      from: 'andy@ckaoakland.org',
+      subject: 'Failed to fetch user info',
+      text: `A por  tal user could not fetch their info from salesforce. User: ${JSON.stringify(
+        req.currentUser
+      )}`,
+    });
+    //@ts-ignore
+    throw Error(err.message);
+  }
 });
 
 router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {

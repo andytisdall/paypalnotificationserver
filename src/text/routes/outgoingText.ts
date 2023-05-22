@@ -18,6 +18,11 @@ const smsRouter = express.Router();
 
 export type OutgoingText = { from: string; body: string; mediaUrl?: string[] };
 
+smsRouter.post('/outgoing/mobile', async (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
 smsRouter.post(
   '/outgoing',
   currentUser,
@@ -51,12 +56,12 @@ smsRouter.post(
     let formattedNumbers: string[] = [];
     const responsePhoneNumber = REGIONS[region];
 
-    if (!number || Object.keys(REGIONS).includes(number)) {
+    if (region) {
       const allPhoneNumbers = await Phone.find({ region });
       formattedNumbers = allPhoneNumbers.map((p) => p.number);
-    } else {
+    } else if (number) {
       const phoneNumber = number.replace(/[^\d]/g, '');
-
+      console.log(phoneNumber);
       if (phoneNumber.length !== 10) {
         res.status(422);
         throw new Error('Phone number must have 10 digits');
@@ -84,6 +89,11 @@ smsRouter.post(
     const createOutgoingText = async (phone: string) => {
       await twilioClient.messages.create({ ...outgoingText, to: phone });
     };
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(req.body);
+      return res.sendStatus(200);
+    }
 
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
