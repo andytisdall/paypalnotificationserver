@@ -15,6 +15,7 @@ export interface Shift {
   GW_Volunteers__Start_Date_Time__c: string;
   GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
   Restaurant_Meals__c: boolean;
+  GW_Volunteers__Duration__c: number;
 }
 
 export interface FormattedShift {
@@ -23,6 +24,7 @@ export interface FormattedShift {
   open: boolean;
   job: string;
   restaurantMeals: boolean;
+  duration: number;
 }
 
 export interface Job {
@@ -44,22 +46,17 @@ export interface FormattedJob {
   description: string;
 }
 
-router.get(
-  '/job-listing/feed-the-hood',
-  currentUser,
-  requireAuth,
-  async (req, res) => {
-    await fetcher.setService('salesforce');
-    const jobs = await getJobs(urls.feedTheHoodCampaignId);
-    const shiftPromises = jobs.map(async (j) => {
-      const shifts = await getShifts(j.id);
-      j.shifts = shifts.map((sh) => sh.id);
-      return shifts;
-    });
-    const shifts = (await Promise.all(shiftPromises)).flat();
-    res.send({ jobs, shifts });
-  }
-);
+router.get('/job-listing/event', currentUser, requireAuth, async (req, res) => {
+  await fetcher.setService('salesforce');
+  const jobs = await getJobs(urls.eventCampaignId);
+  const shiftPromises = jobs.map(async (j) => {
+    const shifts = await getShifts(j.id);
+    j.shifts = shifts.map((sh) => sh.id);
+    return shifts;
+  });
+  const shifts = (await Promise.all(shiftPromises)).flat();
+  res.send({ jobs, shifts });
+});
 
 router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
@@ -67,9 +64,16 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   const jobs = await getJobs(urls.townFridgeCampaignId);
   const shiftPromises = jobs.map(async (j) => {
     const jobShifts = await getShifts(j.id);
-    const jobShiftsExcludingRestaurantMeals = jobShifts.filter(
-      (js) => !js.restaurantMeals
-    );
+    const jobShiftsExcludingRestaurantMeals = jobShifts
+      .filter((js) => !js.restaurantMeals)
+      .map((js) => {
+        return {
+          ...js,
+          startTime: moment(js.startTime, 'YYYY-MM-DDTHH:mm:ssZ').format(
+            'YYYY-MM-DD'
+          ),
+        };
+      });
     j.shifts = jobShiftsExcludingRestaurantMeals.map((js) => js.id);
     return jobShiftsExcludingRestaurantMeals;
   });
@@ -109,7 +113,7 @@ const getJobs = async (id: string): Promise<FormattedJob[]> => {
 const getShifts = async (id: string): Promise<FormattedShift[]> => {
   const sixtyDaysFromNow = moment().add(60, 'days').format();
 
-  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${sixtyDaysFromNow}`;
+  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c, GW_Volunteers__Duration__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${id}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${sixtyDaysFromNow}`;
 
   const shiftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -122,46 +126,44 @@ const getShifts = async (id: string): Promise<FormattedShift[]> => {
   return res.data.records.map((js) => {
     return {
       id: js.Id,
-      startTime: moment(
-        js.GW_Volunteers__Start_Date_Time__c,
-        'YYYY-MM-DDTHH:mm:ssZ'
-      ).format('YYYY-MM-DD'),
+      startTime: js.GW_Volunteers__Start_Date_Time__c,
       open: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
       job: id,
       restaurantMeals: js.Restaurant_Meals__c,
+      duration: js.GW_Volunteers__Duration__c,
     };
   });
 };
 
-router.get(
-  '/delete-mondays',
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    await fetcher.setService('salesforce');
+// router.get(
+//   '/delete-mondays',
+//   currentUser,
+//   requireAuth,
+//   requireAdmin,
+//   async (req, res) => {
+//     await fetcher.setService('salesforce');
 
-    const jobs = await getJobs(urls.townFridgeCampaignId);
-    const shiftPromises = jobs.map(async (j) => {
-      const jobShifts = await getShifts(j.id);
-      return jobShifts.filter(
-        (js) =>
-          moment(js.startTime, 'YYYY-MM-DD').format() >
-            moment('2023-05-23', 'YYYY-MM-DD').format() &&
-          moment(js.startTime, 'YYYY-MM-DD').format('d') === '1'
-      );
-    });
-    const mondayShiftIds = (await Promise.all(shiftPromises))
-      .flat()
-      .map((sh) => sh.id);
-    const deletePromises = mondayShiftIds.map(async (id) => {
-      const deleteUri =
-        urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + id;
-      await fetcher.delete(deleteUri);
-    });
-    await Promise.all(deletePromises);
-    res.send({ deleted: mondayShiftIds.length });
-  }
-);
+//     const jobs = await getJobs(urls.townFridgeCampaignId);
+//     const shiftPromises = jobs.map(async (j) => {
+//       const jobShifts = await getShifts(j.id);
+//       return jobShifts.filter(
+//         (js) =>
+//           moment(js.startTime, 'YYYY-MM-DD').format() >
+//             moment('2023-05-23', 'YYYY-MM-DD').format() &&
+//           moment(js.startTime, 'YYYY-MM-DD').format('d') === '1'
+//       );
+//     });
+//     const mondayShiftIds = (await Promise.all(shiftPromises))
+//       .flat()
+//       .map((sh) => sh.id);
+//     const deletePromises = mondayShiftIds.map(async (id) => {
+//       const deleteUri =
+//         urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + id;
+//       await fetcher.delete(deleteUri);
+//     });
+//     await Promise.all(deletePromises);
+//     res.send({ deleted: mondayShiftIds.length });
+//   }
+// );
 
 export default router;
