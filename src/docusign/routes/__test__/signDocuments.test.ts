@@ -10,7 +10,7 @@ it('gets a redirect url from the sign documents route', async () => {
   const token = await global.getToken({ admin: false });
   await request(app)
     .post('/api/docusign/sign')
-    .send({ accountType: 'contact' })
+    .send({ doc: 'DD' })
     .set('Authorization', token)
     .expect(200);
 });

@@ -90,7 +90,7 @@ smsRouter.post(
       await twilioClient.messages.create({ ...outgoingText, to: phone });
     };
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       console.log(req.body);
       return res.sendStatus(200);
     }
