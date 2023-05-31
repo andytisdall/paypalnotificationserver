@@ -34,6 +34,11 @@ const townFridges = [
     address: 'East 27th St & Fruitvale Ave',
     region: REGION_NAMES.EAST_OAKLAND,
   },
+  {
+    name: '10th St. & Mandela',
+    region: REGION_NAMES.WEST_OAKLAND,
+  },
+  { name: '59th St. & Vallejo', region: REGION_NAMES.WEST_OAKLAND },
 ];
 
 const router = express.Router();
