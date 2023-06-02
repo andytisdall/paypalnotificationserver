@@ -11,6 +11,7 @@ import {
 } from '../../utils/salesforce/SFQuery';
 import mongoose from 'mongoose';
 import urls from '../../utils/urls';
+import migrate from '../../utils/salesforce/migrations/migrateVolunteers';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -114,6 +115,11 @@ router.post('/signup', async (req, res) => {
   await newUser.save();
 
   res.sendStatus(201);
+});
+
+router.get('/migrate', async (req, res) => {
+  await migrate();
+  res.send('done');
 });
 
 export default router;

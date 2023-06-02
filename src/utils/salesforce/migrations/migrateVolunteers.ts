@@ -9,15 +9,33 @@ const User = mongoose.model('User');
 
 const migrate = async () => {
   await fetcher.setService('salesforce');
-  const contacts = await getActiveChefs();
+  const contacts = await getOnboardingChefs();
 
-  const promises = contacts.map(updateContact);
+  const promises = contacts.map(fixContact);
   await Promise.all(promises);
+};
+
+const fixContact = async (contact: ContactInfo) => {
+  const user = await User.findOne({ username: contact.Portal_Username__c });
+  if (!user) {
+    const newUser = await User.findOne({ salesforceId: contact.Id });
+    if (!newUser) {
+      [updateContact(contact)];
+    }
+    return;
+  }
+  const otherUsers = await User.find({ salesforceId: contact.Id });
+  return otherUsers.map(async (u) => {
+    if (u._id !== user._id) {
+      await User.deleteOne({ _id: u._id });
+    }
+  });
 };
 
 const updateContact = async (contact: ContactInfo) => {
   const username = (
-    contact.FirstName!.charAt(0).toLowerCase() + contact.LastName!.toLowerCase()
+    (contact.FirstName?.charAt(0).toLowerCase() || '') +
+    contact.LastName!.toLowerCase()
   ).replace(' ', '');
 
   let uniqueUsername = username;
@@ -59,9 +77,9 @@ const createUser = async (contact: {
   await newUser.save();
 };
 
-const getActiveChefs = async () => {
+const getOnboardingChefs = async () => {
   const query =
-    "SELECT Id, FirstName, LastName from Contact WHERE Home_Chef_Status__c = 'Active'";
+    "SELECT Id, FirstName, LastName, Portal_Username__c, Portal_Temporary_Password__c from Contact WHERE Home_Chef_Status__c = 'Attended Orientation' OR Home_Chef_Status__c = 'Did Not Attend Orientation'";
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

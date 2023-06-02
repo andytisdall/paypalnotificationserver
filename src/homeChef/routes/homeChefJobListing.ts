@@ -6,7 +6,6 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
-import { requireAdmin } from '../../middlewares/require-admin';
 
 const router = express.Router();
 
@@ -134,36 +133,5 @@ const getShifts = async (id: string): Promise<FormattedShift[]> => {
     };
   });
 };
-
-// router.get(
-//   '/delete-mondays',
-//   currentUser,
-//   requireAuth,
-//   requireAdmin,
-//   async (req, res) => {
-//     await fetcher.setService('salesforce');
-
-//     const jobs = await getJobs(urls.townFridgeCampaignId);
-//     const shiftPromises = jobs.map(async (j) => {
-//       const jobShifts = await getShifts(j.id);
-//       return jobShifts.filter(
-//         (js) =>
-//           moment(js.startTime, 'YYYY-MM-DD').format() >
-//             moment('2023-05-23', 'YYYY-MM-DD').format() &&
-//           moment(js.startTime, 'YYYY-MM-DD').format('d') === '1'
-//       );
-//     });
-//     const mondayShiftIds = (await Promise.all(shiftPromises))
-//       .flat()
-//       .map((sh) => sh.id);
-//     const deletePromises = mondayShiftIds.map(async (id) => {
-//       const deleteUri =
-//         urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + id;
-//       await fetcher.delete(deleteUri);
-//     });
-//     await Promise.all(deletePromises);
-//     res.send({ deleted: mondayShiftIds.length });
-//   }
-// );
 
 export default router;

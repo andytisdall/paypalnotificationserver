@@ -114,6 +114,10 @@ router.delete(
   requireAuth,
   requireAdmin,
   async (req, res) => {
+    const user = await User.findById(req.params.userId);
+    if (user.admin) {
+      throw Error('You cannot delete an admin user');
+    }
     await User.deleteOne({ _id: req.params.userId });
     res.sendStatus(204);
   }
