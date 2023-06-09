@@ -117,9 +117,9 @@ router.post('/signup', async (req, res) => {
   res.sendStatus(201);
 });
 
-router.get('/migrate', async (req, res) => {
-  await migrate();
-  res.send('done');
-});
+// router.get('/migrate', async (req, res) => {
+//   await migrate();
+//   res.send('done');
+// });
 
 export default router;

@@ -21,9 +21,14 @@ const router = express.Router();
 const DROPOFF_EMAIL_SUBSCRIBERS = [
   'andy@ckoakland.org',
   'mollye@ckoakland.org',
+  'alea@ckoakland.org',
 ];
 
-const DROPOFF_PHONE_SUBSCRIBER = '+17185017050';
+const DROPOFF_PHONE_SUBSCRIBERS = [
+  '+14158190251',
+  '+14157557053',
+  '+17185017050',
+];
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -85,7 +90,7 @@ router.post(
     if (images.length) {
       let imagesHtml = `<p>Images included with message:</p>`;
       images.forEach((url) => {
-        imagesHtml += `<br /><img src=${url} width='300px' height='auto' download='${formattedDate}'/>`;
+        imagesHtml += `<br /><a href='${url}' download='${formattedDate}'><img src='${url}' width='300px' height='auto'/></a>`;
       });
       html += imagesHtml;
     }
@@ -108,10 +113,13 @@ router.post(
       body: Body,
       mediaUrl: images,
     };
-    await twilioClient.messages.create({
-      ...alertText,
-      to: DROPOFF_PHONE_SUBSCRIBER,
+    const textPromises = DROPOFF_PHONE_SUBSCRIBERS.map((number) => {
+      return twilioClient.messages.create({
+        ...alertText,
+        to: number,
+      });
     });
+    await Promise.all(textPromises);
 
     const response = new MessagingResponse();
     response.message(textResponses.dropOffResponse);

@@ -11,7 +11,7 @@ const migrate = async () => {
   await fetcher.setService('salesforce');
   const contacts = await getOnboardingChefs();
 
-  const promises = contacts.map(fixContact);
+  const promises = contacts.map(updateContact);
   await Promise.all(promises);
 };
 
