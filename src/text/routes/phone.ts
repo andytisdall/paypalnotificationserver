@@ -6,12 +6,30 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { Region } from '../models/phone';
 import { addTextSubscriber } from '../../utils/salesforce/SFQuery';
+import { requireAdmin } from '../../middlewares/require-admin';
 
 const Phone = mongoose.model('Phone');
 const router = express.Router();
 
+router.get(
+  '/phone/:number',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const phoneNumber = req.params.number.replace(/[^\d]/g, '');
+    const phone = await Phone.findOne({ number: '+1' + phoneNumber });
+    if (!phone) {
+      throw Error(
+        'Phone number does not exist on the list of text subscribers'
+      );
+    }
+    res.send(phone);
+  }
+);
+
 router.post(
-  '/addphone',
+  '/phone',
   currentUser,
   requireAuth,
   requireTextPermission,
@@ -59,6 +77,18 @@ router.post(
     await newPhone.save();
     await addTextSubscriber(newPhone.number, newPhone.region);
     res.send(newPhone);
+  }
+);
+
+router.delete(
+  '/phone/:id',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const id = req.params.id;
+    await Phone.deleteOne({ _id: id });
+    res.sendStatus(204);
   }
 );
 
