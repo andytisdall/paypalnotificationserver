@@ -57,7 +57,7 @@ router.get('/campaign', async (req, res) => {
   });
 });
 
-router.get('/campaign/fridges', currentUser, requireAuth, async (req, res) => {
+router.get('/campaign/fridges', async (req, res) => {
   res.send(townFridges);
 });
 

@@ -90,7 +90,7 @@ router.post(
     if (images.length) {
       let imagesHtml = `<p>Images included with message:</p>`;
       images.forEach((url) => {
-        imagesHtml += `<br /><a href='${url}' download='${formattedDate}'><img src='${url}' width='300px' height='auto'/></a>`;
+        imagesHtml += `<p>Copy the URL for this image: ${url}</p><a href='${url}' download='${formattedDate}'><img src='${url}' width='300px' height='auto'/></a>`;
       });
       html += imagesHtml;
     }
