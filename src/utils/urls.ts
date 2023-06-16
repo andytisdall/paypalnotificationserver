@@ -8,6 +8,7 @@ const prodUrls = {
   eventCampaignId: '7018Z0000026vaI',
   townFridgeCampaignId: '7018Z000003C3Mx',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
+  salesforceMeal: 'https://communitykitchens.my.salesforce.com/services',
   docusign: 'https://na4.docusign.net/restapi',
   client: 'https://portal.ckoakland.org',
   server: 'https://portal.ckoakland.org',
@@ -23,6 +24,8 @@ const testUrls = {
   townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
+  salesforceMeal:
+    'https://communitykitchens--mealprog.sandbox.my.salesforce.com/services',
   docusign: 'https://demo.docusign.net/restapi',
   client: 'http://localhost:3000',
   server: 'http://localhost:3001',

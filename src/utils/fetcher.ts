@@ -4,7 +4,7 @@ import urls from './urls';
 import getDSJWT from '../docusign/getDSJWT';
 import getSFToken from './salesforce/getSFToken';
 
-type Service = 'salesforce' | 'docusign';
+export type Service = 'salesforce' | 'docusign' | 'salesforceMeal';
 
 class fetcher {
   instance: AxiosInstance;
@@ -16,7 +16,13 @@ class fetcher {
     this.token = {
       salesforce: undefined,
       docusign: undefined,
+      salesforceMeal: undefined,
     };
+  }
+
+  clearService() {
+    this.service = undefined;
+    this.instance.defaults.baseURL = undefined;
   }
 
   async setService(service: Service) {
@@ -44,6 +50,9 @@ class fetcher {
     if (this.service === 'salesforce') {
       token = await getSFToken();
     }
+    if (this.service === 'salesforceMeal') {
+      token = await getSFToken('meal');
+    }
     if (this.service === 'docusign') {
       token = await getDSJWT();
     }
@@ -62,9 +71,6 @@ class fetcher {
   }
 
   async get(url: string, options?: AxiosRequestConfig) {
-    if (!this.service) {
-      throw Error('Base url has not been set');
-    }
     const get = async () => {
       const res = await this.instance.get(url, options);
       return res;
@@ -81,9 +87,6 @@ class fetcher {
     body: Record<string, any> | FormData,
     options?: AxiosRequestConfig
   ) {
-    if (!this.service) {
-      throw Error('Base url has not been set');
-    }
     const post = async () => {
       return await this.instance.post(url, body, options);
     };

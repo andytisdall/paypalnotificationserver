@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 import urls from '../urls';
 import fetcher from '../fetcher';
 import { regionKey } from '../../text/textResponses';
@@ -244,4 +246,22 @@ export const addTextSubscriber = async (number: string, regions: string[]) => {
   if (!data.success) {
     throw Error('Unable to insert new text subscriber');
   }
+};
+
+export const getMealProgramSchedule = async () => {
+  await fetcher.setService('salesforceMeal');
+
+  const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
+
+  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id FROM Meal_Program_Delivery__c WHERE Date__c >= TODAY AND Date__c <= ${nextWeek}`;
+  const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
+  const deliveryResponse = await fetcher.get(deliveryyUri);
+  const deliveries = deliveryResponse.data.records;
+
+  const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Community_Group_Status__c = 'Meal Program'`;
+  const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
+  const accountResponse = await fetcher.get(accountUri);
+  const accounts = accountResponse.data.records;
+
+  return { accounts, deliveries };
 };

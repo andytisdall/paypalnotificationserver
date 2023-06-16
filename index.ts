@@ -23,7 +23,7 @@ import paypalRouter from './src/paypal/routes/paypal';
 import textRouter from './src/text/routes';
 
 // restaurant onboarding
-import restaurantRouter from './src/mealProgram/routes/restaurant';
+import mealProgramRouter from './src/mealProgram/routes';
 
 //files
 import fileRouter from './src/files/routes/files';
@@ -63,7 +63,7 @@ apiRouter.use(authRouter);
 apiRouter.use('/paypal', paypalRouter);
 apiRouter.use('/user', userRouter);
 apiRouter.use('/text', textRouter);
-apiRouter.use('/restaurant', restaurantRouter);
+apiRouter.use('/meal-program', mealProgramRouter);
 apiRouter.use('/files', fileRouter);
 apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
