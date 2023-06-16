@@ -1,6 +1,7 @@
 import express from 'express';
 import mongodb from 'mongodb';
 import mongoose from 'mongoose';
+import moment from 'moment';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
@@ -46,8 +47,20 @@ router.get('/meal-program', currentUser, requireAuth, async (req, res) => {
   const account = await getAccountById(restaurant.salesforceId);
 
   const onboardingDocs = account.Meal_Program_Onboarding__c;
-  const completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
+  let completedDocs = onboardingDocs ? onboardingDocs.split(';') : [];
   const docTypes = Object.keys(restaurantFileInfo) as RestaurantDocType[];
+
+  const healthPermitExpired =
+    account.Health_Department_Expiration_Date__c &&
+    moment(account.Health_Department_Expiration_Date__c).format() <
+      moment().format();
+
+  if (healthPermitExpired) {
+    completedDocs = completedDocs.filter(
+      (d) => d !== restaurantFileInfo.HD.title
+    );
+  }
+
   const remainingDocs = docTypes
     .map((d) => {
       return { docType: d, ...restaurantFileInfo[d] };
@@ -58,6 +71,7 @@ router.get('/meal-program', currentUser, requireAuth, async (req, res) => {
     remainingDocs,
     completedDocs,
     status: account.Meal_Program_Status__c,
+    healthPermitExpired,
   });
 });
 

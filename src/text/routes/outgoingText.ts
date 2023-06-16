@@ -35,6 +35,8 @@ smsRouter.post('/outgoing/mobile', async (req, res) => {
     photo?: string;
   } = req.body;
 
+  console.log(req.body);
+
   if (!message) {
     res.status(422);
     throw new Error('No message to send');
@@ -73,17 +75,19 @@ smsRouter.post('/outgoing/mobile', async (req, res) => {
     from: responsePhoneNumber,
   };
 
-  if (req.files?.photo && !Array.isArray(req.files.photo)) {
-    const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
+  let photoUrl;
 
-    const imageId = await storeFile({
-      file: req.files.photo,
+  if (photo) {
+    const fileName =
+      'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a') + '.heic';
+
+    const imageUrl = await storeFile({
+      file: { data: Buffer.from(photo, 'base64'), name: fileName },
       name: fileName,
     });
 
-    outgoingText.mediaUrl = [urls.client + '/api/files/images/' + imageId];
-  } else if (photo) {
-    outgoingText.mediaUrl = [photo];
+    // outgoingText.mediaUrl = [imageUrl];
+    photoUrl = imageUrl;
   }
 
   const createOutgoingText = async (phone: string) => {
@@ -106,7 +110,7 @@ smsRouter.post('/outgoing/mobile', async (req, res) => {
     await feedback.save();
   }
 
-  res.send({ message, region, photoUrl: outgoingText.mediaUrl });
+  res.send({ message, region, photoUrl });
 });
 
 smsRouter.post(
@@ -172,12 +176,12 @@ smsRouter.post(
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
 
-      const imageId = await storeFile({
+      const imageUrl = await storeFile({
         file: req.files.photo,
         name: fileName,
       });
 
-      outgoingText.mediaUrl = [urls.client + '/api/files/images/' + imageId];
+      outgoingText.mediaUrl = [imageUrl];
     } else if (photo) {
       outgoingText.mediaUrl = [photo];
     }

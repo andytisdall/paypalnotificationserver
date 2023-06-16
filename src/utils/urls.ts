@@ -1,6 +1,7 @@
 const SFQueryPrefix = '/data/v56.0/query/?q=';
 const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
+const textFileBucket = 'text-service-photos';
 
 const prodUrls = {
   communityCourseCampaignId: '7018Z000003C7YE',
@@ -13,7 +14,7 @@ const prodUrls = {
   google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
   SFOperationPrefix,
   SFQueryPrefix,
-  fileBucket,
+  fileBucket: textFileBucket,
 };
 
 const testUrls = {

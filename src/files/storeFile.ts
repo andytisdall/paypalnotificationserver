@@ -32,13 +32,16 @@ export const storeFile = async ({
   if (!validFileExtensions.includes(extension.toLowerCase())) {
     throw Error('File must be JPG, PNG or HEIC');
   }
-  // convert
+  convert;
   if (extension.toLowerCase() === '.heic') {
     data = await convertFile(file.data);
     extension = '.jpeg';
   }
+
   const fileName = name + extension;
-  const storedFile = bucket.file(name + extension);
+
+  const storedFile = bucket.file(fileName);
+
   const passthroughStream = new stream.PassThrough();
   passthroughStream.write(data);
   passthroughStream.end();
@@ -48,6 +51,8 @@ export const storeFile = async ({
     passthroughStream.on('error', (err) => {
       reject(err);
     });
-    passthroughStream.on('finish', () => resolve(fileName));
+    passthroughStream.on('finish', () => {
+      resolve(storedFile.publicUrl());
+    });
   });
 };
