@@ -28,15 +28,15 @@ export const storeFile = async ({
   name: string;
 }): Promise<string> => {
   let extension = path.extname(file.name);
+  // console.log(extension);
   let data: Buffer | ArrayBuffer = file.data;
-  if (!validFileExtensions.includes(extension.toLowerCase())) {
-    throw Error('File must be JPG, PNG or HEIC');
-  }
-  convert;
-  if (extension.toLowerCase() === '.heic') {
-    data = await convertFile(file.data);
-    extension = '.jpeg';
-  }
+  // if (!validFileExtensions.includes(extension.toLowerCase())) {
+  //   throw Error('File must be JPG, PNG or HEIC');
+  // }
+  // if (extension.toLowerCase() === '.heic') {
+  //   data = await convertFile(file.data);
+  //   extension = '.jpeg';
+  // }
 
   const fileName = name + extension;
 

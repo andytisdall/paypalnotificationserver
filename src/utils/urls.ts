@@ -32,7 +32,7 @@ const testUrls = {
   google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
   SFOperationPrefix,
   SFQueryPrefix,
-  fileBucket,
+  fileBucket: textFileBucket,
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

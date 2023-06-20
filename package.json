@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently \"ts-node-dev --poll index.ts\" \"npm run start --prefix client\"",
     "test": "NODE_ENV=test jest --testTimeout=30000 --detectOpenHandles=true --watchAll",
-    "start": "node built/index.js"
+    "start": "node built/index.js",
+    "server": "ts-node-dev --poll index.ts"
   },
   "author": "",
   "license": "ISC",

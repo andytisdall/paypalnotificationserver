@@ -13,7 +13,7 @@ const createRestaurant = async () => {
     salesforceId: '0017900000IP88qAAD',
   };
   await request(app)
-    .post('/api/restaurant')
+    .post('/api/meal-program/restaurant')
     .set('Authorization', token)
     .send(formValues)
     .expect(201);
@@ -30,7 +30,7 @@ it('creates a restaurant', async () => {
 it('gets the restaurant', async () => {
   const token = await createRestaurant();
   const rest = await request(app)
-    .get('/api/restaurant')
+    .get('/api/meal-program/restaurant')
     .set('Authorization', token)
     .expect(200);
 });
@@ -38,7 +38,7 @@ it('gets the restaurant', async () => {
 it('gets the restaurant meal program info', async () => {
   const token = await createRestaurant();
   const rest = await request(app)
-    .get('/api/restaurant/meal-program')
+    .get('/api/meal-program/restaurant/meal-program-info')
     .set('Authorization', token)
     .expect(200);
 

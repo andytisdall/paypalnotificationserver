@@ -90,9 +90,9 @@ export const uploadFiles = async (
   const formattedTitles = files.map((file) => {
     return formatFilename(fileInfo[file.docType], account);
   });
-
   // make sure health permit and expiration date are together
   const healthPermitPresent = fileTitles.includes('Health Department Permit');
+
   if ((healthPermitPresent && !date) || (date && !healthPermitPresent)) {
     throw Error(
       'Health Permit must be updated at the same time as expiration date'

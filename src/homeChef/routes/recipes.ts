@@ -66,10 +66,10 @@ router.post(
     let image = '';
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
-      const fileName = 'recipes-' + name;
-      image = await storeFile({
+      image = 'recipes-' + name;
+      await storeFile({
         file: req.files.photo,
-        name: fileName,
+        name: image,
       });
     }
 
