@@ -39,6 +39,7 @@ const townFridges = [
     region: REGION_NAMES.WEST_OAKLAND,
   },
   { name: '59th St. & Vallejo', region: REGION_NAMES.WEST_OAKLAND },
+  { name: 'Cole St. & Foothill Blvd', region: REGION_NAMES.EAST_OAKLAND },
 ];
 
 const router = express.Router();

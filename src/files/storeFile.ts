@@ -1,6 +1,9 @@
 import stream from 'stream';
 import path from 'path';
 import convert from 'heic-convert';
+import Jimp from 'jimp';
+import jpegAutorotate from 'jpeg-autorotate';
+import fs from 'fs';
 
 import { bucket } from './bucket';
 
@@ -12,7 +15,7 @@ const convertFile = async (data: Buffer) => {
     format: 'JPEG',
     quality: 0.2,
   });
-  return outputBuffer;
+  return Buffer.from(outputBuffer);
 };
 
 export const deleteFile = async (name: string) => {
@@ -29,21 +32,30 @@ export const storeFile = async ({
 }): Promise<string> => {
   let extension = path.extname(file.name);
   // console.log(extension);
-  let data: Buffer | ArrayBuffer = file.data;
-  // if (!validFileExtensions.includes(extension.toLowerCase())) {
-  //   throw Error('File must be JPG, PNG or HEIC');
-  // }
-  // if (extension.toLowerCase() === '.heic') {
-  //   data = await convertFile(file.data);
-  //   extension = '.jpeg';
-  // }
+
+  if (!validFileExtensions.includes(extension.toLowerCase())) {
+    throw Error('File must be JPG, PNG or HEIC');
+  }
+  let data: Buffer = file.data;
+  if (extension.toLowerCase() === '.heic') {
+    data = await convertFile(file.data);
+    extension = '.jpeg';
+  }
+
+  // const fileIn = fs.readFileSync(data);
+
+  const { buffer } = await jpegAutorotate.rotate(data, { quality: 25 });
+  const compressedImage = (await Jimp.read(buffer)).quality(25);
+  const compressedBuffer = await compressedImage.getBufferAsync(
+    compressedImage.getMIME()
+  );
 
   const fileName = name + extension;
 
   const storedFile = bucket.file(fileName);
 
   const passthroughStream = new stream.PassThrough();
-  passthroughStream.write(data);
+  passthroughStream.write(compressedBuffer);
   passthroughStream.end();
   passthroughStream.pipe(storedFile.createWriteStream());
 
