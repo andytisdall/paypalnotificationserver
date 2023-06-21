@@ -253,7 +253,7 @@ export const getMealProgramSchedule = async () => {
 
   const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id FROM Meal_Program_Delivery__c WHERE Date__c >= TODAY AND Date__c <= ${nextWeek}`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c FROM Meal_Program_Delivery__c WHERE Date__c >= TODAY AND Date__c <= ${nextWeek}`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries = deliveryResponse.data.records;
