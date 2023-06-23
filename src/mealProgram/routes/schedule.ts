@@ -3,7 +3,7 @@ import express from 'express';
 import {
   getMealProgramSchedule,
   getRestaurantMealProgramSchedule,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/mealProgram';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';

@@ -1,5 +1,12 @@
 import fetcher from '../../fetcher';
 import urls from '../../urls';
+import { InsertSuccessResponse } from './reusableTypes';
+
+export interface CampaignMemberObject {
+  CampaignId: string;
+  ContactId: string;
+  Status: string;
+}
 
 export const getCampaign = async (id: string) => {
   await fetcher.setService('salesforce');
@@ -25,4 +32,26 @@ export const getHomeChefCampaign = async () => {
     throw Error('Could not get campaign info');
   }
   return data;
+};
+
+export const insertCampaignMember = async (
+  campaignMember: CampaignMemberObject
+) => {
+  await fetcher.setService('salesforce');
+  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${campaignMember.ContactId}' AND CampaignId = '${campaignMember.CampaignId}'`;
+  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
+  const existingCampaignMember: {
+    data: { records: { Id: string }[] } | undefined;
+  } = await fetcher.get(getUrl);
+  if (existingCampaignMember.data?.records[0]) {
+    return;
+  }
+  const url = urls.SFOperationPrefix + '/CampaignMember';
+  const res: { data: InsertSuccessResponse | undefined } = await fetcher.post(
+    url,
+    campaignMember
+  );
+  if (!res.data?.success) {
+    throw Error('Could not insert campaign member object');
+  }
 };

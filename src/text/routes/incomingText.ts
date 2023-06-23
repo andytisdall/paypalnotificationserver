@@ -11,7 +11,7 @@ import { OutgoingText, getTwilioClient } from './outgoingText';
 import {
   addTextSubscriber,
   editTextSubscriber,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/text';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');

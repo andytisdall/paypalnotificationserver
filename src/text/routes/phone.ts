@@ -5,7 +5,7 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { Region } from '../models/phone';
-import { addTextSubscriber } from '../../utils/salesforce/SFQuery';
+import { addTextSubscriber } from '../../utils/salesforce/SFQuery/text';
 import { requireAdmin } from '../../middlewares/require-admin';
 
 const Phone = mongoose.model('Phone');

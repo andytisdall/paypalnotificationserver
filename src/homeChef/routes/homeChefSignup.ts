@@ -6,9 +6,11 @@ import {
   addContact,
   updateContact,
   ContactInfo,
+} from '../../utils/salesforce/SFQuery/contact';
+import {
   insertCampaignMember,
   CampaignMemberObject,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/campaign';
 import mongoose from 'mongoose';
 import urls from '../../utils/urls';
 

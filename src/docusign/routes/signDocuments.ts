@@ -11,7 +11,7 @@ import {
 } from '../../files/uploadFilesToSalesforce';
 import urls from '../../utils/urls';
 import { getAccountForFileUpload } from '../../files/getModel';
-import { getContactById } from '../../utils/salesforce/SFQuery';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 
 const router = express.Router();
 

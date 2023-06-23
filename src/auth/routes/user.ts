@@ -7,8 +7,7 @@ import { requireAdmin } from '../../middlewares/require-admin';
 import {
   getContactById,
   updateContact,
-  IncomingContactInfo,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/contact';
 import { sendEmail } from '../../utils/email';
 
 const User = mongoose.model('User');

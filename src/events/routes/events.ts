@@ -2,13 +2,9 @@ import express from 'express';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
-import {
-  getJobs,
-  getShifts,
-  getHours,
-  createHours,
-  getCampaign,
-} from '../../utils/salesforce/SFQuery';
+import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
+import { getHours, createHours } from '../../utils/salesforce/SFQuery/hours';
+import { getCampaign } from '../../utils/salesforce/SFQuery/campaign';
 import urls from '../../utils/urls';
 
 const router = express.Router();

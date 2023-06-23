@@ -6,7 +6,6 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import { storeFile, deleteFile } from '../../files/storeFile';
 import { RecipeCategory } from '../models/recipe';
-import { bucket } from '../../files/bucket';
 
 const Recipe = mongoose.model('Recipe');
 

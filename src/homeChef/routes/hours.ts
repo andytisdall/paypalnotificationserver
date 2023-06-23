@@ -5,11 +5,11 @@ import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
 import {
-  getContactById,
   getHours,
   createHours,
   editHours,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/hours';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import { sendShiftEditEmail } from '../../utils/email';
 
 const router = express.Router();

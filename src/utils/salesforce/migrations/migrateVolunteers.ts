@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 import urls from '../../urls';
 import fetcher from '../../fetcher';
-import { ContactInfo } from '../SFQuery';
+import { ContactInfo } from '../SFQuery/contact';
 
 const User = mongoose.model('User');
 

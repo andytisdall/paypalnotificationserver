@@ -7,7 +7,7 @@ import {
   addContact,
   Contact,
   getContactByEmail,
-} from '../../utils/salesforce/SFQuery';
+} from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
 

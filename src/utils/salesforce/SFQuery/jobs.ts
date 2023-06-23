@@ -3,7 +3,6 @@ import moment from 'moment';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import { InsertSuccessResponse } from './reusableTypes';
 
 export interface Shift {
   Id: string;
@@ -41,34 +40,6 @@ export interface FormattedJob {
   description: string;
   campaign: string;
 }
-
-export interface CampaignMemberObject {
-  CampaignId: string;
-  ContactId: string;
-  Status: string;
-}
-
-export const insertCampaignMember = async (
-  campaignMember: CampaignMemberObject
-) => {
-  await fetcher.setService('salesforce');
-  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${campaignMember.ContactId}' AND CampaignId = '${campaignMember.CampaignId}'`;
-  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
-  const existingCampaignMember: {
-    data: { records: { Id: string }[] } | undefined;
-  } = await fetcher.get(getUrl);
-  if (existingCampaignMember.data?.records[0]) {
-    return;
-  }
-  const url = urls.SFOperationPrefix + '/CampaignMember';
-  const res: { data: InsertSuccessResponse | undefined } = await fetcher.post(
-    url,
-    campaignMember
-  );
-  if (!res.data?.success) {
-    throw Error('Could not insert campaign member object');
-  }
-};
 
 export const getJobs = async (id: string): Promise<FormattedJob[]> => {
   const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { PhoneNumber } from '../../../text/routes/incomingText';
-import { addTextSubscriber } from '../SFQuery';
+import { addTextSubscriber } from '../SFQuery/text';
 
 const Phone = mongoose.model('Phone');
 

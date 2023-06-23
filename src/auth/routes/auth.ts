@@ -5,7 +5,10 @@ import getSecrets from '../../utils/getSecrets';
 import { Password } from '../password';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
-import { getContact, getContactByEmail } from '../../utils/salesforce/SFQuery';
+import {
+  getContact,
+  getContactByEmail,
+} from '../../utils/salesforce/SFQuery/contact';
 
 const User = mongoose.model('User');
 
