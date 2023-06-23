@@ -7,6 +7,7 @@ import {
   getShifts,
   getHours,
   createHours,
+  getCampaign,
 } from '../../utils/salesforce/SFQuery';
 import urls from '../../utils/urls';
 
@@ -14,7 +15,8 @@ const router = express.Router();
 
 router.get('/', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
-  const campaigns = urls.activeCampaigns.map(async (id) => {
+  const campaignPromises = urls.activeCampaigns.map(async (id) => {
+    const campaign = await getCampaign(id);
     const jobs = await getJobs(id);
     const shiftPromises = jobs.map(async (j) => {
       const shifts = await getShifts(j.id);
@@ -22,8 +24,9 @@ router.get('/', currentUser, requireAuth, async (req, res) => {
       return shifts;
     });
     const shifts = (await Promise.all(shiftPromises)).flat();
-    return { jobs, shifts, id };
+    return { jobs, shifts, campaign };
   });
+  const campaigns = await Promise.all(campaignPromises);
   res.send(campaigns);
 });
 
@@ -35,7 +38,7 @@ router.get('/hours/:id', currentUser, requireAuth, async (req, res) => {
   res.send(hours);
 });
 
-router.post('/hours/event', currentUser, requireAuth, async (req, res) => {
+router.post('/hours', currentUser, requireAuth, async (req, res) => {
   const {
     shiftId,
     jobId,
@@ -55,3 +58,5 @@ router.post('/hours/event', currentUser, requireAuth, async (req, res) => {
   res.status(201);
   res.send(hours);
 });
+
+export default router;

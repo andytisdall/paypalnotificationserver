@@ -4,7 +4,6 @@ const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
   communityCourseCampaignId: '7018Z000003C7YE',
-  eventCampaignId: '7018Z0000026vaI',
   townFridgeCampaignId: '7018Z000003C3Mx',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   salesforceMeal: 'https://communitykitchens.my.salesforce.com/services',
@@ -15,12 +14,11 @@ const prodUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['4p9urf94j', '9j349j4'],
+  activeCampaigns: ['7018Z0000026xmFQAQ', '7018Z0000026xmKQAQ'],
 };
 
 const testUrls = {
   communityCourseCampaignId: '7018Z000003C7YE',
-  eventCampaignId: '70179000000FIX9',
   townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
@@ -33,7 +31,7 @@ const testUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['4p9urf94j', '9j349j4'],
+  activeCampaigns: ['70179000000FIX9AAO'],
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

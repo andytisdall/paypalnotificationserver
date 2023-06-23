@@ -1,6 +1,6 @@
 import express from 'express';
-import urls from '../../utils/urls';
-import fetcher from '../../utils/fetcher';
+
+import { getHomeChefCampaign } from '../../utils/salesforce/SFQuery/campaign';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 
@@ -44,20 +44,14 @@ const townFridges = [
 
 const router = express.Router();
 
-// route is public so ckoakland home chef page
+// campaign route is public so ckoakland volunteer page
 // can display current number of meals donated
 
 router.get('/campaign', async (req, res) => {
-  await fetcher.setService('salesforce');
-  const { data }: { data: { Total_Meals_Donated__c: number } | undefined } =
-    await fetcher.get(
-      urls.SFOperationPrefix + '/Campaign/' + urls.townFridgeCampaignId
-    );
-  if (!data?.Total_Meals_Donated__c && data?.Total_Meals_Donated__c !== 0) {
-    throw Error('Could not get campaign info');
-  }
+  const { Total_Meals_Donated__c } = await getHomeChefCampaign();
+
   res.send({
-    mealsDonated: data.Total_Meals_Donated__c,
+    mealsDonated: Total_Meals_Donated__c,
   });
 });
 

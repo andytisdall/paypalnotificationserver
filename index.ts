@@ -38,6 +38,9 @@ import docusignRouter from './src/docusign/routes/signDocuments';
 import authRouter from './src/auth/routes/auth';
 import userRouter from './src/auth/routes/user';
 
+//events
+import eventsRouter from './src/events/routes/events';
+
 import { errorHandler } from './src/middlewares/error-handler';
 
 const PORT = process.env.PORT || 3001;
@@ -67,6 +70,7 @@ apiRouter.use('/meal-program', mealProgramRouter);
 apiRouter.use('/files', fileRouter);
 apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
+apiRouter.use('/events', eventsRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get('/*', (req, res) => {

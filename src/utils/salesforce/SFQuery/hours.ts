@@ -18,6 +18,7 @@ export interface FormattedHours {
   job: string;
   status: string;
   shift: string;
+  campaign?: string;
 }
 
 interface UnformattedHours {
@@ -119,6 +120,7 @@ export const getHours = async (campaignId: string, contactId: string) => {
       job: h.GW_Volunteers__Volunteer_Job__c,
       status: h.GW_Volunteers__Status__c,
       shift: h.GW_Volunteers__Volunteer_Shift__c,
+      campaign: campaignId,
     };
   });
   return hours;

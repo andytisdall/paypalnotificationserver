@@ -4,3 +4,4 @@ export * from './contact';
 export * from './mealProgram';
 export * from './text';
 export * from './jobs';
+export * from './campaign';
