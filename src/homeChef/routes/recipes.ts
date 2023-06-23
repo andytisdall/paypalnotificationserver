@@ -6,10 +6,24 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import { storeFile, deleteFile } from '../../files/storeFile';
 import { RecipeCategory } from '../models/recipe';
+import { bucket } from '../../files/bucket';
 
 const Recipe = mongoose.model('Recipe');
 
 const router = express.Router();
+
+// router.get('/recipes', async (req, res) => {
+//   const recipes = await Recipe.find();
+//   const promises = recipes
+//     .filter((r) => r.image)
+//     .map((recipe) => {
+//       const file = bucket.file(recipe.image);
+//       recipe.image = file.publicUrl();
+//       recipe.save();
+//     });
+//   await Promise.all(promises);
+//   res.send(recipes);
+// });
 
 router.get('/recipes', async (req, res) => {
   const recipes = await Recipe.find();

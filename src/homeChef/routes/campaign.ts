@@ -1,8 +1,8 @@
 import express from 'express';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
 
 const REGION_NAMES = {
   WEST_OAKLAND: 'WEST_OAKLAND',
@@ -44,6 +44,9 @@ const townFridges = [
 
 const router = express.Router();
 
+// route is public so ckoakland home chef page
+// can display current number of meals donated
+
 router.get('/campaign', async (req, res) => {
   await fetcher.setService('salesforce');
   const { data }: { data: { Total_Meals_Donated__c: number } | undefined } =
@@ -58,23 +61,8 @@ router.get('/campaign', async (req, res) => {
   });
 });
 
-router.get('/campaign/fridges', async (req, res) => {
+router.get('/campaign/fridges', currentUser, requireAuth, async (req, res) => {
   res.send(townFridges);
-});
-
-router.get('/campaign/event', currentUser, requireAuth, async (req, res) => {
-  await fetcher.setService('salesforce');
-  const {
-    data,
-  }: { data: { Name: string; StartDate: string; Description: string } } =
-    await fetcher.get(
-      urls.SFOperationPrefix + '/Campaign/' + urls.eventCampaignId
-    );
-  res.send({
-    name: data.Name,
-    date: data.StartDate,
-    description: data.Description,
-  });
 });
 
 export default router;

@@ -11,7 +11,6 @@ import {
 } from '../../utils/salesforce/SFQuery';
 import mongoose from 'mongoose';
 import urls from '../../utils/urls';
-import migrate from '../../utils/salesforce/migrations/migrateVolunteers';
 
 const User = mongoose.model('User');
 const router = express.Router();
