@@ -14,7 +14,7 @@ const prodUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['7018Z0000026xmFQAQ', '7018Z0000026xmKQAQ'],
+  activeCampaigns: ['7018Z0000026xmF', '7018Z0000026xmK'],
 };
 
 const testUrls = {
@@ -31,7 +31,7 @@ const testUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['70179000000FIX9AAO'],
+  activeCampaigns: ['70179000000FIX9'],
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
