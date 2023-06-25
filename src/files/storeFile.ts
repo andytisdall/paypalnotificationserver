@@ -42,9 +42,11 @@ export const storeFile = async ({
     extension = '.jpeg';
   }
 
-  // const fileIn = fs.readFileSync(data);
-
-  const { buffer } = await jpegAutorotate.rotate(data, { quality: 25 });
+  let buffer = data;
+  try {
+    const rotatedImage = await jpegAutorotate.rotate(data, { quality: 25 });
+    buffer = rotatedImage.buffer;
+  } catch (err) {}
   const compressedImage = (await Jimp.read(buffer)).quality(25);
   const compressedBuffer = await compressedImage.getBufferAsync(
     compressedImage.getMIME()
