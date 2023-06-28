@@ -5,6 +5,8 @@ export interface UnformattedRestaurant {
   Meal_Program_Onboarding__c: string;
   Meal_Program_Status__c: string;
   Health_Department_Expiration_Date__c: string;
+  Name: string;
+  Id: string;
 }
 
 export interface Restaurant {

@@ -3,7 +3,6 @@ import path from 'path';
 import convert from 'heic-convert';
 import Jimp from 'jimp';
 import jpegAutorotate from 'jpeg-autorotate';
-import fs from 'fs';
 
 import { bucket } from './bucket';
 
@@ -59,13 +58,18 @@ export const storeFile = async ({
   const passthroughStream = new stream.PassThrough();
   passthroughStream.write(compressedBuffer);
   passthroughStream.end();
-  passthroughStream.pipe(storedFile.createWriteStream());
+
+  const googleStorageStream = storedFile.createWriteStream();
+
+  passthroughStream.pipe(googleStorageStream);
+
+  // storedFile.addListener
 
   return new Promise((resolve, reject) => {
-    passthroughStream.on('error', (err) => {
+    googleStorageStream.on('error', (err) => {
       reject(err);
     });
-    passthroughStream.on('finish', () => {
+    googleStorageStream.on('finish', () => {
       resolve(storedFile.publicUrl());
     });
   });

@@ -9,7 +9,6 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { storeFile } from '../../files/storeFile';
 import getSecrets from '../../utils/getSecrets';
-import urls from '../../utils/urls';
 
 const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
@@ -18,108 +17,111 @@ const smsRouter = express.Router();
 
 export type OutgoingText = { from: string; body: string; mediaUrl?: string[] };
 
-smsRouter.post('/outgoing/mobile', async (req, res) => {
-  const twilioClient = await getTwilioClient();
+smsRouter.post(
+  '/outgoing/mobile',
+  currentUser,
+  requireAuth,
+  async (req, res) => {
+    const twilioClient = await getTwilioClient();
 
-  const {
-    message,
-    region,
-    feedbackId,
-    number,
-    photo,
-  }: {
-    message: string;
-    region: Region;
-    feedbackId?: string;
-    number?: string;
-    photo?: string;
-  } = req.body;
+    const {
+      message,
+      region,
+      feedbackId,
+      number,
+    }: {
+      message: string;
+      region: Region;
+      feedbackId?: string;
+      number?: string;
+    } = req.body;
 
-  if (!message) {
-    res.status(422);
-    throw new Error('No message to send');
-  }
-
-  if (!region && !number) {
-    res.status(422);
-    throw new Error('No region or number specified');
-  }
-
-  let formattedNumbers: string[] = [];
-  const responsePhoneNumber = REGIONS[region];
-
-  // if (region) {
-  //   const allPhoneNumbers = await Phone.find({ region });
-  //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
-  // } else if (number) {
-  //   const phoneNumber = number.replace(/[^\d]/g, '');
-  //   console.log(phoneNumber);
-  //   if (phoneNumber.length !== 10) {
-  //     res.status(422);
-  //     throw new Error('Phone number must have 10 digits');
-  //   }
-
-  //   formattedNumbers = ['+1' + phoneNumber];
-  // }
-
-  // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-  formattedNumbers = ['+14158190251'];
-  // }
-
-  // console.log(formattedNumbers);
-
-  const outgoingText: OutgoingText = {
-    body: message,
-    from: responsePhoneNumber,
-  };
-
-  let photoUrl;
-
-  // if (photo) {
-  //   const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
-
-  //   const imageUrl = await storeFile({
-  //     file: { data: Buffer.from(photo, 'base64'), name: fileName },
-  //     name: fileName,
-  //   });
-
-  //   // outgoingText.mediaUrl = [imageUrl];
-  //   photoUrl = imageUrl;
-  // }
-
-  if (req.files?.photo && !Array.isArray(req.files.photo)) {
-    const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
-
-    photoUrl = await storeFile({
-      file: req.files.photo,
-      name: fileName,
-    });
-
-    outgoingText.mediaUrl = [photoUrl];
-  }
-
-  const createOutgoingText = async (phone: string) => {
-    await twilioClient.messages.create({ ...outgoingText, to: phone });
-  };
-
-  const textPromises = formattedNumbers.map(createOutgoingText);
-  await Promise.all(textPromises);
-
-  if (feedbackId) {
-    const feedback = await Feedback.findById(feedbackId);
-    if (feedback) {
-      const response = { message, date: moment().format() };
-      if (feedback.response) {
-        feedback.response.push(response);
-      } else {
-        feedback.response = [response];
-      }
+    if (!message) {
+      res.status(422);
+      throw new Error('No message to send');
     }
-    await feedback.save();
-  }
 
-  res.send({ message, region, photoUrl });
-});
+    if (!region && !number) {
+      res.status(422);
+      throw new Error('No region or number specified');
+    }
+
+    let formattedNumbers: string[] = [];
+    const responsePhoneNumber = REGIONS[region];
+
+    // if (region) {
+    //   const allPhoneNumbers = await Phone.find({ region });
+    //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
+    // } else if (number) {
+    //   const phoneNumber = number.replace(/[^\d]/g, '');
+    //   console.log(phoneNumber);
+    //   if (phoneNumber.length !== 10) {
+    //     res.status(422);
+    //     throw new Error('Phone number must have 10 digits');
+    //   }
+
+    //   formattedNumbers = ['+1' + phoneNumber];
+    // }
+
+    // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    formattedNumbers = ['+14158190251'];
+    // }
+
+    // console.log(formattedNumbers);
+
+    const outgoingText: OutgoingText = {
+      body: message,
+      from: responsePhoneNumber,
+    };
+
+    let photoUrl;
+
+    // if (photo) {
+    //   const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
+
+    //   const imageUrl = await storeFile({
+    //     file: { data: Buffer.from(photo, 'base64'), name: fileName },
+    //     name: fileName,
+    //   });
+
+    //   // outgoingText.mediaUrl = [imageUrl];
+    //   photoUrl = imageUrl;
+    // }
+
+    if (req.files?.photo && !Array.isArray(req.files.photo)) {
+      const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
+
+      photoUrl = await storeFile({
+        file: req.files.photo,
+        name: fileName,
+      });
+
+      outgoingText.mediaUrl = [photoUrl];
+    }
+
+    const createOutgoingText = async (phone: string) => {
+      await twilioClient.messages.create({ ...outgoingText, to: phone });
+    };
+
+    const textPromises = formattedNumbers.map(createOutgoingText);
+    await Promise.all(textPromises);
+
+    if (feedbackId) {
+      const feedback = await Feedback.findById(feedbackId);
+      if (feedback) {
+        const response = { message, date: moment().format() };
+        if (feedback.response) {
+          feedback.response.push(response);
+        } else {
+          feedback.response = [response];
+        }
+      }
+      await feedback.save();
+    }
+
+    res.send({ message, region, photoUrl });
+  }
+);
 
 smsRouter.post(
   '/outgoing',
