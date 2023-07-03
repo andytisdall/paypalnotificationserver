@@ -1,5 +1,9 @@
-export default (firstName: string, lastName: string, amount: string) => {
-  return `
+const templates: Record<
+  string,
+  (firstName: string, lastName: string, amount: string) => string
+> = {
+  community_course: (firstName: string, lastName: string, amount: string) => {
+    return `
     <body style="font-family: Calibri, sans-serif; font-size: 14px;">
     <p>Dear ${firstName} ${lastName},</p>
     <p>Thank you for your gift of $${amount} to Community Kitchens, and thank you for participating in Community Course. Your donation is being matched by the Oakland Roots Sports Club, and 100% of funds raised will support East Oakland Collective's August Feed The Hood event in conjunction with Digital Underground's 3rd annual Shock G Day. Your generousity is an acknowledgement of what a tremendous privilege it is to be able to eat from the kitchens of all our diverse and amazing Oakland Restaurant Week chefs, as well as an opportunity to make this event meaningful both for those who participate and those who cannot.</p>
@@ -38,4 +42,7 @@ export default (firstName: string, lastName: string, amount: string) => {
     deductible to the full extent provided by the law as no goods or services were exchanged nor provided in
     consideration of this gift and/or contribution.</p>
     </body>`;
+  },
 };
+
+export default templates;

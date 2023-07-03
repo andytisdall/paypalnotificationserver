@@ -10,6 +10,7 @@ import {
 } from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
+import { activeCampaigns } from './activeCampaigns';
 
 const PaypalTxn = mongoose.model('PaypalTxn');
 const paypalRouter = express.Router();
@@ -168,34 +169,6 @@ const formatDate = (date: string) => {
 // };
 
 const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
-  // check for recurring payment message
-  //    payment_cycle: 'Monthly',
-  //    txn_type: 'recurring_payment_profile_created',
-  //    last_name: 'Downey',
-  //    next_payment_date: '02:00:00 Nov 17, 2022 PST',
-  //    residence_country: 'US',
-  //    initial_payment_amount: '0.00',
-  //    currency_code: 'USD',
-  //    time_created: '14:38:45 Nov 17, 2022 PST',
-  //    verify_sign: 'AfAHRKTCvmUAT7tItlo3UOlkc5vOAYUdOycluaYyw4tku0sVmUCejvQd',
-  //    period_type: ' Regular',
-  //    payer_status: 'verified',
-  //    tax: '0.00',
-  //    payer_email: 'thatsongsucks@hotmail.com',
-  //    first_name: 'Deborah',
-  //    receiver_email: 'maria@lukasoakland.com',
-  //    payer_id: 'ZL69522VZ7GKN',
-  //    product_type: '1',
-  //    shipping: '0.00',
-  //    amount_per_cycle: '1.00',
-  //    profile_status: 'Active',
-  //    charset: 'UTF-8',
-  //    notify_version: '3.9',
-  //    amount: '1.00',
-  //    outstanding_balance: '0.00',
-  //    recurring_payment_id: 'I-W58L68VCJAE7',
-  //    product_name: 'donation',
-  //    ipn_track_id: 'f727617a877a4'
   const formattedDate = formatDate(paypalData.time_created);
 
   let dayOfMonth = moment(formattedDate).format('D');
@@ -216,9 +189,9 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
     npsp__StartDate__c: moment().format(),
   };
 
-  if (paypalData.item_number === 'community_course') {
+  if (paypalData.item_number && activeCampaigns[paypalData.item_number]) {
     recurringToAdd.npe03__Recurring_Donation_Campaign__c =
-      urls.communityCourseCampaignId;
+      activeCampaigns[paypalData.item_number].id;
   }
 
   const recurringInsertUri =
@@ -283,43 +256,6 @@ const updateRecurringOpp = async (
   contact: Contact,
   status: 'Closed Lost' | 'Posted'
 ) => {
-  //   mc_gross: '1.00',
-  //   outstanding_balance: '0.00',
-  //   period_type: ' Regular',
-  //   next_payment_date: '02:00:00 Dec 17, 2022 PST',
-  //   protection_eligibility: 'Ineligible',
-  //   tax: '0.00',
-  // payer_id: 'ZL69522VZ7GKN',
-  //   payment_date: '14:39:09 Nov 17, 2022 PST',
-  //   payment_status: 'Completed',
-  //   product_name: 'donation',
-  //    charset: 'UTF-8',
-  //    recurring_payment_id: 'I-W58L68VCJAE7',
-  //   first_name: 'Deborah',
-  //   mc_fee: '0.52',
-  //   notify_version: '3.9',
-  //     amount_per_cycle: '1.00',
-  //   payer_status: 'verified',
-  //   currency_code: 'USD',
-  //   business: 'maria@lukasoakland.com',
-  //   verify_sign: 'A27Y9Wm--6Rn7t9LW4WsgnffrMyHAEt7QNsEBb2czNH-fuU1BQUMcQYm',
-  //   payer_email: 'thatsongsucks@hotmail.com',
-  //   initial_payment_amount: '0.00',
-  //    profile_status: 'Active',
-  //       txn_id: '5T797629ES9689307',
-  //    payment_type: 'instant',
-  //       receiver_email: 'maria@lukasoakland.com',
-  //       receiver_id: 'NSK6GEW3SV7HW',
-  //      txn_type: 'recurring_payment',
-  //      mc_currency: 'USD',
-  //      residence_country: 'US',
-  //  transaction_subject: 'donation',
-  //      payment_gross: '1.00',
-  //      shipping: '0.00',
-  //      product_type: '1',
-  //      time_created: '14:38:45 Nov 17, 2022 PST',
-  //      ipn_track_id: 'f727617a877a4'
-
   // query donations to get ID
   const oppQuery = [
     'SELECT',
@@ -365,13 +301,6 @@ const updateRecurringOpp = async (
   }
 };
 const addDonation = async (paypalData: PaypalData, contact: Contact) => {
-  // relevant data coming from paypal:
-  // payment_gross - amount
-  // payment_fee - fee
-  // payment_date
-  // payment_status
-  // first_name
-  // payer_email
   if (!paypalData.payment_date) {
     throw Error('Could not add donation without a payment date');
   }
@@ -390,8 +319,8 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
     RecordTypeId: '0128Z000001BIZJQA4',
     Processing_Fee__c: paypalData.payment_fee,
   };
-  if (paypalData.item_number === 'community_course') {
-    oppToAdd.CampaignId = urls.communityCourseCampaignId;
+  if (paypalData.item_number && activeCampaigns[paypalData.item_number]) {
+    oppToAdd.CampaignId = activeCampaigns[paypalData.item_number].id;
   }
 
   const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';

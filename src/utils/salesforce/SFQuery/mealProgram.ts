@@ -49,7 +49,7 @@ const formatMealDelivery = (
 };
 
 export const getMealProgramSchedule = async () => {
-  await fetcher.setService('salesforceMeal');
+  await fetcher.setService('salesforce');
 
   const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
 
@@ -58,13 +58,34 @@ export const getMealProgramSchedule = async () => {
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
 
-  const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Community_Group_Status__c = 'Meal Program'`;
+  const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
   const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
   const accountResponse = await fetcher.get(accountUri);
   const accounts: UnformattedRestaurant[] = accountResponse.data.records;
 
+  const missingCBOPromises = deliveries
+    .filter((del) => {
+      return !accounts.find((acc) => del.CBO__c === acc.Id);
+    })
+    .map(async (delivery: UnformattedMealDelivery) => {
+      return getAccountById(delivery.CBO__c);
+    });
+
+  const missingRestaurantPromises = deliveries
+    .filter((del) => {
+      return !accounts.find((acc) => del.Restaurant__c === acc.Id);
+    })
+    .map(async (delivery: UnformattedMealDelivery) => {
+      return getAccountById(delivery.Restaurant__c);
+    });
+
+  const remainingAccounts = await Promise.all([
+    ...missingCBOPromises,
+    ...missingRestaurantPromises,
+  ]);
+
   return {
-    accounts: accounts.map((a) => {
+    accounts: [...accounts, ...remainingAccounts].map((a) => {
       return { id: a.Id, name: a.Name };
     }),
     deliveries: deliveries.map(formatMealDelivery),
@@ -72,7 +93,7 @@ export const getMealProgramSchedule = async () => {
 };
 
 export const getRestaurantMealProgramSchedule = async (accountId: string) => {
-  await fetcher.setService('salesforceMeal');
+  await fetcher.setService('salesforce');
 
   const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
 

@@ -2,9 +2,10 @@ import sgMail from '@sendgrid/mail';
 
 import getSecrets from './getSecrets';
 import createDonationAckEmail from './emailTemplates/donationAck';
-import createCommCourseAckEmail from './emailTemplates/commCourseAck';
+import createCampaignAckEmail from './emailTemplates/campaignAck';
 import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
 import createShiftEditEmail from './emailTemplates/shiftEdit';
+import { activeCampaigns } from '../paypal/routes/activeCampaigns';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -39,11 +40,9 @@ export const sendDonationAckEmail = async (donationData: {
   item_number?: string;
 }) => {
   let html;
-  if (
-    donationData.item_number &&
-    donationData.item_number === 'community_course'
-  ) {
-    html = createCommCourseAckEmail(
+  if (donationData.item_number && activeCampaigns[donationData.item_number]) {
+    const template = createCampaignAckEmail[donationData.item_number];
+    html = template(
       donationData.first_name,
       donationData.last_name,
       donationData.payment_gross

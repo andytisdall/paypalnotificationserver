@@ -3,7 +3,6 @@ const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
 
 const prodUrls = {
-  communityCourseCampaignId: '7018Z000003C7YE',
   townFridgeCampaignId: '7018Z000003C3Mx',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
   salesforceMeal: 'https://communitykitchens.my.salesforce.com/services',
@@ -18,7 +17,6 @@ const prodUrls = {
 };
 
 const testUrls = {
-  communityCourseCampaignId: '7018Z000003C7YE',
   townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
