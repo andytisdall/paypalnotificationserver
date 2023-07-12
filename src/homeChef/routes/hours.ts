@@ -76,7 +76,7 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
     mealCount,
   });
 
-  res.send({ id, mealCount });
+  res.send({ id, mealCount, cancel });
 });
 
 export default router;

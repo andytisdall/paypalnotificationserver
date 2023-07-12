@@ -5,7 +5,7 @@ import createDonationAckEmail from './emailTemplates/donationAck';
 import createCampaignAckEmail from './emailTemplates/campaignAck';
 import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
 import createShiftEditEmail from './emailTemplates/shiftEdit';
-import { activeCampaigns } from '../paypal/routes/activeCampaigns';
+import { activeCampaigns } from '../paypal/activeCampaigns';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -37,12 +37,11 @@ export const sendDonationAckEmail = async (donationData: {
   last_name: string;
   payment_gross: string;
   payer_email: string;
-  item_number?: string;
+  custom?: string;
 }) => {
   let html;
-  if (donationData.item_number && activeCampaigns[donationData.item_number]) {
-    const template = createCampaignAckEmail[donationData.item_number];
-    html = template(
+  if (donationData.custom) {
+    html = createCampaignAckEmail(
       donationData.first_name,
       donationData.last_name,
       donationData.payment_gross

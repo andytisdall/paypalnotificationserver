@@ -10,7 +10,7 @@ import {
 } from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
-import { activeCampaigns } from './activeCampaigns';
+import { activeCampaigns } from '../activeCampaigns';
 
 const PaypalTxn = mongoose.model('PaypalTxn');
 const paypalRouter = express.Router();
@@ -28,7 +28,7 @@ interface PaypalData {
   ipn_track_id: string;
   payment_date?: string;
   time_created: string;
-  item_number?: string;
+  custom?: string;
   test_ipn?: string;
 }
 
@@ -62,10 +62,7 @@ interface RecurringDonationObject {
 
 // listener for paypal message
 paypalRouter.post('/', async (req, res) => {
-  // return early if it's not a donation
-
   const paypalData: PaypalData = req.body;
-  // console.log(paypalData);
 
   // check for already processed transaction
   const existingTxn = await PaypalTxn.findOne({
@@ -75,6 +72,8 @@ paypalRouter.post('/', async (req, res) => {
     console.log('Already processed this transaction, this is a duplicate');
     return res.sendStatus(200);
   }
+
+  // return early if it's not a donation
 
   if (paypalData.payment_gross && parseFloat(paypalData.payment_gross) < 0) {
     console.log('not a credit');
@@ -189,9 +188,9 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
     npsp__StartDate__c: moment().format(),
   };
 
-  if (paypalData.item_number && activeCampaigns[paypalData.item_number]) {
+  if (paypalData.custom && activeCampaigns[paypalData.custom]) {
     recurringToAdd.npe03__Recurring_Donation_Campaign__c =
-      activeCampaigns[paypalData.item_number].id;
+      activeCampaigns[paypalData.custom].id;
   }
 
   const recurringInsertUri =
@@ -319,8 +318,8 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
     RecordTypeId: '0128Z000001BIZJQA4',
     Processing_Fee__c: paypalData.payment_fee,
   };
-  if (paypalData.item_number && activeCampaigns[paypalData.item_number]) {
-    oppToAdd.CampaignId = activeCampaigns[paypalData.item_number].id;
+  if (paypalData.custom && activeCampaigns[paypalData.custom]) {
+    oppToAdd.CampaignId = activeCampaigns[paypalData.custom].id;
   }
 
   const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';

@@ -49,7 +49,7 @@ const formatMealDelivery = (
 };
 
 export const getMealProgramSchedule = async () => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService('salesforceMeal');
 
   const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
 
@@ -68,6 +68,7 @@ export const getMealProgramSchedule = async () => {
       return !accounts.find((acc) => del.CBO__c === acc.Id);
     })
     .map(async (delivery: UnformattedMealDelivery) => {
+      console.log('query1');
       return getAccountById(delivery.CBO__c);
     });
 
@@ -76,6 +77,7 @@ export const getMealProgramSchedule = async () => {
       return !accounts.find((acc) => del.Restaurant__c === acc.Id);
     })
     .map(async (delivery: UnformattedMealDelivery) => {
+      console.log('query2');
       return getAccountById(delivery.Restaurant__c);
     });
 
@@ -93,7 +95,7 @@ export const getMealProgramSchedule = async () => {
 };
 
 export const getRestaurantMealProgramSchedule = async (accountId: string) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService('salesforceMeal');
 
   const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
 
