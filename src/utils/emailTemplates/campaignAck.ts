@@ -13,8 +13,17 @@ export default (firstName: string, lastName: string, amount: string) => {
         <br>
         Vanetta Johnson, Executive Director, Beyond Emancipation
         </p>
-      <p style="font-size: 12px;">Community is a 501(c)(3) nonprofit organization; our federal tax ID # is 85-1244770. Your donation is tax-
-      deductible to the full extent provided by the law as no goods or services were exchanged nor provided in
-      consideration of this gift and/or contribution.</p>
+      <a href="https://www.facebook.com/ckoakland/">
+        <img src="https://storage.googleapis.com/coherent-vision-368820.appspot.com/facebook.png" alt="Facebook" />
+      </a>
+      <a href="https://www.linkedin.com/company/community-kitchens-oakland">
+        <img src="https://storage.googleapis.com/coherent-vision-368820.appspot.com/linkedin.png" alt="LinkedIn" />
+      </a>
+      <a href="https://www.instagram.com/ckoakland/">
+        <img src="https://storage.googleapis.com/coherent-vision-368820.appspot.com/instagram.png" alt="Instagram" />
+      </a>
+      <p style="font-size: 12px;">
+        Community is a 501(c)(3) nonprofit organization; our federal tax ID # is 85-1244770. Your donation is tax-deductible to the full extent provided by the law as no goods or services were exchanged nor provided in consideration of this gift and/or contribution.
+      </p>
     </body>`;
 };
