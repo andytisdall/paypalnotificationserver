@@ -53,6 +53,7 @@ router.post('/google-signin/mobile', async (req, res) => {
   const familyName: string = req.body.familyName;
   const givenName: string = req.body.givenName;
   const email: string = req.body.email;
+  console.log(req.body);
 
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
 
