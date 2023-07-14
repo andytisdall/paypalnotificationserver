@@ -12,6 +12,14 @@ import getSecrets from '../../utils/getSecrets';
 
 const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
+const OutgoingText = mongoose.model('OutgoingText');
+
+interface NewOutgoingText {
+  message: String;
+  sender: String;
+  region: String;
+  image?: String;
+}
 
 const smsRouter = express.Router();
 
@@ -27,13 +35,10 @@ smsRouter.post(
     const {
       message,
       region,
-      feedbackId,
-      number,
     }: {
       message: string;
       region: Region;
       feedbackId?: string;
-      number?: string;
     } = req.body;
 
     if (!message) {
@@ -41,7 +46,7 @@ smsRouter.post(
       throw new Error('No message to send');
     }
 
-    if (!region && !number) {
+    if (!region) {
       res.status(422);
       throw new Error('No region or number specified');
     }
@@ -49,25 +54,7 @@ smsRouter.post(
     let formattedNumbers: string[] = [];
     const responsePhoneNumber = REGIONS[region];
 
-    // if (region) {
-    //   const allPhoneNumbers = await Phone.find({ region });
-    //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
-    // } else if (number) {
-    //   const phoneNumber = number.replace(/[^\d]/g, '');
-    //   console.log(phoneNumber);
-    //   if (phoneNumber.length !== 10) {
-    //     res.status(422);
-    //     throw new Error('Phone number must have 10 digits');
-    //   }
-
-    //   formattedNumbers = ['+1' + phoneNumber];
-    // }
-
-    // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     formattedNumbers = ['+14158190251'];
-    // }
-
-    // console.log(formattedNumbers);
 
     const outgoingText: OutgoingText = {
       body: message,
@@ -75,18 +62,6 @@ smsRouter.post(
     };
 
     let photoUrl;
-
-    // if (photo) {
-    //   const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
-
-    //   const imageUrl = await storeFile({
-    //     file: { data: Buffer.from(photo, 'base64'), name: fileName },
-    //     name: fileName,
-    //   });
-
-    //   // outgoingText.mediaUrl = [imageUrl];
-    //   photoUrl = imageUrl;
-    // }
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
@@ -106,18 +81,13 @@ smsRouter.post(
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
 
-    if (feedbackId) {
-      const feedback = await Feedback.findById(feedbackId);
-      if (feedback) {
-        const response = { message, date: moment().format() };
-        if (feedback.response) {
-          feedback.response.push(response);
-        } else {
-          feedback.response = [response];
-        }
-      }
-      await feedback.save();
-    }
+    const newOutgoingTextRecord = new OutgoingText<NewOutgoingText>({
+      sender: req.currentUser!.id,
+      region,
+      message,
+      image: photoUrl,
+    });
+    await newOutgoingTextRecord.save();
 
     res.send({ message, region, photoUrl });
   }
@@ -175,8 +145,6 @@ smsRouter.post(
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       formattedNumbers = ['+14158190251'];
     }
-
-    console.log(formattedNumbers);
 
     const outgoingText: OutgoingText = {
       body: message,
