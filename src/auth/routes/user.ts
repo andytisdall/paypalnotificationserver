@@ -39,7 +39,7 @@ router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
       to: 'andy@ckoakland.org',
       from: 'andy@ckaoakland.org',
       subject: 'Failed to fetch user info',
-      text: `A por  tal user could not fetch their info from salesforce. User: ${JSON.stringify(
+      text: `A portal user could not fetch their info from salesforce. User: ${JSON.stringify(
         req.currentUser
       )}`,
     });
