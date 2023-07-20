@@ -12,6 +12,7 @@ import {
   addTextSubscriber,
   editTextSubscriber,
 } from '../../utils/salesforce/SFQuery/text';
+import getSecrets from '../../utils/getSecrets';
 
 const Feedback = mongoose.model('Feedback');
 const Phone = mongoose.model('Phone');
@@ -24,11 +25,7 @@ const DROPOFF_EMAIL_SUBSCRIBERS = [
   'alea@ckoakland.org',
 ];
 
-const DROPOFF_PHONE_SUBSCRIBERS = [
-  '+14158190251',
-  '+14157557053',
-  '+17185017050',
-];
+const DROPOFF_PHONE_SUBSCRIBERS = ['+14157557053', '+17185017050'];
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -107,11 +104,16 @@ router.post(
 
     await sendEmail(msg);
 
+    const { MESSAGING_SERVICE_SID } = await getSecrets([
+      'MESSAGING_SERVICE_SID',
+    ]);
+
     const twilioClient = await getTwilioClient();
     const alertText: OutgoingText = {
       from: DROPOFF_NUMBER,
       body: Body,
       mediaUrl: images,
+      messagingServiceSid: MESSAGING_SERVICE_SID,
     };
     const textPromises = DROPOFF_PHONE_SUBSCRIBERS.map((number) => {
       return twilioClient.messages.create({

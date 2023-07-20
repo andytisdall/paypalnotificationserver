@@ -14,9 +14,9 @@ import getSecrets from '../../utils/getSecrets';
 
 const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
-const OutgoingText = mongoose.model('OutgoingText');
+const OutgoingTextRecord = mongoose.model('OutgoingTextRecord');
 
-interface NewOutgoingText {
+interface NewOutgoingTextRecord {
   message: string;
   sender: string;
   region: string;
@@ -31,7 +31,7 @@ export type OutgoingText = {
   body: string;
   mediaUrl?: string[];
   sendAt?: Date;
-  messagingServiceSid?: string;
+  messagingServiceSid: string;
   scheduleType?: 'fixed';
 };
 
@@ -122,13 +122,15 @@ smsRouter.post(
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
 
-    const newOutgoingTextRecord = new OutgoingText<NewOutgoingText>({
-      sender: req.currentUser!.id,
-      region,
-      message,
-      image: mediaUrl,
-      date: new Date(sendAt),
-    });
+    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
+      {
+        sender: req.currentUser!.id,
+        region,
+        message,
+        image: mediaUrl,
+        date: new Date(sendAt),
+      }
+    );
     await newOutgoingTextRecord.save();
 
     res.send({ message, region, photoUrl: mediaUrl });
@@ -166,9 +168,14 @@ smsRouter.post(
 
     formattedNumbers = ['+14158190251'];
 
+    const { MESSAGING_SERVICE_SID } = await getSecrets([
+      'MESSAGING_SERVICE_SID',
+    ]);
+
     const outgoingText: OutgoingText = {
       body: message,
       from: responsePhoneNumber,
+      messagingServiceSid: MESSAGING_SERVICE_SID,
     };
 
     let photoUrl;
@@ -191,12 +198,14 @@ smsRouter.post(
     const textPromises = formattedNumbers.map(createOutgoingText);
     await Promise.all(textPromises);
 
-    const newOutgoingTextRecord = new OutgoingText<NewOutgoingText>({
-      sender: req.currentUser!.id,
-      region,
-      message,
-      image: photoUrl,
-    });
+    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
+      {
+        sender: req.currentUser!.id,
+        region,
+        message,
+        image: photoUrl,
+      }
+    );
     await newOutgoingTextRecord.save();
 
     res.send({ message, region, photoUrl });
@@ -256,9 +265,14 @@ smsRouter.post(
       formattedNumbers = ['+14158190251'];
     }
 
+    const { MESSAGING_SERVICE_SID } = await getSecrets([
+      'MESSAGING_SERVICE_SID',
+    ]);
+
     const outgoingText: OutgoingText = {
       body: message,
       from: responsePhoneNumber,
+      messagingServiceSid: MESSAGING_SERVICE_SID,
     };
 
     let mediaUrl = photoUrl;
@@ -296,12 +310,14 @@ smsRouter.post(
       }
     }
 
-    const newOutgoingTextRecord = new OutgoingText<NewOutgoingText>({
-      sender: req.currentUser!.id,
-      region: region || number,
-      message,
-      image: mediaUrl,
-    });
+    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
+      {
+        sender: req.currentUser!.id,
+        region: region || number,
+        message,
+        image: mediaUrl,
+      }
+    );
     await newOutgoingTextRecord.save();
 
     res.send({ message, region, photoUrl: mediaUrl });

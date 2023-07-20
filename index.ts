@@ -11,7 +11,7 @@ import './src/auth/models/user';
 import './src/mealProgram/models/restaurant';
 import './src/homeChef/models/recipe';
 import './src/text/models/phone';
-import './src/text/models/outgoingText';
+import './src/text/models/outgoingTextRecord';
 import './src/text/models/feedback';
 import './src/paypal/models/paypalTxn';
 

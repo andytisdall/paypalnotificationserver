@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const outgoingTextSchema = new Schema(
+const outgoingTextRecordSchema = new Schema(
   {
     message: String,
     date: { type: Date, default: Date.now() },
@@ -18,4 +18,7 @@ const outgoingTextSchema = new Schema(
   }
 );
 
-export const OutgoingText = model('OutgoingText', outgoingTextSchema);
+export const OutgoingTextRecord = model(
+  'OutgoingTextRecord',
+  outgoingTextRecordSchema
+);
