@@ -37,7 +37,7 @@ router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
   } catch (err) {
     await sendEmail({
       to: 'andy@ckoakland.org',
-      from: 'andy@ckaoakland.org',
+      from: 'andy@ckoakland.org',
       subject: 'Failed to fetch user info',
       text: `A portal user could not fetch their info from salesforce. User: ${JSON.stringify(
         req.currentUser

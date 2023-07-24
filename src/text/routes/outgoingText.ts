@@ -143,7 +143,7 @@ smsRouter.post(
   requireAuth,
   async (req, res) => {
     const twilioClient = await getTwilioClient();
-
+    console.log(req.body);
     const {
       message,
       region,

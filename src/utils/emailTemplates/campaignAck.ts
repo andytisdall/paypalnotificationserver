@@ -3,7 +3,7 @@ export default (firstName: string, lastName: string, amount: string) => {
     <body style="font-family: Calibri, sans-serif; font-size: 14px;">
       <p>Dear ${firstName},</p>
       <p>
-        Thank you for donating to the Community Kitchens and Beyond Emancipation Meal Program Partnership. Your support allows us to provide warm meals that bring our community together, improve youth attendance, and address food insecurity
+        Thank you for donating to the Community Kitchens and Beyond Emancipation Meal Program Partnership. Your support allows us to provide warm meals that bring our community together, improve youth attendance, and address food insecurity.
       </p>
       <p>Please see your receipt below.</p>
       <p>Donation amount: $${amount}</p>
