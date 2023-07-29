@@ -131,6 +131,8 @@ const formatFilename = (file: FileMetaData, account: Account) => {
   return format(file.title) + '_' + format(accountName);
 };
 
+//
+
 const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
   const title = formatFilename(typeOfFile, account);

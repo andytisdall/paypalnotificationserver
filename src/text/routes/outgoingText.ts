@@ -2,8 +2,6 @@ import express from 'express';
 import twilio from 'twilio';
 import moment from 'moment';
 import mongoose from 'mongoose';
-import { format, zonedTimeToUtc } from 'date-fns-tz';
-import { formatISO } from 'date-fns';
 
 import { REGIONS, Region } from '../models/phone';
 import { currentUser } from '../../middlewares/current-user';
@@ -16,7 +14,7 @@ const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
 const OutgoingTextRecord = mongoose.model('OutgoingTextRecord');
 
-interface NewOutgoingTextRecord {
+export interface NewOutgoingTextRecord {
   message: string;
   sender: string;
   region: string;
@@ -34,108 +32,6 @@ export type OutgoingText = {
   messagingServiceSid: string;
   scheduleType?: 'fixed';
 };
-
-smsRouter.post(
-  '/outgoing/scheduled',
-  currentUser,
-  requireAuth,
-  requireTextPermission,
-  async (req, res) => {
-    const twilioClient = await getTwilioClient();
-
-    const { MESSAGING_SERVICE_SID } = await getSecrets([
-      'MESSAGING_SERVICE_SID',
-    ]);
-    if (!MESSAGING_SERVICE_SID) {
-      throw Error(
-        'No Messaging Service ID found, which is required for a scheduled message.'
-      );
-    }
-
-    const {
-      message,
-      region,
-      sendAt,
-      photoUrl,
-    }: {
-      message: string;
-      region: Region;
-      sendAt: string;
-      photoUrl?: string;
-    } = req.body;
-
-    if (!message) {
-      res.status(422);
-      throw new Error('No message to send');
-    }
-
-    if (!region) {
-      res.status(422);
-      throw new Error('No region specified');
-    }
-
-    if (!sendAt) {
-      res.status(422);
-      throw new Error('No time specified');
-    }
-    console.log(sendAt);
-
-    let formattedNumbers: string[] = [];
-    const responsePhoneNumber = REGIONS[region];
-
-    //   const allPhoneNumbers = await Phone.find({ region });
-    //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
-
-    // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-    formattedNumbers = ['+14158190251'];
-    // }
-
-    const outgoingText: OutgoingText = {
-      body: message,
-      from: responsePhoneNumber,
-      sendAt: new Date(sendAt),
-      messagingServiceSid: MESSAGING_SERVICE_SID,
-      scheduleType: 'fixed',
-    };
-
-    let mediaUrl = photoUrl;
-
-    if (req.files?.photo && !Array.isArray(req.files.photo)) {
-      const fileName =
-        'scheduled-outgoing-text-' +
-        moment(sendAt).format('YYYY-MM-DD-hh-ss-a');
-
-      mediaUrl = await storeFile({
-        file: req.files.photo,
-        name: fileName,
-      });
-
-      outgoingText.mediaUrl = [mediaUrl];
-    } else if (photoUrl) {
-      outgoingText.mediaUrl = [photoUrl];
-    }
-
-    const createOutgoingText = async (phone: string) => {
-      await twilioClient.messages.create({ ...outgoingText, to: phone });
-    };
-
-    const textPromises = formattedNumbers.map(createOutgoingText);
-    await Promise.all(textPromises);
-
-    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
-      {
-        sender: req.currentUser!.id,
-        region,
-        message,
-        image: mediaUrl,
-        date: new Date(sendAt),
-      }
-    );
-    await newOutgoingTextRecord.save();
-
-    res.send({ message, region, photoUrl: mediaUrl });
-  }
-);
 
 smsRouter.post(
   '/outgoing/mobile',
