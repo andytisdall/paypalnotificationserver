@@ -1,5 +1,5 @@
 import express from 'express';
-import moment from 'moment';
+import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 import { getTwilioClient } from './outgoingText';
 import getSecrets from '../../utils/getSecrets';
@@ -68,10 +68,17 @@ router.post('/outgoing/salesforce', async (req, res) => {
   formattedNumbers = ['+14158190251'];
   // }
 
+  const dateTime = new Date(sendAt);
+  dateTime.setHours(16);
+  dateTime.setMinutes(30);
+  console.log(dateTime);
+  const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
+  console.log(zonedTime);
+
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
-    sendAt: new Date(sendAt),
+    sendAt: zonedTime,
     messagingServiceSid: MESSAGING_SERVICE_SID,
     scheduleType: 'fixed',
   };
@@ -83,14 +90,11 @@ router.post('/outgoing/salesforce', async (req, res) => {
   const textPromises = formattedNumbers.map(createOutgoingText);
   await Promise.all(textPromises);
 
-  const dateTime = new Date(sendAt);
-  dateTime.setUTCHours(14);
-
   const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>({
-    sender: req.currentUser!.id,
+    sender: 'salesforce',
     region,
     message,
-    date: dateTime,
+    date: zonedTime,
   });
   await newOutgoingTextRecord.save();
 

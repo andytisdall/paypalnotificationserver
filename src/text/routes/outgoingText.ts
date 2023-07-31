@@ -121,13 +121,13 @@ smsRouter.post(
       region,
       feedbackId,
       number,
-      photoUrl,
+      photo,
     }: {
       message: string;
       region: Region;
       feedbackId?: string;
       number?: string;
-      photoUrl?: string;
+      photo?: string;
     } = req.body;
 
     if (!message) {
@@ -171,7 +171,7 @@ smsRouter.post(
       messagingServiceSid: MESSAGING_SERVICE_SID,
     };
 
-    let mediaUrl = photoUrl;
+    let mediaUrl = photo;
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
@@ -182,8 +182,8 @@ smsRouter.post(
       });
 
       outgoingText.mediaUrl = [mediaUrl];
-    } else if (photoUrl) {
-      outgoingText.mediaUrl = [photoUrl];
+    } else if (photo) {
+      outgoingText.mediaUrl = [photo];
     }
 
     const createOutgoingText = async (phone: string) => {

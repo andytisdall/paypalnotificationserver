@@ -6,6 +6,7 @@ import outgoingTextRouter from './outgoingText';
 import feedbackRouter from './feedback';
 import surveyRouter from './survey';
 import scheduledTextRouter from './scheduledText';
+import textRecordRouter from './textRecords';
 
 const textRouter = express.Router({ mergeParams: true });
 
@@ -15,5 +16,6 @@ textRouter.use(outgoingTextRouter);
 textRouter.use(feedbackRouter);
 textRouter.use(surveyRouter);
 textRouter.use(scheduledTextRouter);
+textRouter.use(textRecordRouter);
 
 export default textRouter;

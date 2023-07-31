@@ -1,6 +1,5 @@
 export default (firstName: string, lastName: string, amount: string) => {
   return `
-  <body style="font-family: Calibri, sans-serif; font-size: 15px;">
   <p>Dear ${firstName} ${lastName},</p>
   <p>Thank you for your gift of $${amount} to Community Kitchens. Your support came at a critical time.
   Our meals are used to fill gaps left by other food support programs, to promote healthy lifestyles and
@@ -36,5 +35,5 @@ export default (firstName: string, lastName: string, amount: string) => {
   <p style="font-size: 12px;">Community is a 501(c)(3) nonprofit organization; our federal tax ID # is 85-1244770. Your donation is tax-
   deductible to the full extent provided by the law as no goods or services were exchanged nor provided in
   consideration of this gift and/or contribution.</p>
-  </body>`;
+`;
 };
