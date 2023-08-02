@@ -1,8 +1,10 @@
 import express from 'express';
+import mongoose from 'mongoose';
+
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import mongoose from 'mongoose';
+import { sendDonationAckEmail } from '../../utils/email';
 
 const OutgoingTextRecord = mongoose.model('OutgoingTextRecord');
 
@@ -22,5 +24,16 @@ router.get(
     res.send(textRecords);
   }
 );
+
+// router.get('/email-test', async (req, res) => {
+//   await sendDonationAckEmail({
+//     first_name: 'Andy',
+//     last_name: 'Tisdall',
+//     payment_gross: '30.50',
+//     payer_email: 'andy@ckoakland.org',
+//     custom: 'yes',
+//   });
+//   res.sendStatus(200);
+// });
 
 export default router;

@@ -37,7 +37,10 @@ export const storeFile = async ({
   }
   let data: Buffer = file.data;
   if (extension.toLowerCase() === '.heic') {
+    console.log('heic conversion start');
     data = await convertFile(file.data);
+    console.log('heic conversion successful');
+
     extension = '.jpeg';
   }
 
@@ -46,10 +49,13 @@ export const storeFile = async ({
     const rotatedImage = await jpegAutorotate.rotate(data, { quality: 25 });
     buffer = rotatedImage.buffer;
   } catch (err) {}
+  console.log('image compression start');
+
   const compressedImage = (await Jimp.read(buffer)).quality(25);
   const compressedBuffer = await compressedImage.getBufferAsync(
     compressedImage.getMIME()
   );
+  console.log('image compression successful');
 
   const fileName = name + extension;
 

@@ -46,7 +46,6 @@ smsRouter.post(
     }: {
       message: string;
       region: Region;
-      feedbackId?: string;
     } = req.body;
 
     if (!message) {
@@ -67,6 +66,10 @@ smsRouter.post(
     const { MESSAGING_SERVICE_SID } = await getSecrets([
       'MESSAGING_SERVICE_SID',
     ]);
+
+    if (!MESSAGING_SERVICE_SID) {
+      throw Error('Could not find messaging service ID');
+    }
 
     const outgoingText: OutgoingText = {
       body: message,

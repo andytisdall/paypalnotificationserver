@@ -67,29 +67,32 @@ router.post('/google-signin/mobile', async (req, res) => {
     if (!contact) {
       contact = await getContactByEmail(email);
     }
-    if (contact) {
-      if (contact.portalUsername) {
-        // check if they have username already?
-        // assign existing user a google id
-        console.log(contact);
-        existingUser = await User.findOne({ username: contact.portalUsername });
-        if (!existingUser) {
-          // create user
-        }
-        existingUser.googleId = googleId;
-        await existingUser.save();
-      } else {
-        // create user?
-        throw Error('Contact does not have portal username');
-      }
-    } else {
+    if (!contact) {
       //   // if contact not in sf
       //   // their google name and salesforce name don't match
       //   // have them give us the name they used to sign up for home chef
       //   // and email us i guess
       //   // so we can manually add the google id to the portal user
       throw Error(
-        'We could not find a person in our database based on your google profile'
+        'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
+      );
+    }
+    if (contact.portalUsername) {
+      // check if they have username already?
+      // assign existing user a google id
+      console.log(contact);
+      existingUser = await User.findOne({ username: contact.portalUsername });
+      if (!existingUser) {
+        throw Error(
+          'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
+        );
+      }
+      existingUser.googleId = googleId;
+      await existingUser.save();
+    } else {
+      // create user?
+      throw Error(
+        'You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!'
       );
     }
   }
