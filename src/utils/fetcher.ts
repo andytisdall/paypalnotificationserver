@@ -4,7 +4,7 @@ import urls from './urls';
 import getDSJWT from '../docusign/getDSJWT';
 import getSFToken from './salesforce/getSFToken';
 
-export type Service = 'salesforce' | 'docusign' | 'salesforceMeal';
+export type Service = 'salesforce' | 'docusign';
 
 class fetcher {
   instance: AxiosInstance;
@@ -16,7 +16,6 @@ class fetcher {
     this.token = {
       salesforce: undefined,
       docusign: undefined,
-      salesforceMeal: undefined,
     };
   }
 
@@ -49,9 +48,6 @@ class fetcher {
     let token: string | undefined;
     if (this.service === 'salesforce') {
       token = await getSFToken();
-    }
-    if (this.service === 'salesforceMeal') {
-      token = await getSFToken('meal');
     }
     if (this.service === 'docusign') {
       token = await getDSJWT();

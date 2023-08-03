@@ -13,7 +13,7 @@ const prodUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['7018Z0000026xmK'],
+  activeCampaigns: [],
 };
 
 const testUrls = {

@@ -3,26 +3,14 @@ import axios from 'axios';
 import urls from '../urls';
 import getSecrets from '../getSecrets';
 
-export default async (sandbox: string | null = null) => {
-  let id, secret, url;
-
-  if (sandbox === 'meal') {
-    const { SF_MP_ID, SF_MP_SECRET } = await getSecrets([
-      'SF_MP_ID',
-      'SF_MP_SECRET',
-    ]);
-    id = SF_MP_ID;
-    secret = SF_MP_SECRET;
-    url = urls.salesforceMeal;
-  } else {
-    const { SF_CLIENT_ID, SF_CLIENT_SECRET } = await getSecrets([
-      'SF_CLIENT_ID',
-      'SF_CLIENT_SECRET',
-    ]);
-    id = SF_CLIENT_ID;
-    secret = SF_CLIENT_SECRET;
-    url = urls.salesforce;
-  }
+export default async () => {
+  const { SF_CLIENT_ID, SF_CLIENT_SECRET } = await getSecrets([
+    'SF_CLIENT_ID',
+    'SF_CLIENT_SECRET',
+  ]);
+  const id = SF_CLIENT_ID;
+  const secret = SF_CLIENT_SECRET;
+  const url = urls.salesforce;
 
   if (!id || !secret) {
     throw new Error('Could not find salesforce auth credentials');

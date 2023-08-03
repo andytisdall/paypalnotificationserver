@@ -78,7 +78,8 @@ smsRouter.post(
     };
 
     let photoUrl;
-
+    console.log('before photo');
+    console.log(req.files);
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
 
@@ -89,6 +90,7 @@ smsRouter.post(
 
       outgoingText.mediaUrl = [photoUrl];
     }
+    console.log('after photo');
 
     const createOutgoingText = async (phone: string) => {
       await twilioClient.messages.create({ ...outgoingText, to: phone });
