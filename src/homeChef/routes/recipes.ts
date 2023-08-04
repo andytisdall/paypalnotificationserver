@@ -132,10 +132,9 @@ router.patch(
     recipe.author = author;
     recipe.category = category;
     recipe.description = description?.split('\n');
-
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       if (recipe.image) {
-        await deleteFile(recipe.image);
+        await deleteFile(recipe.image.split('/').slice(-1));
       }
       const fileName = 'recipes-' + name;
       recipe.image = await storeFile({
