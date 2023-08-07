@@ -122,4 +122,13 @@ router.delete(
   }
 );
 
+router.post('/save-token', currentUser, requireAuth, async (req, res) => {
+  const { token }: { token: string } = req.body;
+
+  const user = await User.findById(req.currentUser!.id);
+  user.homeChefNotificationToken = token;
+  await user.save();
+  res.sendStatus(204);
+});
+
 export default router;

@@ -134,7 +134,7 @@ smsRouter.post(
       number?: string;
       photo?: string;
     } = req.body;
-
+    console.log(req.body);
     if (!message) {
       res.status(422);
       throw new Error('No message to send');
@@ -146,9 +146,9 @@ smsRouter.post(
     }
 
     let formattedNumbers: string[] = [];
-    const responsePhoneNumber = REGIONS[region];
+    const responsePhoneNumber = REGIONS[region] || REGIONS.WEST_OAKLAND;
 
-    if (region) {
+    if (region && !number) {
       const allPhoneNumbers = await Phone.find({ region });
       formattedNumbers = allPhoneNumbers.map((p) => p.number);
     } else if (number) {
@@ -214,14 +214,14 @@ smsRouter.post(
     const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
       {
         sender: req.currentUser!.id,
-        region: region || number,
+        region: number || region,
         message,
         image: mediaUrl,
       }
     );
     await newOutgoingTextRecord.save();
 
-    res.send({ message, region, photoUrl: mediaUrl });
+    res.send({ message, region, photoUrl: mediaUrl, number });
   }
 );
 

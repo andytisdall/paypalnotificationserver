@@ -14,6 +14,7 @@ import './src/text/models/phone';
 import './src/text/models/outgoingTextRecord';
 import './src/text/models/feedback';
 import './src/paypal/models/paypalTxn';
+import './src/homeChef/models/notifications';
 
 // routes
 
