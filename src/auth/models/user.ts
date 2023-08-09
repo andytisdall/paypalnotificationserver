@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     salesforceId: String,
-    textPermission: {
+    busDriver: {
       type: Boolean,
       default: false,
     },

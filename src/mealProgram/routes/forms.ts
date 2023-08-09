@@ -91,3 +91,57 @@ router.post('/meal-program-intake', async (req, res) => {
 
   res.sendStatus(201);
 });
+
+interface CBOReportParams {
+  month: string;
+  name: string;
+  CBOName: string;
+  performanceMeasures: {
+    percentWOAccess: string;
+    mealsProvided: string;
+    unusable: string;
+    postcards: string;
+    calfreshApps: string;
+    SSA: string;
+  };
+  age: {
+    age17: string;
+    age26: string;
+    age50: string;
+    age60: string;
+    ageOver60: string;
+    ageUnknown: string;
+  };
+  race: {
+    raceAfrican: string;
+    raceLatin: string;
+    raceAsian: string;
+    raceNativeAmerican: string;
+    raceWhite: string;
+    raceDecline: string;
+    raceUnknown: string;
+    raceOther: string;
+    raceOtherText: string;
+    raceMixed: string;
+    raceMixedText: string;
+  };
+  households: string;
+  zips: Record<string, string>;
+  feedback: string;
+}
+
+router.post('/cbo-report', async (req, res) => {
+  const {
+    month,
+    name,
+    CBOName,
+    performanceMeasures,
+    age,
+    race,
+    households,
+    zips,
+    feedback,
+  }: CBOReportParams = req.body;
+});
+
+export default router;
