@@ -1,4 +1,5 @@
-import moment from 'moment';
+import { addDays, subDays } from 'date-fns';
+import { utcToZonedTime, format } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
@@ -51,12 +52,14 @@ const formatMealDelivery = (
 export const getMealProgramSchedule = async () => {
   await fetcher.setService('salesforce');
 
-  const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
+  const nextWeek = format(addDays(new Date(), 14), 'yyyy-MM-dd');
+  const lastWeek = format(subDays(new Date(), 7), 'yyyy-MM-dd');
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= TODAY AND Date__c <= ${nextWeek}`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= ${lastWeek} AND Date__c <= ${nextWeek}`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
+  console.log(deliveries);
 
   const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
   const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
@@ -95,9 +98,10 @@ export const getMealProgramSchedule = async () => {
 export const getRestaurantMealProgramSchedule = async (accountId: string) => {
   await fetcher.setService('salesforce');
 
-  const nextWeek = moment().add(7, 'days').format('YYYY-MM-DD');
+  const nextWeek = format(addDays(new Date(), 14), 'yyyy-MM-dd');
+  const lastWeek = format(subDays(new Date(), 7), 'yyyy-MM-dd');
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= TODAY AND Date__c <= ${nextWeek} AND Restaurant__c = '${accountId}'`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= ${lastWeek} AND Date__c <= ${nextWeek} AND Restaurant__c = '${accountId}'`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;

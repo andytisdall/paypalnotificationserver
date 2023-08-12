@@ -39,13 +39,14 @@ smsRouter.post(
   requireAuth,
   async (req, res) => {
     const twilioClient = await getTwilioClient();
-    console.log(req.body);
     const {
       message,
       region,
+      photo,
     }: {
       message: string;
       region: Region;
+      photo?: string;
     } = req.body;
 
     if (!message) {
@@ -77,20 +78,20 @@ smsRouter.post(
       messagingServiceSid: MESSAGING_SERVICE_SID,
     };
 
-    let photoUrl;
-    console.log('before photo');
-    console.log(req.files);
+    let mediaUrl = photo;
+
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
 
-      photoUrl = await storeFile({
+      mediaUrl = await storeFile({
         file: req.files.photo,
         name: fileName,
       });
 
-      outgoingText.mediaUrl = [photoUrl];
+      outgoingText.mediaUrl = [mediaUrl];
+    } else if (photo) {
+      outgoingText.mediaUrl = [photo];
     }
-    console.log('after photo');
 
     const createOutgoingText = async (phone: string) => {
       await twilioClient.messages.create({ ...outgoingText, to: phone });
@@ -104,12 +105,17 @@ smsRouter.post(
         sender: req.currentUser!.id,
         region,
         message,
-        image: photoUrl,
+        image: mediaUrl,
       }
     );
     await newOutgoingTextRecord.save();
 
-    res.send({ message, region, photoUrl });
+    res.send({
+      message,
+      region,
+      photoUrl: mediaUrl,
+      id: newOutgoingTextRecord.id,
+    });
   }
 );
 
@@ -153,7 +159,6 @@ smsRouter.post(
       formattedNumbers = allPhoneNumbers.map((p) => p.number);
     } else if (number) {
       const phoneNumber = number.replace(/[^\d]/g, '');
-      console.log(phoneNumber);
       if (phoneNumber.length !== 10) {
         res.status(422);
         throw new Error('Phone number must have 10 digits');

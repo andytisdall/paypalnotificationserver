@@ -41,7 +41,7 @@ interface NewIntakeFormObject {
   Type_of_Food__c: string;
 }
 
-router.post('/meal-program-intake', async (req, res) => {
+router.post('/intake-survey', async (req, res) => {
   const {
     name,
     address,
@@ -79,7 +79,7 @@ router.post('/meal-program-intake', async (req, res) => {
     How_Did_You_Hear_About_CK__c: source,
     Type_of_Food__c: food,
   };
-
+  await fetcher.setService('salesforce');
   const { data }: { data: { success: boolean } } = await fetcher.post(
     insertUri,
     newIntakeForm

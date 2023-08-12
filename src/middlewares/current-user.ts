@@ -12,6 +12,7 @@ export interface UserPayload {
   admin: boolean;
   active: boolean;
   salesforceId: string;
+  busDriver: boolean;
 }
 
 declare global {
