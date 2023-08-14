@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema(
   {
-    message: String,
+    payload: { title: String, body: String },
     date: { type: Date, default: new Date() },
     app: String,
   },

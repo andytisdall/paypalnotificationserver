@@ -48,7 +48,7 @@ smsRouter.post(
       region: Region;
       photo?: string;
     } = req.body;
-
+    // return res.sendStatus(200);
     if (!message) {
       res.status(422);
       throw new Error('No message to send');
@@ -114,7 +114,6 @@ smsRouter.post(
       message,
       region,
       photoUrl: mediaUrl,
-      id: newOutgoingTextRecord.id,
     });
   }
 );
@@ -140,7 +139,6 @@ smsRouter.post(
       number?: string;
       photo?: string;
     } = req.body;
-    console.log(req.body);
     if (!message) {
       res.status(422);
       throw new Error('No message to send');

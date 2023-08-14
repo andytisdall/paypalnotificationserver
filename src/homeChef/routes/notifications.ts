@@ -27,7 +27,7 @@ router.post(
 
     await notificationsService.send(userTokens, payload);
     const newNotification = new Notification({
-      message: payload.body,
+      payload,
       app: 'homechef',
     });
     await newNotification.save();
