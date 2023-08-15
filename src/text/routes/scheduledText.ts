@@ -39,8 +39,6 @@ router.post('/outgoing/salesforce', async (req, res) => {
     sendAt: string;
   } = req.body;
 
-  console.log(req.body);
-
   const twilioClient = await getTwilioClient();
 
   if (!message) {
@@ -70,10 +68,8 @@ router.post('/outgoing/salesforce', async (req, res) => {
 
   const dateTime = new Date(sendAt);
   dateTime.setHours(16);
-  dateTime.setMinutes(30);
-  console.log(dateTime);
+  dateTime.setMinutes(25);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
-  console.log(zonedTime);
 
   const outgoingText: OutgoingText = {
     body: message,

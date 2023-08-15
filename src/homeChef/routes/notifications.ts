@@ -17,13 +17,14 @@ router.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
+    const { title, message }: { title: string; message: string } = req.body;
     const notificationsService = await createNotificationsService();
     const users = await User.find({
       homeChefNotificationToken: { $ne: undefined },
     });
     const userTokens = users.map((u) => u.homeChefNotificationToken);
 
-    const payload = { title: 'Testing notification', body: 'Is it working?' };
+    const payload = { title, body: message };
 
     await notificationsService.send(userTokens, payload);
     const newNotification = new Notification({

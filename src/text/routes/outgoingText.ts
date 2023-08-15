@@ -62,7 +62,7 @@ smsRouter.post(
     let formattedNumbers: string[] = [];
     const responsePhoneNumber = REGIONS[region];
 
-    formattedNumbers = ['+14158190251'];
+    formattedNumbers = ['+14158190251', '+17185017050'];
 
     const { MESSAGING_SERVICE_SID } = await getSecrets([
       'MESSAGING_SERVICE_SID',
