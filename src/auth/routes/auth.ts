@@ -80,7 +80,6 @@ router.post('/google-signin/mobile', async (req, res) => {
     if (contact.portalUsername) {
       // check if they have username already?
       // assign existing user a google id
-      console.log(contact);
       existingUser = await User.findOne({ username: contact.portalUsername });
       if (!existingUser) {
         throw Error(

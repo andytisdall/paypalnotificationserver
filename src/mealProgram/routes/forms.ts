@@ -80,12 +80,12 @@ router.post('/intake-survey', async (req, res) => {
     Type_of_Food__c: food,
   };
   await fetcher.setService('salesforce');
-  const { data }: { data: { success: boolean } } = await fetcher.post(
+  const { data }: { data?: { success: boolean } } = await fetcher.post(
     insertUri,
     newIntakeForm
   );
 
-  if (!data.success) {
+  if (!data?.success) {
     throw Error('Failed to save form data');
   }
 
@@ -107,7 +107,7 @@ interface CBOReportParams {
   age: {
     age17: string;
     age26: string;
-    age50: string;
+    age49: string;
     age60: string;
     ageOver60: string;
     ageUnknown: string;
@@ -142,6 +142,53 @@ router.post('/cbo-report', async (req, res) => {
     zips,
     feedback,
   }: CBOReportParams = req.body;
+
+  const CBOReportObject: Record<string, string | number | undefined> = {
+    Age_0_17__c: age.age17,
+    Age_18_26__c: age.age26,
+    Age_27_49__c: age.age49,
+    Age_50_60__c: age.age60,
+    Age_Over_60__c: age.ageOver60,
+    Age_Unknown__c: age.ageUnknown,
+    Assisted_with_Calfresh_Applications__c: performanceMeasures.calfreshApps,
+    Calfresh_Applications_Sent_to_SSA__c: performanceMeasures.SSA,
+    Calfresh_Postcards__c: performanceMeasures.postcards,
+    CBO_Name__c: CBOName,
+    Feedback__c: feedback,
+    Households_Provided_Food__c: households,
+    Meals_Provided__c: performanceMeasures.mealsProvided,
+    Month__c: month,
+    Name__c: name,
+    Percent_without__c: performanceMeasures.percentWOAccess,
+    Race_African__c: race.raceAfrican,
+    Race_Asian__c: race.raceAsian,
+    Race_Decline_to_Answer__c: race.raceDecline,
+    Race_Latin__c: race.raceLatin,
+    Race_Mixed__c: race.raceMixed,
+    Race_Mixed_Specify__c: race.raceMixedText,
+    Race_Native_American__c: race.raceNativeAmerican,
+    Race_Other__c: race.raceOther,
+    Race_Other_Specify__c: race.raceOtherText,
+    Unusable_Meals__c: performanceMeasures.unusable,
+  };
+
+  for (let zip in zips) {
+    CBOReportObject[`X${zip}__c`] = zips[zip];
+  }
+
+  await fetcher.setService('salesforce');
+
+  const insertUri = urls.SFOperationPrefix + '/CBO_Report_Data__c';
+
+  const { data }: { data?: { success: boolean } } = await fetcher.post(
+    insertUri,
+    CBOReportObject
+  );
+  if (!data?.success) {
+    throw Error('Unable to add data');
+  }
+
+  res.sendStatus(201);
 });
 
 export default router;
