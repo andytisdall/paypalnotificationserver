@@ -109,11 +109,10 @@ router.get(
   async (req, res) => {
     const twilioClient = await getTwilioClient();
     const options: MessageListInstanceOptions = {
-      limit: 5,
-      // dateSentAfter: new Date(),
+      limit: 100,
     };
     const messages = await twilioClient.messages.list(options);
-    res.send(messages);
+    res.send(messages.filter((txt) => txt.status === 'scheduled'));
   }
 );
 
@@ -122,7 +121,12 @@ router.delete(
   currentUser,
   requireAuth,
   requireAdmin,
-  async (req, res) => {}
+  async (req, res) => {
+    const { id } = req.params;
+    const twilioClient = await getTwilioClient();
+    await twilioClient.messages(id).update({ status: 'canceled' });
+    res.sendStatus(204);
+  }
 );
 
 export default router;
