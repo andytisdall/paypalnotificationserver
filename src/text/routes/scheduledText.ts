@@ -1,5 +1,6 @@
 import express from 'express';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { MessageListInstanceOptions } from 'twilio/lib/rest/api/v2010/account/message';
 
 import { getTwilioClient } from './outgoingText';
 import getSecrets from '../../utils/getSecrets';
@@ -7,6 +8,9 @@ import { OutgoingTextRecord } from '../models/outgoingTextRecord';
 import { REGIONS, Region } from '../models/phone';
 import { NewOutgoingTextRecord } from './outgoingText';
 import { OutgoingText } from './outgoingText';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
 
 const router = express.Router();
 
@@ -67,7 +71,7 @@ router.post('/outgoing/salesforce', async (req, res) => {
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(16);
+  dateTime.setHours(6);
   dateTime.setMinutes(25);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
 
@@ -96,5 +100,29 @@ router.post('/outgoing/salesforce', async (req, res) => {
 
   res.send({ success: true });
 });
+
+router.get(
+  '/scheduled',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const twilioClient = await getTwilioClient();
+    const options: MessageListInstanceOptions = {
+      limit: 5,
+      // dateSentAfter: new Date(),
+    };
+    const messages = await twilioClient.messages.list(options);
+    res.send(messages);
+  }
+);
+
+router.delete(
+  '/scheduled/:id',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {}
+);
 
 export default router;
