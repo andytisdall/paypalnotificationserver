@@ -62,12 +62,17 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
   // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-  formattedNumbers = ['+14158190251'];
+  formattedNumbers = [
+    '+14158190251',
+    // '+15104098582',
+    // '+17185017050',
+    // '+14157557053',
+  ];
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(2);
-  dateTime.setMinutes(0);
+  dateTime.setHours(9);
+  dateTime.setMinutes(15);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
 
   const outgoingText: OutgoingText = {
@@ -100,38 +105,29 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   res.send({ success: true, id: newScheduledTextRecord.id });
 });
 
-router.delete('/scheduled/:id', requireSalesforceAuth, async (req, res) => {
-  const { id } = req.params;
-  const twilioClient = await getTwilioClient();
-
-  const scheduledText = await ScheduledText.findById(id);
-
-  if (!scheduledText) {
-    throw Error('Scheduled text not found');
-  }
-
-  const promises = scheduledText.twilioIds.map((sid: string) => {
-    twilioClient.messages(sid).update({ status: 'canceled' });
-  });
-
-  await Promise.all(promises);
-
-  scheduledText.canceled = true;
-  await scheduledText.save();
-
-  res.sendStatus(204);
-});
-
 router.get(
-  '/scheduled',
-
+  '/outgoing/salesforce/:id',
+  requireSalesforceAuth,
   async (req, res) => {
+    const { id } = req.params;
     const twilioClient = await getTwilioClient();
-    const options = {
-      limit: 100,
-    };
-    const messages = await twilioClient.messages.list(options);
-    res.send(messages.filter((txt) => txt.status === 'scheduled'));
+
+    const scheduledText = await ScheduledText.findById(id);
+
+    if (!scheduledText) {
+      throw Error('Scheduled text not found');
+    }
+
+    const promises = scheduledText.twilioIds.map((sid: string) => {
+      twilioClient.messages(sid).update({ status: 'canceled' });
+    });
+
+    await Promise.all(promises);
+
+    scheduledText.canceled = true;
+    await scheduledText.save();
+
+    res.send({ success: true });
   }
 );
 
