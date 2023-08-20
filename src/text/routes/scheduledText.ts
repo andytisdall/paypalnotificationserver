@@ -73,7 +73,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
 
   const dateTime = parseISO(sendAt);
   dateTime.setHours(17);
-  dateTime.setMinutes(40);
+  dateTime.setMinutes(58);
 
   // const formattedTime = formatISO(dateTime);
   // const zonedTime = zonedTimeToUtc(formattedTime, 'America/Los_Angeles');
@@ -81,7 +81,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
-    sendAt: dateTime,
+    sendAt: formatISO(dateTime),
     messagingServiceSid: MESSAGING_SERVICE_SID,
     scheduleType: 'fixed',
   };

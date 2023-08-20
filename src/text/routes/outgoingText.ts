@@ -28,7 +28,7 @@ export type OutgoingText = {
   from: string;
   body: string;
   mediaUrl?: string[];
-  sendAt?: Date;
+  sendAt?: string;
   messagingServiceSid: string;
   scheduleType?: 'fixed';
 };
