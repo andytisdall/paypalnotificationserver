@@ -7,12 +7,13 @@ import { REGIONS, Region } from '../models/phone';
 import { OutgoingText } from './outgoingText';
 import { requireSalesforceAuth } from '../../middlewares/require-salesforce-auth';
 import mongoose from 'mongoose';
+import { formatISO } from 'date-fns';
 
 const ScheduledText = mongoose.model('ScheduledText');
 
 interface NewScheduledTextRecord {
   message: string;
-  scheduledDate: Date;
+  scheduledDate: string;
   region: string;
   twilioIds: string[];
 }
@@ -71,9 +72,11 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(9);
-  dateTime.setMinutes(15);
-  const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
+  dateTime.setHours(22);
+  dateTime.setMinutes(0);
+
+  const formattedTime = formatISO(dateTime);
+  const zonedTime = zonedTimeToUtc(formattedTime, 'America/Los_Angeles');
 
   const outgoingText: OutgoingText = {
     body: message,
@@ -97,7 +100,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   const newScheduledTextRecord = new ScheduledText<NewScheduledTextRecord>({
     region,
     message,
-    scheduledDate: zonedTime,
+    scheduledDate: formattedTime,
     twilioIds: results,
   });
   await newScheduledTextRecord.save();
@@ -128,6 +131,19 @@ router.get(
     await scheduledText.save();
 
     res.send({ success: true });
+  }
+);
+
+router.get(
+  '/scheduled',
+
+  async (req, res) => {
+    const twilioClient = await getTwilioClient();
+    const options = {
+      limit: 100,
+    };
+    const messages = await twilioClient.messages.list(options);
+    res.send(messages.filter((txt) => txt.status === 'scheduled'));
   }
 );
 
