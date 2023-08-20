@@ -72,8 +72,8 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(18);
-  dateTime.setMinutes(25);
+  dateTime.setHours(14);
+  dateTime.setMinutes(15);
 
   // const formattedTime = formatISO(dateTime);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
