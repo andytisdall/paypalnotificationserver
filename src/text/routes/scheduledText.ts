@@ -7,7 +7,7 @@ import { REGIONS, Region } from '../models/phone';
 import { OutgoingText } from './outgoingText';
 import { requireSalesforceAuth } from '../../middlewares/require-salesforce-auth';
 import mongoose from 'mongoose';
-import { formatISO, parseISO } from 'date-fns';
+import { formatISO, fromUnixTime } from 'date-fns';
 
 const ScheduledText = mongoose.model('ScheduledText');
 
@@ -71,17 +71,17 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   ];
   // }
 
-  const dateTime = parseISO(sendAt);
-  dateTime.setHours(17);
-  dateTime.setMinutes(58);
+  const dateTime = fromUnixTime(parseInt(sendAt));
+  dateTime.setHours(18);
+  dateTime.setMinutes(10);
 
   // const formattedTime = formatISO(dateTime);
-  // const zonedTime = zonedTimeToUtc(formattedTime, 'America/Los_Angeles');
+  const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
 
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
-    sendAt: formatISO(dateTime),
+    sendAt: formatISO(zonedTime),
     messagingServiceSid: MESSAGING_SERVICE_SID,
     scheduleType: 'fixed',
   };
@@ -100,7 +100,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   const newScheduledTextRecord = new ScheduledText<NewScheduledTextRecord>({
     region,
     message,
-    scheduledDate: dateTime,
+    scheduledDate: zonedTime,
     twilioIds: results,
   });
   await newScheduledTextRecord.save();
