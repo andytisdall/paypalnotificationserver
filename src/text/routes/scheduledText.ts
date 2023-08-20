@@ -7,7 +7,7 @@ import { REGIONS, Region } from '../models/phone';
 import { OutgoingText } from './outgoingText';
 import { requireSalesforceAuth } from '../../middlewares/require-salesforce-auth';
 import mongoose from 'mongoose';
-import { formatISO, fromUnixTime } from 'date-fns';
+import { formatISO } from 'date-fns';
 
 const ScheduledText = mongoose.model('ScheduledText');
 
@@ -72,8 +72,8 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(14);
-  dateTime.setMinutes(15);
+  dateTime.setHours(15);
+  dateTime.setMinutes(20);
 
   // const formattedTime = formatISO(dateTime);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
