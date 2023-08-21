@@ -5,8 +5,13 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireTextPermission } from '../../middlewares/require-text-permission';
 import { Region } from '../models/phone';
-import { addTextSubscriber } from '../../utils/salesforce/SFQuery/text';
+import {
+  addTextSubscriber,
+  editTextSubscriber,
+  removeTextSubscriber,
+} from '../../utils/salesforce/SFQuery/text';
 import { requireAdmin } from '../../middlewares/require-admin';
+import { PhoneNumber } from './incomingText';
 
 const Phone = mongoose.model('Phone');
 const router = express.Router();
@@ -58,7 +63,9 @@ router.post(
       throw new Error('Phone number must have 10 digits');
     }
 
-    const existingNumber = await Phone.findOne({ number: '+1' + phoneNumber });
+    const existingNumber: PhoneNumber = await Phone.findOne({
+      number: '+1' + phoneNumber,
+    });
     if (existingNumber) {
       if (existingNumber.region.includes(region)) {
         res.status(422);
@@ -66,16 +73,17 @@ router.post(
       } else {
         existingNumber.region.push(region);
         await existingNumber.save();
+        await editTextSubscriber(existingNumber.number, existingNumber.region);
         return res.send(existingNumber);
       }
     }
 
-    const newPhone = new Phone({
+    const newPhone: PhoneNumber = new Phone({
       number: '+1' + phoneNumber,
       region: [region],
     });
-    await newPhone.save();
-    await addTextSubscriber(newPhone.number, newPhone.region);
+    await newPhone!.save();
+    await addTextSubscriber(newPhone!.number, newPhone!.region);
     res.send(newPhone);
   }
 );
@@ -87,6 +95,11 @@ router.delete(
   requireAdmin,
   async (req, res) => {
     const id = req.params.id;
+    const numberToDelete: PhoneNumber = await Phone.findById(id);
+    if (!numberToDelete) {
+      throw Error('Phone number not found');
+    }
+    await removeTextSubscriber(numberToDelete.number);
     await Phone.deleteOne({ _id: id });
     res.sendStatus(204);
   }

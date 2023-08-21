@@ -45,3 +45,19 @@ export const addTextSubscriber = async (number: string, regions: string[]) => {
     throw Error('Unable to insert new text subscriber');
   }
 };
+
+export const removeTextSubscriber = async (number: string) => {
+  await fetcher.setService('salesforce');
+
+  const query = `SELECT Id from Text_Service_Subscriber__c WHERE Name = '${number}'`;
+  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const res = await fetcher.get(queryUri);
+  if (!res.data?.records?.length) {
+    throw Error('Text subscriber not found in salesforce');
+  }
+
+  const { Id } = res.data.records[0];
+  const deleteUri =
+    urls.SFOperationPrefix + '/Text_Service_Subscriber__c/' + Id;
+  await fetcher.delete(deleteUri);
+};
