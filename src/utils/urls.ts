@@ -14,9 +14,11 @@ const prodUrls = {
   SFQueryPrefix,
   fileBucket,
   activeCampaigns: [],
+  apple: 'https://appleid.apple.com/auth/token',
 };
 
 const testUrls = {
+  apple: 'https://appleid.apple.com/auth/token',
   townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',

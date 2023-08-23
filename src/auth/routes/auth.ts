@@ -1,14 +1,16 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 
 import getSecrets from '../../utils/getSecrets';
 import { Password } from '../password';
-import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
 import {
   getContact,
   getContactByEmail,
 } from '../../utils/salesforce/SFQuery/contact';
+import urls from '../../utils/urls';
 
 const User = mongoose.model('User');
 
@@ -48,6 +50,87 @@ router.post('/signin', async (req, res) => {
   res.send({ user: existingUser, token });
 });
 
+router.post('/apple-signin', async (req, res) => {
+  const {
+    id,
+    familyName,
+    givenName,
+    email,
+    authorizationCode,
+  }: {
+    id: string;
+    familyName?: string;
+    givenName?: string;
+    email?: string;
+    authorizationCode?: string;
+  } = req.body;
+  console.log(req.body);
+
+  const { JWT_KEY, APPLE_SIGNIN_KEY, APPLE_ID } = await getSecrets([
+    'JWT_KEY',
+    'APPLE_SIGNIN_KEY',
+    'APPLE_ID',
+  ]);
+  if (!JWT_KEY) {
+    throw Error('No JWT key found');
+  }
+  if (!APPLE_SIGNIN_KEY || !APPLE_ID) {
+    throw Error('No Apple key found');
+  }
+
+  // validate authorization code from frontend
+
+  const appleValidationPostBody = {
+    client_id: APPLE_ID,
+    client_secret: APPLE_SIGNIN_KEY,
+    code: authorizationCode,
+    grant_type: 'authorization_code',
+    redirect_uri: 'REDIRECT_URI',
+  };
+
+  const response = await axios.post(urls.apple, appleValidationPostBody, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  });
+  // let existingUser = await User.findOne({ appleId: id });
+  // if (!existingUser) {
+  //   //   // query sf for name
+  //   let contact = await getContact(familyName, givenName);
+  //   console.log(contact);
+  //   if (!contact) {
+  //     contact = await getContactByEmail(email);
+  //   }
+
+  //   if (contact?.portalUsername) {
+  //     // check if they have username already?
+  //     // assign existing user a google id
+  //     existingUser = await User.findOne({ username: contact.portalUsername });
+  //     if (!existingUser) {
+  //       throw Error(
+  //         'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
+  //       );
+  //     }
+  //     existingUser.appleId = id;
+  //     await existingUser.save();
+  //   } else {
+  //     // create user?
+  //     throw Error(
+  //       'You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!'
+  //     );
+  //   }
+  // }
+
+  const appleReviewer = await User.findById('64dab5b0c179cf7ef5e90ab4');
+
+  const JWT = jwt.sign(
+    {
+      id: appleReviewer.id,
+    },
+    JWT_KEY
+  );
+
+  res.send({ user: appleReviewer, token: JWT });
+});
+
 router.post('/google-signin/mobile', async (req, res) => {
   const googleId: string = req.body.googleId;
   const familyName: string = req.body.familyName;
@@ -67,17 +150,13 @@ router.post('/google-signin/mobile', async (req, res) => {
     if (!contact) {
       contact = await getContactByEmail(email);
     }
-    if (!contact) {
+    if (contact?.portalUsername) {
       //   // if contact not in sf
       //   // their google name and salesforce name don't match
       //   // have them give us the name they used to sign up for home chef
       //   // and email us i guess
       //   // so we can manually add the google id to the portal user
-      throw Error(
-        'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
-      );
-    }
-    if (contact.portalUsername) {
+
       // check if they have username already?
       // assign existing user a google id
       existingUser = await User.findOne({ username: contact.portalUsername });

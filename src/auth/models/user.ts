@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     googleId: String,
+    appleId: String,
     homeChefNotificationToken: String,
   },
   {
