@@ -128,6 +128,8 @@ interface CBOReportParams {
   households: string;
   zips: Record<string, string>;
   feedback: string;
+  phoneNumber: string;
+  email: string;
 }
 
 router.post('/cbo-report', async (req, res) => {
@@ -141,6 +143,8 @@ router.post('/cbo-report', async (req, res) => {
     households,
     zips,
     feedback,
+    phoneNumber,
+    email,
   }: CBOReportParams = req.body;
 
   const CBOReportObject: Record<string, string | number | undefined> = {
@@ -169,7 +173,10 @@ router.post('/cbo-report', async (req, res) => {
     Race_Native_American__c: race.raceNativeAmerican,
     Race_Other__c: race.raceOther,
     Race_Other_Specify__c: race.raceOtherText,
+    Race_White__c: race.raceWhite,
     Unusable_Meals__c: performanceMeasures.unusable,
+    Phone_Number__c: phoneNumber,
+    Email__c: email,
   };
 
   for (let zip in zips) {

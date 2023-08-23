@@ -72,7 +72,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   // }
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(18);
+  dateTime.setHours(14);
   dateTime.setMinutes(0);
 
   // const formattedTime = formatISO(dateTime);
