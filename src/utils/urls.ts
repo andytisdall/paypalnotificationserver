@@ -1,6 +1,8 @@
 const SFQueryPrefix = '/data/v56.0/query/?q=';
 const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
+const appleReviewerId = '64dab5b0c179cf7ef5e90ab4';
+const apple = 'https://appleid.apple.com/auth/token';
 
 const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3Mx',
@@ -14,11 +16,11 @@ const prodUrls = {
   SFQueryPrefix,
   fileBucket,
   activeCampaigns: [],
-  apple: 'https://appleid.apple.com/auth/token',
+  apple,
+  appleReviewerId,
 };
 
 const testUrls = {
-  apple: 'https://appleid.apple.com/auth/token',
   townFridgeCampaignId: '70179000000FFL3',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
@@ -32,6 +34,8 @@ const testUrls = {
   SFQueryPrefix,
   fileBucket,
   activeCampaigns: ['70179000000FIX9'],
+  apple,
+  appleReviewerId: '64e69853db4b5043abcd55b6',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
