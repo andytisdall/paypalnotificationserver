@@ -61,7 +61,12 @@ smsRouter.post(
     let formattedNumbers: string[] = [];
     const responsePhoneNumber = REGIONS[region];
 
-    formattedNumbers = ['+14158190251'];
+    formattedNumbers = [
+      '+14158190251',
+      '+15107070075',
+      '+15108307243',
+      '+17185017050',
+    ];
 
     const { MESSAGING_SERVICE_SID } = await getSecrets([
       'MESSAGING_SERVICE_SID',
@@ -81,7 +86,6 @@ smsRouter.post(
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
-      console.log(req.files.photo);
       mediaUrl = await storeFile({
         file: req.files.photo,
         name: fileName,
