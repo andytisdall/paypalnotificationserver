@@ -150,7 +150,7 @@ router.post('/apple-signin', async (req, res) => {
   }
 
   // delete this after review process
-  user = await User.findById(urls.appleReviewerId);
+  // user = await User.findById(urls.appleReviewerId);
 
   if (!user) {
     throw Error('User Not Found');

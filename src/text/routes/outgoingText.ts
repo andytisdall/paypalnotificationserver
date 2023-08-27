@@ -70,25 +70,25 @@ smsRouter.post(
     let formattedNumbers: string[] = [];
     const responsePhoneNumber = REGIONS[region] || REGIONS.WEST_OAKLAND;
 
-    // if (region && !number) {
-    //   const allPhoneNumbers = await Phone.find({ region });
-    //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
-    // } else if (number) {
-    //   const phoneNumber = number.replace(/[^\d]/g, '');
-    //   if (phoneNumber.length !== 10) {
-    //     res.status(422);
-    //     throw new Error('Phone number must have 10 digits');
-    //   }
+    if (region && !number) {
+      const allPhoneNumbers = await Phone.find({ region });
+      formattedNumbers = allPhoneNumbers.map((p) => p.number);
+    } else if (number) {
+      const phoneNumber = number.replace(/[^\d]/g, '');
+      if (phoneNumber.length !== 10) {
+        res.status(422);
+        throw new Error('Phone number must have 10 digits');
+      }
 
-    //   formattedNumbers = ['+1' + phoneNumber];
-    // }
+      formattedNumbers = ['+1' + phoneNumber];
+    }
 
-    formattedNumbers = [
-      '+14158190251',
-      '+15107070075',
-      '+15108307243',
-      '+17185017050',
-    ];
+    // formattedNumbers = [
+    //   '+14158190251',
+    //   '+15107070075',
+    //   '+15108307243',
+    //   '+17185017050',
+    // ];
 
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
       formattedNumbers = ['+14158190251'];

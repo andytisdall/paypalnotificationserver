@@ -9,6 +9,7 @@ import { requireSalesforceAuth } from '../../middlewares/require-salesforce-auth
 import mongoose from 'mongoose';
 import { formatISO } from 'date-fns';
 
+const Phone = mongoose.model('Phone');
 const ScheduledText = mongoose.model('ScheduledText');
 
 interface NewScheduledTextRecord {
@@ -59,16 +60,16 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   let formattedNumbers: string[] = [];
   const responsePhoneNumber = REGIONS[region];
 
-  //   const allPhoneNumbers = await Phone.find({ region });
-  //   formattedNumbers = allPhoneNumbers.map((p) => p.number);
+  const allPhoneNumbers = await Phone.find({ region });
+  formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
   // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-  formattedNumbers = [
-    '+14158190251',
-    // '+15104098582',
-    // '+17185017050',
-    // '+14157557053',
-  ];
+  // formattedNumbers = [
+  //   '+14158190251',
+  // '+15104098582',
+  // '+17185017050',
+  // '+14157557053',
+  // ];
   // }
 
   const dateTime = new Date(sendAt);
