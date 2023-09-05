@@ -1,4 +1,5 @@
 import express from 'express';
+import { formatISO, lastDayOfMonth, format } from 'date-fns';
 
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
@@ -93,7 +94,8 @@ router.post('/intake-survey', async (req, res) => {
 });
 
 interface CBOReportParams {
-  month: string;
+  month: number;
+  year: number;
   name: string;
   CBOName: string;
   performanceMeasures: {
@@ -145,7 +147,13 @@ router.post('/cbo-report', async (req, res) => {
     feedback,
     phoneNumber,
     email,
+    year,
   }: CBOReportParams = req.body;
+
+  const date = new Date();
+  date.setMonth(month);
+  date.setFullYear(year);
+  const lastDay = lastDayOfMonth(date);
 
   const CBOReportObject: Record<string, string | number | undefined> = {
     Age_0_17__c: age.age17,
@@ -161,9 +169,9 @@ router.post('/cbo-report', async (req, res) => {
     Feedback__c: feedback,
     Households_Provided_Food__c: households,
     Meals_Provided__c: performanceMeasures.mealsProvided,
-    Month__c: month,
+    Month__c: format(month, 'LLLL'),
     Contact_Name__c: name,
-    Name: `${CBOName} - ${month}`,
+    Name: `${CBOName} - ${format(month, 'LLLL')} ${year}`,
     Percent_without__c: performanceMeasures.percentWOAccess,
     Race_African__c: race.raceAfrican,
     Race_Asian__c: race.raceAsian,
@@ -178,6 +186,7 @@ router.post('/cbo-report', async (req, res) => {
     Unusable_Meals__c: performanceMeasures.unusable,
     Phone_Number__c: phoneNumber,
     Email__c: email,
+    Date__c: formatISO(lastDay),
   };
 
   for (let zip in zips) {
