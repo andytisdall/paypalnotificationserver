@@ -94,10 +94,11 @@ router.post('/intake-survey', async (req, res) => {
 });
 
 interface CBOReportParams {
-  month: number;
-  year: number;
+  month: string;
+  year: string;
   name: string;
   CBOName: string;
+  program: string;
   performanceMeasures: {
     percentWOAccess: string;
     mealsProvided: string;
@@ -148,11 +149,12 @@ router.post('/cbo-report', async (req, res) => {
     phoneNumber,
     email,
     year,
+    program,
   }: CBOReportParams = req.body;
 
   const date = new Date();
-  date.setMonth(month);
-  date.setFullYear(year);
+  date.setMonth(parseInt(month));
+  date.setFullYear(parseInt(year));
   const lastDay = lastDayOfMonth(date);
 
   const CBOReportObject: Record<string, string | number | undefined> = {
@@ -169,9 +171,9 @@ router.post('/cbo-report', async (req, res) => {
     Feedback__c: feedback,
     Households_Provided_Food__c: households,
     Meals_Provided__c: performanceMeasures.mealsProvided,
-    Month__c: format(month, 'LLLL'),
+    Month__c: format(parseInt(month), 'LLLL'),
     Contact_Name__c: name,
-    Name: `${CBOName} - ${format(month, 'LLLL')} ${year}`,
+    Name: `${CBOName} - ${format(parseInt(month), 'LLLL')} ${year}`,
     Percent_without__c: performanceMeasures.percentWOAccess,
     Race_African__c: race.raceAfrican,
     Race_Asian__c: race.raceAsian,
@@ -187,6 +189,7 @@ router.post('/cbo-report', async (req, res) => {
     Phone_Number__c: phoneNumber,
     Email__c: email,
     Date__c: formatISO(lastDay),
+    Program__c: program,
   };
 
   for (let zip in zips) {

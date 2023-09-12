@@ -61,16 +61,14 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   const responsePhoneNumber = REGIONS[region];
 
   const allPhoneNumbers = await Phone.find({ region });
-  formattedNumbers = allPhoneNumbers.map((p) => p.number);
+  // formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
-  // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-  // formattedNumbers = [
-  //   '+14158190251',
-  // '+15104098582',
-  // '+17185017050',
-  // '+14157557053',
-  // ];
-  // }
+  formattedNumbers = [
+    '+14158190251',
+    // '+15104098582',
+    // '+17185017050',
+    // '+14157557053',
+  ];
 
   const dateTime = new Date(sendAt);
   dateTime.setHours(14);
@@ -105,6 +103,11 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
     twilioIds: results,
   });
   await newScheduledTextRecord.save();
+
+  if (!newScheduledTextRecord?.id) {
+    console.log(newScheduledTextRecord);
+    throw Error('Twilio ID not obtained');
+  }
 
   res.send({ success: true, id: newScheduledTextRecord.id });
 });
