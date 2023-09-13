@@ -37,7 +37,7 @@ router.post(
   }
 );
 
-router.get('/restaurant', async (req, res) => {
+router.get('/restaurant', currentUser, async (req, res) => {
   // fail silently so users don't get an error on home page
   if (!req.currentUser) {
     return res.sendStatus(204);
