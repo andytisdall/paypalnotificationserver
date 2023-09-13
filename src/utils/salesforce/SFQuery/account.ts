@@ -7,6 +7,7 @@ export interface UnformattedRestaurant {
   Health_Department_Expiration_Date__c: string;
   Name: string;
   Id: string;
+  Billing_Address__c: string;
 }
 
 export interface Restaurant {

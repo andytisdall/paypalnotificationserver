@@ -1,5 +1,5 @@
 import { addDays, subDays } from 'date-fns';
-import { utcToZonedTime, format } from 'date-fns-tz';
+import { format } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
@@ -89,7 +89,7 @@ export const getMealProgramSchedule = async () => {
 
   return {
     accounts: [...accounts, ...remainingAccounts].map((a) => {
-      return { id: a.Id, name: a.Name };
+      return { id: a.Id, name: a.Name, address: a.Billing_Address__c };
     }),
     deliveries: deliveries.map(formatMealDelivery),
   };
