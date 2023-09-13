@@ -141,6 +141,32 @@ router.get(
   }
 );
 
+router.post(
+  '/outgoing/salesforce/update',
+  requireSalesforceAuth,
+  async (req, res) => {
+    const { id, message, time }: { id: string; message: string; time: string } =
+      req.body;
+    const twilioClient = await getTwilioClient();
+
+    const scheduledText = await ScheduledText.findById(id);
+
+    if (!scheduledText) {
+      throw Error('Scheduled text not found');
+    }
+
+    const promises = scheduledText.twilioIds.map((sid: string) => {
+      twilioClient.messages(sid).update({ body: message });
+    });
+
+    await Promise.all(promises);
+    scheduledText.message = message;
+    await scheduledText.save();
+
+    res.send({ success: true });
+  }
+);
+
 router.get(
   '/scheduled',
   currentUser,

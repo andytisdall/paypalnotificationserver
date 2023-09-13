@@ -37,7 +37,11 @@ router.post(
   }
 );
 
-router.get('/restaurant', currentUser, requireAuth, async (req, res) => {
+router.get('/restaurant', async (req, res) => {
+  // fail silently so users don't get an error on home page
+  if (!req.currentUser) {
+    return res.sendStatus(204);
+  }
   const restaurant = await Restaurant.findOne({ user: req.currentUser!.id });
   if (!restaurant) {
     return res.sendStatus(204);
