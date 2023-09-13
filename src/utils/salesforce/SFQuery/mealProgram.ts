@@ -89,7 +89,7 @@ export const getMealProgramSchedule = async () => {
 
   return {
     accounts: [...accounts, ...remainingAccounts].map((a) => {
-      return { id: a.Id, name: a.Name, address: a.Billing_Address__c };
+      return { id: a.Id, name: a.Name, address: a.Billing_Address };
     }),
     deliveries: deliveries.map(formatMealDelivery),
   };

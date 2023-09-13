@@ -82,6 +82,10 @@ apiRouter.get('/*', (req, res) => {
 
 app.use('/api', apiRouter);
 
+app.get('/_ah/warmup', (req, res) => {
+  connectDb();
+});
+
 app.get('/*', (req, res) => {
   res.sendFile(join('public', 'index.html'), {
     root: __dirname,
