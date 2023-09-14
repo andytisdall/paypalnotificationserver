@@ -98,9 +98,8 @@ interface CBOReportParams {
   year: string;
   name: string;
   CBOName: string;
-  program: string;
   performanceMeasures: {
-    percentWOAccess: string;
+    individualsWOAccess: string;
     mealsProvided: string;
     unusable: string;
     postcards: string;
@@ -149,7 +148,6 @@ router.post('/cbo-report', async (req, res) => {
     phoneNumber,
     email,
     year,
-    program,
   }: CBOReportParams = req.body;
 
   const date = new Date();
@@ -174,7 +172,8 @@ router.post('/cbo-report', async (req, res) => {
     Month__c: format(parseInt(month), 'LLLL'),
     Contact_Name__c: name,
     Name: `${CBOName} - ${format(parseInt(month), 'LLLL')} ${year}`,
-    Percent_without__c: performanceMeasures.percentWOAccess,
+    Individuals_without_access_to_kitchen__c:
+      performanceMeasures.individualsWOAccess,
     Race_African__c: race.raceAfrican,
     Race_Asian__c: race.raceAsian,
     Race_Decline_to_Answer__c: race.raceDecline,
@@ -189,7 +188,6 @@ router.post('/cbo-report', async (req, res) => {
     Phone_Number__c: phoneNumber,
     Email__c: email,
     Date__c: formatISO(lastDay),
-    Program__c: program,
   };
 
   for (let zip in zips) {
