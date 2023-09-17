@@ -52,10 +52,7 @@ const formatMealDelivery = (
 export const getMealProgramSchedule = async () => {
   await fetcher.setService('salesforce');
 
-  const nextWeek = format(addDays(new Date(), 14), 'yyyy-MM-dd');
-  const lastWeek = format(subDays(new Date(), 7), 'yyyy-MM-dd');
-
-  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= ${lastWeek} AND Date__c <= ${nextWeek}`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week = true`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
@@ -98,10 +95,7 @@ export const getMealProgramSchedule = async () => {
 export const getRestaurantMealProgramSchedule = async (accountId: string) => {
   await fetcher.setService('salesforce');
 
-  const nextWeek = format(addDays(new Date(), 14), 'yyyy-MM-dd');
-  const lastWeek = format(subDays(new Date(), 7), 'yyyy-MM-dd');
-
-  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Date__c >= ${lastWeek} AND Date__c <= ${nextWeek} AND Restaurant__c = '${accountId}'`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;

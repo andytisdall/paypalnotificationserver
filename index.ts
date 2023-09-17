@@ -44,6 +44,8 @@ import userRouter from './src/auth/routes/user';
 //events
 import eventsRouter from './src/events/routes/events';
 
+import d4jRouter from './src/d4j/user';
+
 import { errorHandler } from './src/middlewares/error-handler';
 
 const PORT = process.env.PORT || 3001;
@@ -74,6 +76,7 @@ apiRouter.use('/files', fileRouter);
 apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
 apiRouter.use('/events', eventsRouter);
+apiRouter.use('/d4j', d4jRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get('/*', (req, res) => {
@@ -83,7 +86,7 @@ apiRouter.get('/*', (req, res) => {
 app.use('/api', apiRouter);
 
 app.get('/_ah/warmup', (req, res) => {
-  connectDb();
+  res.sendStatus(204);
 });
 
 app.get('/*', (req, res) => {
