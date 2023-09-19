@@ -5,7 +5,7 @@ import createDonationAckEmail from './emailTemplates/donationAck';
 import createCampaignAckEmail from './emailTemplates/campaignAck';
 import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
 import createShiftEditEmail from './emailTemplates/shiftEdit';
-import { activeCampaigns } from '../paypal/activeCampaigns';
+import createForgotPasswordEmail from './emailTemplates/forgotPassword';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -74,6 +74,19 @@ export const sendHomeChefSignupEmail = async (chef: {
     to: chef.email,
     from: 'mollye@ckoakland.org',
     subject: 'Thank you for signing up as a CK Home Chef!',
+    html,
+  };
+
+  await sendEmail(msg);
+};
+
+export const sendForgotPasswordEmail = async (email: string, link: string) => {
+  const html = createForgotPasswordEmail(link);
+
+  const msg = {
+    to: email,
+    from: 'andy@ckoakland.org',
+    subject: 'CK Portal: Your link to create a new password',
     html,
   };
 

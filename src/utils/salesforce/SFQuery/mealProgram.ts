@@ -52,7 +52,7 @@ const formatMealDelivery = (
 export const getMealProgramSchedule = async () => {
   await fetcher.setService('salesforce');
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week = true`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week__c = true`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;

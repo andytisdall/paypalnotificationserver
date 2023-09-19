@@ -41,6 +41,7 @@ export interface Contact {
   name?: string;
   id: string;
   portalUsername?: string;
+  firstName?: string;
 }
 
 export interface UnformattedContact {
@@ -48,6 +49,7 @@ export interface UnformattedContact {
   Id: string;
   Name: string;
   Portal_Username__c?: string;
+  FirstName?: string;
 }
 
 export const getContact = async (
@@ -131,7 +133,7 @@ export const getContactByEmail = async (
 ): Promise<Contact | null> => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE Email = '${email}'`;
+  const query = `SELECT Name, FirstName, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse: {
@@ -145,5 +147,6 @@ export const getContactByEmail = async (
     id: contact.Id,
     householdId: contact.npsp__HHId__c,
     portalUsername: contact.Portal_Username__c,
+    firstName: contact.FirstName,
   };
 };
