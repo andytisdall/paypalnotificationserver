@@ -66,7 +66,6 @@ router.post('/apple-signin', async (req, res) => {
     email?: string;
     authorizationCode?: string;
   } = req.body;
-  console.log(req.body);
 
   const { JWT_KEY, APPLE_AUTH_KEY, APPLE_KID, APPLE_TEAM_ID } =
     await getSecrets([
@@ -121,9 +120,9 @@ router.post('/apple-signin', async (req, res) => {
     user = await User.findOne({ appleId: id });
     if (!user) {
       //   // query sf for name
-      let contact = await getContact(familyName, givenName);
+      let contact = await getContactByEmail(email);
       if (!contact) {
-        contact = await getContactByEmail(email);
+        contact = await getContact(familyName, givenName);
       }
 
       if (contact?.portalUsername) {

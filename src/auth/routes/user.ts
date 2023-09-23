@@ -9,6 +9,7 @@ import {
   updateContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import { sendEmail } from '../../utils/email';
+import { getUsers } from '../../utils/salesforce/SFQuery/user';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -131,5 +132,16 @@ router.post('/save-token', currentUser, requireAuth, async (req, res) => {
   await user.save();
   res.sendStatus(204);
 });
+
+// router.get(
+//   '/sf-user-info',
+//   currentUser,
+//   requireAuth,
+//   requireAdmin,
+//   async (req, res) => {
+//     const data = await getUsers();
+//     res.send(data);
+//   }
+// );
 
 export default router;
