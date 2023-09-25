@@ -17,8 +17,7 @@ router.get(
   requireAdmin,
   async (req, res) => {
     const { startDate } = req.params;
-    console.log(startDate);
-    console.log(new Date(startDate));
+
     const textRecords = await OutgoingTextRecord.find({
       date: { $gt: zonedTimeToUtc(startDate, 'America/Los_Angeles') },
     }).sort({ date: -1 });

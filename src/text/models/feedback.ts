@@ -3,7 +3,7 @@ import { Schema, model } from 'mongoose';
 const feedbackSchema = new Schema(
   {
     message: String,
-    date: { type: Date, default: Date.now() },
+    date: { type: Date, default: () => new Date() },
     sender: String,
     region: String,
     read: { type: Boolean, default: false },

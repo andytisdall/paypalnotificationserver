@@ -14,7 +14,7 @@ const receiptSchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true,
-      default: new Date(),
+      default: () => new Date(),
     },
     restaurant: {
       type: String,
