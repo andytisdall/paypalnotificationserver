@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import zonedTimeToUtc from 'date-fns-tz/zonedTimeToUtc';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
@@ -16,8 +17,10 @@ router.get(
   requireAdmin,
   async (req, res) => {
     const { startDate } = req.params;
+    console.log(startDate);
+    console.log(new Date(startDate));
     const textRecords = await OutgoingTextRecord.find({
-      date: { $gt: new Date(startDate) },
+      date: { $gt: zonedTimeToUtc(startDate, 'America/Los_Angeles') },
     }).sort({ date: -1 });
 
     res.send(textRecords);
