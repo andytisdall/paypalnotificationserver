@@ -42,7 +42,7 @@ import authRouter from './src/auth/routes/auth';
 import userRouter from './src/auth/routes/user';
 
 //events
-import eventsRouter from './src/events/routes/events';
+import volunteersRouter from './src/volunteers/routes/volunteers';
 
 import d4jRouter from './src/d4j/user';
 
@@ -75,7 +75,7 @@ apiRouter.use('/meal-program', mealProgramRouter);
 apiRouter.use('/files', fileRouter);
 apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
-apiRouter.use('/events', eventsRouter);
+apiRouter.use('/volunteers', volunteersRouter);
 apiRouter.use('/d4j', d4jRouter);
 
 apiRouter.use(errorHandler);

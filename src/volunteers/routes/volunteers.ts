@@ -1,4 +1,9 @@
 import express from 'express';
+
+import {
+  getContactByEmail,
+  addContact,
+} from '../../utils/salesforce/SFQuery/contact';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
@@ -9,7 +14,32 @@ import urls from '../../utils/urls';
 
 const router = express.Router();
 
-router.get('/', currentUser, requireAuth, async (req, res) => {
+router.get('/:email', async (req, res) => {
+  const { email } = req.params;
+  const contact = await getContactByEmail(email);
+  res.send(contact);
+});
+
+router.post('/', async (req, res) => {
+  const {
+    email,
+    firstName,
+    lastName,
+  }: { email: string; firstName: string; lastName: string } = req.body;
+
+  if (!email || !firstName || !lastName) {
+    throw Error('You must provide an email, first name and last name.');
+  }
+
+  const contact = await addContact({
+    Email: email,
+    FirstName: firstName,
+    LastName: lastName,
+  });
+  res.send(contact);
+});
+
+router.get('/events', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
   const campaignPromises = urls.activeCampaigns.map(async (id) => {
     const campaign = await getCampaign(id);

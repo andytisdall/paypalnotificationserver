@@ -99,7 +99,7 @@ interface CBOReportParams {
   name: string;
   CBOName: string;
   performanceMeasures: {
-    individualsWOAccess: string;
+    percentWOAccess: string;
     mealsProvided: string;
     unusable: string;
     postcards: string;
@@ -172,8 +172,7 @@ router.post('/cbo-report', async (req, res) => {
     Month__c: format(parseInt(month), 'LLLL'),
     Contact_Name__c: name,
     Name: `${CBOName} - ${format(parseInt(month), 'LLLL')} ${year}`,
-    Individuals_without_access_to_kitchen__c:
-      performanceMeasures.individualsWOAccess,
+    Percent_without_access_to_kitchen__c: performanceMeasures.percentWOAccess,
     Race_African__c: race.raceAfrican,
     Race_Asian__c: race.raceAsian,
     Race_Decline_to_Answer__c: race.raceDecline,

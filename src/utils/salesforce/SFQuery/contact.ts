@@ -148,5 +148,6 @@ export const getContactByEmail = async (
     householdId: contact.npsp__HHId__c,
     portalUsername: contact.Portal_Username__c,
     firstName: contact.FirstName,
+    name: contact.Name,
   };
 };
