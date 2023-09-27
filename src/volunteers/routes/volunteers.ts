@@ -14,12 +14,6 @@ import urls from '../../utils/urls';
 
 const router = express.Router();
 
-router.get('/:email', async (req, res) => {
-  const { email } = req.params;
-  const contact = await getContactByEmail(email);
-  res.send(contact);
-});
-
 router.post('/', async (req, res) => {
   const {
     email,
@@ -56,6 +50,18 @@ router.get('/events', currentUser, requireAuth, async (req, res) => {
   res.send(campaigns);
 });
 
+router.get('/kitchen', currentUser, requireAuth, async (req, res) => {
+  await fetcher.setService('salesforce');
+  const jobs = await getJobs(urls.ckKitchenCampaignId);
+  const shiftPromises = jobs.map(async (j) => {
+    const shifts = await getShifts(j.id);
+    j.shifts = shifts.map((sh) => sh.id);
+    return shifts;
+  });
+  const shifts = (await Promise.all(shiftPromises)).flat();
+  res.send({ jobs, shifts });
+});
+
 router.get('/hours/:id', currentUser, requireAuth, async (req, res) => {
   const campaignId = req.params.id;
   await fetcher.setService('salesforce');
@@ -83,6 +89,12 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
 
   res.status(201);
   res.send(hours);
+});
+
+router.get('/:email', async (req, res) => {
+  const { email } = req.params;
+  const contact = await getContactByEmail(email);
+  res.send(contact);
 });
 
 export default router;

@@ -62,9 +62,7 @@ export const getJobs = async (id: string): Promise<FormattedJob[]> => {
       ongoing: j.GW_Volunteers__Ongoing__c,
       location: j.GW_Volunteers__Location_Street__c,
       description: decode(
-        j.GW_Volunteers__Description__c?.replace(/<p>/g, '')
-          .replace(/<\/p>/g, '')
-          .replace(/<br>/g, '')
+        j.GW_Volunteers__Description__c?.replace(/\<[^<>]*\>/g, '')
       ),
       campaign: id,
     };

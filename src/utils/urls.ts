@@ -3,6 +3,7 @@ const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
 const appleReviewerId = '64dab5b0c179cf7ef5e90ab4';
 const apple = 'https://appleid.apple.com/auth/token';
+const google = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=';
 
 const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3Mx',
@@ -11,13 +12,14 @@ const prodUrls = {
   docusign: 'https://na4.docusign.net/restapi',
   client: 'https://portal.ckoakland.org',
   server: 'https://portal.ckoakland.org',
-  google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
   activeCampaigns: [],
   apple,
+  google,
   appleReviewerId,
+  ckKitchenCampaignId: '7018Z000002jtq0QAA',
 };
 
 const testUrls = {
@@ -29,13 +31,14 @@ const testUrls = {
   docusign: 'https://demo.docusign.net/restapi',
   client: 'http://localhost:3000',
   server: 'http://localhost:3001',
-  google: 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=',
+  google,
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
   activeCampaigns: ['70179000000FIX9'],
   apple,
   appleReviewerId: '64e69853db4b5043abcd55b6',
+  ckKitchenCampaignId: '70179000000FaEGAA0',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

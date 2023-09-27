@@ -31,7 +31,6 @@ export const currentUser = async (
   const { authorization } = req.headers;
 
   if (!authorization) {
-    console.log('no jwt');
     return next();
   }
 

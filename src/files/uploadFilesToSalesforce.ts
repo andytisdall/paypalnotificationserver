@@ -7,6 +7,7 @@ import { Account, RestaurantAccount, ContactAccount } from './getModel';
 
 export type RestaurantDocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'IN';
 export type ContactDocType = 'HC' | 'FH';
+export type D4JDocType = 'D4J';
 export type DocType = RestaurantDocType | ContactDocType;
 
 interface FileMetaData {
@@ -133,7 +134,7 @@ const formatFilename = (file: FileMetaData, account: Account) => {
 
 //
 
-const insertFile = async (account: Account, file: File) => {
+export const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
   const title = formatFilename(typeOfFile, account);
 
