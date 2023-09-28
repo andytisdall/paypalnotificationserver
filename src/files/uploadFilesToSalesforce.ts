@@ -132,17 +132,26 @@ const formatFilename = (file: FileMetaData, account: Account) => {
   return format(file.title) + '_' + format(accountName);
 };
 
-//
-
 export const insertFile = async (account: Account, file: File) => {
   const typeOfFile = fileInfo[file.docType];
   const title = formatFilename(typeOfFile, account);
+  await uploadFileToSalesforce(
+    { title, description: typeOfFile.description, folder: typeOfFile.folder },
+    file.file,
+    account.salesforceId
+  );
+};
 
+export const uploadFileToSalesforce = async (
+  { title, description, folder }: FileMetaData,
+  file: { data: Buffer; name: string },
+  id: string
+) => {
+  await fetcher.setService('salesforce');
   const fileMetaData = {
     Title: title,
-    Description: typeOfFile.description,
-    PathOnClient:
-      account.name + '/' + typeOfFile.folder + path.extname(file.file.name),
+    Description: description,
+    PathOnClient: file.name + '/' + folder + path.extname(file.name),
   };
 
   const postBody = new FormData();
@@ -150,7 +159,7 @@ export const insertFile = async (account: Account, file: File) => {
     contentType: 'application/json',
   });
 
-  postBody.append('VersionData', file.file.data, { filename: file.file.name });
+  postBody.append('VersionData', file.data, { filename: file.name });
   let contentVersionId;
 
   let res = await fetcher.post(
@@ -163,11 +172,10 @@ export const insertFile = async (account: Account, file: File) => {
   contentVersionId = res.data.id;
 
   const ContentDocumentId = await getDocumentId(contentVersionId);
-  const accountId = account.salesforceId;
 
   const CDLinkData = {
     ShareType: 'I',
-    LinkedEntityId: accountId,
+    LinkedEntityId: id,
     ContentDocumentId,
   };
 
