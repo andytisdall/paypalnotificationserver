@@ -17,6 +17,8 @@ interface UnformattedMealDelivery {
   Number_of_Meals_Veg__c: number;
   Delivery_Notes__c: string;
   Price_Per_Meal__c: number;
+  Is_This_Week__c: boolean;
+  Is_Next_Week__c: boolean;
 }
 
 interface FormattedMealDelivery {
@@ -30,6 +32,8 @@ interface FormattedMealDelivery {
   numberOfMealsVeg: number;
   notes: string;
   price: number;
+  isThisWeek: boolean;
+  isNextWeek: boolean;
 }
 
 const formatMealDelivery = (
@@ -46,6 +50,8 @@ const formatMealDelivery = (
     numberOfMealsVeg: unformattedDelivery.Number_of_Meals_Veg__c,
     notes: unformattedDelivery.Delivery_Notes__c,
     price: unformattedDelivery.Price_Per_Meal__c,
+    isThisWeek: unformattedDelivery.Is_This_Week__c,
+    isNextWeek: unformattedDelivery.Is_Next_Week__c,
   };
 };
 
@@ -95,7 +101,7 @@ export const getMealProgramSchedule = async () => {
 export const getRestaurantMealProgramSchedule = async (accountId: string) => {
   await fetcher.setService('salesforce');
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
+  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c, Is_This_Week__c, Is_Next_Week__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
