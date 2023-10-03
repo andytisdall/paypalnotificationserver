@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { uploadFileToSalesforce } from '../files/uploadFilesToSalesforce';
+import { uploadFileToSalesforce } from '../utils/salesforce/SFQuery/fileUpload';
 
 const router = express.Router();
 

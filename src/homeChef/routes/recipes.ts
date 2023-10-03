@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { storeFile, deleteFile } from '../../files/storeFile';
+import { storeFile, deleteFile } from '../../files/google/storeFileGoogle';
 import { RecipeCategory } from '../models/recipe';
 
 const Recipe = mongoose.model('Recipe');

@@ -9,7 +9,7 @@ import { requireAdmin } from '../../middlewares/require-admin';
 import {
   restaurantFileInfo,
   RestaurantDocType,
-} from '../../files/uploadFilesToSalesforce';
+} from '../../files/salesforce/metadata';
 import { getAccountById } from '../../utils/salesforce/SFQuery/account';
 
 const User = mongoose.model('User');

@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-import { getContactById } from '../utils/salesforce/SFQuery/contact';
-import { UserPayload } from '../middlewares/current-user';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
+import { UserPayload } from '../../middlewares/current-user';
 
 const Restaurant = mongoose.model('Restaurant');
 

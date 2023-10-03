@@ -3,9 +3,14 @@ import path from 'path';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
-import { uploadFiles, DocType, FileList } from '../uploadFilesToSalesforce';
-import { AccountType, Account, getAccountForFileUpload } from '../getModel';
-import { bucket } from '../bucket';
+import { uploadFiles } from '../salesforce/uploadToSalesforce';
+import { DocType, FileWithType } from '../salesforce/metadata';
+import {
+  AccountType,
+  Account,
+  getAccountForFileUpload,
+} from '../salesforce/getModel';
+import { bucket } from '../google/bucket';
 
 const router = express.Router();
 
@@ -25,7 +30,7 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
     expiration,
   }: { accountId: string; accountType: AccountType; expiration?: string } =
     req.body;
-  const fileList: FileList = [];
+  const fileList: FileWithType[] = [];
   for (let entry in req.files) {
     if (!Array.isArray(req.files[entry])) {
       //@ts-ignore

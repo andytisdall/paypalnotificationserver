@@ -4,13 +4,10 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import sendEnvelope, { EnvelopeArgs } from '../sendEnvelope';
 import getSignedDocs from '../getSignedDocs';
-import {
-  uploadFiles,
-  File,
-  DocType,
-} from '../../files/uploadFilesToSalesforce';
+import { FileWithType, DocType } from '../../files/salesforce/metadata';
+import { uploadFiles } from '../../files/salesforce/uploadToSalesforce';
 import urls from '../../utils/urls';
-import { getAccountForFileUpload } from '../../files/getModel';
+import { getAccountForFileUpload } from '../../files/salesforce/getModel';
 import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 
 const router = express.Router();
@@ -86,7 +83,7 @@ router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   }
 
   const docs = await getSignedDocs(envelopeId);
-  const file: File = {
+  const file: FileWithType = {
     docType: doc,
     file: {
       name: accountConfig[doc].filename + '.pdf',
