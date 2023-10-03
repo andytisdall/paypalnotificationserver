@@ -42,6 +42,7 @@ export interface Contact {
   id: string;
   portalUsername?: string;
   firstName?: string;
+  ckKitchenAgreement?: boolean;
 }
 
 export interface UnformattedContact {
@@ -50,6 +51,7 @@ export interface UnformattedContact {
   Name: string;
   Portal_Username__c?: string;
   FirstName?: string;
+  CK_Kitchen_Agreement__c?: boolean;
 }
 
 export const getContact = async (
@@ -149,5 +151,6 @@ export const getContactByEmail = async (
     portalUsername: contact.Portal_Username__c,
     firstName: contact.FirstName,
     name: contact.Name,
+    ckKitchenAgreement: contact.CK_Kitchen_Agreement__c,
   };
 };
