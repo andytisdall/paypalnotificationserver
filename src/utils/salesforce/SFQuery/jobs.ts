@@ -19,6 +19,7 @@ export interface FormattedShift {
   job: string;
   restaurantMeals: boolean;
   duration: number;
+  slots: number;
 }
 
 export interface Job {
@@ -87,6 +88,7 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
       id: js.Id,
       startTime: js.GW_Volunteers__Start_Date_Time__c,
       open: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
+      slots: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c,
       job: jobId,
       restaurantMeals: js.Restaurant_Meals__c,
       duration: js.GW_Volunteers__Duration__c,

@@ -50,7 +50,7 @@ router.get('/events', currentUser, requireAuth, async (req, res) => {
   res.send(campaigns);
 });
 
-router.get('/kitchen', currentUser, requireAuth, async (req, res) => {
+router.get('/kitchen', async (req, res) => {
   await fetcher.setService('salesforce');
   const jobs = await getJobs(urls.ckKitchenCampaignId);
   const shiftPromises = jobs.map(async (j) => {
@@ -70,18 +70,21 @@ router.get('/hours/:id', currentUser, requireAuth, async (req, res) => {
   res.send(hours);
 });
 
-router.post('/hours', currentUser, requireAuth, async (req, res) => {
+router.post('/hours', async (req, res) => {
   const {
     shiftId,
     jobId,
     date,
-  }: { shiftId: string; jobId: string; date: string } = req.body;
-  const salesforceId = req.currentUser!.salesforceId;
-  if (!salesforceId) {
-    throw Error('User does not have a salesforce ID');
-  }
+    contactSalesforceId,
+  }: {
+    shiftId: string;
+    jobId: string;
+    date: string;
+    contactSalesforceId: string;
+  } = req.body;
+
   const hours = await createHours({
-    contactId: salesforceId,
+    contactId: contactSalesforceId,
     shiftId,
     jobId,
     date,

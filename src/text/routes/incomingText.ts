@@ -21,7 +21,7 @@ const router = express.Router();
 
 const DROPOFF_EMAIL_SUBSCRIBERS = ['alea@ckoakland.org'];
 
-const DROPOFF_PHONE_SUBSCRIBERS = ['+14157557053'];
+const DROPOFF_PHONE_SUBSCRIBERS = ['+14157557053', '+17185017050'];
 
 export type PhoneNumber =
   | (mongoose.Document<
