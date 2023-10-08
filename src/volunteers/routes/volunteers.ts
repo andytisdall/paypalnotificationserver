@@ -44,7 +44,7 @@ router.get('/events', currentUser, requireAuth, async (req, res) => {
       return shifts;
     });
     const shifts = (await Promise.all(shiftPromises)).flat();
-    return { jobs, shifts, campaign };
+    return { jobs, shifts, ...campaign };
   });
   const campaigns = await Promise.all(campaignPromises);
   res.send(campaigns);

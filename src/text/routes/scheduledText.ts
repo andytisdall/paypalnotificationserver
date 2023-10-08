@@ -11,6 +11,7 @@ import { formatISO } from 'date-fns';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 const Phone = mongoose.model('Phone');
 const ScheduledText = mongoose.model('ScheduledText');
@@ -115,6 +116,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   res.send({ success: true, id: newScheduledTextRecord.id });
 });
 
+// delete route from salesforce to this server
 router.get(
   '/outgoing/salesforce/:id',
   requireSalesforceAuth,
@@ -145,7 +147,7 @@ router.post(
   '/outgoing/salesforce/update',
   requireSalesforceAuth,
   async (req, res) => {
-    const { id, message, time }: { id: string; message: string; time: string } =
+    const { id, message }: { id: string; message: string; time: string } =
       req.body;
     const twilioClient = await getTwilioClient();
 
