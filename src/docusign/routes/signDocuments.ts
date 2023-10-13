@@ -39,8 +39,8 @@ const accountConfig: Record<string, AccountInfo> = {
   },
 };
 
-router.post('/sign', currentUser, requireAuth, async (req, res) => {
-  const doc: DocType = req.body.doc;
+router.get('/sign/:doc', currentUser, requireAuth, async (req, res) => {
+  const doc = req.params.doc as DocType;
 
   const contact = await getContactById(req.currentUser!.salesforceId);
 
@@ -63,7 +63,7 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
 
   const { redirectUrl } = await sendEnvelope(envelopeArgs);
 
-  res.send(redirectUrl);
+  res.send({ url: redirectUrl });
 });
 
 router.post('/getDoc', currentUser, requireAuth, async (req, res) => {

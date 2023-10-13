@@ -25,6 +25,7 @@ router.get('/images/:fileName', async (req, res) => {
 });
 
 router.post('/', currentUser, requireAuth, async (req, res) => {
+  console.log(req.body);
   const {
     accountType,
     expiration,
