@@ -25,10 +25,10 @@ const townFridges = [
     address: '2847 Peralta St',
     region: REGION_NAMES.WEST_OAKLAND,
   },
-  // {
-  //   name: '44th St. & Telegraph',
-  //   region: REGION_NAMES.WEST_OAKLAND,
-  // },
+  {
+    name: '44th St. & Telegraph',
+    region: REGION_NAMES.WEST_OAKLAND,
+  },
   {
     name: 'Hasta Muerte',
     address: 'East 27th St & Fruitvale Ave',
