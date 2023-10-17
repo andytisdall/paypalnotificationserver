@@ -15,6 +15,10 @@ export default async (
   if (fileTitles.includes(fileInfo.HC.title)) {
     data.Home_Chef_Volunteeer_Agreement__c = true;
   }
+  if (fileTitles.includes(fileInfo.CKK.title)) {
+    data.CK_Kitchen_Agreement__c = true;
+    data.CK_Kitchen_Volunteer_Status = 'Active';
+  }
   //  mark account as active if all required docs are present
   if (
     data.Home_Chef_Food_Handler_Certification__c &&
@@ -26,12 +30,5 @@ export default async (
   const accountUpdateUri =
     urls.SFOperationPrefix + '/Contact/' + contact.salesforceId;
 
-  const updateData: Partial<AccountData> = {
-    Home_Chef_Food_Handler_Certification__c:
-      data.Home_Chef_Food_Handler_Certification__c,
-    Home_Chef_Volunteeer_Agreement__c: data.Home_Chef_Volunteeer_Agreement__c,
-    Home_Chef_Status__c: data.Home_Chef_Status__c,
-  };
-
-  await fetcher.patch(accountUpdateUri, updateData);
+  await fetcher.patch(accountUpdateUri, data);
 };

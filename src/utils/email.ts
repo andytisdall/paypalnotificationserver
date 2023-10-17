@@ -80,8 +80,12 @@ export const sendHomeChefSignupEmail = async (chef: {
   await sendEmail(msg);
 };
 
-export const sendForgotPasswordEmail = async (email: string, link: string) => {
-  const html = createForgotPasswordEmail(link);
+export const sendForgotPasswordEmail = async (
+  email: string,
+  link: string,
+  username: string
+) => {
+  const html = createForgotPasswordEmail(link, username);
 
   const msg = {
     to: email,

@@ -5,7 +5,7 @@ import {
   getContact,
   addContact,
   updateContact,
-  ContactInfo,
+  UnformattedContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import {
   insertCampaignMember,
@@ -17,37 +17,45 @@ import urls from '../../utils/urls';
 const User = mongoose.model('User');
 const router = express.Router();
 
+interface Program {
+  ckKitchen: boolean;
+  ckHomeChef: boolean;
+  other: string;
+}
+
 interface HomeChefSignupForm {
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  program: Program;
   instagramHandle?: string;
-  commit: boolean;
-  foodHandler: boolean;
+  // commit: boolean;
+  foodHandler?: boolean;
   daysAvailable: Record<string, boolean>;
-  experience: 'Restaurant' | 'Home' | 'None';
-  attend: boolean;
-  pickup: boolean;
+  experience?: string;
+  // attend: boolean;
+  pickup?: boolean;
   source: string;
   extraInfo?: string;
 }
 
-router.post('/signup', async (req, res) => {
+router.post('/interest-form', async (req, res) => {
   const {
     email,
     firstName,
     lastName,
     phoneNumber,
     instagramHandle,
-    commit,
+    // commit,
     foodHandler,
     daysAvailable,
     experience,
-    attend,
+    // attend,
     pickup,
     source,
     extraInfo,
+    program,
   }: HomeChefSignupForm = req.body;
 
   const temporaryPassword = passwordGenerator.generate({
@@ -72,7 +80,7 @@ router.post('/signup', async (req, res) => {
       .filter((d) => daysAvailable[d])
       .join(';') + ';';
 
-  const contactInfo: ContactInfo = {
+  const contactInfo: UnformattedContact = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,
@@ -82,31 +90,48 @@ router.post('/signup', async (req, res) => {
     GW_Volunteers__Volunteer_Status__c: 'Prospective',
     GW_Volunteers__Volunteer_Notes__c: extraInfo,
     Instagram_Handle__c: instagramHandle,
-    Able_to_Commit__c: commit,
+    // Able_to_Commit__c: commit,
     Able_to_get_food_handler_cert__c: foodHandler,
-    Cooking_Experience__c: experience === 'None' ? null : experience,
-    Able_to_attend_orientation__c: attend,
+    Cooking_Experience__c:
+      !experience || experience === 'None' ? undefined : experience,
+    // Able_to_attend_orientation__c: attend,
     Meal_Transportation__c: pickup,
     How_did_they_hear_about_CK__c: source,
-    Portal_Username__c: uniqueUsername,
-    Portal_Temporary_Password__c: temporaryPassword,
-    Home_Chef_Status__c: 'Prospective',
+
+    Home_Chef_Status__c: program.ckHomeChef ? 'Prospective' : undefined,
+    CK_Kitchen_Volunteer_Status__c: program.ckKitchen
+      ? 'Prospective'
+      : undefined,
   };
 
   let existingContact = await getContact(lastName, firstName);
   if (existingContact) {
-    await updateContact(existingContact.id, contactInfo);
+    if (!existingContact.portalUsername) {
+      contactInfo.Portal_Username__c = uniqueUsername;
+      contactInfo.Portal_Temporary_Password__c = temporaryPassword;
+    }
+    await updateContact(existingContact.id!, contactInfo);
   } else {
-    // contact needs to be added first so that opp can have a contactid
     existingContact = await addContact(contactInfo);
   }
 
-  const campaignMember: CampaignMemberObject = {
-    CampaignId: urls.townFridgeCampaignId,
-    ContactId: existingContact.id,
-    Status: 'Confirmed',
-  };
-  await insertCampaignMember(campaignMember);
+  if (program.ckHomeChef) {
+    const campaignMember: CampaignMemberObject = {
+      CampaignId: urls.townFridgeCampaignId,
+      ContactId: existingContact.id!,
+      Status: 'Confirmed',
+    };
+    await insertCampaignMember(campaignMember);
+  }
+
+  if (program.ckKitchen) {
+    const campaignMember: CampaignMemberObject = {
+      CampaignId: urls.ckKitchenCampaignId,
+      ContactId: existingContact.id!,
+      Status: 'Confirmed',
+    };
+    await insertCampaignMember(campaignMember);
+  }
 
   const newUser = new User({
     username: uniqueUsername,

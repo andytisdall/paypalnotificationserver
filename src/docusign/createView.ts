@@ -7,6 +7,7 @@ interface CreateViewArgs {
   envelopeId: string;
   dsReturnUrl: string;
   doc: string;
+  email?: string;
 }
 
 export default ({
@@ -16,6 +17,7 @@ export default ({
   envelopeId,
   dsReturnUrl,
   doc,
+  email,
 }: CreateViewArgs) => {
   // Data for this method
   // args.dsReturnUrl
@@ -32,7 +34,8 @@ export default ({
     // the DocuSign signing ceremony. It's usually better to use
     // the session mechanism of your web framework. Query parameters
     // can be changed/spoofed very easily.
-    returnUrl: dsReturnUrl + `?envelopeId=${envelopeId}&doc=${doc}`,
+    returnUrl:
+      dsReturnUrl + `?envelopeId=${envelopeId}&doc=${doc}&email=${email}`,
 
     // How has your app authenticated the user? In addition to your app's
     // authentication, you can include authenticate steps from DocuSign.

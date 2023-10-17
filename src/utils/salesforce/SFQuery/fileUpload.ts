@@ -22,6 +22,8 @@ export type AccountData = {
   Home_Chef_Food_Handler_Certification__c?: boolean;
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Status__c?: string;
+  CK_Kitchen_Volunteer_Status?: string;
+  CK_Kitchen_Agreement__c?: boolean;
 };
 
 export const formatFilename = (file: FileMetaData, account: Account) => {

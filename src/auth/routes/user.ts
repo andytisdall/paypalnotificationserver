@@ -1,15 +1,22 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { OAuth2Client } from 'google-auth-library';
+import { addHours } from 'date-fns';
+import { sendForgotPasswordEmail } from '../../utils/email';
+import jwt from 'jsonwebtoken';
 
+import getSecrets from '../../utils/getSecrets';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import {
   getContactById,
+  getContactByEmail,
   updateContact,
+  FormattedContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import { sendEmail } from '../../utils/email';
-import { getUsers } from '../../utils/salesforce/SFQuery/user';
+import urls from '../../utils/urls';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -22,18 +29,23 @@ router.get('/', currentUser, async (req, res) => {
   res.send(req.currentUser);
 });
 
-router.get('/userInfo', currentUser, requireAuth, async (req, res) => {
+router.get('/userInfo', async (req, res) => {
+  // fail silently so users don't get an error on volunteer page
+  if (!req.currentUser) {
+    return res.sendStatus(204);
+  }
   if (!req.currentUser!.salesforceId) {
     throw Error('User does not have a salesforce ID');
   }
   try {
     const contact = await getContactById(req.currentUser!.salesforceId);
-    const contactInfo = {
+    const contactInfo: FormattedContact = {
       firstName: contact.FirstName,
       lastName: contact.LastName,
       volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
       foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
       homeChefStatus: contact.Home_Chef_Status__c,
+      ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
     };
     res.send(contactInfo);
   } catch (err) {
@@ -131,6 +143,102 @@ router.post('/save-token', currentUser, requireAuth, async (req, res) => {
   user.homeChefNotificationToken = token;
   await user.save();
   res.sendStatus(204);
+});
+
+router.post('/connect-google', currentUser, requireAuth, async (req, res) => {
+  const { JWT_KEY, GOOGLE_CLIENT_ID } = await getSecrets([
+    'JWT_KEY',
+    'GOOGLE_CLIENT_ID',
+  ]);
+  if (!JWT_KEY) {
+    throw Error('No JWT key found');
+  }
+  if (!GOOGLE_CLIENT_ID) {
+    throw Error('No Google Client Id found');
+  }
+
+  const { credential }: { credential: string } = req.body;
+
+  const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+  const ticket = await googleClient.verifyIdToken({
+    idToken: credential,
+    audience: GOOGLE_CLIENT_ID,
+  });
+  const googleProfile = ticket.getPayload();
+  if (
+    !googleProfile ||
+    !googleProfile.email ||
+    !googleProfile.given_name ||
+    !googleProfile.family_name ||
+    !googleProfile.sub
+  ) {
+    throw Error('Could not get google profile');
+  }
+
+  const user = req.currentUser!;
+  user.googleId = googleProfile.sub;
+
+  //@ts-ignore
+  await user.save();
+
+  res.sendStatus(204);
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const { email }: { email: string } = req.body;
+
+  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  if (!JWT_KEY) {
+    throw Error('No JWT key found');
+  }
+
+  const contact = await getContactByEmail(email);
+  if (contact && contact.portalUsername) {
+    const user = await User.findOne({ username: contact.portalUsername });
+
+    if (user) {
+      const resetToken = jwt.sign(
+        {
+          id: user.id,
+          expiresAt: addHours(new Date(), 1).toString(),
+        },
+        JWT_KEY
+      );
+      const resetLink = urls.client + '/reset-password/' + resetToken;
+      await sendForgotPasswordEmail(email, resetLink, user.username);
+    }
+  }
+  res.sendStatus(204);
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { token, password }: { token: string; password: string } = req.body;
+
+  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  if (!JWT_KEY) {
+    throw Error('No JWT key found');
+  }
+  try {
+    const { id, expiresAt } = jwt.verify(token, JWT_KEY) as unknown as {
+      id: string;
+      expiresAt: string;
+    };
+
+    const user = await User.findById(id);
+    if (!user) {
+      throw Error('Invalid reset token');
+    }
+    if (new Date(expiresAt) < new Date()) {
+      throw Error('Reset token has expired');
+    }
+    if (user) {
+      user.password = password;
+      await user.save();
+    }
+    return res.sendStatus(204);
+  } catch (err) {
+    throw Error('Unable to reset password');
+  }
 });
 
 // router.get(

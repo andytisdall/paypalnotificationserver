@@ -38,7 +38,7 @@ const testUrls = {
   activeCampaigns: ['70179000000FIX9'],
   apple,
   appleReviewerId: '64e69853db4b5043abcd55b6',
-  ckKitchenCampaignId: '70179000000FaEGAA0',
+  ckKitchenCampaignId: '70179000000FaEG',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
