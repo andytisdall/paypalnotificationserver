@@ -195,6 +195,47 @@ router.post('/cbo-report', async (req, res) => {
 
   await fetcher.setService('salesforce');
 
+  let summaryId = '';
+
+  // check if summary object exist (each report is required to have a parent summary)
+
+  const summaryQuery = `SELECT Id from CBO_Report_Summary__c WHERE Date__c = ${formatISO(
+    lastDay
+  )}`;
+
+  const getSummaryUri = urls.SFQueryPrefix + encodeURIComponent(summaryQuery);
+
+  const summaryQueryResult: { data: { records?: { Id: string }[] } } =
+    await fetcher.get(getSummaryUri);
+
+  if (!summaryQueryResult.data.records) {
+    throw Error('Failed to get CBO summary object');
+  }
+
+  // create summary if it doesn't exist
+
+  if (!summaryQueryResult.data.records.length) {
+    const createSummaryUri = urls.SFOperationPrefix + '/CBO_Report_Summary__c';
+
+    const newSummary = {
+      Date__c: formatISO(lastDay),
+      Name: `${format(lastDay, 'LLLL')} ${year}`,
+    };
+
+    const insertSummaryResult: { data: { success: boolean; id: string } } =
+      await fetcher.post(createSummaryUri, newSummary);
+
+    if (!insertSummaryResult.data.success) {
+      throw Error('Could not create parent summary object');
+    }
+
+    summaryId = insertSummaryResult.data.id;
+  } else {
+    summaryId = summaryQueryResult.data.records[0].Id;
+  }
+
+  CBOReportObject.CBO_Report_Summary__c = summaryId;
+
   const insertUri = urls.SFOperationPrefix + '/CBO_Report_Data__c';
 
   const { data }: { data?: { success: boolean } } = await fetcher.post(
