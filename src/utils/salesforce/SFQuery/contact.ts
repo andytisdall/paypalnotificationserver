@@ -27,6 +27,10 @@ export interface UnformattedContact {
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   npsp__HHId__c?: string;
+  Maybe_interested_in_transporting_meals__c?: boolean;
+  Other_Cooking_Experience__c?: string;
+  Able_to_get_food_handler_other__c?: string;
+  Interest_in_other_volunteer_programs__c?: string;
 }
 
 // export interface IncomingContactInfo {
