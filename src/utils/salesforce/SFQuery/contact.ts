@@ -14,7 +14,7 @@ export interface ContactInfo {
   Instagram_Handle__c?: string;
   Able_to_Commit__c?: boolean;
   Able_to_get_food_handler_cert__c?: boolean;
-  Cooking_Experience__c?: 'Restaurant' | 'Home' | null;
+  Cooking_Experience__c?: string;
   Able_to_attend_orientation__c?: boolean;
   Meal_Transportation__c?: boolean;
   How_did_they_hear_about_CK__c?: string;
@@ -22,6 +22,11 @@ export interface ContactInfo {
   Portal_Temporary_Password__c?: string;
   Home_Chef_Status__c?: string;
   Id?: string;
+  Able_to_get_food_handler_other__c?: string;
+  Maybe_interested_in_transporting_meals__c?: boolean;
+  Other_Cooking_Experience__c?: string;
+  CK_Kitchen_Volunteer_Status__c?: string;
+  Interest_in_other_volunteer_programs__c?: string;
 }
 
 export interface IncomingContactInfo {
