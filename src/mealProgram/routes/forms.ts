@@ -199,8 +199,9 @@ router.post('/cbo-report', async (req, res) => {
 
   // check if summary object exist (each report is required to have a parent summary)
 
-  const summaryQuery = `SELECT Id from CBO_Report_Summary__c WHERE Date__c = ${formatISO(
-    lastDay
+  const summaryQuery = `SELECT Id from CBO_Report_Summary__c WHERE Date__c = ${format(
+    lastDay,
+    'yyyy-MM-dd'
   )}`;
 
   const getSummaryUri = urls.SFQueryPrefix + encodeURIComponent(summaryQuery);
