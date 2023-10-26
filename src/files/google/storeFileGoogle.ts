@@ -15,6 +15,8 @@ export const storeFile = async ({
   file: { data: Buffer; name: string };
   name: string;
 }): Promise<string> => {
+  console.log(file);
+
   const buffer = await sharp(file.data)
     .withMetadata()
     .jpeg({ quality: 75 })
