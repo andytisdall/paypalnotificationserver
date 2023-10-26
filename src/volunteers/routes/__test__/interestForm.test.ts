@@ -32,7 +32,10 @@ it('correctly makes the portal user and salesforce contact when the interest for
     extraInfo: "I'm super psyched to help!",
   };
 
-  await request(app).post('/api/home-chef/signup').send(formValues).expect(201);
+  await request(app)
+    .post('/api/volunteers/signup')
+    .send(formValues)
+    .expect(201);
 
   const user = await User.findOne({ username: 'rsanchez' });
   expect(user).toBeDefined();
@@ -61,7 +64,10 @@ it('correctly updates an existing contact and makes a user when the interest for
     extraInfo: "I'm super psyched to help!",
   };
 
-  await request(app).post('/api/home-chef/signup').send(formValues).expect(201);
+  await request(app)
+    .post('/api/volunteers/signup')
+    .send(formValues)
+    .expect(201);
 
   const user = await User.findOne({ username: 'ttest' });
 

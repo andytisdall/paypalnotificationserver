@@ -99,23 +99,45 @@ export const addContact = async (
 ): Promise<FormattedContact> => {
   await fetcher.setService('salesforce');
   const contactInsertUri = urls.SFOperationPrefix + '/Contact';
-  const insertRes: { data: InsertSuccessResponse | undefined } =
-    await fetcher.post(contactInsertUri, contactToAdd);
-  //Query new contact to get household account number for opp
-  if (insertRes.data?.success) {
-    const newContact: {
-      data: UnformattedContact | undefined;
-    } = await fetcher.get(contactInsertUri + '/' + insertRes.data.id);
-    if (!newContact.data?.Name) {
-      throw Error('Could not get created contact');
+
+  try {
+    const insertRes: { data: InsertSuccessResponse | undefined } =
+      await fetcher.post(contactInsertUri, contactToAdd);
+    //Query new contact to get household account number for opp
+    if (insertRes.data?.success) {
+      const newContact: {
+        data: UnformattedContact | undefined;
+      } = await fetcher.get(contactInsertUri + '/' + insertRes.data.id);
+      if (!newContact.data?.Name) {
+        throw Error('Could not get created contact');
+      }
+      return {
+        id: newContact.data.Id,
+        householdId: newContact.data.npsp__HHId__c,
+        name: newContact.data.Name,
+      };
+    } else {
+      throw new Error('Unable to insert contact!');
     }
-    return {
-      id: newContact.data.Id,
-      householdId: newContact.data.npsp__HHId__c,
-      name: newContact.data.Name,
-    };
-  } else {
-    throw new Error('Unable to insert contact!');
+  } catch (err) {
+    // if a duplicate error comes back, get that contact and return it
+
+    const duplicateRecordId =
+      // @ts-ignore
+      err?.response?.data[0]?.duplicateResult?.matchResults[0]?.matchRecords[0]
+        ?.record?.Id;
+
+    if (duplicateRecordId) {
+      const contact = await getContactById(duplicateRecordId);
+
+      return {
+        id: contact.Id,
+        householdId: contact.npsp__HHId__c,
+        name: contact.Name,
+      };
+    } else {
+      throw err;
+    }
   }
 };
 
@@ -147,7 +169,7 @@ export const getContactByEmail = async (
 ): Promise<FormattedContact | null> => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Name, FirstName, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Volunteer_Status__c from Contact WHERE Email = '${email}'`;
+  const query = `SELECT Name, FirstName, LastName, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Volunteer_Status__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse: {
@@ -163,6 +185,7 @@ export const getContactByEmail = async (
     portalUsername: contact.Portal_Username__c,
     firstName: contact.FirstName,
     name: contact.Name,
+    lastName: contact.LastName,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
   };
 };

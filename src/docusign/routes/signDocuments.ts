@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
 import sendEnvelope, { EnvelopeArgs, UserInfo } from '../sendEnvelope';
 import getSignedDocs from '../getSignedDocs';
 import { FileWithType, DocType } from '../../files/salesforce/metadata';
@@ -49,9 +48,9 @@ const accountConfig: Record<string, AccountInfo> = {
   },
 };
 
-router.get('/sign/:doc/:email', async (req, res) => {
+router.get('/sign/:doc/:id?', currentUser, async (req, res) => {
   const doc = req.params.doc as DocType;
-  const email = req.params.email;
+  const id = req.params.id;
 
   let userInfo: UserInfo | undefined;
 
@@ -62,15 +61,15 @@ router.get('/sign/:doc/:email', async (req, res) => {
       email: contact.Email!,
       id: contact.Id!,
     };
-  } else if (email) {
-    const contact = await getContactByEmail(email);
+  } else if (id) {
+    const contact = await getContactById(id);
     if (!contact) {
       throw Error('Invalid Email Address');
     }
     userInfo = {
-      name: contact.name!,
-      email,
-      id: contact.id!,
+      name: contact.Name!,
+      email: contact.Email!,
+      id: contact.Id!,
     };
   }
 
@@ -94,7 +93,7 @@ router.get('/sign/:doc/:email', async (req, res) => {
   res.send({ url: redirectUrl });
 });
 
-router.post('/getDoc', async (req, res) => {
+router.post('/getDoc', currentUser, async (req, res) => {
   const {
     envelopeId,
     doc,
@@ -109,12 +108,11 @@ router.post('/getDoc', async (req, res) => {
 
   let account: Account | undefined;
   if (req.currentUser) {
-    account = await getAccountForFileUpload(accountType, req.currentUser);
+    account = await getAccountForFileUpload(accountType, req.currentUser.id);
   } else if (email) {
     const contact = await getContactByEmail(email);
-    if (contact) {
-      // @ts-ignore
-      account = { ...contact, salesforceId: contact.id!, type: 'contact' };
+    if (contact?.id) {
+      account = await getAccountForFileUpload(accountType, contact.id);
     }
   }
   if (!account) {
@@ -133,7 +131,7 @@ router.post('/getDoc', async (req, res) => {
   const filesAdded = await uploadFiles(account, [file]);
 
   res.status(201);
-  res.send({ filesAdded });
+  res.send(filesAdded);
 });
 
 export default router;

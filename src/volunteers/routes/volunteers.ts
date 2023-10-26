@@ -62,9 +62,12 @@ router.get('/kitchen', async (req, res) => {
   res.send({ jobs, shifts });
 });
 
-router.get('/kitchen/hours/:contactId', async (req, res) => {
+router.get('/kitchen/hours/:contactId?', async (req, res) => {
   await fetcher.setService('salesforce');
   const contactId = req.params.contactId;
+  if (!contactId) {
+    return res.sendStatus(204);
+  }
   const hours = await getHours(urls.ckKitchenCampaignId, contactId);
   res.send(hours);
 });

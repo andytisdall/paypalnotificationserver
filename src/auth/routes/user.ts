@@ -29,7 +29,7 @@ router.get('/', currentUser, async (req, res) => {
   res.send(req.currentUser);
 });
 
-router.get('/userInfo', async (req, res) => {
+router.get('/userInfo', currentUser, async (req, res) => {
   // fail silently so users don't get an error on volunteer page
   if (!req.currentUser) {
     return res.sendStatus(204);

@@ -26,8 +26,6 @@ export default async ({ dsReturnUrl, userInfo, doc }: EnvelopeArgs) => {
     doc,
   };
 
-  console.log(userInfo);
-
   // Make the envelope request body
   let envelope = makeEnvelope(makeEnvelopeArgs);
 
