@@ -42,7 +42,7 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   const account: Account | undefined = await getAccountForFileUpload(
     accountType,
-    req.currentUser!.id
+    req.currentUser!
   );
   if (!account) {
     throw Error('Could not get account');

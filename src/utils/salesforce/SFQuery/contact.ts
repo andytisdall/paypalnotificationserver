@@ -55,6 +55,7 @@ export interface FormattedContact {
   foodHandler?: boolean;
   ckKitchenStatus?: string;
   homeChefStatus?: string;
+  email?: string;
 }
 
 // export interface UnformattedContact {
@@ -115,6 +116,7 @@ export const addContact = async (
         id: newContact.data.Id,
         householdId: newContact.data.npsp__HHId__c,
         name: newContact.data.Name,
+        email: newContact.data.Email,
       };
     } else {
       throw new Error('Unable to insert contact!');
@@ -134,6 +136,7 @@ export const addContact = async (
         id: contact.Id,
         householdId: contact.npsp__HHId__c,
         name: contact.Name,
+        email: contact.Email || contactToAdd.Email,
       };
     } else {
       throw err;

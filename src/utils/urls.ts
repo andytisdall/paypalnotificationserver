@@ -35,7 +35,7 @@ const testUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: ['70179000000FIX9'],
+  activeCampaigns: [],
   apple,
   appleReviewerId: '64e69853db4b5043abcd55b6',
   ckKitchenCampaignId: '70179000000FaEG',

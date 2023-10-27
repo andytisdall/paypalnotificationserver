@@ -108,11 +108,14 @@ router.post('/getDoc', currentUser, async (req, res) => {
 
   let account: Account | undefined;
   if (req.currentUser) {
-    account = await getAccountForFileUpload(accountType, req.currentUser.id);
+    account = await getAccountForFileUpload(accountType, req.currentUser);
   } else if (email) {
     const contact = await getContactByEmail(email);
     if (contact?.id) {
-      account = await getAccountForFileUpload(accountType, contact.id);
+      account = await getAccountForFileUpload(accountType, {
+        salesforceId: contact.id,
+        id: '',
+      });
     }
   }
   if (!account) {

@@ -7,7 +7,6 @@ const Restaurant = mongoose.model('Restaurant');
 export type AccountType = 'restaurant' | 'contact';
 
 export type ContactAccount = {
-  // name: string;
   salesforceId: string;
   lastName: string;
   firstName?: string;
@@ -26,13 +25,13 @@ export type Account = ContactAccount | RestaurantAccount;
 
 export const getAccountForFileUpload = async (
   accountType: AccountType,
-  userId: string
+  { salesforceId, id }: { salesforceId: string; id: string }
 ): Promise<Account | undefined> => {
   if (!accountType) {
     throw Error('No account type specified');
   }
   if (accountType === 'restaurant') {
-    const restaurant = await Restaurant.findOne({ user: userId });
+    const restaurant = await Restaurant.findOne({ user: id });
     if (!restaurant) {
       throw Error('Restaurant not found');
     }
@@ -44,13 +43,12 @@ export const getAccountForFileUpload = async (
     };
   }
   if (accountType === 'contact') {
-    const contact = await getContactById(userId);
+    const contact = await getContactById(salesforceId);
     if (!contact) {
       throw Error('Could not fetch contact from salesforce');
     }
     return {
-      // name: user.username,
-      salesforceId: userId,
+      salesforceId,
       firstName: contact.FirstName,
       lastName: contact.LastName!,
       volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
