@@ -1,5 +1,5 @@
 import { addDays, subDays } from 'date-fns';
-import { format } from 'date-fns-tz';
+import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
@@ -120,4 +120,22 @@ export const getRestaurantMealProgramSchedule = async (accountId: string) => {
     }),
     deliveries: deliveries.map(formatMealDelivery),
   };
+};
+
+export const deleteMay = async () => {
+  await fetcher.setService('salesforce');
+  const lowerBound = zonedTimeToUtc('2023-04-30', 'America/Los_Angeles');
+  const upperBound = zonedTimeToUtc('2023-06-01', 'America/Los_Angeles');
+  const getQuery = `SELECT Id from Meal_Program_Delivery__c WHERE Date__c > ${lowerBound} AND Date__c < ${upperBound}`;
+
+  const getUri = urls.SFQueryPrefix + encodeURIComponent(getQuery);
+
+  const getResult = await fetcher.get(getUri);
+
+  console.log(
+    getResult.data.records.map((del: any) => ({
+      ...del,
+      Date__c: utcToZonedTime(del.Date__c, 'America/Los_Angeles'),
+    }))
+  );
 };
