@@ -62,7 +62,6 @@ export const getMealProgramSchedule = async () => {
   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
   const deliveryResponse = await fetcher.get(deliveryyUri);
   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
-  console.log(deliveries);
 
   const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
   const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
@@ -122,20 +121,22 @@ export const getRestaurantMealProgramSchedule = async (accountId: string) => {
   };
 };
 
-export const deleteMay = async () => {
-  await fetcher.setService('salesforce');
-  const lowerBound = zonedTimeToUtc('2023-04-30', 'America/Los_Angeles');
-  const upperBound = zonedTimeToUtc('2023-06-01', 'America/Los_Angeles');
-  const getQuery = `SELECT Id from Meal_Program_Delivery__c WHERE Date__c > ${lowerBound} AND Date__c < ${upperBound}`;
+// export const deleteMay = async () => {
+//   await fetcher.setService('salesforce');
+//   const lowerBound = '2023-04-30';
+//   const upperBound = '2023-06-01';
+//   const getQuery = `SELECT Id, Date__c from Meal_Program_Delivery__c WHERE Date__c > ${lowerBound} AND Date__c < ${upperBound}`;
 
-  const getUri = urls.SFQueryPrefix + encodeURIComponent(getQuery);
+//   const getUri = urls.SFQueryPrefix + encodeURIComponent(getQuery);
 
-  const getResult = await fetcher.get(getUri);
+//   const getResult = await fetcher.get(getUri);
+//   console.log(getResult.data.records.length);
 
-  console.log(
-    getResult.data.records.map((del: any) => ({
-      ...del,
-      Date__c: utcToZonedTime(del.Date__c, 'America/Los_Angeles'),
-    }))
-  );
-};
+//   const promises = getResult.data.records.map((del: any) => {
+//     const deleteUri =
+//       urls.SFOperationPrefix + '/Meal_Program_Delivery__c/' + del.Id;
+//     fetcher.delete(deleteUri);
+//   });
+
+//   await Promise.all(promises);
+// };
