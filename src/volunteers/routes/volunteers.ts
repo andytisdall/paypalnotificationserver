@@ -8,7 +8,11 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
 import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
-import { getHours, createHours } from '../../utils/salesforce/SFQuery/hours';
+import {
+  getHours,
+  createHours,
+  deleteKitchenHours,
+} from '../../utils/salesforce/SFQuery/hours';
 import { getCampaign } from '../../utils/salesforce/SFQuery/campaign';
 import urls from '../../utils/urls';
 
@@ -108,6 +112,31 @@ router.get('/:email', async (req, res) => {
   const { email } = req.params;
   const contact = await getContactByEmail(email);
   res.send(contact);
+});
+
+router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
+  const id = req.params.id;
+  const salesforceId = req.params.salesforceId;
+
+  let contactId = '';
+  if (req.currentUser) {
+    contactId = req.currentUser.salesforceId;
+  } else {
+    contactId = salesforceId;
+  }
+
+  if (!contactId) {
+    throw Error('Could not find contact');
+  }
+
+  const hours = await getHours(urls.ckKitchenCampaignId, contactId);
+
+  if (hours.find((h) => h.id === id)) {
+    await deleteKitchenHours(id);
+    res.send(204);
+  } else {
+    throw Error('Volunteer hours do not belong to this contact');
+  }
 });
 
 export default router;
