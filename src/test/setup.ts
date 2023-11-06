@@ -19,7 +19,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   const userInfo = {
     username: 'test',
     password: 'password',
-    salesforceId: '0037900000EfVRIAA3',
+    salesforceId: '0037400000FU7XrAAL',
     admin,
   };
   const newUser = new User(userInfo);

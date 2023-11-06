@@ -7,6 +7,7 @@ import {
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
 import {
   getHours,
@@ -15,6 +16,7 @@ import {
 } from '../../utils/salesforce/SFQuery/hours';
 import { getCampaign } from '../../utils/salesforce/SFQuery/campaign';
 import urls from '../../utils/urls';
+import { sendKitchenShiftCancelEmail } from '../../utils/email';
 
 const router = express.Router();
 
@@ -130,9 +132,17 @@ router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
   }
 
   const hours = await getHours(urls.ckKitchenCampaignId, contactId);
+  const hour = hours.find((h) => h.id === id);
 
-  if (hours.find((h) => h.id === id)) {
+  if (hour) {
     await deleteKitchenHours(id);
+    const { Email, FirstName } = await getContactById(contactId);
+    if (Email) {
+      await sendKitchenShiftCancelEmail(Email, {
+        date: hour.time,
+        name: FirstName,
+      });
+    }
     res.send(204);
   } else {
     throw Error('Volunteer hours do not belong to this contact');

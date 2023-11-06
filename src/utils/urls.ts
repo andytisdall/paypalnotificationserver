@@ -23,7 +23,7 @@ const prodUrls = {
 };
 
 const testUrls = {
-  townFridgeCampaignId: '70179000000FFL3',
+  townFridgeCampaignId: '70174000000Yqjh',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   salesforceMeal:
@@ -38,7 +38,7 @@ const testUrls = {
   activeCampaigns: [],
   apple,
   appleReviewerId: '64e69853db4b5043abcd55b6',
-  ckKitchenCampaignId: '70179000000FaEG',
+  ckKitchenCampaignId: '70174000000YqmC',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
