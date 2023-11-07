@@ -20,7 +20,9 @@ export default (shift: {
         <li>Fridge: ${shift.fridge}</li>
         <li>Number of Meals: ${shift.mealCount}</li>
       </ul>
-    <p>Thanks!</p>
-    <p>Community Kitchens</p>
+      <p>To sign up for another shift, visit the <a href="https://portal.ckoakland.org/home-chef">Home Chef portal.</a></p>
+    <p>Thanks!
+    <br />
+    Community Kitchens</p>
   `;
 };
