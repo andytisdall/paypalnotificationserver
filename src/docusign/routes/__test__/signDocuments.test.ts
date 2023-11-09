@@ -23,13 +23,13 @@ it('uploads a file from docusign to salesforce for both contact and restaurant a
     .send({
       envelopeId,
       doc: 'HC',
-      id: user.salesforceId,
+      email: 'andrew.tisdall@gmail.com',
     })
     .expect(201);
 
   const newRest = new Restaurant({
     name: 'Paddys',
-    salesforceId: '0017900000IOnAkAAL',
+    salesforceId: '0017400000IGCdtAAH',
     user: user.id,
   });
   await newRest.save();

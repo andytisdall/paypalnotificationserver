@@ -12,24 +12,20 @@ afterEach(async () => {
 
 it('correctly makes the portal user and salesforce contact when the interest form is submitted', async () => {
   const formValues = {
-    email: 'fake@gogo.com',
-    firstName: 'Rocky',
-    lastName: 'Sanchez',
-    phoneNumber: '510-677-6867',
-    instagramHandle: '@rockysanchez',
+    email: 'hello@gmail.com',
+    firstName: 'Maybe',
+    lastName: 'Funke',
+    phoneNumber: '415-819-0251',
+    instagramHandle: '@instagream',
     commit: true,
     foodHandler: false,
-    daysAvailable: {
-      Monday: true,
-      Tuesday: false,
-      Wednesday: true,
-      Thursday: false,
-    },
-    experience: 'None',
-    attend: true,
+    daysAvailable: { Monday: true, Wednesday: false },
+    experience: 'Restaurant',
     pickup: false,
-    source: 'Heard about it on the news',
-    extraInfo: "I'm super psyched to help!",
+    source: 'Newspaper',
+    extraInfo: 'I love cooking',
+    pickupMaybe: true,
+    programs: { ckKitchen: true, ckHomeChefs: false, other: 'other' },
   };
 
   await request(app)
@@ -37,8 +33,8 @@ it('correctly makes the portal user and salesforce contact when the interest for
     .send(formValues)
     .expect(201);
 
-  const user = await User.findOne({ username: 'rsanchez' });
-  expect(user).toBeDefined();
+  const user = await User.findOne({ username: 'mfunke' });
+  expect(user).not.toBeNull();
   expect(user?.salesforceId).toBeDefined();
 });
 
@@ -57,9 +53,10 @@ it('correctly updates an existing contact and makes a user when the interest for
       Wednesday: true,
       Thursday: false,
     },
-    experience: 'None',
-    attend: true,
+    experience: 'Restaurant',
     pickup: false,
+    pickupMaybe: true,
+    programs: { ckKitchen: false, ckHomeChefs: true },
     source: 'Heard about it on the news',
     extraInfo: "I'm super psyched to help!",
   };

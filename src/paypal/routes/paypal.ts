@@ -327,6 +327,7 @@ const addDonation = async (
     RecordTypeId: '0128Z000001BIZJQA4',
     Processing_Fee__c: paypalData.payment_fee,
   };
+  // link to campaign specified by an id on the custom field
   if (paypalData.custom && activeCampaigns[paypalData.custom]) {
     oppToAdd.CampaignId = activeCampaigns[paypalData.custom].id;
   }

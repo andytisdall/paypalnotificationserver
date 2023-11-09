@@ -118,6 +118,10 @@ router.post('/signup', async (req, res) => {
     existingContact = await addContact(contactInfo);
   }
 
+  if (!existingContact) {
+    throw Error('Error adding contact');
+  }
+
   if (programs.ckHomeChefs) {
     const campaignMember: CampaignMemberObject = {
       CampaignId: urls.townFridgeCampaignId,
