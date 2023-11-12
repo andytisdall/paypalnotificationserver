@@ -37,29 +37,16 @@ router.get('/userInfo', currentUser, async (req, res) => {
   if (!req.currentUser!.salesforceId) {
     throw Error('User does not have a salesforce ID');
   }
-  try {
-    const contact = await getContactById(req.currentUser!.salesforceId);
-    const contactInfo: FormattedContact = {
-      firstName: contact.FirstName,
-      lastName: contact.LastName,
-      volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
-      foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
-      homeChefStatus: contact.Home_Chef_Status__c,
-      ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
-    };
-    res.send(contactInfo);
-  } catch (err) {
-    await sendEmail({
-      to: 'andy@ckoakland.org',
-      from: 'andy@ckoakland.org',
-      subject: 'Failed to fetch user info',
-      text: `A portal user could not fetch their info from salesforce. User: ${JSON.stringify(
-        req.currentUser
-      )}`,
-    });
-    //@ts-ignore
-    throw Error(err.message);
-  }
+  const contact = await getContactById(req.currentUser!.salesforceId);
+  const contactInfo: FormattedContact = {
+    firstName: contact.FirstName,
+    lastName: contact.LastName,
+    volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+    foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
+    homeChefStatus: contact.Home_Chef_Status__c,
+    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+  };
+  res.send(contactInfo);
 });
 
 router.get('/all', currentUser, requireAuth, requireAdmin, async (req, res) => {

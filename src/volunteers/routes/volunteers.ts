@@ -143,7 +143,7 @@ router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
         name: FirstName,
       });
     }
-    res.send(204);
+    res.sendStatus(204);
   } else {
     throw Error('Volunteer hours do not belong to this contact');
   }
