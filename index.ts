@@ -42,7 +42,7 @@ import authRouter from './src/auth/routes/auth';
 import userRouter from './src/auth/routes/user';
 
 //events
-import volunteersRouter from './src/volunteers/routes/volunteers';
+import volunteersRouter from './src/volunteers/routes';
 
 import d4jRouter from './src/d4j/receipt';
 

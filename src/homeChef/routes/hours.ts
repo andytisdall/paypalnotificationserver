@@ -72,12 +72,14 @@ router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
   // get user email, date of shift, and fridge name
   const { Email } = await getContactById(req.currentUser!.salesforceId);
   // email user confirmation
-  await sendShiftEditEmail(Email, {
-    date: emailData.date,
-    fridge: emailData.fridge,
-    cancel,
-    mealCount,
-  });
+  if (Email) {
+    await sendShiftEditEmail(Email, {
+      date: emailData.date,
+      fridge: emailData.fridge,
+      cancel,
+      mealCount,
+    });
+  }
 
   res.send({ id, mealCount, cancel });
 });

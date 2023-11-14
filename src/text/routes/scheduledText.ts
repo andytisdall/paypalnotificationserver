@@ -11,7 +11,6 @@ import { formatISO } from 'date-fns';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 const Phone = mongoose.model('Phone');
 const ScheduledText = mongoose.model('ScheduledText');

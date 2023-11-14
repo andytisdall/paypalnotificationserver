@@ -50,7 +50,7 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   const filesAdded = await uploadFiles(account, fileList, expiration);
 
-  res.send({ filesAdded });
+  res.send(filesAdded);
 });
 
 export default router;

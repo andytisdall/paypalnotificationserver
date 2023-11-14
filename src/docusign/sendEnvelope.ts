@@ -4,7 +4,7 @@ import makeRecipientViewRequest from './createView';
 import fetcher from '../utils/fetcher';
 import { CreateEnvelopeArgs } from './createEnvelope';
 
-interface UserInfo {
+export interface UserInfo {
   name: string;
   email: string;
   id: string;
@@ -49,6 +49,7 @@ export default async ({ dsReturnUrl, userInfo, doc }: EnvelopeArgs) => {
     envelopeId,
     dsReturnUrl,
     doc,
+    email: userInfo.email,
   });
 
   // // Call the CreateRecipientView API

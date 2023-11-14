@@ -1,14 +1,19 @@
 import express from 'express';
 
 import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import sendEnvelope, { EnvelopeArgs } from '../sendEnvelope';
+import sendEnvelope, { EnvelopeArgs, UserInfo } from '../sendEnvelope';
 import getSignedDocs from '../getSignedDocs';
 import { FileWithType, DocType } from '../../files/salesforce/metadata';
 import { uploadFiles } from '../../files/salesforce/uploadToSalesforce';
 import urls from '../../utils/urls';
-import { getAccountForFileUpload } from '../../files/salesforce/getModel';
-import { getContactById } from '../../utils/salesforce/SFQuery/contact';
+import {
+  getAccountForFileUpload,
+  Account,
+} from '../../files/salesforce/getModel';
+import {
+  getContactById,
+  getContactByEmail,
+} from '../../utils/salesforce/SFQuery/contact';
 
 const router = express.Router();
 
@@ -37,22 +42,44 @@ const accountConfig: Record<string, AccountInfo> = {
     filename: 'direct-deposit',
     url: MEAL_PROGRAM_RETURN_URL,
   },
+  CKK: {
+    filename: 'ck-kitchen-agreement',
+    url: '/volunteers/ck-kitchen/docusign/success',
+  },
 };
 
-router.post('/sign', currentUser, requireAuth, async (req, res) => {
-  const doc: DocType = req.body.doc;
+router.get('/sign/:doc/:id?', currentUser, async (req, res) => {
+  const doc = req.params.doc as DocType;
+  const id = req.params.id;
 
-  const contact = await getContactById(req.currentUser!.salesforceId);
+  let userInfo: UserInfo | undefined;
 
-  if (!contact.Email) {
-    throw Error('Contact has no email, which is required for document signing');
+  if (req.currentUser) {
+    const contact = await getContactById(req.currentUser.salesforceId);
+    userInfo = {
+      name: contact.Name!,
+      email: contact.Email!,
+      id: contact.Id!,
+    };
+  } else if (id) {
+    const contact = await getContactById(id);
+    if (!contact) {
+      throw Error('Invalid Email Address');
+    }
+    userInfo = {
+      name: contact.Name!,
+      email: contact.Email!,
+      id: contact.Id!,
+    };
   }
 
-  const userInfo = {
-    name: contact.Name,
-    email: contact.Email,
-    id: contact.Id,
-  };
+  if (!userInfo) {
+    throw Error('Contact Not Found');
+  }
+
+  if (!userInfo.email) {
+    throw Error('Contact has no email, which is required for document signing');
+  }
 
   const returnUrl = urls.client + accountConfig[doc].url;
   const envelopeArgs: EnvelopeArgs = {
@@ -63,21 +90,34 @@ router.post('/sign', currentUser, requireAuth, async (req, res) => {
 
   const { redirectUrl } = await sendEnvelope(envelopeArgs);
 
-  res.send(redirectUrl);
+  res.send({ url: redirectUrl });
 });
 
-router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
+router.post('/getDoc', currentUser, async (req, res) => {
   const {
     envelopeId,
     doc,
+    email,
   }: {
     envelopeId: string;
     doc: DocType;
+    email?: string;
   } = req.body;
 
-  const accountType = doc === 'HC' ? 'contact' : 'restaurant';
+  const accountType = doc === 'HC' || doc === 'CKK' ? 'contact' : 'restaurant';
 
-  const account = await getAccountForFileUpload(accountType, req.currentUser!);
+  let account: Account | undefined;
+  if (req.currentUser) {
+    account = await getAccountForFileUpload(accountType, req.currentUser);
+  } else if (email) {
+    const contact = await getContactByEmail(email);
+    if (contact?.id) {
+      account = await getAccountForFileUpload(accountType, {
+        salesforceId: contact.id,
+        id: '',
+      });
+    }
+  }
   if (!account) {
     throw Error('Could not get account');
   }
@@ -94,7 +134,7 @@ router.post('/getDoc', currentUser, requireAuth, async (req, res) => {
   const filesAdded = await uploadFiles(account, [file]);
 
   res.status(201);
-  res.send({ filesAdded });
+  res.send(filesAdded);
 });
 
 export default router;

@@ -7,18 +7,26 @@ import getSecrets from '../utils/getSecrets';
 const User = mongoose.model('User');
 
 export interface UserPayload {
-  username: string;
   id: string;
+}
+
+export interface UserModel {
+  id: string;
+  username: string;
+  password: string;
   admin: boolean;
   active: boolean;
   salesforceId: string;
-  busDriver: boolean;
+  busDriver?: boolean;
+  googleId: string;
+  appleId?: string;
+  homeChefNotificationToken?: string;
 }
 
 declare global {
   namespace Express {
     interface Request {
-      currentUser?: UserPayload | null;
+      currentUser?: UserModel;
     }
   }
 }
@@ -40,6 +48,6 @@ export const currentUser = async (
   }
 
   const payload = jwt.verify(authorization, JWT_KEY) as unknown as UserPayload;
-  req.currentUser = await User.findById(payload.id);
+  req.currentUser = (await User.findById(payload.id)) || undefined;
   next();
 };

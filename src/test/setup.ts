@@ -19,7 +19,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   const userInfo = {
     username: 'test',
     password: 'password',
-    salesforceId: '0037900000EfVRIAA3',
+    salesforceId: '0037400000FU7XrAAL',
     admin,
   };
   const newUser = new User(userInfo);
@@ -29,6 +29,13 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
     throw new Error('No JWT key found');
   }
   global.userId = newUser.id;
+  const Restaurant = mongoose.model('Restaurant');
+  const newRestaurant = new Restaurant({
+    name: 'Vesuvio',
+    salesforceId: '0017400000IG2R9AAL',
+    user: newUser.id,
+  });
+  await newRestaurant.save();
   return jwt.sign(
     {
       id: newUser.id,

@@ -23,6 +23,7 @@ export const uploadFiles = async (
   const { data }: { data: AccountData } = await fetcher.get(accountGetUri);
 
   let fileTitles = files.map((f) => fileInfo[f.docType].title);
+
   const formattedTitles = files.map((file) => {
     return formatFilename(fileInfo[file.docType], account);
   });
@@ -49,7 +50,7 @@ export const uploadFiles = async (
 
   // update account
   if (account.type === 'contact') {
-    await updateContact(fileTitles, data, account);
+    await updateContact(fileTitles, data);
   }
   if (account.type === 'restaurant') {
     await updateRestaurant(fileTitles, data, account, date);

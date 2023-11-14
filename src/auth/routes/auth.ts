@@ -12,7 +12,6 @@ import {
   getContactByEmail,
 } from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
-import { sendForgotPasswordEmail } from '../../utils/email';
 
 const User = mongoose.model('User');
 
@@ -263,7 +262,6 @@ router.post('/google-signin', async (req, res) => {
       if (contact.portalUsername) {
         // check if they have username already?
         // assign existing user a google id
-        console.log(contact);
         existingUser = await User.findOne({ username: contact.portalUsername });
         if (!existingUser) {
           // create user
@@ -294,16 +292,6 @@ router.post('/google-signin', async (req, res) => {
   );
 
   res.send({ user: existingUser, token: JWT });
-});
-
-router.post('/forgot-password', async (req, res) => {
-  const { email }: { email: string } = req.body;
-
-  const contact = await getContactByEmail(email);
-  if (contact && contact.portalUsername) {
-    await sendForgotPasswordEmail(email, '');
-  }
-  res.sendStatus(204);
 });
 
 export default router;

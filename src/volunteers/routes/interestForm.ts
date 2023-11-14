@@ -5,7 +5,7 @@ import {
   getContact,
   addContact,
   updateContact,
-  ContactInfo,
+  UnformattedContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import {
   insertCampaignMember,
@@ -78,7 +78,7 @@ router.post('/signup', async (req, res) => {
         .join(';') + ';'
     : undefined;
 
-  const contactInfo: ContactInfo = {
+  const contactInfo: UnformattedContact = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,
@@ -96,6 +96,7 @@ router.post('/signup', async (req, res) => {
     Portal_Username__c: uniqueUsername,
     Portal_Temporary_Password__c: temporaryPassword,
     Able_to_get_food_handler_other__c: foodHandlerOther,
+    GW_Volunteers__Volunteer_Status__c: 'Active',
   };
 
   if (programs.other) {
@@ -112,16 +113,20 @@ router.post('/signup', async (req, res) => {
 
   let existingContact = await getContact(lastName, firstName);
   if (existingContact) {
-    await updateContact(existingContact.id, contactInfo);
+    await updateContact(existingContact.id!, contactInfo);
   } else {
     // contact needs to be added first so that opp can have a contactid
     existingContact = await addContact(contactInfo);
   }
 
+  if (!existingContact) {
+    throw Error('Error adding contact');
+  }
+
   if (programs.ckHomeChefs) {
     const campaignMember: CampaignMemberObject = {
       CampaignId: urls.townFridgeCampaignId,
-      ContactId: existingContact.id,
+      ContactId: existingContact.id!,
       Status: 'Confirmed',
     };
     await insertCampaignMember(campaignMember);
@@ -130,7 +135,7 @@ router.post('/signup', async (req, res) => {
   if (programs.ckKitchen) {
     const campaignMember: CampaignMemberObject = {
       CampaignId: urls.ckKitchenCampaignId,
-      ContactId: existingContact.id,
+      ContactId: existingContact.id!,
       Status: 'Confirmed',
     };
     await insertCampaignMember(campaignMember);

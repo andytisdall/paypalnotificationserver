@@ -100,7 +100,7 @@ export const createHours = async ({
 };
 
 export const getHours = async (campaignId: string, contactId: string) => {
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${campaignId}' AND GW_Volunteers__Contact__c = '${contactId}' AND (GW_Volunteers__Status__c = 'Confirmed' OR GW_Volunteers__Status__c = 'Completed')`;
+  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${campaignId}' AND GW_Volunteers__Contact__c = '${contactId}'`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -148,6 +148,16 @@ export const editHours = async (
   if (cancel) {
     hoursToUpdate.GW_Volunteers__Status__c = 'Canceled';
   }
+
+  const hoursUpdateUri =
+    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
+  await fetcher.patch(hoursUpdateUri, hoursToUpdate);
+};
+
+export const deleteKitchenHours = async (id: string) => {
+  await fetcher.setService('salesforce');
+
+  const hoursToUpdate = { GW_Volunteers__Status__c: 'Canceled' };
 
   const hoursUpdateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;

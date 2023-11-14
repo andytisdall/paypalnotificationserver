@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { sendDonationAckEmail } from '../../utils/email';
 import {
   addContact,
-  Contact,
+  FormattedContact,
   getContactByEmail,
 } from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
@@ -167,7 +167,10 @@ const formatDate = (date: string) => {
 //   }
 // };
 
-const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
+const addRecurring = async (
+  paypalData: PaypalData,
+  contact: FormattedContact
+) => {
   const formattedDate = formatDate(paypalData.time_created);
 
   let dayOfMonth = moment(formattedDate).format('D');
@@ -179,7 +182,7 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
   }
 
   const recurringToAdd: RecurringDonationObject = {
-    npe03__Contact__c: contact.id,
+    npe03__Contact__c: contact.id!,
     npe03__Date_Established__c: formattedDate,
     npe03__Amount__c: paypalData.amount!,
     npsp__RecurringType__c: 'Open',
@@ -205,7 +208,10 @@ const addRecurring = async (paypalData: PaypalData, contact: Contact) => {
   console.log('Recurring Donation Added: ' + JSON.stringify(summaryMessage));
 };
 
-const cancelRecurring = async (paypalData: PaypalData, contact: Contact) => {
+const cancelRecurring = async (
+  paypalData: PaypalData,
+  contact: FormattedContact
+) => {
   const recurringQuery = [
     'SELECT',
     'Id',
@@ -252,7 +258,7 @@ const cancelRecurring = async (paypalData: PaypalData, contact: Contact) => {
 
 const updateRecurringOpp = async (
   paypalData: PaypalData,
-  contact: Contact,
+  contact: FormattedContact,
   status: 'Closed Lost' | 'Posted'
 ) => {
   // query donations to get ID
@@ -299,7 +305,10 @@ const updateRecurringOpp = async (
     throw Error('Existing opportunity not found');
   }
 };
-const addDonation = async (paypalData: PaypalData, contact: Contact) => {
+const addDonation = async (
+  paypalData: PaypalData,
+  contact: FormattedContact
+) => {
   if (!paypalData.payment_date) {
     throw Error('Could not add donation without a payment date');
   }
@@ -308,8 +317,8 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
 
   const oppToAdd: OppObject = {
     Amount: paypalData.payment_gross,
-    AccountId: contact.householdId,
-    npsp__Primary_Contact__c: contact.id,
+    AccountId: contact.householdId!,
+    npsp__Primary_Contact__c: contact.id!,
     StageName: 'Posted',
     CloseDate: formattedDate,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
@@ -318,6 +327,7 @@ const addDonation = async (paypalData: PaypalData, contact: Contact) => {
     RecordTypeId: '0128Z000001BIZJQA4',
     Processing_Fee__c: paypalData.payment_fee,
   };
+  // link to campaign specified by an id on the custom field
   if (paypalData.custom && activeCampaigns[paypalData.custom]) {
     oppToAdd.CampaignId = activeCampaigns[paypalData.custom].id;
   }

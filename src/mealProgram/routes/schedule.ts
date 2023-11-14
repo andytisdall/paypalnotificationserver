@@ -3,7 +3,6 @@ import express from 'express';
 import {
   getMealProgramSchedule,
   getRestaurantMealProgramSchedule,
-  // deleteMay,
 } from '../../utils/salesforce/SFQuery/mealProgram';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
