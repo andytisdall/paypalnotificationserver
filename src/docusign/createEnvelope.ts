@@ -5,6 +5,7 @@ const prodTemplates: Record<string, string> = {
   RC: '44e64a6a-a0a1-4c5a-87de-bb62d5f28b1e',
   DD: 'ec16dfbd-9b80-4a0a-858f-ac5cb404df70',
   HC: '3c76d961-cce2-481b-a1ec-6b8377869622',
+  CKK: 'd714d870-6ea8-4abf-b1d1-78e3c82c855e',
 };
 
 const devTemplates: Record<string, string> = {
