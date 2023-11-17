@@ -90,7 +90,7 @@ router.post('/intake-survey', async (req, res) => {
     throw Error('Failed to save form data');
   }
 
-  res.sendStatus(201);
+  res.sendStatus(204);
 });
 
 interface CBOReportParams {
@@ -247,7 +247,7 @@ router.post('/cbo-report', async (req, res) => {
     throw Error('Unable to add data');
   }
 
-  res.sendStatus(201);
+  res.sendStatus(204);
 });
 
 export default router;

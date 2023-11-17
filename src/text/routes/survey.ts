@@ -28,7 +28,7 @@ router.post('/meal-survey', async (req, res) => {
   if (!data.success) {
     throw new Error('Could not save the survey results');
   }
-  res.sendStatus(200);
+  res.sendStatus(204);
 });
 
 router.post('/signup-survey', async (req, res) => {
@@ -65,7 +65,7 @@ router.post('/signup-survey', async (req, res) => {
     throw new Error('Could not save the survey results');
   }
 
-  res.sendStatus(200);
+  res.sendStatus(204);
 });
 
 export default router;

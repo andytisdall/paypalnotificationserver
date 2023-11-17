@@ -148,7 +148,7 @@ router.post('/signup', async (req, res) => {
   });
   await newUser.save();
 
-  res.sendStatus(201);
+  res.sendStatus(204);
 });
 
 export default router;
