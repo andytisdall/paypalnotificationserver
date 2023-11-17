@@ -154,7 +154,7 @@ export const editHours = async (
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 };
 
-export const deleteKitchenHours = async (id: string) => {
+export const deleteVolunteerHours = async (id: string) => {
   await fetcher.setService('salesforce');
 
   const hoursToUpdate = { GW_Volunteers__Status__c: 'Canceled' };

@@ -44,7 +44,7 @@ const accountConfig: Record<string, AccountInfo> = {
   },
   CKK: {
     filename: 'ck-kitchen-agreement',
-    url: '/volunteers/ck-kitchen/docusign/success',
+    url: '/volunteers/docusign/success',
   },
 };
 

@@ -12,11 +12,17 @@ import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
 import {
   getHours,
   createHours,
-  deleteKitchenHours,
+  deleteVolunteerHours,
 } from '../../utils/salesforce/SFQuery/hours';
-import { getCampaign } from '../../utils/salesforce/SFQuery/campaign';
+import {
+  getVolunteerCampaigns,
+  getCampaignFromHours,
+} from '../../utils/salesforce/SFQuery/campaign';
 import urls from '../../utils/urls';
-import { sendKitchenShiftCancelEmail } from '../../utils/email';
+import {
+  sendKitchenShiftCancelEmail,
+  sendEventShiftCancelEmail,
+} from '../../utils/email';
 
 const router = express.Router();
 
@@ -39,11 +45,11 @@ router.post('/', async (req, res) => {
   res.send(contact);
 });
 
-router.get('/events', currentUser, requireAuth, async (req, res) => {
+router.get('/events', async (req, res) => {
   await fetcher.setService('salesforce');
-  const campaignPromises = urls.activeCampaigns.map(async (id) => {
-    const campaign = await getCampaign(id);
-    const jobs = await getJobs(id);
+  const campaigns = await getVolunteerCampaigns();
+  const campaignPromises = campaigns.map(async (campaign) => {
+    const jobs = await getJobs(campaign.id);
     const shiftPromises = jobs.map(async (j) => {
       const shifts = await getShifts(j.id);
       j.shifts = shifts.map((sh) => sh.id);
@@ -52,8 +58,8 @@ router.get('/events', currentUser, requireAuth, async (req, res) => {
     const shifts = (await Promise.all(shiftPromises)).flat();
     return { jobs, shifts, ...campaign };
   });
-  const campaigns = await Promise.all(campaignPromises);
-  res.send(campaigns);
+  const campaignsWithJobsAndShifts = await Promise.all(campaignPromises);
+  res.send(campaignsWithJobsAndShifts);
 });
 
 router.get('/kitchen', async (req, res) => {
@@ -78,11 +84,15 @@ router.get('/kitchen/hours/:contactId?', async (req, res) => {
   res.send(hours);
 });
 
-router.get('/hours/:id', currentUser, requireAuth, async (req, res) => {
-  const campaignId = req.params.id;
+router.get('/hours/:campaignId/:contactId?', async (req, res) => {
+  const campaignId = req.params.campaignId;
+  const contactId = req.params.contactId;
+  if (!contactId) {
+    return res.send(204);
+  }
   await fetcher.setService('salesforce');
-  const id = req.currentUser!.salesforceId;
-  const hours = await getHours(campaignId, id);
+  const shortenedCampaignId = campaignId.substring(0, campaignId.length - 3);
+  const hours = await getHours(shortenedCampaignId, contactId);
   res.send(hours);
 });
 
@@ -116,6 +126,43 @@ router.get('/:email', async (req, res) => {
   res.send(contact);
 });
 
+router.delete(
+  '/kitchen/hours/:id/:salesforceId?',
+  currentUser,
+  async (req, res) => {
+    const id = req.params.id;
+    const salesforceId = req.params.salesforceId;
+
+    let contactId = '';
+    if (req.currentUser) {
+      contactId = req.currentUser.salesforceId;
+    } else {
+      contactId = salesforceId;
+    }
+
+    if (!contactId) {
+      throw Error('Could not find contact');
+    }
+
+    const hours = await getHours(urls.ckKitchenCampaignId, contactId);
+    const hour = hours.find((h) => h.id === id);
+
+    if (hour) {
+      await deleteVolunteerHours(id);
+      const { Email, FirstName } = await getContactById(contactId);
+      if (Email) {
+        await sendKitchenShiftCancelEmail(Email, {
+          date: hour.time,
+          name: FirstName,
+        });
+      }
+      res.sendStatus(204);
+    } else {
+      throw Error('Volunteer hours do not belong to this contact');
+    }
+  }
+);
+
 router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
   const id = req.params.id;
   const salesforceId = req.params.salesforceId;
@@ -131,16 +178,23 @@ router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
     throw Error('Could not find contact');
   }
 
-  const hours = await getHours(urls.ckKitchenCampaignId, contactId);
+  const campaign = await getCampaignFromHours(id);
+
+  if (!campaign) {
+    throw Error('Could not get campaign info');
+  }
+
+  const hours = await getHours(campaign.id, contactId);
   const hour = hours.find((h) => h.id === id);
 
   if (hour) {
-    await deleteKitchenHours(id);
+    await deleteVolunteerHours(id);
     const { Email, FirstName } = await getContactById(contactId);
     if (Email) {
-      await sendKitchenShiftCancelEmail(Email, {
+      await sendEventShiftCancelEmail(Email, {
         date: hour.time,
         name: FirstName,
+        event: campaign.name,
       });
     }
     res.sendStatus(204);

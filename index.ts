@@ -44,7 +44,7 @@ import userRouter from './src/auth/routes/user';
 //events
 import volunteersRouter from './src/volunteers/routes';
 
-import d4jRouter from './src/d4j/receipt';
+import d4jRouter from './src/d4j';
 
 import { errorHandler } from './src/middlewares/error-handler';
 

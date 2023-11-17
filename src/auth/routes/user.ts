@@ -180,7 +180,7 @@ router.post('/forgot-password', async (req, res) => {
   }
 
   const contact = await getContactByEmail(email);
-  if (contact && contact.portalUsername) {
+  if (contact?.portalUsername) {
     const user = await User.findOne({ username: contact.portalUsername });
 
     if (user) {
@@ -194,6 +194,13 @@ router.post('/forgot-password', async (req, res) => {
       const resetLink = urls.client + '/reset-password/' + resetToken;
       await sendForgotPasswordEmail(email, resetLink, user.username);
     }
+  } else if (contact) {
+    sendEmail({
+      subject: 'Portal user forgot password',
+      to: 'andy@ckoakland.org',
+      from: 'andy@ckoakland.org',
+      text: `${contact.firstName} ${contact.lastName} has requested a new password but they don't have a username.`,
+    });
   }
   res.sendStatus(204);
 });

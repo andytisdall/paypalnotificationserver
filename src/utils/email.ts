@@ -7,6 +7,7 @@ import createHomeChefSignupEmail from './emailTemplates/homeChefSignup';
 import createShiftEditEmail from './emailTemplates/shiftEdit';
 import createForgotPasswordEmail from './emailTemplates/forgotPassword';
 import createKitchenShiftCancelEmail from './emailTemplates/kitchenShiftCancel';
+import createEventShiftCancelEmail from './emailTemplates/eventShiftCancel';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -126,6 +127,22 @@ export const sendKitchenShiftCancelEmail = async (
     to: email,
     from: 'mollye@ckoakland.org',
     subject: `You have canceled a CK Kitchen volunteer shift`,
+    html,
+  };
+
+  await sendEmail(msg);
+};
+
+export const sendEventShiftCancelEmail = async (
+  email: string,
+  shiftData: { date: string; name?: string; event: string }
+) => {
+  const html = createEventShiftCancelEmail(shiftData);
+
+  const msg = {
+    to: email,
+    from: 'mollye@ckoakland.org',
+    subject: `You have canceled a CK event volunteer shift`,
     html,
   };
 

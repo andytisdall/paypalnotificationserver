@@ -74,8 +74,8 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   // ];
 
   const dateTime = new Date(sendAt);
-  dateTime.setHours(14);
-  dateTime.setMinutes(30);
+  dateTime.setHours(12);
+  dateTime.setMinutes(0);
 
   // const formattedTime = formatISO(dateTime);
   const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
@@ -176,7 +176,8 @@ router.get(
   async (req, res) => {
     const twilioClient = await getTwilioClient();
     const options = {
-      limit: 1000,
+      limit: 3000,
+      dateSent: undefined,
     };
     const messages = await twilioClient.messages.list(options);
     res.send(messages.filter((txt) => txt.status === 'scheduled'));

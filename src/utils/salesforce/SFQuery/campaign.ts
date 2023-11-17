@@ -8,8 +8,51 @@ export interface CampaignMemberObject {
   Status: string;
 }
 
-export const getCampaign = async (id: string) => {
+export interface UnformattedVolunteerCampaign {
+  Name: string;
+  StartDate?: string;
+  EndDate?: string;
+  Description?: string;
+  Id: string;
+  Portal_Button_Text__c?: string;
+}
+
+export interface FormattedVolunteerCampaign {
+  name: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+  id: string;
+  buttonText?: string;
+}
+
+export const getVolunteerCampaigns: () => Promise<
+  FormattedVolunteerCampaign[]
+> = async () => {
   await fetcher.setService('salesforce');
+  const query = `SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE RecordTypeId = '0128Z000000yJ4PQAU' AND Status = 'Planned'`;
+  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
+    await fetcher.get(queryUri);
+
+  if (!data.records) {
+    throw Error('Could not query');
+  }
+
+  return data.records.map((cam) => {
+    return {
+      name: cam.Name,
+      startDate: cam.StartDate,
+      endDate: cam.EndDate,
+      description: cam.Description,
+      id: cam.Id,
+      buttonText: cam.Portal_Button_Text__c,
+    };
+  });
+};
+
+export const getCampaign = async (id: string) => {
   const {
     data,
   }: { data: { Name: string; StartDate: string; Description: string } } =
@@ -53,5 +96,19 @@ export const insertCampaignMember = async (
   );
   if (!res.data?.success) {
     throw Error('Could not insert campaign member object');
+  }
+};
+
+export const getCampaignFromHours = async (id: string) => {
+  await fetcher.setService('salesforce');
+
+  const getUri = `${urls.SFOperationPrefix}/GW_Volunteers__Volunteer_Hours__c/${id}`;
+
+  const { data } = await fetcher.get(getUri);
+  if (data.GW_Volunteers__Volunteer_Campaign__c) {
+    return {
+      id: data.GW_Volunteers__Volunteer_Campaign__c,
+      name: data.GW_Volunteers__Volunteer_Campaign_Name__c,
+    };
   }
 };
