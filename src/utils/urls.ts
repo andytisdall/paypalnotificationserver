@@ -20,6 +20,7 @@ const prodUrls = {
   google,
   appleReviewerId,
   ckKitchenCampaignId: '7018Z000002jtq0',
+  reggaeCassouletEventId: '7018Z000003Ko4j',
 };
 
 const testUrls = {
@@ -39,6 +40,7 @@ const testUrls = {
   apple,
   appleReviewerId: '64e69853db4b5043abcd55b6',
   ckKitchenCampaignId: '70174000000YqmC',
+  reggaeCassouletEventId: '70174000000YrEu',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;
