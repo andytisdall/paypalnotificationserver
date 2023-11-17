@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 import urls from '../../urls';
 import fetcher from '../../fetcher';
-import { ContactInfo } from '../SFQuery/contact';
+import { UnformattedContact } from '../SFQuery/contact';
 
 const User = mongoose.model('User');
 
@@ -15,7 +15,7 @@ const migrate = async () => {
   await Promise.all(promises);
 };
 
-const fixContact = async (contact: ContactInfo) => {
+const fixContact = async (contact: UnformattedContact) => {
   const user = await User.findOne({ username: contact.Portal_Username__c });
   if (!user) {
     const newUser = await User.findOne({ salesforceId: contact.Id });
@@ -32,7 +32,7 @@ const fixContact = async (contact: ContactInfo) => {
   });
 };
 
-const updateContact = async (contact: ContactInfo) => {
+const updateContact = async (contact: UnformattedContact) => {
   const username = (
     (contact.FirstName?.charAt(0).toLowerCase() || '') +
     contact.LastName!.toLowerCase()
@@ -83,8 +83,9 @@ const getOnboardingChefs = async () => {
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const contactQueryResponse: { data: { records: ContactInfo[] } | undefined } =
-    await fetcher.get(contactQueryUri);
+  const contactQueryResponse: {
+    data: { records: UnformattedContact[] } | undefined;
+  } = await fetcher.get(contactQueryUri);
   if (!contactQueryResponse.data) {
     throw Error('Did not get contacts');
   }
