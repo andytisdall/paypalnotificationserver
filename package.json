@@ -37,6 +37,7 @@
     "moment": "^2.29.4",
     "mongodb": "^4.13.0",
     "mongoose": "^6.7.4",
+    "node-geocoder": "^4.2.0",
     "node-pushnotifications": "^2.1.0",
     "path": "^0.12.7",
     "react-router-dom": "^6.16.0",
@@ -55,9 +56,9 @@
     "@types/jest": "^29.5.5",
     "@types/jpeg-autorotate": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/node-geocoder": "^4.2.6",
     "@types/node-pushnotifications": "^1.0.4",
     "@types/supertest": "^2.0.12",
-    
     "jest": "^29.3.1",
     "mongodb-memory-server": "^8.12.1",
     "ts-jest": "^29.0.5",

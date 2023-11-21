@@ -46,20 +46,21 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/events', async (req, res) => {
-  await fetcher.setService('salesforce');
-  const campaigns = await getVolunteerCampaigns();
-  const campaignPromises = campaigns.map(async (campaign) => {
-    const jobs = await getJobs(campaign.id);
-    const shiftPromises = jobs.map(async (j) => {
-      const shifts = await getShifts(j.id);
-      j.shifts = shifts.map((sh) => sh.id);
-      return shifts;
-    });
-    const shifts = (await Promise.all(shiftPromises)).flat();
-    return { jobs, shifts, ...campaign };
-  });
-  const campaignsWithJobsAndShifts = await Promise.all(campaignPromises);
-  res.send(campaignsWithJobsAndShifts);
+  // await fetcher.setService('salesforce');
+  // const campaigns = await getVolunteerCampaigns();
+  // const campaignPromises = campaigns.map(async (campaign) => {
+  //   const jobs = await getJobs(campaign.id);
+  //   const shiftPromises = jobs.map(async (j) => {
+  //     const shifts = await getShifts(j.id);
+  //     j.shifts = shifts.map((sh) => sh.id);
+  //     return shifts;
+  //   });
+  //   const shifts = (await Promise.all(shiftPromises)).flat();
+  //   return { jobs, shifts, ...campaign };
+  // });
+  // const campaignsWithJobsAndShifts = await Promise.all(campaignPromises);
+  // res.send(campaignsWithJobsAndShifts);
+  res.send(204);
 });
 
 router.get('/kitchen', async (req, res) => {
