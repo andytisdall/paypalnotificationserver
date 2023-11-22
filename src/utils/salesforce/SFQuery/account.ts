@@ -3,6 +3,7 @@ import node_geocoder from 'node-geocoder';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 import getSecrets from '../../getSecrets';
+import { getPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;
@@ -28,6 +29,7 @@ export interface UnformattedD4JRestaurant {
   Name: string;
   Id: string;
   BillingAddress: AccountAddress;
+  Google_ID__c: string;
 }
 
 export interface FormattedD4JRestaurant {
@@ -59,7 +61,7 @@ export const getD4jRestaurants = async (): Promise<
 
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress FROM Account WHERE D4J_Status__c = 'Active'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c FROM Account WHERE D4J_Status__c = 'Active'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -83,11 +85,13 @@ export const getD4jRestaurants = async (): Promise<
     }, ${address!.postalCode}`;
 
     const coords = await geocoder.geocode(combinedAddress);
+    const details = await getPlaceDetails(account.Google_ID__c);
     return {
       name: account.Name,
       id: account.Id,
       address,
       coords: coords[0],
+      details,
     };
   });
   return Promise.all(promises);

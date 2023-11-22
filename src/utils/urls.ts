@@ -3,7 +3,7 @@ const SFOperationPrefix = '/data/v56.0/sobjects';
 const fileBucket = 'coherent-vision-368820.appspot.com';
 const appleReviewerId = '64dab5b0c179cf7ef5e90ab4';
 const apple = 'https://appleid.apple.com/auth/token';
-const google = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=';
+const googleMaps = 'https://places.googleapis.com/v1/places';
 
 const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3Mx',
@@ -15,9 +15,8 @@ const prodUrls = {
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: [],
   apple,
-  google,
+  googleMaps,
   appleReviewerId,
   ckKitchenCampaignId: '7018Z000002jtq0',
   reggaeCassouletEventId: '7018Z000003Ko4j',
@@ -32,12 +31,11 @@ const testUrls = {
   docusign: 'https://demo.docusign.net/restapi',
   client: 'http://localhost:3000',
   server: 'http://localhost:3001',
-  google,
   SFOperationPrefix,
   SFQueryPrefix,
   fileBucket,
-  activeCampaigns: [],
   apple,
+  googleMaps,
   appleReviewerId: '64e69853db4b5043abcd55b6',
   ckKitchenCampaignId: '70174000000YqmC',
   reggaeCassouletEventId: '70174000000YrEu',

@@ -3,16 +3,11 @@ import path from 'path';
 
 import urls from '../../urls';
 import fetcher from '../../fetcher';
-import {
-  Account,
-  RestaurantAccount,
-  ContactAccount,
-} from '../../../files/salesforce/getModel';
+import { Account } from '../../../files/salesforce/getModel';
 import {
   fileInfo,
   FileWithType,
   FileMetaData,
-  restaurantFileInfo,
 } from '../../../files/salesforce/metadata';
 
 export type AccountData = {

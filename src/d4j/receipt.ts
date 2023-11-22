@@ -1,16 +1,27 @@
 import express from 'express';
 
-import { uploadFileToSalesforce } from '../utils/salesforce/SFQuery/fileUpload';
+import { createD4jVisit } from '../utils/salesforce/SFQuery/d4j';
 
 const router = express.Router();
 
 router.post('/receipt', async (req, res) => {
-  const { id }: { id: string; name: string } = req.body;
-  const data = { title: 'test', description: 'test', folder: 'test' };
-  if (req.files?.receipt && !Array.isArray(req.files.receipt)) {
-    await uploadFileToSalesforce(data, req.files.receipt, id);
+  const {
+    contactId,
+    restaurantId,
+    date,
+  }: { contactId: string; restaurantId: string; date: string } = req.body;
+
+  if (!req.files?.receipt || Array.isArray(req.files.receipt)) {
+    throw Error('Receipt not found or in the wrong format');
   }
-  res.send(204);
+
+  await createD4jVisit({
+    receipt: req.files.receipt,
+    contactId,
+    restaurantId,
+    date,
+  });
+  res.sendStatus(204);
 });
 
 export default router;
