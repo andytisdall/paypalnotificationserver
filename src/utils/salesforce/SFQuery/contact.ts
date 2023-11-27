@@ -67,6 +67,12 @@ export interface FormattedContact {
 //   CK_Kitchen_Volunteer_Status__c?: string;
 // }
 
+export interface D4JContact {
+  firstName: string;
+  email: string;
+  id: string;
+}
+
 export const getContact = async (
   lastName: string,
   firstName: string
@@ -162,6 +168,15 @@ export const getContactById = async (id: string) => {
     throw Error('Contact not found');
   }
   return res.data;
+};
+
+export const getD4JContact = async (id: string): Promise<D4JContact> => {
+  const contact = await getContactById(id);
+  return {
+    email: contact.Email!,
+    firstName: contact.FirstName!,
+    id: contact.Id!,
+  };
 };
 
 // this contact query just searches by email because people's names and

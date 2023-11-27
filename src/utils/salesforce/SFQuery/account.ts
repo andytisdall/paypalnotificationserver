@@ -30,6 +30,10 @@ export interface UnformattedD4JRestaurant {
   Id: string;
   BillingAddress: AccountAddress;
   Google_ID__c: string;
+  Minority_Owned__c?: string;
+  Restaurant_Underserved_Neighborhood__c: boolean;
+  Restaurant_Vegan__c: boolean;
+  Female_Owned__c: boolean;
 }
 
 export interface FormattedD4JRestaurant {
@@ -41,6 +45,10 @@ export interface FormattedD4JRestaurant {
   cuisine?: string[];
   address?: AccountAddress;
   coords?: { latitude?: number; longitude?: number };
+  pocOwned?: string;
+  underservedNeighborhood: boolean;
+  vegan: boolean;
+  femaleOwned: boolean;
 }
 
 export const getAccountById = async (id: string) => {
@@ -61,7 +69,7 @@ export const getD4jRestaurants = async (): Promise<
 
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c FROM Account WHERE D4J_Status__c = 'Active'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Restaurant_Vegan__c, Female_Owned__c FROM Account WHERE D4J_Status__c = 'Active'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -92,6 +100,10 @@ export const getD4jRestaurants = async (): Promise<
       address,
       coords: coords[0],
       details,
+      pocOwned: account.Minority_Owned__c,
+      femaleOwned: account.Female_Owned__c,
+      vegan: account.Restaurant_Vegan__c,
+      underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
     };
   });
   return Promise.all(promises);
