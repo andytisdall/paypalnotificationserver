@@ -24,7 +24,8 @@ router.post('/receipt', currentD4JUser, async (req, res) => {
     restaurantId,
     date,
   });
-  res.sendStatus(204);
+
+  res.status(201).send({ restaurantId, date });
 });
 
 router.get('/visits', currentD4JUser, async (req, res) => {

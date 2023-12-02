@@ -93,45 +93,217 @@ router.post('/intake-survey', async (req, res) => {
   res.sendStatus(204);
 });
 
-interface CBOReportParams {
+type ZipCode =
+  | '94501'
+  | '94502'
+  | '94536'
+  | '94537'
+  | '94538'
+  | '94539'
+  | '94540'
+  | '94541'
+  | '94542'
+  | '94543'
+  | '94544'
+  | '94545'
+  | '94546'
+  | '94550'
+  | '94551'
+  | '94552'
+  | '94555'
+  | '94557'
+  | '94560'
+  | '94566'
+  | '94568'
+  | '94577'
+  | '94578'
+  | '94579'
+  | '94580'
+  | '94586'
+  | '94587'
+  | '94588'
+  | '94601'
+  | '94602'
+  | '94603'
+  | '94604'
+  | '94605'
+  | '94606'
+  | '94607'
+  | '94608'
+  | '94609'
+  | '94610'
+  | '94611'
+  | '94612'
+  | '94613'
+  | '94614'
+  | '94615'
+  | '94616'
+  | '94617'
+  | '94618'
+  | '94619'
+  | '94620'
+  | '94621'
+  | '94623'
+  | '94624'
+  | '94661'
+  | '94662'
+  | '94701'
+  | '94702'
+  | '94703'
+  | '94704'
+  | '94705'
+  | '94706'
+  | '94707'
+  | '94708'
+  | '94709'
+  | '94710'
+  | '94712'
+  | 'DeclinetoState'
+  | 'Unhoused'
+  | 'Other';
+
+export interface CBOReportParams {
   month: string;
   year: string;
   name: string;
   CBOName: string;
   performanceMeasures: {
-    percentWOAccess: string;
-    mealsProvided: string;
-    unusable: string;
-    postcards: string;
-    calfreshApps: string;
-    SSA: string;
+    percentWOAccess: number;
+    mealsProvided: number;
+    unusable: number;
+    postcards: number;
+    calfreshApps: number;
+    SSA: number;
   };
   age: {
-    age17: string;
-    age26: string;
-    age49: string;
-    age60: string;
-    ageOver60: string;
-    ageUnknown: string;
+    age17: number;
+    age26: number;
+    age49: number;
+    age60: number;
+    ageOver60: number;
+    ageUnknown: number;
   };
   race: {
-    raceAfrican: string;
-    raceLatin: string;
-    raceAsian: string;
-    raceNativeAmerican: string;
-    raceWhite: string;
-    raceDecline: string;
-    raceUnknown: string;
-    raceOther: string;
-    raceOtherText: string;
-    raceMixed: string;
-    raceMixedText: string;
+    raceAfrican: number;
+    raceLatin: number;
+    raceAsian: number;
+    raceNativeAmerican: number;
+    raceWhite: number;
+    raceDecline: number;
+    raceUnknown: number;
+    raceOther: number;
+    raceOtherText: number;
+    raceMixed: number;
+    raceMixedText: number;
   };
-  households: string;
-  zips: Record<string, string>;
+  households: number;
+  zips: Record<ZipCode, number | undefined>;
   feedback: string;
   phoneNumber: string;
   email: string;
+}
+
+export interface CBOReportObject {
+  Age_0_17__c: number;
+  Age_18_26__c: number;
+  Age_27_49__c: number;
+  Age_50_60__c: number;
+  Age_Over_60__c: number;
+  Age_Unknown__c: number;
+  Assisted_with_Calfresh_Applications__c: number;
+  Calfresh_Applications_Sent_to_SSA__c: number;
+  Calfresh_Postcards__c: number;
+  CBO_Name__c: string;
+  Feedback__c: string;
+  Households_Provided_Food__c: number;
+  Meals_Provided__c: number;
+  Month__c: string;
+  Contact_Name__c: string;
+  Name: string;
+  Percent_without__c: number;
+  Race_African__c: number;
+  Race_Asian__c: number;
+  Race_Decline_to_Answer__c: number;
+  Race_Latin__c: number;
+  Race_Mixed__c: number;
+  Race_Mixed_Specify__c: number;
+  Race_Native_American__c: number;
+  Race_Other__c: number;
+  Race_Other_Specify__c: number;
+  Race_White__c: number;
+  Race_Unknown__c: number;
+  Unusable_Meals__c: number;
+  Phone_Number__c: string;
+  Email__c: string;
+  Date__c: string;
+  X94501__c?: number;
+  X94502__c?: number;
+  X94536__c?: number;
+  X94537__c?: number;
+  X94538__c?: number;
+  X94539__c?: number;
+  X94540__c?: number;
+  X94541__c?: number;
+  X94542__c?: number;
+  X94543__c?: number;
+  X94544__c?: number;
+  X94545__c?: number;
+  X94546__c?: number;
+  X94550__c?: number;
+  X94551__c?: number;
+  X94552__c?: number;
+  X94555__c?: number;
+  X94557__c?: number;
+  X94560__c?: number;
+  X94566__c?: number;
+  X94568__c?: number;
+  X94577__c?: number;
+  X94578__c?: number;
+  X94579__c?: number;
+  X94580__c?: number;
+  X94586__c?: number;
+  X94587__c?: number;
+  X94588__c?: number;
+  X94601__c?: number;
+  X94602__c?: number;
+  X94603__c?: number;
+  X94604__c?: number;
+  X94605__c?: number;
+  X94606__c?: number;
+  X94607__c?: number;
+  X94608__c?: number;
+  X94609__c?: number;
+  X94610__c?: number;
+  X94611__c?: number;
+  X94612__c?: number;
+  X94613__c?: number;
+  X94614__c?: number;
+  X94615__c?: number;
+  X94616__c?: number;
+  X94617__c?: number;
+  X94618__c?: number;
+  X94619__c?: number;
+  X94620__c?: number;
+  X94621__c?: number;
+  X94623__c?: number;
+  X94624__c?: number;
+  X94661__c?: number;
+  X94662__c?: number;
+  X94701__c?: number;
+  X94702__c?: number;
+  X94703__c?: number;
+  X94704__c?: number;
+  X94705__c?: number;
+  X94706__c?: number;
+  X94707__c?: number;
+  X94708__c?: number;
+  X94709__c?: number;
+  X94710__c?: number;
+  X94712__c?: number;
+  XDeclinetoState__c?: number;
+  XUnhoused__c?: number;
+  XOther__c?: number;
+  CBO_Report_Summary__c: string;
 }
 
 router.post('/cbo-report', async (req, res) => {
@@ -155,7 +327,7 @@ router.post('/cbo-report', async (req, res) => {
   date.setFullYear(parseInt(year));
   const lastDay = lastDayOfMonth(date);
 
-  const CBOReportObject: Record<string, string | number | undefined> = {
+  const CBOReportObject: Partial<CBOReportObject> = {
     Age_0_17__c: age.age17,
     Age_18_26__c: age.age26,
     Age_27_49__c: age.age49,
@@ -183,15 +355,75 @@ router.post('/cbo-report', async (req, res) => {
     Race_Other__c: race.raceOther,
     Race_Other_Specify__c: race.raceOtherText,
     Race_White__c: race.raceWhite,
+    Race_Unknown__c: race.raceUnknown,
     Unusable_Meals__c: performanceMeasures.unusable,
     Phone_Number__c: phoneNumber,
     Email__c: email,
     Date__c: formatISO(lastDay),
+    X94501__c: zips[94501],
+    X94502__c: zips[94502],
+    X94536__c: zips[94536],
+    X94537__c: zips[94537],
+    X94538__c: zips[94538],
+    X94539__c: zips[94539],
+    X94540__c: zips[94540],
+    X94541__c: zips[94541],
+    X94542__c: zips[94542],
+    X94543__c: zips[94543],
+    X94544__c: zips[94544],
+    X94545__c: zips[94545],
+    X94546__c: zips[94546],
+    X94550__c: zips[94550],
+    X94551__c: zips[94551],
+    X94552__c: zips[94552],
+    X94555__c: zips[94555],
+    X94557__c: zips[94557],
+    X94560__c: zips[94560],
+    X94566__c: zips[94566],
+    X94568__c: zips[94568],
+    X94577__c: zips[94577],
+    X94578__c: zips[94578],
+    X94579__c: zips[94579],
+    X94580__c: zips[94580],
+    X94586__c: zips[94586],
+    X94587__c: zips[94587],
+    X94588__c: zips[94588],
+    X94601__c: zips[94601],
+    X94602__c: zips[94602],
+    X94603__c: zips[94603],
+    X94604__c: zips[94604],
+    X94605__c: zips[94605],
+    X94606__c: zips[94606],
+    X94607__c: zips[94607],
+    X94608__c: zips[94608],
+    X94609__c: zips[94609],
+    X94610__c: zips[94610],
+    X94611__c: zips[94611],
+    X94612__c: zips[94612],
+    X94613__c: zips[94613],
+    X94614__c: zips[94614],
+    X94615__c: zips[94615],
+    X94616__c: zips[94616],
+    X94617__c: zips[94617],
+    X94618__c: zips[94618],
+    X94619__c: zips[94619],
+    X94621__c: zips[94621],
+    X94623__c: zips[94623],
+    X94624__c: zips[94624],
+    X94661__c: zips[94661],
+    X94662__c: zips[94662],
+    X94701__c: zips[94701],
+    X94702__c: zips[94702],
+    X94703__c: zips[94703],
+    X94704__c: zips[94704],
+    X94705__c: zips[94705],
+    X94706__c: zips[94706],
+    X94707__c: zips[94707],
+    X94708__c: zips[94708],
+    X94709__c: zips[94709],
+    X94710__c: zips[94710],
+    X94712__c: zips[94712],
   };
-
-  for (let zip in zips) {
-    CBOReportObject[`X${zip}__c`] = zips[zip];
-  }
 
   await fetcher.setService('salesforce');
 

@@ -41,26 +41,26 @@ router.post('/', async (req, res) => {
     Email: email,
     FirstName: firstName,
     LastName: lastName,
+    CK_Kitchen_Volunteer_Status__c: 'Prospective',
   });
   res.send(contact);
 });
 
 router.get('/events', async (req, res) => {
-  // await fetcher.setService('salesforce');
-  // const campaigns = await getVolunteerCampaigns();
-  // const campaignPromises = campaigns.map(async (campaign) => {
-  //   const jobs = await getJobs(campaign.id);
-  //   const shiftPromises = jobs.map(async (j) => {
-  //     const shifts = await getShifts(j.id);
-  //     j.shifts = shifts.map((sh) => sh.id);
-  //     return shifts;
-  //   });
-  //   const shifts = (await Promise.all(shiftPromises)).flat();
-  //   return { jobs, shifts, ...campaign };
-  // });
-  // const campaignsWithJobsAndShifts = await Promise.all(campaignPromises);
-  // res.send(campaignsWithJobsAndShifts);
-  res.send(204);
+  await fetcher.setService('salesforce');
+  const campaigns = await getVolunteerCampaigns();
+  const campaignPromises = campaigns.map(async (campaign) => {
+    const jobs = await getJobs(campaign.id);
+    const shiftPromises = jobs.map(async (j) => {
+      const shifts = await getShifts(j.id);
+      j.shifts = shifts.map((sh) => sh.id);
+      return shifts;
+    });
+    const shifts = (await Promise.all(shiftPromises)).flat();
+    return { jobs, shifts, ...campaign };
+  });
+  const campaignsWithJobsAndShifts = await Promise.all(campaignPromises);
+  res.send(campaignsWithJobsAndShifts);
 });
 
 router.get('/kitchen', async (req, res) => {

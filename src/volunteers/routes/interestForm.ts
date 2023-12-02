@@ -96,7 +96,6 @@ router.post('/signup', async (req, res) => {
     Portal_Username__c: uniqueUsername,
     Portal_Temporary_Password__c: temporaryPassword,
     Able_to_get_food_handler_other__c: foodHandlerOther,
-    GW_Volunteers__Volunteer_Status__c: 'Active',
   };
 
   if (programs.other) {

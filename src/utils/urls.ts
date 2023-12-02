@@ -19,7 +19,7 @@ const prodUrls = {
   googleMaps,
   appleReviewerId,
   ckKitchenCampaignId: '7018Z000002jtq0',
-  reggaeCassouletEventId: '7018Z000003Ko4j',
+  reggaeCassouletEventId: '7018Z000003Ko3HQAS',
 };
 
 const testUrls = {

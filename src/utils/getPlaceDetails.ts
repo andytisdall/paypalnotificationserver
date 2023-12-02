@@ -10,7 +10,6 @@ interface UnformattedPlaceDetails {
     openNow: boolean;
     weekdayDescriptions: string[];
   };
-  primaryTypeDisplayName: { text: string };
   servesBreakfast: boolean;
   servesVegetarianFood: boolean;
   servesCocktails: boolean;
@@ -22,7 +21,6 @@ interface FormattedPlaceDetails {
   url: string;
   openNow: boolean;
   openHours: string[];
-  type: string;
   serves: {
     breakfast: boolean;
     vegetarian: boolean;
@@ -43,7 +41,6 @@ export const getPlaceDetails = async (
     'displayName',
     'regularOpeningHours',
     'websiteUri',
-    'primaryTypeDisplayName',
     'servesBreakfast',
     'servesCocktails',
     'servesVegetarianFood',
@@ -61,7 +58,6 @@ export const getPlaceDetails = async (
   });
   return {
     name: data.displayName.text,
-    type: data.primaryTypeDisplayName.text,
     url: data.websiteUri,
     openNow: data.regularOpeningHours.openNow,
     openHours: data.regularOpeningHours.weekdayDescriptions,
