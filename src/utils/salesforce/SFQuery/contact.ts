@@ -31,6 +31,7 @@ export interface UnformattedContact {
   Other_Cooking_Experience__c?: string;
   Able_to_get_food_handler_other__c?: string;
   Interest_in_other_volunteer_programs__c?: string;
+  D4J_Points__c?: number;
 }
 
 // export interface IncomingContactInfo {
@@ -71,6 +72,7 @@ export interface D4JContact {
   firstName: string;
   email: string;
   id: string;
+  d4jPoints?: number;
 }
 
 export const getContact = async (
@@ -176,6 +178,7 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
     email: contact.Email!,
     firstName: contact.FirstName!,
     id: contact.Id!,
+    d4jPoints: contact.D4J_Points__c,
   };
 };
 

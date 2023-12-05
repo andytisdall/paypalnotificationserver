@@ -17,12 +17,14 @@ interface UnformattedD4JVisit {
   Restaurant__c: string;
   Id: string;
   Date__c: string;
+  Verification_Status__c?: string;
 }
 
 interface FormattedD4JVisit {
   id: string;
   restaurant: string;
   date: string;
+  status?: string;
 }
 
 export const createD4jVisit = async ({
@@ -72,7 +74,7 @@ export const getD4JVisits = async (
   contactId: string
 ): Promise<FormattedD4JVisit[]> => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Id, Restaurant__c, Date__c FROM D4J_Visit__c WHERE Contact__c = '${contactId}' ORDER BY Date__c`;
+  const query = `SELECT Id, Restaurant__c, Date__c, Verification_Status__c FROM D4J_Visit__c WHERE Contact__c = '${contactId}' ORDER BY Date__c DESC`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -88,6 +90,7 @@ export const getD4JVisits = async (
       id: visit.Id,
       restaurant: visit.Restaurant__c,
       date: visit.Date__c,
+      status: visit.Verification_Status__c,
     };
   });
 };
