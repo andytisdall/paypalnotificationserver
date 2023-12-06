@@ -5,7 +5,6 @@ import urls from './urls';
 import getSecrets from './getSecrets';
 
 interface UnformattedPlaceDetails {
-  displayName: { text: string };
   websiteUri: string;
   regularOpeningHours: {
     openNow: boolean;
@@ -19,7 +18,6 @@ interface UnformattedPlaceDetails {
 }
 
 interface FormattedPlaceDetails {
-  name: string;
   url: string;
   openNow: boolean;
   openHours: string[];
@@ -31,10 +29,11 @@ interface FormattedPlaceDetails {
   };
   coords?: { latitude?: number; longitude?: number };
   address: string;
+  id: string;
 }
 
 export const getPlaceDetails = async (
-  id?: string
+  id: string
 ): Promise<FormattedPlaceDetails | undefined> => {
   if (!id) {
     return;
@@ -72,7 +71,6 @@ export const getPlaceDetails = async (
   const coords = await geocoder.geocode(data.formattedAddress);
 
   return {
-    name: data.displayName.text,
     url: data.websiteUri,
     openNow: data.regularOpeningHours.openNow,
     openHours: data.regularOpeningHours.weekdayDescriptions,
@@ -84,5 +82,6 @@ export const getPlaceDetails = async (
     },
     coords: coords[0],
     address: data.formattedAddress,
+    id,
   };
 };

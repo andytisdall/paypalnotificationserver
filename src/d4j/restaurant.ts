@@ -10,10 +10,10 @@ router.get('/restaurants', async (req, res) => {
   res.send(restaurants);
 });
 
-router.get('/restaurantDetails/:ids', async (req, res) => {
-  const ids = req.params.ids.split('@');
+router.post('/restaurantDetails/', async (req, res) => {
+  const { restaurantIds }: { restaurantIds: string[] } = req.body;
 
-  const promises = ids.map(async (id) => {
+  const promises = restaurantIds.map(async (id) => {
     return getPlaceDetails(id);
   });
   const restaurantDetails = await Promise.all(promises);
