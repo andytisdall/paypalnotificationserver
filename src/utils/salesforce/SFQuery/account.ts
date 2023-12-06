@@ -1,9 +1,5 @@
-import node_geocoder from 'node-geocoder';
-
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import getSecrets from '../../getSecrets';
-import { getPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;
@@ -40,16 +36,13 @@ export interface UnformattedD4JRestaurant {
 export interface FormattedD4JRestaurant {
   name: string;
   id: string;
-  tags?: string[];
-  photo?: string;
   neighborhood?: string;
   cuisine?: string;
-  address?: AccountAddress;
-  coords?: { latitude?: number; longitude?: number };
   pocOwned?: string;
   underservedNeighborhood: boolean;
   vegan: boolean;
   femaleOwned: boolean;
+  googleId: string;
 }
 
 export const getAccountById = async (id: string) => {
@@ -66,8 +59,6 @@ export const getAccountById = async (id: string) => {
 export const getD4jRestaurants = async (): Promise<
   FormattedD4JRestaurant[]
 > => {
-  const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
-
   await fetcher.setService('salesforce');
 
   const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c FROM Account WHERE D4J_Status__c = 'Active'`;
@@ -81,32 +72,16 @@ export const getD4jRestaurants = async (): Promise<
     throw Error('Could not get restaurants');
   }
 
-  const geocoder = node_geocoder({
-    provider: 'google',
-    apiKey: GOOGLE_MAPS_API_KEY,
-  });
-
-  const promises = data.records.map(async (account) => {
-    const address = account.BillingAddress;
-
-    const combinedAddress = `${address!.street}, ${address!.city}, ${
-      address!.state
-    }, ${address!.postalCode}`;
-
-    const coords = await geocoder.geocode(combinedAddress);
-    const details = await getPlaceDetails(account.Google_ID__c);
+  return data.records.map((account) => {
     return {
       name: account.Name,
       id: account.Id,
-      address,
-      coords: coords[0],
-      details,
       pocOwned: account.Minority_Owned__c,
       femaleOwned: account.Female_Owned__c,
       vegan: account.Restaurant_Vegan__c,
       underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
       cuisine: account.Type_of_Food__c,
+      googleId: account.Google_ID__c,
     };
   });
-  return Promise.all(promises);
 };

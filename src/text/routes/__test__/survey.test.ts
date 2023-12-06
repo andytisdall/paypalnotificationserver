@@ -14,7 +14,7 @@ it('submits a meal survey', async () => {
       Days_of_Use_Per_Week__c: '7',
       Phone_Number__c: '5108290484',
     })
-    .expect(200);
+    .expect(204);
 });
 
 it('submits a text signup survey', async () => {
@@ -29,5 +29,5 @@ it('submits a text signup survey', async () => {
       days: '3',
       phone: '5108670484',
     })
-    .expect(200);
+    .expect(204);
 });

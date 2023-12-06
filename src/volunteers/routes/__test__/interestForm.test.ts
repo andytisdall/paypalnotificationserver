@@ -31,7 +31,7 @@ it('correctly makes the portal user and salesforce contact when the interest for
   await request(app)
     .post('/api/volunteers/signup')
     .send(formValues)
-    .expect(201);
+    .expect(204);
 
   const user = await User.findOne({ username: 'mfunke' });
   expect(user).not.toBeNull();
@@ -64,7 +64,7 @@ it('correctly updates an existing contact and makes a user when the interest for
   await request(app)
     .post('/api/volunteers/signup')
     .send(formValues)
-    .expect(201);
+    .expect(204);
 
   const user = await User.findOne({ username: 'ttest' });
 

@@ -52,8 +52,6 @@ router.get('/sign/:doc/:id?', currentUser, async (req, res) => {
   const doc = req.params.doc as DocType;
   const id = req.params.id;
 
-  console.log(id);
-
   let userInfo: UserInfo | undefined;
 
   if (req.currentUser) {

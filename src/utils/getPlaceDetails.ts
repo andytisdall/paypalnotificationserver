@@ -1,4 +1,5 @@
 import axios from 'axios';
+import node_geocoder from 'node-geocoder';
 
 import urls from './urls';
 import getSecrets from './getSecrets';
@@ -14,6 +15,7 @@ interface UnformattedPlaceDetails {
   servesVegetarianFood: boolean;
   servesCocktails: boolean;
   servesBeer: boolean;
+  formattedAddress: string;
 }
 
 interface FormattedPlaceDetails {
@@ -27,18 +29,23 @@ interface FormattedPlaceDetails {
     cocktails: boolean;
     beer: boolean;
   };
+  coords?: { latitude?: number; longitude?: number };
+  address: string;
 }
 
 export const getPlaceDetails = async (
-  id: string
-): Promise<FormattedPlaceDetails> => {
+  id?: string
+): Promise<FormattedPlaceDetails | undefined> => {
+  if (!id) {
+    return;
+  }
   const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
   if (!GOOGLE_MAPS_API_KEY) {
     throw Error('API key not found');
   }
 
   const fields = [
-    'displayName',
+    'formattedAddress',
     'regularOpeningHours',
     'websiteUri',
     'servesBreakfast',
@@ -56,6 +63,14 @@ export const getPlaceDetails = async (
       'Content-Type': 'application/json',
     },
   });
+
+  const geocoder = node_geocoder({
+    provider: 'google',
+    apiKey: GOOGLE_MAPS_API_KEY,
+  });
+
+  const coords = await geocoder.geocode(data.formattedAddress);
+
   return {
     name: data.displayName.text,
     url: data.websiteUri,
@@ -67,5 +82,7 @@ export const getPlaceDetails = async (
       cocktails: data.servesCocktails,
       vegetarian: data.servesVegetarianFood,
     },
+    coords: coords[0],
+    address: data.formattedAddress,
   };
 };
