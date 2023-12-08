@@ -1,5 +1,6 @@
 import fetcher from '../../fetcher';
 import urls from '../../urls';
+import { getPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;
@@ -31,7 +32,11 @@ export interface UnformattedD4JRestaurant {
   Restaurant_Vegan__c: boolean;
   Female_Owned__c: boolean;
   Type_of_Food__c?: string;
+  Open_Hours__c?: string;
+  Geolocation__c?: { latitude: number; longitude: number };
 }
+
+type Coordinates = { latitude: number; longitude: number };
 
 export interface FormattedD4JRestaurant {
   name: string;
@@ -43,6 +48,8 @@ export interface FormattedD4JRestaurant {
   vegan: boolean;
   femaleOwned: boolean;
   googleId: string;
+  coords?: Coordinates;
+  openHours?: string[];
 }
 
 export const getAccountById = async (id: string) => {
@@ -61,7 +68,7 @@ export const getD4jRestaurants = async (): Promise<
 > => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c FROM Account WHERE D4J_Status__c = 'Active'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c  FROM Account WHERE D4J_Status__c = 'Active'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -71,6 +78,26 @@ export const getD4jRestaurants = async (): Promise<
   if (!data.records) {
     throw Error('Could not get restaurants');
   }
+
+  // const promises = data.records.map(async (rest) => {
+  //   const updateUri = urls.SFOperationPrefix + '/Account/' + rest.Id;
+  //   const details = await getPlaceDetails(rest.Google_ID__c);
+  //   if (details?.coords?.latitude && details?.coords?.longitude) {
+  //     await fetcher.patch(updateUri, {
+  //       Geolocation__latitude__s: details.coords.latitude,
+  //       Geolocation__longitude__s: details.coords.longitude,
+  //       Open_Hours__c: details.openHours.join('_'),
+  //     });
+  //   }
+  // });
+
+  // await Promise.all(promises);
+
+  const getCoords = (latitude?: number, longitude?: number) => {
+    if (latitude && longitude) {
+      return { latitude, longitude };
+    }
+  };
 
   return data.records.map((account) => {
     return {
@@ -82,6 +109,11 @@ export const getD4jRestaurants = async (): Promise<
       underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
       cuisine: account.Type_of_Food__c,
       googleId: account.Google_ID__c,
+      coords: getCoords(
+        account.Geolocation__c?.latitude,
+        account.Geolocation__c?.longitude
+      ),
+      openHours: account.Open_Hours__c?.split('_'),
     };
   });
 };
