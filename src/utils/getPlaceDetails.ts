@@ -14,7 +14,7 @@ interface UnformattedPlaceDetails {
   servesVegetarianFood: boolean;
   servesCocktails: boolean;
   servesBeer: boolean;
-  formattedAddress: string;
+  shortFormattedAddress: string;
 }
 
 interface FormattedPlaceDetails {
@@ -44,7 +44,7 @@ export const getPlaceDetails = async (
   }
 
   const fields = [
-    'formattedAddress',
+    'shortFormattedAddress',
     'regularOpeningHours',
     'websiteUri',
     'servesBreakfast',
@@ -68,7 +68,7 @@ export const getPlaceDetails = async (
     apiKey: GOOGLE_MAPS_API_KEY,
   });
 
-  const coords = await geocoder.geocode(data.formattedAddress);
+  // const coords = await geocoder.geocode(data.formattedAddress);
 
   return {
     url: data.websiteUri,
@@ -80,8 +80,8 @@ export const getPlaceDetails = async (
       cocktails: data.servesCocktails,
       vegetarian: data.servesVegetarianFood,
     },
-    coords: coords[0],
-    address: data.formattedAddress,
+    // coords: coords[0],
+    address: data.shortFormattedAddress,
     id,
   };
 };
