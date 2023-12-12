@@ -34,6 +34,7 @@ export interface UnformattedD4JRestaurant {
   Type_of_Food__c?: string;
   Open_Hours__c?: string;
   Geolocation__c?: { latitude: number; longitude: number };
+  Photo_URL__c?: string;
 }
 
 type Coordinates = { latitude: number; longitude: number };
@@ -50,6 +51,7 @@ export interface FormattedD4JRestaurant {
   googleId: string;
   coords?: Coordinates;
   openHours?: string[];
+  photo?: string;
 }
 
 export const getAccountById = async (id: string) => {
@@ -68,7 +70,7 @@ export const getD4jRestaurants = async (): Promise<
 > => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c  FROM Account WHERE D4J_Status__c = 'Active'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c FROM Account WHERE D4J_Status__c = 'Active'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -114,6 +116,7 @@ export const getD4jRestaurants = async (): Promise<
         account.Geolocation__c?.longitude
       ),
       openHours: account.Open_Hours__c?.split('_'),
+      photo: account.Photo_URL__c,
     };
   });
 };

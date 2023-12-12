@@ -30,7 +30,8 @@ export const getVolunteerCampaigns: () => Promise<
   FormattedVolunteerCampaign[]
 > = async () => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE RecordTypeId = '0128Z000000yJ4PQAU' AND Status = 'Planned' AND Id = '${urls.reggaeCassouletEventId}'`;
+  const query =
+    'SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True';
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =

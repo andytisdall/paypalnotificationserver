@@ -25,6 +25,8 @@ router.post('/receipt', currentD4JUser, async (req, res) => {
     date,
   });
 
+  // todo: send confirmation email
+
   res.status(201).send({ restaurantId, date });
 });
 
