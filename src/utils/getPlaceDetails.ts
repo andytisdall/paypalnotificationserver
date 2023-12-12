@@ -1,5 +1,5 @@
 import axios from 'axios';
-import node_geocoder from 'node-geocoder';
+// import node_geocoder from 'node-geocoder';
 
 import urls from './urls';
 import getSecrets from './getSecrets';
@@ -63,13 +63,12 @@ export const getPlaceDetails = async (
     },
   });
 
-  const geocoder = node_geocoder({
-    provider: 'google',
-    apiKey: GOOGLE_MAPS_API_KEY,
-  });
+  // const geocoder = node_geocoder({
+  //   provider: 'google',
+  //   apiKey: GOOGLE_MAPS_API_KEY,
+  // });
 
   // const coords = await geocoder.geocode(data.formattedAddress);
-
   return {
     url: data.websiteUri,
     openNow: data.regularOpeningHours.openNow,
