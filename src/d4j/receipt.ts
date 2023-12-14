@@ -38,4 +38,24 @@ router.get('/visits', currentD4JUser, async (req, res) => {
   res.send(visits);
 });
 
+const prizes = {
+  giftCert: { points: 5, title: '$50 Gift Certificate' },
+};
+
+router.post('/rewards', currentD4JUser, async (req, res) => {
+  const { prize, restaurantId }: { prize: 'giftCert'; restaurantId: string } =
+    req.body;
+
+  if (!req.currentD4JUser) {
+    throw Error('User not signed in');
+  }
+
+  if (
+    !req.currentD4JUser.d4jPoints ||
+    prizes[prize].points > req.currentD4JUser.d4jPoints
+  ) {
+    throw Error('Not enough points');
+  }
+});
+
 export default router;

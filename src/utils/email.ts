@@ -8,6 +8,8 @@ import createShiftEditEmail from './emailTemplates/shiftEdit';
 import createForgotPasswordEmail from './emailTemplates/forgotPassword';
 import createKitchenShiftCancelEmail from './emailTemplates/kitchenShiftCancel';
 import createEventShiftCancelEmail from './emailTemplates/eventShiftCancel';
+import { D4JContact } from './salesforce/SFQuery/contact';
+import createPrizeRequestEmail from './emailTemplates/prizeRequest';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -143,6 +145,23 @@ export const sendEventShiftCancelEmail = async (
     to: email,
     from: 'mollye@ckoakland.org',
     subject: `You have canceled a CK event volunteer shift`,
+    html,
+  };
+
+  await sendEmail(msg);
+};
+
+export const sendPrizeRequestEmail = async (
+  contact: D4JContact,
+  prize: string,
+  restaurantName?: string
+) => {
+  const html = createPrizeRequestEmail(contact, prize, restaurantName);
+
+  const msg = {
+    to: 'andy@ckoakland.org',
+    from: 'andy@ckoakland.org',
+    subject: 'D4J Rewards Request',
     html,
   };
 
