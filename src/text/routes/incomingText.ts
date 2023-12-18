@@ -92,7 +92,7 @@ router.post(
 
     const msg = {
       to: DROPOFF_EMAIL_SUBSCRIBERS,
-      from: 'andy@ckoakland.org',
+      from: urls.adminEmail,
       subject: 'You got a text on the Home Chef drop-off line',
       mediaUrl: images,
       html,

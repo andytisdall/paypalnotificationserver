@@ -198,7 +198,7 @@ router.post('/forgot-password', async (req, res) => {
     sendEmail({
       subject: 'Portal user forgot password',
       to: 'andy@ckoakland.org',
-      from: 'andy@ckoakland.org',
+      from: urls.adminEmail,
       text: `${contact.firstName} ${contact.lastName} has requested a new password but they don't have a username.`,
     });
   }

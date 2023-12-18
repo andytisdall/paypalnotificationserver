@@ -11,7 +11,7 @@ interface UnformattedPlaceDetails {
     weekdayDescriptions: string[];
   };
   servesBreakfast: boolean;
-  servesVegetarianFood: boolean;
+  servesWine: boolean;
   servesCocktails: boolean;
   servesBeer: boolean;
   shortFormattedAddress: string;
@@ -23,7 +23,7 @@ interface FormattedPlaceDetails {
   openHours: string[];
   serves: {
     breakfast: boolean;
-    vegetarian: boolean;
+    wine: boolean;
     cocktails: boolean;
     beer: boolean;
   };
@@ -49,7 +49,7 @@ export const getPlaceDetails = async (
     'websiteUri',
     'servesBreakfast',
     'servesCocktails',
-    'servesVegetarianFood',
+    'servesWine',
     'servesBeer',
   ];
 
@@ -77,7 +77,7 @@ export const getPlaceDetails = async (
       breakfast: data.servesBreakfast,
       beer: data.servesBeer,
       cocktails: data.servesCocktails,
-      vegetarian: data.servesVegetarianFood,
+      wine: data.servesWine,
     },
     // coords: coords[0],
     address: data.shortFormattedAddress,

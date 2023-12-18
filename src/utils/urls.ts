@@ -4,6 +4,7 @@ const fileBucket = 'coherent-vision-368820.appspot.com';
 const appleReviewerId = '64dab5b0c179cf7ef5e90ab4';
 const apple = 'https://appleid.apple.com/auth/token';
 const googleMaps = 'https://places.googleapis.com/v1/places';
+const adminEmail = 'communitykitchens@ckoakland.org';
 
 const prodUrls = {
   townFridgeCampaignId: '7018Z000003C3Mx',
@@ -20,6 +21,7 @@ const prodUrls = {
   appleReviewerId,
   ckKitchenCampaignId: '7018Z000002jtq0',
   reggaeCassouletEventId: '7018Z000003Ko3HQAS',
+  adminEmail,
 };
 
 const testUrls = {
@@ -39,6 +41,7 @@ const testUrls = {
   appleReviewerId: '64e69853db4b5043abcd55b6',
   ckKitchenCampaignId: '70174000000YqmC',
   reggaeCassouletEventId: '70174000000YrEu',
+  adminEmail,
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

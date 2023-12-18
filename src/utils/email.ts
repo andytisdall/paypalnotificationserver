@@ -10,6 +10,7 @@ import createKitchenShiftCancelEmail from './emailTemplates/kitchenShiftCancel';
 import createEventShiftCancelEmail from './emailTemplates/eventShiftCancel';
 import { D4JContact } from './salesforce/SFQuery/contact';
 import createPrizeRequestEmail from './emailTemplates/prizeRequest';
+import urls from './urls';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -28,7 +29,7 @@ export const sendEmailToSelf = async ({
 }) => {
   const msg = {
     to: 'andy@ckoakland.org',
-    from: 'andy@ckoakland.org',
+    from: urls.adminEmail,
     subject,
     text: 'Sent to self from server: ' + message,
   };
@@ -60,7 +61,7 @@ export const sendDonationAckEmail = async (donationData: {
 
   const msg = {
     to: donationData.payer_email,
-    from: 'andy@ckoakland.org',
+    from: urls.adminEmail,
     subject: 'Thank you for your donation!',
     html,
   };
@@ -93,7 +94,7 @@ export const sendForgotPasswordEmail = async (
 
   const msg = {
     to: email,
-    from: 'andy@ckoakland.org',
+    from: urls.adminEmail,
     subject: 'CK Portal: Your link to create a new password',
     html,
   };
@@ -160,7 +161,7 @@ export const sendPrizeRequestEmail = async (
 
   const msg = {
     to: 'andy@ckoakland.org',
-    from: 'andy@ckoakland.org',
+    from: '',
     subject: 'D4J Rewards Request',
     html,
   };
