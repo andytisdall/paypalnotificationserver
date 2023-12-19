@@ -2,7 +2,7 @@ import PushNotifications from 'node-pushnotifications';
 
 import getSecrets from './getSecrets';
 
-const createNotificationsServie = async () => {
+const createNotificationsService = async () => {
   const { APNS_P8, APNS_KEY_ID, APNS_TEAM_ID, FCM_API_KEY, APNS_BUNDLE_ID } =
     await getSecrets([
       'APNS_P8',
@@ -55,4 +55,4 @@ const createNotificationsServie = async () => {
   return { send: sendNotification };
 };
 
-export default createNotificationsServie;
+export default createNotificationsService;

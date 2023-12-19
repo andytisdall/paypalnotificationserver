@@ -5,26 +5,15 @@ export default (firstName: string, lastName: string, amount: string) => {
   Our meals are used to fill gaps left by other food support programs, to promote healthy lifestyles and
   connection to community, and to provide security and dignity for marginalized communities. Our meal
   programs support youth, low-income families and seniors and most importantly, our unhoused.</p>
-  <p>Oakland has over 5,000 unhoused community members and while this population is growing,
+  <p>Food insecurity is a growing public health issue in our community. Oakland has over 5,000 unhoused community members and while this population is growing,
   government support for meals has ended. Every day our unhoused residents are exposed to unsanitary
   and dangerous conditions and are vulnerable to serious health risks and significant safety hazards that
-  threaten their lives. A warm meal is one way we can help.</p>
-  <p><b>Your donation provides triple benefits:</b> keeping restaurants open, supporting local jobs and feeding our
-  unhoused. Together we have provided over 250,000 meals to our community and over $2.5 million in
-  revenue support for Oakland restaurants.</p>
-  <p>Be assured our approach at Community Kitchens is rooted with core Oakland values and committed to
-  food justice.</p>
-  <ul>
-    <li>Equitable and Inclusive - We have a strong focus on emerging neighborhoods, ensuring
-    restaurant support for marginalized communities and business owners of color.</li>
-
-    <li>Meals with Dignity - Our restaurants serve the same meals they serve their customers or family.
-    Not everyone has the means for a delicious, freshly prepared hot meal. At Community Kitchens
-    there’s a place at the table for everyone.</li>
-
-    <li>Bridging our Community Efficiently – We partner our restaurants with community groups that
-    have established networks and volunteers supporting our unhoused communities.</li>
-  </ul>
+  threaten their lives. <b>A warm meal is one way we can help.</b></p>
+  <p>With your gift, Community Kitchens is positioned to make real impact in reducing
+  hunger and homelessness in our community. Our new food hub, street meal
+  outreach, mobile grocery distribution, pediatric pantry initiative and culinary
+  workforce development programs help stop the cycle of intergenerational poverty
+  in a sustainable and innovative way.</p>
   <p>Thank you again for your generous contribution to our community.</p>
   <p>In solidarity,</p>
   <p>Maria Alderete
