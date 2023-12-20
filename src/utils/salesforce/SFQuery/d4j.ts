@@ -94,3 +94,16 @@ export const getD4JVisits = async (
     };
   });
 };
+
+export const getD4JEvents = async () => {
+  await fetcher.setService('salesforce');
+
+  const query =
+    'SELECT Id, Name, StartDate from Campaign WHERE ParentId = placeholder AND StartDate >= TODAY';
+
+  const { data } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(query)
+  );
+
+  return data.records;
+};

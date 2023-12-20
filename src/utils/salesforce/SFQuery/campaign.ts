@@ -113,3 +113,19 @@ export const getCampaignFromHours = async (id: string) => {
     };
   }
 };
+
+export const getMealProgramData = async () => {
+  await fetcher.setService('salesforce');
+
+  const query =
+    'SELECT SUM(Total_Meals__c) total from Meal_Program_Delivery__c WHERE Date__c <= TODAY';
+
+  const { data }: { data: { records?: { total: number }[] } } =
+    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(query));
+
+  if (!data.records) {
+    throw Error('Meal progrqam data could not be fetched');
+  }
+
+  return data.records[0].total;
+};
