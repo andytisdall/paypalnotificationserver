@@ -1,5 +1,6 @@
 import express from 'express';
 import { zonedTimeToUtc } from 'date-fns-tz';
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
 
 import { getTwilioClient } from './outgoingText';
 import getSecrets from '../../utils/getSecrets';
@@ -195,11 +196,11 @@ router.post(
     const twilioClient = await getTwilioClient();
 
     const promises = ids.map((id: string) => {
-      twilioClient.messages(id).update({ status: 'canceled' });
+      return twilioClient.messages(id).update({ status: 'canceled' });
     });
-    await Promise.all(promises);
+    const updatedMessages = await Promise.all(promises);
 
-    res.sendStatus(204);
+    res.send(updatedMessages);
   }
 );
 

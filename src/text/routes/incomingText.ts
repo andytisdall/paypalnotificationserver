@@ -19,9 +19,9 @@ const Phone = mongoose.model('Phone');
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
 
-const DROPOFF_EMAIL_SUBSCRIBERS = ['alea@ckoakland.org'];
+const DROPOFF_EMAIL_SUBSCRIBERS = ['mollye@ckoakland.org'];
 
-const DROPOFF_PHONE_SUBSCRIBERS = ['+14157557053', '+17185017050'];
+const DROPOFF_PHONE_SUBSCRIBERS = ['+17185017050'];
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -237,7 +237,7 @@ const sendFBNotification = async (feedbackArgs: Feedback) => {
   <p><b>Region:</b> ${feedbackArgs.region}</p>
   `;
 
-  const RECIPIENT = 'alea@ckoakland.org';
+  const RECIPIENT = 'mollye@ckoakland.org';
   const SUBJECT = 'CK Text Service: You received feedback';
   await sendEmail({
     to: RECIPIENT,
