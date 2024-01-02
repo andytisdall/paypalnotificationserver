@@ -16,6 +16,7 @@ import './src/text/models/feedback';
 import './src/paypal/models/paypalTxn';
 import './src/homeChef/models/notifications';
 import './src/text/models/scheduledText';
+import './src/d4j/models/d4jPushToken';
 
 // routes
 

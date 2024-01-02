@@ -2,37 +2,60 @@ import PushNotifications from 'node-pushnotifications';
 
 import getSecrets from './getSecrets';
 
-const createNotificationsService = async () => {
-  const { APNS_P8, APNS_KEY_ID, APNS_TEAM_ID, FCM_API_KEY, APNS_BUNDLE_ID } =
-    await getSecrets([
-      'APNS_P8',
-      'APNS_KEY_ID',
-      'APNS_TEAM_ID',
-      'APNS_BUNDLE_ID',
-      'FCM_API_KEY',
-    ]);
+const createNotificationsService = async (app: 'd4j' | 'homechef') => {
+  let apnsP8,
+    bundleId: string = '',
+    keyId,
+    teamId,
+    fcmKey;
 
-  if (
-    !APNS_P8 ||
-    !APNS_BUNDLE_ID ||
-    !APNS_KEY_ID ||
-    !APNS_TEAM_ID ||
-    !FCM_API_KEY
-  ) {
+  if (app === 'd4j') {
+    const { APNS_P8, APNS_KEY_ID, APNS_TEAM_ID, D4J_FCM_API_KEY } =
+      await getSecrets([
+        'APNS_P8',
+        'APNS_KEY_ID',
+        'APNS_TEAM_ID',
+        'D4J_FCM_API_KEY',
+      ]);
+
+    apnsP8 = APNS_P8;
+    bundleId = 'org.ckoakland.diningforjustice';
+    keyId = APNS_KEY_ID;
+    teamId = APNS_TEAM_ID;
+    fcmKey = D4J_FCM_API_KEY;
+  }
+
+  if (app === 'homechef') {
+    const { APNS_P8, APNS_KEY_ID, APNS_TEAM_ID, HC_FCM_API_KEY } =
+      await getSecrets([
+        'APNS_P8',
+        'APNS_KEY_ID',
+        'APNS_TEAM_ID',
+        'HC_FCM_API_KEY',
+      ]);
+
+    apnsP8 = APNS_P8;
+    bundleId = 'org.ckoakland.ckhomechef';
+    keyId = APNS_KEY_ID;
+    teamId = APNS_TEAM_ID;
+    fcmKey = HC_FCM_API_KEY;
+  }
+
+  if (!apnsP8 || !bundleId || !keyId || !teamId || !fcmKey) {
     throw Error('Could not find credentials to send notifications');
   }
 
   const config = {
     apn: {
       token: {
-        key: APNS_P8,
-        keyId: APNS_KEY_ID,
-        teamId: APNS_TEAM_ID,
+        key: apnsP8,
+        keyId: keyId,
+        teamId: teamId,
       },
       production: process.env.NODE_ENV === 'production',
     },
     gcm: {
-      id: FCM_API_KEY,
+      id: fcmKey,
     },
     isAlwaysUseFCM: false,
   };
@@ -42,7 +65,7 @@ const createNotificationsService = async () => {
     data: { title: string; body: string }
   ) {
     const payload = {
-      topic: APNS_BUNDLE_ID,
+      topic: bundleId,
       priority: 'high',
       retries: 1,
       pushType: 'alert',

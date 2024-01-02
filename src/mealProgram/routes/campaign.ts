@@ -8,7 +8,7 @@ const PAST_YEARS_MEAL_TOTAL = 193131;
 
 router.get('/campaign', async (req, res) => {
   const salesforceTotal = await getMealProgramData();
-  return { total: salesforceTotal + PAST_YEARS_MEAL_TOTAL };
+  res.send({ total: salesforceTotal + PAST_YEARS_MEAL_TOTAL });
 });
 
 export default router;
