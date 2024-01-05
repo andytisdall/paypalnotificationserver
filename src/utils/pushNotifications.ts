@@ -53,6 +53,7 @@ const createNotificationsService = async (app: 'd4j' | 'homechef') => {
         teamId: teamId,
       },
       production: process.env.NODE_ENV === 'production',
+      // production: false,
     },
     gcm: {
       id: fcmKey,

@@ -19,9 +19,10 @@ router.post(
   async (req, res) => {
     const { title, message }: { title: string; message: string } = req.body;
     const notificationsService = await createNotificationsService('homechef');
-    const users = await User.find({
-      homeChefNotificationToken: { $ne: undefined },
-    });
+    // const users = await User.find({
+    //   homeChefNotificationToken: { $ne: undefined },
+    // });
+    const users = await User.find({ username: 'Andy' });
     const userTokens = users.map((u) => u.homeChefNotificationToken);
 
     const payload = { title, body: message };

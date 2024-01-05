@@ -124,7 +124,7 @@ export const getMealProgramData = async () => {
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(query));
 
   if (!data.records) {
-    throw Error('Meal progrqam data could not be fetched');
+    throw Error('Meal program data could not be fetched');
   }
 
   return data.records[0].total;
