@@ -53,6 +53,32 @@ export const getVolunteerCampaigns: () => Promise<
   });
 };
 
+export const getD4JCampaigns: () => Promise<
+  FormattedVolunteerCampaign[]
+> = async () => {
+  await fetcher.setService('salesforce');
+  const query = `SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE ParentId = ${urls.d4jCampaignId}`;
+  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
+    await fetcher.get(queryUri);
+
+  if (!data.records) {
+    throw Error('Could not query');
+  }
+
+  return data.records.map((cam) => {
+    return {
+      name: cam.Name,
+      startDate: cam.StartDate,
+      endDate: cam.EndDate,
+      description: cam.Description,
+      id: cam.Id,
+      buttonText: cam.Portal_Button_Text__c,
+    };
+  });
+};
+
 export const getCampaign = async (id: string) => {
   const {
     data,

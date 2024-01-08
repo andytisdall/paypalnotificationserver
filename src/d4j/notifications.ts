@@ -14,10 +14,11 @@ const router = express.Router();
 router.post('/register-device', async (req, res) => {
   const { token }: { token: string } = req.body;
   const existingToken = await D4jPushToken.findOne({ token });
-  console.log(existingToken);
   if (!existingToken) {
-    const newD4jPushToken = new D4jPushToken({ token });
-    await newD4jPushToken.save();
+    try {
+      const newD4jPushToken = new D4jPushToken({ token });
+      await newD4jPushToken.save();
+    } catch (err) {}
   }
   res.sendStatus(204);
 });

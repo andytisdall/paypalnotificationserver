@@ -84,7 +84,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
-    sendAt: formatISO(zonedTime),
+    sendAt: zonedTime,
     messagingServiceSid: MESSAGING_SERVICE_SID,
     scheduleType: 'fixed',
   };
