@@ -27,9 +27,9 @@ router.get('/events', async (req, res) => {
       photo:
         'https://storage.googleapis.com/coherent-vision-368820.appspot.com/orw-24-photo.png',
       url: 'https://www.visitoakland.com/events/annual-events/restaurant-week/',
-      description: `At Feed the Hood 27 on Dec. 9th East Oakland Collective will be delivering 1,500 bagged lunches, water, snack and supply kits to our unhoused brothers and sisters throughout Oakland.
+      description: `Eat. Drink. Stay. Repeat. From neighborhood gems and food trucks to MICHELIN rated restaurants, explore The Town’s global culinary offerings during the 10 days of Oakland Restaurant Week 2024. Participating restaurants will offer specially created lunch and dinner menus to showcase the diverse culture and cuisine of our incredibly dynamic city.
 
-      Community Kitchens will be preparing Chef Kendall's famous macaroni salad and sliced fruit to add a bit of extra love to each lunch bag and we can use your help packaging and slicing fruit!`,
+      The community and fabric of Oakland is made up of culturally-distinct neighborhoods, inspiring an incredibly creative food scene of unexpected pairings and fusion-style flavors. Favorite foodie hot-spots include Jack London Square and Temescal to Uptown and Fruitvale, to name a few. Plan a visit March 14-24, 2024 and taste what makes Oakland so delicious!`,
     },
   ];
   res.send(EVENTS);

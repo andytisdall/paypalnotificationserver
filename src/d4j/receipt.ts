@@ -1,6 +1,11 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
+import format from 'date-fns-tz/format';
 
-import { createD4jVisit } from '../utils/salesforce/SFQuery/d4j';
+import {
+  createD4jVisit,
+  createD4jCheckIn,
+} from '../utils/salesforce/SFQuery/d4j';
 import { getD4JVisits } from '../utils/salesforce/SFQuery/d4j';
 import { currentD4JUser } from '../middlewares/current-d4j-user';
 
@@ -42,20 +47,20 @@ const prizes = {
   giftCert: { points: 5, title: '$50 Gift Certificate' },
 };
 
-router.post('/rewards', currentD4JUser, async (req, res) => {
-  const { prize, restaurantId }: { prize: 'giftCert'; restaurantId: string } =
-    req.body;
+// router.post('/rewards', currentD4JUser, async (req, res) => {
+//   const { prize, restaurantId }: { prize: 'giftCert'; restaurantId: string } =
+//     req.body;
 
-  if (!req.currentD4JUser) {
-    throw Error('User not signed in');
-  }
+//   if (!req.currentD4JUser) {
+//     throw Error('User not signed in');
+//   }
 
-  if (
-    !req.currentD4JUser.d4jPoints ||
-    prizes[prize].points > req.currentD4JUser.d4jPoints
-  ) {
-    throw Error('Not enough points');
-  }
-});
+//   if (
+//     !req.currentD4JUser.d4jPoints ||
+//     prizes[prize].points > req.currentD4JUser.d4jPoints
+//   ) {
+//     throw Error('Not enough points');
+//   }
+// });
 
 export default router;

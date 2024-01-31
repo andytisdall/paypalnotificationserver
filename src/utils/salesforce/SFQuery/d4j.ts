@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, formatISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
@@ -11,6 +11,11 @@ interface CreateD4JVisitObject {
   Restaurant__c: string;
   Date__c: string;
   Name: string;
+}
+
+interface CreateD4JCheckInObject {
+  Contact__c: string;
+  Restaurant__c: string;
 }
 
 interface UnformattedD4JVisit {
@@ -106,4 +111,26 @@ export const getD4JEvents = async () => {
   );
 
   return data.records;
+};
+
+export const createD4jCheckIn = async ({
+  contactId,
+  restaurantId,
+}: {
+  contactId: string;
+  restaurantId: string;
+}) => {
+  await fetcher.setService('salesforce');
+
+  const createUri = urls.SFOperationPrefix + '/D4J_Check_In__c';
+
+  const createData: CreateD4JCheckInObject = {
+    Contact__c: contactId,
+    Restaurant__c: restaurantId,
+  };
+
+  const { data } = await fetcher.post(createUri, createData);
+  if (!data.success) {
+    throw Error('Could not create D4J Check-In');
+  }
 };

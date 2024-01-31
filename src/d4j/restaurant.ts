@@ -17,4 +17,13 @@ router.get('/restaurantDetails/:restaurantId', async (req, res) => {
   res.send(restaurantDetails);
 });
 
+// update salesforce info from google info
+router.post('/restaurantDetails/:id', async (req, res) => {
+  const {
+    hours,
+    coords,
+  }: { hours: string[]; coords: { latitude: number; longitude: number } } =
+    req.body;
+});
+
 export default router;

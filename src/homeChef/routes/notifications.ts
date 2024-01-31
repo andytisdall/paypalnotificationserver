@@ -22,7 +22,10 @@ router.post(
     // const users = await User.find({
     //   homeChefNotificationToken: { $ne: undefined },
     // });
-    const users = await User.find({ username: 'Andy' });
+    const users = await User.find().or([
+      { username: 'Andy' },
+      { username: 'Mollye' },
+    ]);
     const userTokens = users.map((u) => u.homeChefNotificationToken);
 
     const payload = { title, body: message };

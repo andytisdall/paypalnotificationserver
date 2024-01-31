@@ -3,21 +3,27 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 
 import getSecrets from '../utils/getSecrets';
-import { D4JContact, getD4JContact } from '../utils/salesforce/SFQuery/contact';
-
-const User = mongoose.model('User');
+import { D4JContact } from '../utils/salesforce/SFQuery/contact';
 
 export interface D4JUserPayload {
   id: string;
 }
 
+interface D4JUserModel {
+  email: string;
+  id: string;
+  token?: string;
+}
+
 declare global {
   namespace Express {
     interface Request {
-      currentD4JUser?: D4JContact;
+      currentD4JUser?: D4JUserModel | null;
     }
   }
 }
+
+const D4JUser = mongoose.model('D4JUser');
 
 export const currentD4JUser = async (
   req: Request,
@@ -39,6 +45,7 @@ export const currentD4JUser = async (
     authorization,
     JWT_KEY
   ) as unknown as D4JUserPayload;
-  req.currentD4JUser = await getD4JContact(payload.id);
+
+  req.currentD4JUser = await D4JUser.findById(payload.id);
   next();
 };

@@ -1,12 +1,12 @@
 import axios from 'axios';
-// import node_geocoder from 'node-geocoder';
+import node_geocoder from 'node-geocoder';
 
 import urls from './urls';
 import getSecrets from './getSecrets';
 
 interface UnformattedPlaceDetails {
   websiteUri: string;
-  regularOpeningHours: {
+  regularOpeningHours?: {
     openNow: boolean;
     weekdayDescriptions: string[];
   };
@@ -19,8 +19,8 @@ interface UnformattedPlaceDetails {
 
 interface FormattedPlaceDetails {
   url: string;
-  openNow: boolean;
-  openHours: string[];
+  openNow?: boolean;
+  openHours?: string[];
   serves: {
     breakfast: boolean;
     wine: boolean;
@@ -63,16 +63,22 @@ export const getPlaceDetails = async (
     },
   });
 
+  // console.log(data);
+
+  // get salesforce info
+  // compare coords and hours to salesforce info
+  // update salesforce info if necessary
+
   // const geocoder = node_geocoder({
   //   provider: 'google',
   //   apiKey: GOOGLE_MAPS_API_KEY,
   // });
 
-  // const coords = await geocoder.geocode(data.formattedAddress);
+  // const coords = await geocoder.geocode(data.shortFormattedAddress);
   return {
     url: data.websiteUri,
-    openNow: data.regularOpeningHours.openNow,
-    openHours: data.regularOpeningHours.weekdayDescriptions,
+    openNow: data.regularOpeningHours?.openNow,
+    openHours: data.regularOpeningHours?.weekdayDescriptions,
     serves: {
       breakfast: data.servesBreakfast,
       beer: data.servesBeer,

@@ -11,7 +11,16 @@ export const errorHandler = (
     message = JSON.stringify(err.response.data.message);
   }
   if (err.response?.data) {
-    message = JSON.stringify(err.response.data);
+    if (Array.isArray(err.response.data)) {
+      // salesforce error
+      message = err.response.data[0];
+      if (message.errorCode) {
+        console.log(message.message);
+        return res.status(400).send({ error: 'Error Retreiving Data' });
+      }
+    } else {
+      message = err.response.data;
+    }
   } else if (err.response?.body) {
     message = JSON.stringify(err.response.body);
   }

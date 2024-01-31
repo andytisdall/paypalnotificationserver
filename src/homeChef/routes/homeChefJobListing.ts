@@ -29,7 +29,8 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
     return jobShiftsExcludingRestaurantMeals;
   });
   const shifts = (await Promise.all(shiftPromises)).flat();
-  res.send({ jobs, shifts });
+  // filter out jobs with no visible shifts
+  res.send({ jobs: jobs.filter((j) => j.shifts.length > 0), shifts });
 });
 
 export default router;
