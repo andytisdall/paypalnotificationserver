@@ -3,10 +3,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../middlewares/current-d4j-user';
-import {
-  getContactByEmail,
-  addContact,
-} from '../utils/salesforce/SFQuery/contact';
+import { addContact } from '../utils/salesforce/SFQuery/contact';
 import getSecrets from '../utils/getSecrets';
 
 const D4JUser = mongoose.model('D4JUser');

@@ -5,23 +5,11 @@ import { currentUser } from '../middlewares/current-user';
 import { requireAuth } from '../middlewares/require-auth';
 import { requireAdmin } from '../middlewares/require-admin';
 import createNotificationsService from '../utils/pushNotifications';
+import { D4JUser } from './models/d4jUser';
 
-const D4jPushToken = mongoose.model('D4jPushToken');
 const Notification = mongoose.model('Notification');
 
 const router = express.Router();
-
-router.post('/register-device', async (req, res) => {
-  const { token }: { token: string } = req.body;
-  const existingToken = await D4jPushToken.findOne({ token });
-  if (!existingToken) {
-    try {
-      const newD4jPushToken = new D4jPushToken({ token });
-      await newD4jPushToken.save();
-    } catch (err) {}
-  }
-  res.sendStatus(204);
-});
 
 router.post(
   '/notifications',
@@ -32,7 +20,9 @@ router.post(
     const { title, message }: { title: string; message: string } = req.body;
     const notificationsService = await createNotificationsService('d4j');
 
-    const userTokens = (await D4jPushToken.find()).map(({ token }) => token);
+    const userTokens = (await D4JUser.find())
+      .filter((user) => user.token)
+      .map(({ token }) => token) as string[];
 
     const payload = { title, body: message };
 

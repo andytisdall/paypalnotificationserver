@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const d4jUserSchema = new mongoose.Schema(
   {
     email: { type: String, required: true },
-    token: { type: String, unique: true },
+    token: String,
     salesforceId: String,
   },
 
