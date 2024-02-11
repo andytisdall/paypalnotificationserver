@@ -18,28 +18,49 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
     algorithms: ['HS256'],
   }) as unknown as {
     restaurantId: string;
-    date: Date;
+    date: string;
   };
+
+  if (!req.currentD4JUser) {
+    throw Error('User is not signed in');
+  }
 
   if (!restaurantId || !date) {
     res.sendStatus(403);
   }
 
-  if (format(date, 'MM/dd/yy') === format(new Date(), 'MM/dd/yy')) {
+  const existingCheckIn = await CheckIn.findOne({
+    date: new Date(date),
+    restaurant: restaurantId,
+    user: req.currentD4JUser.id,
+  });
+
+  if (existingCheckIn) {
+    // if (format(new Date(date), 'MM/dd/yy') === format(new Date(), 'MM/dd/yy')) {
     throw Error('Already checked in today');
-  }
-  if (!req.currentD4JUser) {
-    throw Error('User is not signed in');
   }
 
   const newCheckIn = new CheckIn({
     contact: req.currentD4JUser.id,
     restaurant: restaurantId,
+    user: req.currentD4JUser.id,
   });
 
   await newCheckIn.save();
-
+  console.log('chizzek');
   res.sendStatus(204);
+});
+
+router.get('/rewards/check-in', currentD4JUser, async (req, res) => {
+  console.log('hit');
+  const user = req.currentD4JUser;
+
+  if (!user) {
+    throw Error('User is not signed in');
+  }
+
+  const checkIns = await CheckIn.find({ user: user.id });
+  res.send(checkIns);
 });
 
 export default router;
