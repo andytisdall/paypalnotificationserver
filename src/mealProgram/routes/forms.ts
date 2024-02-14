@@ -201,6 +201,11 @@ export interface CBOReportParams {
   feedback: string;
   phoneNumber: string;
   email: string;
+  waters: number;
+  juices: number;
+  socks: number;
+  extraItem: string;
+  extraItemAmount: number;
 }
 
 export interface CBOReportObject {
@@ -304,6 +309,11 @@ export interface CBOReportObject {
   XUnhoused__c?: number;
   XOther__c?: number;
   CBO_Report_Summary__c: string;
+  Water_Bottles_Distributed__c: number;
+  Juice_Boxes_Distributed__c: number;
+  Pairs_of_Socks_Distributed__c: number;
+  Amount_of_Extra_Item__c: number;
+  Extra_Item__c: string;
 }
 
 router.post('/cbo-report', async (req, res) => {
@@ -320,6 +330,11 @@ router.post('/cbo-report', async (req, res) => {
     phoneNumber,
     email,
     year,
+    waters,
+    juices,
+    socks,
+    extraItem,
+    extraItemAmount,
   }: CBOReportParams = req.body;
 
   const date = new Date();
@@ -423,6 +438,11 @@ router.post('/cbo-report', async (req, res) => {
     X94709__c: zips[94709],
     X94710__c: zips[94710],
     X94712__c: zips[94712],
+    Water_Bottles_Distributed__c: waters,
+    Juice_Boxes_Distributed__c: juices,
+    Pairs_of_Socks_Distributed__c: socks,
+    Extra_Item__c: extraItem,
+    Amount_of_Extra_Item__c: extraItemAmount,
   };
 
   await fetcher.setService('salesforce');
