@@ -136,5 +136,10 @@ const convertCBODataFromSalesforce = (
       Unhoused: report.XUnhoused__c,
       Other: report.XOther__c,
     },
+    waters: report.Water_Bottles_Distributed__c,
+    juices: report.Juice_Boxes_Distributed__c,
+    socks: report.Pairs_of_Socks_Distributed__c,
+    extraItem: report.Extra_Item__c,
+    extraItemAmount: report.Amount_of_Extra_Item__c,
   };
 };

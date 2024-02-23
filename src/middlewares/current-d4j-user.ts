@@ -12,6 +12,7 @@ export interface D4JUserPayload {
 interface D4JUserModel {
   email: string;
   id: string;
+  salesforceId?: string;
   token?: string;
 }
 

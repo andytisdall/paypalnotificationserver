@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../middlewares/current-d4j-user';
-import { addContact } from '../utils/salesforce/SFQuery/contact';
+import {
+  addContact,
+  getContactByEmail,
+} from '../utils/salesforce/SFQuery/contact';
 import getSecrets from '../utils/getSecrets';
 
 const D4JUser = mongoose.model('D4JUser');
@@ -11,26 +14,32 @@ const D4JUser = mongoose.model('D4JUser');
 const router = express.Router();
 
 router.post('/contact/signin', async (req, res) => {
-  const { email } = req.body;
+  const { email, token } = req.body;
 
-  const user = await D4JUser.findOne({ email });
+  let user = await D4JUser.findOne({ email });
 
   if (!user) {
-    return res.sendStatus(204);
+    // get salesforce contact
+    const contact = await getContactByEmail(email);
+    if (!contact) {
+      return res.sendStatus(204);
+    }
+    user = new D4JUser({ email, salesforceId: contact.id, token });
+    await user.save();
   }
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
   if (!JWT_KEY) {
     throw Error('Could not find JWT secret key');
   }
 
-  const token = jwt.sign(
+  const jwtToken = jwt.sign(
     {
       id: user.id,
     },
     JWT_KEY
   );
 
-  res.send({ contact: user, token });
+  res.send({ contact: user, token: jwtToken });
 });
 
 router.post('/contact', async (req, res) => {
@@ -38,29 +47,34 @@ router.post('/contact', async (req, res) => {
     email,
     firstName,
     lastName,
-  }: { email: string; firstName: string; lastName: string } = req.body;
+    token,
+  }: { email: string; firstName: string; lastName: string; token?: string } =
+    req.body;
 
   if (!email || !firstName || !lastName) {
     throw Error('You must provide an email, first name and last name.');
   }
 
-  const newUser = new D4JUser({ email });
+  const existingUser = await D4JUser.findOne({ email });
+  if (existingUser) {
+    throw Error('There is already an account with this email address');
+  }
+
+  const newUser = new D4JUser({ email, token });
+  await newUser.save();
 
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
   if (!JWT_KEY) {
     throw Error('Could not find JWT secret key');
   }
-
-  await newUser.save();
-
-  const token = jwt.sign(
+  const jwtToken = jwt.sign(
     {
       id: newUser.id,
     },
     JWT_KEY
   );
 
-  res.send({ contact: newUser, token });
+  res.send({ contact: newUser, token: jwtToken });
 
   const contact = await addContact({
     Email: email,

@@ -7,6 +7,10 @@ import { currentD4JUser } from '../middlewares/current-d4j-user';
 
 const CheckIn = mongoose.model('CheckIn');
 
+type CheckInResponse = {
+  result: 'SUCCESS' | 'DUPLICATE' | 'UNAUTHORIZED' | 'MALFORMED';
+};
+
 const router = express.Router();
 
 router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
@@ -22,11 +26,17 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   };
 
   if (!req.currentD4JUser) {
-    throw Error('User is not signed in');
+    const result: CheckInResponse = {
+      result: 'UNAUTHORIZED',
+    };
+    return res.send(result);
   }
 
   if (!restaurantId || !date) {
-    res.sendStatus(403);
+    const result: CheckInResponse = {
+      result: 'MALFORMED',
+    };
+    return res.send(result);
   }
 
   const existingCheckIn = await CheckIn.findOne({
@@ -36,30 +46,33 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   });
 
   if (existingCheckIn) {
-    // if (format(new Date(date), 'MM/dd/yy') === format(new Date(), 'MM/dd/yy')) {
-    throw Error('Already checked in today');
+    const result: CheckInResponse = {
+      result: 'DUPLICATE',
+    };
+    return res.send(result);
   }
 
   const newCheckIn = new CheckIn({
-    contact: req.currentD4JUser.id,
     restaurant: restaurantId,
     user: req.currentD4JUser.id,
   });
 
   await newCheckIn.save();
-  console.log('chizzek');
-  res.sendStatus(204);
+
+  const result: CheckInResponse = {
+    result: 'SUCCESS',
+  };
+  res.send(result);
 });
 
 router.get('/rewards/check-in', currentD4JUser, async (req, res) => {
-  console.log('hit');
   const user = req.currentD4JUser;
 
   if (!user) {
     throw Error('User is not signed in');
   }
 
-  const checkIns = await CheckIn.find({ user: user.id });
+  const checkIns = await CheckIn.find({ user: user.id }).sort([['date', -1]]);
   res.send(checkIns);
 });
 
