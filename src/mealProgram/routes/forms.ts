@@ -206,6 +206,8 @@ export interface CBOReportParams {
   socks: number;
   extraItem: string;
   extraItemAmount: number;
+  tortillaChips: number;
+  granolaBars: number;
 }
 
 export interface CBOReportObject {
@@ -309,11 +311,13 @@ export interface CBOReportObject {
   XUnhoused__c?: number;
   XOther__c?: number;
   CBO_Report_Summary__c: string;
-  Water_Bottles_Distributed__c: number;
-  Juice_Boxes_Distributed__c: number;
-  Pairs_of_Socks_Distributed__c: number;
-  Amount_of_Extra_Item__c: number;
-  Extra_Item__c: string;
+  Water_Bottles_Distributed__c?: number;
+  Juice_Boxes_Distributed__c?: number;
+  Pairs_of_Socks_Distributed__c?: number;
+  Amount_of_Extra_Item__c?: number;
+  Extra_Item__c?: string;
+  Granola_Bars_Distributed__c?: number;
+  Tortilla_Chip_Bags_Distributed__c?: number;
 }
 
 router.post('/cbo-report', async (req, res) => {
@@ -335,6 +339,8 @@ router.post('/cbo-report', async (req, res) => {
     socks,
     extraItem,
     extraItemAmount,
+    granolaBars,
+    tortillaChips,
   }: CBOReportParams = req.body;
 
   const date = new Date();
@@ -443,6 +449,8 @@ router.post('/cbo-report', async (req, res) => {
     Pairs_of_Socks_Distributed__c: socks,
     Extra_Item__c: extraItem,
     Amount_of_Extra_Item__c: extraItemAmount,
+    Granola_Bars_Distributed__c: granolaBars,
+    Tortilla_Chip_Bags_Distributed__c: tortillaChips,
   };
 
   await fetcher.setService('salesforce');

@@ -7,6 +7,7 @@ const googleMaps = 'https://places.googleapis.com/v1/places';
 const adminEmail = 'communitykitchens@ckoakland.org';
 
 const prodUrls = {
+  cocktailsCampaignId: '7018Z000003KptzQAC',
   // d4jCampaignId: '7018Z000003KpQWQA0',
   orwCampaignId: '701UP0000035lFuYAI',
   townFridgeCampaignId: '7018Z000003C3Mx',
@@ -28,7 +29,7 @@ const prodUrls = {
 
 const testUrls = {
   // d4jCampaignId: '7018Z000003KpQWQA0',
-
+  cocktailsCampaignId: '701VF000003nkA3YAI',
   townFridgeCampaignId: '70174000000Yqjh',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',

@@ -1,9 +1,10 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { format } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../middlewares/current-d4j-user';
+import { createD4jVisit } from '../utils/salesforce/SFQuery/d4j';
 
 const CheckIn = mongoose.model('CheckIn');
 
@@ -39,8 +40,12 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
     return res.send(result);
   }
 
+  const todaysDate = new Date(date);
+  todaysDate.setHours(0);
+  todaysDate.setMinutes(0);
+
   const existingCheckIn = await CheckIn.findOne({
-    date: new Date(date),
+    date: { $gt: subDays(todaysDate, 1), $lt: addDays(todaysDate, 1) },
     restaurant: restaurantId,
     user: req.currentD4JUser.id,
   });
@@ -63,6 +68,14 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
     result: 'SUCCESS',
   };
   res.send(result);
+
+  if (req.currentD4JUser.salesforceId) {
+    createD4jVisit({
+      contactId: req.currentD4JUser.salesforceId,
+      restaurantId,
+      date,
+    });
+  }
 });
 
 router.get('/rewards/check-in', currentD4JUser, async (req, res) => {

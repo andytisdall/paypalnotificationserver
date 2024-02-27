@@ -35,7 +35,6 @@ export interface UnformattedD4JRestaurant {
   Open_Hours__c?: string;
   Geolocation__c?: { latitude: number; longitude: number };
   Photo_URL__c?: string;
-  D4J_Status__c: 'Active' | 'Former';
 }
 
 type Coordinates = { latitude: number; longitude: number };
@@ -53,8 +52,31 @@ export interface FormattedD4JRestaurant {
   coords?: Coordinates;
   openHours?: string[];
   photo?: string;
-  active: boolean;
 }
+
+const getCoords = (latitude?: number, longitude?: number) => {
+  if (latitude && longitude) {
+    return { latitude, longitude };
+  }
+};
+const formatAccount = (account: UnformattedD4JRestaurant) => {
+  return {
+    name: account.Name,
+    id: account.Id,
+    pocOwned: account.Minority_Owned__c,
+    femaleOwned: account.Female_Owned__c,
+    vegan: account.Restaurant_Vegan__c,
+    underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
+    cuisine: account.Type_of_Food__c,
+    googleId: account.Google_ID__c,
+    coords: getCoords(
+      account.Geolocation__c?.latitude,
+      account.Geolocation__c?.longitude
+    ),
+    openHours: account.Open_Hours__c?.split('_'),
+    photo: account.Photo_URL__c,
+  };
+};
 
 export const getAccountById = async (id: string) => {
   await fetcher.setService('salesforce');
@@ -97,29 +119,35 @@ export const getD4jRestaurants = async (): Promise<
 
   // await Promise.all(promises);
 
-  const getCoords = (latitude?: number, longitude?: number) => {
-    if (latitude && longitude) {
-      return { latitude, longitude };
-    }
-  };
+  return data.records.map(formatAccount);
+};
 
-  return data.records.map((account) => {
-    return {
-      name: account.Name,
-      id: account.Id,
-      pocOwned: account.Minority_Owned__c,
-      femaleOwned: account.Female_Owned__c,
-      vegan: account.Restaurant_Vegan__c,
-      underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
-      cuisine: account.Type_of_Food__c,
-      googleId: account.Google_ID__c,
-      coords: getCoords(
-        account.Geolocation__c?.latitude,
-        account.Geolocation__c?.longitude
-      ),
-      openHours: account.Open_Hours__c?.split('_'),
-      photo: account.Photo_URL__c,
-      active: account.D4J_Status__c === 'Active',
-    };
-  });
+export const getBars = async () => {
+  await fetcher.setService('salesforce');
+
+  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}'`;
+
+  const { data } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
+  );
+  if (!data?.records) {
+    throw Error('Could not get campaign members');
+  }
+  const arrayOfBarIds = data.records.map(
+    (rec: { AccountId: string }) => rec.AccountId
+  );
+  const stringOfBarIds = "('" + arrayOfBarIds.join("',") + "')";
+
+  const accountQuery = `SELECT stuff from Account WHERE Id IN ${stringOfBarIds}`;
+
+  const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
+    await fetcher.get(
+      urls.SFOperationPrefix + encodeURIComponent(accountQuery)
+    );
+
+  if (!data?.records) {
+    throw Error('Could not get account info');
+  }
+
+  return data.records.map(formatAccount);
 };
