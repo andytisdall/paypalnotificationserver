@@ -130,24 +130,23 @@ export const getBars = async () => {
   const { data } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
   );
+
   if (!data?.records) {
     throw Error('Could not get campaign members');
   }
   const arrayOfBarIds = data.records.map(
     (rec: { AccountId: string }) => rec.AccountId
   );
-  const stringOfBarIds = "('" + arrayOfBarIds.join("',") + "')";
+  const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
 
-  const accountQuery = `SELECT stuff from Account WHERE Id IN ${stringOfBarIds}`;
+  const accountQuery = `SELECT Name from Account WHERE Id IN ${stringOfBarIds}`;
 
   const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
-    await fetcher.get(
-      urls.SFOperationPrefix + encodeURIComponent(accountQuery)
-    );
+    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
 
-  if (!data?.records) {
+  if (!res.data?.records) {
     throw Error('Could not get account info');
   }
 
-  return data.records.map(formatAccount);
+  return res.data.records.map(formatAccount);
 };

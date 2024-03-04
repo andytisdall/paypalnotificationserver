@@ -2,12 +2,12 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-import { currentD4JUser } from '../middlewares/current-d4j-user';
+import { currentD4JUser } from '../../middlewares/current-d4j-user';
 import {
   addContact,
   getContactByEmail,
-} from '../utils/salesforce/SFQuery/contact';
-import getSecrets from '../utils/getSecrets';
+} from '../../utils/salesforce/SFQuery/contact';
+import getSecrets from '../../utils/getSecrets';
 
 const D4JUser = mongoose.model('D4JUser');
 

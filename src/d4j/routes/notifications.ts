@@ -1,11 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
 
-import { currentUser } from '../middlewares/current-user';
-import { requireAuth } from '../middlewares/require-auth';
-import { requireAdmin } from '../middlewares/require-admin';
-import createNotificationsService from '../utils/pushNotifications';
-import { D4JUser } from './models/d4jUser';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
+import createNotificationsService from '../../utils/pushNotifications';
+import { D4JUser } from '../models/d4jUser';
 
 const Notification = mongoose.model('Notification');
 

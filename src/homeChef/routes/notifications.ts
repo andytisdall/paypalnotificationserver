@@ -23,8 +23,8 @@ router.post(
     //   homeChefNotificationToken: { $ne: undefined },
     // });
     const users = await User.find().or([
-      { username: 'Andy' },
-      { username: 'Mollye' },
+      { username: 'Testo' },
+      // { username: 'Mollye' },
     ]);
     const userTokens = users.map((u) => u.homeChefNotificationToken);
 
@@ -38,6 +38,19 @@ router.post(
     await newNotification.save();
 
     res.sendStatus(204);
+  }
+);
+
+router.get(
+  '/notifications',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const notifications = await Notification.find({ app: 'homechef' }).sort([
+      ['date', -1],
+    ]);
+    res.send(notifications);
   }
 );
 

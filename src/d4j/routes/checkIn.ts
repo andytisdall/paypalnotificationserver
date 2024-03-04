@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import { addDays, subDays } from 'date-fns';
 import mongoose from 'mongoose';
 
-import { currentD4JUser } from '../middlewares/current-d4j-user';
-import { createD4jVisit } from '../utils/salesforce/SFQuery/d4j';
+import { currentD4JUser } from '../../middlewares/current-d4j-user';
+import { createD4jVisit } from '../../utils/salesforce/SFQuery/d4j';
 
 const CheckIn = mongoose.model('CheckIn');
 

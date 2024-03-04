@@ -201,13 +201,13 @@ export interface CBOReportParams {
   feedback: string;
   phoneNumber: string;
   email: string;
-  waters: number;
-  juices: number;
-  socks: number;
-  extraItem: string;
-  extraItemAmount: number;
-  tortillaChips: number;
-  granolaBars: number;
+  waters?: number;
+  juices?: number;
+  socks?: number;
+  extraItem?: string;
+  extraItemAmount?: number;
+  tortillaChips?: number;
+  granolaBars?: number;
 }
 
 export interface CBOReportObject {

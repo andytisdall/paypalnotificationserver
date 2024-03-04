@@ -1,7 +1,7 @@
 import express from 'express';
 import { format } from 'date-fns';
 
-import { getD4JEvents } from '../utils/salesforce/SFQuery/d4j';
+import { getD4JEvents } from '../../utils/salesforce/SFQuery/d4j';
 
 const router = express.Router();
 

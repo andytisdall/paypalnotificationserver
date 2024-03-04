@@ -128,7 +128,7 @@ router.post('/save-token', currentUser, requireAuth, async (req, res) => {
 
   const user = await User.findById(req.currentUser!.id);
 
-  user.d4jNotificationToken = token;
+  user.homeChefNotificationToken = token;
 
   await user.save();
   res.sendStatus(204);

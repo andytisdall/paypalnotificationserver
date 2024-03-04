@@ -53,7 +53,10 @@ export const createHours = async ({
   const { data } = await fetcher.get(
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
   );
+  // getting this error
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
+    console.log(data);
+    console.log('Contact trying to book is ' + contactId);
     throw new Error('This shift has no available slots');
   }
 
