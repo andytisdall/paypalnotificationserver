@@ -10,8 +10,8 @@ const router = express.Router();
 
 router.get('/restaurants', async (req, res) => {
   const restaurants = await getD4jRestaurants();
-  // const bars = await getBars();
-  res.send(restaurants);
+  const bars = await getBars();
+  res.send([...restaurants, ...bars]);
 });
 
 router.get('/restaurantDetails/:restaurantId', async (req, res) => {

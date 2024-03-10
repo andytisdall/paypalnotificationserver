@@ -37,4 +37,17 @@ router.post(
   }
 );
 
+router.get(
+  '/notifications',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const notifications = await Notification.find({ app: 'd4j' }).sort([
+      ['date', -1],
+    ]);
+    res.send(notifications);
+  }
+);
+
 export default router;

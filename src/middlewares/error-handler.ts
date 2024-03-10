@@ -8,6 +8,7 @@ export const errorHandler = (
 ) => {
   let message = err.message;
   console.log(err);
+  console.log(err.response?.data);
   if (err.response?.data?.message) {
     message = JSON.stringify(err.response.data.message);
   }

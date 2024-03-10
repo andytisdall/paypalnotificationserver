@@ -1,47 +1,76 @@
-import { format } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
-
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 
-interface CreateD4JVisitObject {
+interface CreateD4JCheckInObject {
   Contact__c: string;
   Restaurant__c: string;
-  Date__c: string;
-  Name: string;
+  Date__c: Date;
 }
 
-export const createD4jVisit = async ({
+interface D4JCheckIn {
+  Contact__c: string;
+  Id: string;
+}
+
+// D4J check ins have a status of "Valid" or "Spent"
+
+export const createD4jCheckIn = async ({
   contactId,
   restaurantId,
-  date,
 }: {
   contactId: string;
   restaurantId: string;
-  date: string;
 }) => {
   await fetcher.setService('salesforce');
 
   const createUri = urls.SFOperationPrefix + '/D4J_Visit__c';
 
-  const formattedDate = format(
-    zonedTimeToUtc(date, 'America/Los_Angeles'),
-    'M/d/yy'
-  );
-
-  const name = `D4J Visit - ${formattedDate}`;
-
-  const createData: CreateD4JVisitObject = {
-    Date__c: date,
+  const createData: CreateD4JCheckInObject = {
+    Date__c: new Date(),
     Contact__c: contactId,
     Restaurant__c: restaurantId,
-    Name: name,
   };
 
   const { data } = await fetcher.post(createUri, createData);
   if (!data.success) {
     throw Error('Could not create D4J Visit');
   }
+};
+
+export const updateD4jCheckInsAsSpent = async (ids: string[]) => {
+  await fetcher.setService('salesforce');
+
+  const promises = ids.map((id) => {
+    return fetcher.patch(urls.SFOperationPrefix + '/D4J_Check_In__c/' + id, {
+      Status: 'Spent',
+    });
+  });
+  await Promise.all(promises);
+};
+
+export const updateD4jCheckInAsWinner = async (id: string) => {
+  await fetcher.setService('salesforce');
+
+  await fetcher.patch(urls.SFOperationPrefix + '/D4J_Check_In__c/' + id, {
+    Status: 'Winner',
+  });
+};
+
+export const getValidD4jCheckIns = async () => {
+  await fetcher.setService('salesforce');
+
+  const query =
+    "SELECT Contact, Id from D4J_Check_In__c where Status = 'Valid'";
+
+  const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(query)
+  );
+
+  if (!data.records) {
+    throw Error('Could not fetch check-ins');
+  }
+
+  return data.records;
 };
 
 export const getD4JEvents = async () => {

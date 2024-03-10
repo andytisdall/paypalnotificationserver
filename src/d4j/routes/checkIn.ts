@@ -4,7 +4,16 @@ import { addDays, subDays } from 'date-fns';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
-import { createD4jVisit } from '../../utils/salesforce/SFQuery/d4j';
+import {
+  createD4jCheckIn,
+  getValidD4jCheckIns,
+  updateD4jCheckInsAsSpent,
+  updateD4jCheckInAsWinner,
+} from '../../utils/salesforce/SFQuery/d4j';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
 
 const CheckIn = mongoose.model('CheckIn');
 
@@ -70,10 +79,9 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   res.send(result);
 
   if (req.currentD4JUser.salesforceId) {
-    createD4jVisit({
+    createD4jCheckIn({
       contactId: req.currentD4JUser.salesforceId,
       restaurantId,
-      date,
     });
   }
 });
@@ -88,5 +96,38 @@ router.get('/rewards/check-in', currentD4JUser, async (req, res) => {
   const checkIns = await CheckIn.find({ user: user.id }).sort([['date', -1]]);
   res.send(checkIns);
 });
+
+router.get(
+  '/rewards/prize-drawing',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    // get all check-ins that are valid
+    const checkIns = await getValidD4jCheckIns();
+
+    // get random number between 0 and list length - 1
+    const numberOfCheckIns = checkIns.length;
+    const randomIndex = Math.floor(Math.random() * numberOfCheckIns - 1);
+
+    // draw d4j check-in at that index
+    const winningCheckIn = checkIns[randomIndex];
+    const contact = await getContactById(winningCheckIn.Contact__c);
+
+    // mark all fetched check-ins as spent & winner
+    await updateD4jCheckInsAsSpent(checkIns.map((c) => c.Id));
+    await updateD4jCheckInAsWinner(winningCheckIn.Id);
+
+    // return name of contact
+    res.send({
+      contact: {
+        id: contact.Id,
+        firstName: contact.FirstName,
+        lastName: contact.LastName,
+      },
+      numberOfCheckIns,
+    });
+  }
+);
 
 export default router;
