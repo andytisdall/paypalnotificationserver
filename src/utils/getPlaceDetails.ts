@@ -1,5 +1,4 @@
 import axios from 'axios';
-import node_geocoder from 'node-geocoder';
 
 import urls from './urls';
 import getSecrets from './getSecrets';
@@ -34,10 +33,7 @@ interface FormattedPlaceDetails {
 
 export const getPlaceDetails = async (
   id: string
-): Promise<FormattedPlaceDetails | undefined> => {
-  if (!id) {
-    return;
-  }
+): Promise<FormattedPlaceDetails> => {
   const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
   if (!GOOGLE_MAPS_API_KEY) {
     throw Error('API key not found');
@@ -63,18 +59,6 @@ export const getPlaceDetails = async (
     },
   });
 
-  // console.log(data);
-
-  // get salesforce info
-  // compare coords and hours to salesforce info
-  // update salesforce info if necessary
-
-  // const geocoder = node_geocoder({
-  //   provider: 'google',
-  //   apiKey: GOOGLE_MAPS_API_KEY,
-  // });
-
-  // const coords = await geocoder.geocode(data.shortFormattedAddress);
   return {
     url: data.websiteUri,
     openNow: data.regularOpeningHours?.openNow,
@@ -85,7 +69,6 @@ export const getPlaceDetails = async (
       cocktails: data.servesCocktails,
       wine: data.servesWine,
     },
-    // coords: coords[0],
     address: data.shortFormattedAddress,
     id,
   };

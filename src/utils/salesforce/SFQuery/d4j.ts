@@ -12,7 +12,7 @@ interface D4JCheckIn {
   Id: string;
 }
 
-// D4J check ins have a status of "Valid" or "Spent"
+// D4J check ins have a status of "Valid", "Spent" or "Winner"
 
 export const createD4jCheckIn = async ({
   contactId,
@@ -20,10 +20,10 @@ export const createD4jCheckIn = async ({
 }: {
   contactId: string;
   restaurantId: string;
-}) => {
+}): Promise<string> => {
   await fetcher.setService('salesforce');
 
-  const createUri = urls.SFOperationPrefix + '/D4J_Visit__c';
+  const createUri = urls.SFOperationPrefix + '/D4J_Check_In__c';
 
   const createData: CreateD4JCheckInObject = {
     Date__c: new Date(),
@@ -33,8 +33,9 @@ export const createD4jCheckIn = async ({
 
   const { data } = await fetcher.post(createUri, createData);
   if (!data.success) {
-    throw Error('Could not create D4J Visit');
+    throw Error('Could not create D4J Check In');
   }
+  return data.id;
 };
 
 export const updateD4jCheckInsAsSpent = async (ids: string[]) => {

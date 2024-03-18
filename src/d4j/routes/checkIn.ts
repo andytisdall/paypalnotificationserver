@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { addDays, subDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
@@ -49,12 +50,15 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
     return res.send(result);
   }
 
-  const todaysDate = new Date(date);
-  todaysDate.setHours(0);
-  todaysDate.setMinutes(0);
+  const midnightToday = new Date();
+  midnightToday.setHours(0);
+  midnightToday.setMinutes(0);
+  const lowerBound = zonedTimeToUtc(midnightToday, 'America/Los_Angeles');
+  const upperBound = addDays(lowerBound, 1);
+  const checkInDate = zonedTimeToUtc(new Date(date), 'America/Los_Angeles');
 
   const existingCheckIn = await CheckIn.findOne({
-    date: { $gt: subDays(todaysDate, 1), $lt: addDays(todaysDate, 1) },
+    date: { $gte: lowerBound, $lt: upperBound },
     restaurant: restaurantId,
     user: req.currentD4JUser.id,
   });
@@ -69,6 +73,7 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   const newCheckIn = new CheckIn({
     restaurant: restaurantId,
     user: req.currentD4JUser.id,
+    date: checkInDate,
   });
 
   await newCheckIn.save();
@@ -79,10 +84,12 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   res.send(result);
 
   if (req.currentD4JUser.salesforceId) {
-    createD4jCheckIn({
+    const checkInId = await createD4jCheckIn({
       contactId: req.currentD4JUser.salesforceId,
       restaurantId,
     });
+    newCheckIn.salesforceId = checkInId;
+    await newCheckIn.save();
   }
 });
 
@@ -129,5 +136,10 @@ router.get(
     });
   }
 );
+
+router.get('/rewards/check-in/all', async (req, res) => {
+  const checkIns = await CheckIn.find();
+  return res.send({ checkIns: checkIns.length });
+});
 
 export default router;

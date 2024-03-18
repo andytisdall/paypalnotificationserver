@@ -11,7 +11,8 @@ const checkInSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    date: { type: Date, default: () => new Date() },
+    date: { type: Date, required: true },
+    salesforceId: String,
   },
 
   {

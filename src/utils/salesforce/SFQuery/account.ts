@@ -1,3 +1,6 @@
+import node_geocoder from 'node-geocoder';
+
+import getSecrets from '../../getSecrets';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 import { getPlaceDetails } from '../../getPlaceDetails';
@@ -35,6 +38,8 @@ export interface UnformattedD4JRestaurant {
   Open_Hours__c?: string;
   Geolocation__c?: { latitude: number; longitude: number };
   Photo_URL__c?: string;
+  Cocktail_Name__c?: string;
+  Cocktail_Description__c?: string;
 }
 
 type Coordinates = { latitude: number; longitude: number };
@@ -52,6 +57,8 @@ export interface FormattedD4JRestaurant {
   coords?: Coordinates;
   openHours?: string[];
   photo?: string;
+  cocktailName?: string;
+  cocktailDescription?: string;
 }
 
 const getCoords = (latitude?: number, longitude?: number) => {
@@ -60,10 +67,38 @@ const getCoords = (latitude?: number, longitude?: number) => {
   }
 };
 
+export const updateDetails = async (account: UnformattedD4JRestaurant) => {
+  if (
+    account.Google_ID__c &&
+    !(
+      account.Geolocation__c?.latitude &&
+      account.Geolocation__c.longitude &&
+      account.Open_Hours__c
+    )
+  ) {
+    const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
+    const updateUri = urls.SFOperationPrefix + '/Account/' + account.Id;
+    const details = await getPlaceDetails(account.Google_ID__c);
+
+    const geocoder = node_geocoder({
+      provider: 'google',
+      apiKey: GOOGLE_MAPS_API_KEY,
+    });
+
+    const coords = await geocoder.geocode(details.address);
+    console.log(details);
+    await fetcher.patch(updateUri, {
+      Geolocation__latitude__s: coords[0].latitude,
+      Geolocation__longitude__s: coords[0].longitude,
+      Open_Hours__c: details.openHours?.join('_'),
+    });
+  }
+};
+
 const formatAccount = (
   account: UnformattedD4JRestaurant,
   cocktails?: boolean
-) => {
+): FormattedD4JRestaurant => {
   return {
     name: account.Name,
     id: account.Id,
@@ -79,6 +114,8 @@ const formatAccount = (
     ),
     openHours: account.Open_Hours__c?.split('_'),
     photo: account.Photo_URL__c,
+    cocktailName: account.Cocktail_Name__c,
+    cocktailDescription: account.Cocktail_Description__c,
   };
 };
 
@@ -109,27 +146,13 @@ export const getD4jRestaurants = async (): Promise<
     throw Error('Could not get restaurants');
   }
 
-  // const promises = data.records.map(async (rest) => {
-  //   const updateUri = urls.SFOperationPrefix + '/Account/' + rest.Id;
-  //   const details = await getPlaceDetails(rest.Google_ID__c);
-  //   if (details?.coords?.latitude && details?.coords?.longitude) {
-  //     await fetcher.patch(updateUri, {
-  //       Geolocation__latitude__s: details.coords.latitude,
-  //       Geolocation__longitude__s: details.coords.longitude,
-  //       Open_Hours__c: details.openHours.join('_'),
-  //     });
-  //   }
-  // });
-
-  // await Promise.all(promises);
-
   return data.records.map((account) => formatAccount(account));
 };
 
 export const getBars = async () => {
   await fetcher.setService('salesforce');
 
-  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}'`;
+  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND Status = 'Responded'`;
 
   const { data } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
@@ -143,7 +166,7 @@ export const getBars = async () => {
   );
   const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
 
-  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c FROM Account WHERE Id IN ${stringOfBarIds}`;
+  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c FROM Account WHERE Id IN ${stringOfBarIds}`;
 
   const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
@@ -152,5 +175,6 @@ export const getBars = async () => {
     throw Error('Could not get account info');
   }
 
+  res.data.records.map(updateDetails);
   return res.data.records.map((account) => formatAccount(account, true));
 };
