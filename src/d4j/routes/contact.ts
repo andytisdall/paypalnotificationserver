@@ -14,7 +14,7 @@ const D4JUser = mongoose.model('D4JUser');
 const router = express.Router();
 
 router.post('/contact/signin', async (req, res) => {
-  const { email, token } = req.body;
+  const { email, token }: { email: string; token?: string } = req.body;
 
   let user = await D4JUser.findOne({ email });
 
@@ -27,6 +27,12 @@ router.post('/contact/signin', async (req, res) => {
     user = new D4JUser({ email, salesforceId: contact.id, token });
     await user.save();
   }
+
+  if (token && token !== user.token) {
+    user.token = token;
+    await user.save();
+  }
+
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
   if (!JWT_KEY) {
     throw Error('Could not find JWT secret key');

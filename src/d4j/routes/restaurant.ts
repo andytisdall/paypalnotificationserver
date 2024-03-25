@@ -17,17 +17,12 @@ router.get('/restaurants', async (req, res) => {
 router.get('/restaurantDetails/:restaurantId', async (req, res) => {
   const { restaurantId } = req.params;
 
-  const restaurantDetails = await getPlaceDetails(restaurantId);
-  res.send(restaurantDetails);
-});
-
-// update salesforce info from google info
-router.post('/restaurantDetails/:id', async (req, res) => {
-  const {
-    hours,
-    coords,
-  }: { hours: string[]; coords: { latitude: number; longitude: number } } =
-    req.body;
+  try {
+    const restaurantDetails = await getPlaceDetails(restaurantId);
+    res.send(restaurantDetails);
+  } catch (err) {
+    throw Error('Could not get restaurant details. Please try again.');
+  }
 });
 
 export default router;

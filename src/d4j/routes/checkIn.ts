@@ -15,6 +15,7 @@ import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
+import getSecrets from '../../utils/getSecrets';
 
 const CheckIn = mongoose.model('CheckIn');
 
@@ -25,11 +26,11 @@ type CheckInResponse = {
 const router = express.Router();
 
 router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
-  const SECRET_KEY = 'itisasecret';
+  const { D4J_CHECK_IN_KEY } = await getSecrets(['D4J_CHECK_IN_KEY']);
 
   const { value }: { value: string } = req.body;
 
-  const { restaurantId, date } = jwt.verify(value, SECRET_KEY, {
+  const { restaurantId, date } = jwt.verify(value, D4J_CHECK_IN_KEY, {
     algorithms: ['HS256'],
   }) as unknown as {
     restaurantId: string;
@@ -104,7 +105,7 @@ router.get('/rewards/check-in', currentD4JUser, async (req, res) => {
   res.send(checkIns);
 });
 
-router.get(
+router.post(
   '/rewards/prize-drawing',
   currentUser,
   requireAuth,
@@ -113,9 +114,13 @@ router.get(
     // get all check-ins that are valid
     const checkIns = await getValidD4jCheckIns();
 
-    // get random number between 0 and list length - 1
     const numberOfCheckIns = checkIns.length;
-    const randomIndex = Math.floor(Math.random() * numberOfCheckIns - 1);
+    if (!checkIns || !numberOfCheckIns) {
+      throw Error('No valid check-ins found');
+    }
+
+    // get random number between 0 and list length - 1
+    const randomIndex = Math.floor(Math.random() * (numberOfCheckIns - 1));
 
     // draw d4j check-in at that index
     const winningCheckIn = checkIns[randomIndex];

@@ -43,7 +43,7 @@ export interface FormattedJob {
 }
 
 export const getJobs = async (id: string): Promise<FormattedJob[]> => {
-  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}'`;
+  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

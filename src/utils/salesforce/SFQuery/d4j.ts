@@ -43,7 +43,7 @@ export const updateD4jCheckInsAsSpent = async (ids: string[]) => {
 
   const promises = ids.map((id) => {
     return fetcher.patch(urls.SFOperationPrefix + '/D4J_Check_In__c/' + id, {
-      Status: 'Spent',
+      Status__c: 'Spent',
     });
   });
   await Promise.all(promises);
@@ -53,7 +53,7 @@ export const updateD4jCheckInAsWinner = async (id: string) => {
   await fetcher.setService('salesforce');
 
   await fetcher.patch(urls.SFOperationPrefix + '/D4J_Check_In__c/' + id, {
-    Status: 'Winner',
+    Status__c: 'Winner',
   });
 };
 
@@ -61,7 +61,7 @@ export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
 
   const query =
-    "SELECT Contact, Id from D4J_Check_In__c where Status = 'Valid'";
+    "SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid'";
 
   const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(query)
