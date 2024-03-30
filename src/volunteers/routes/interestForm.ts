@@ -26,7 +26,6 @@ interface VolunteerInterestFormArgs {
   foodHandler?: boolean;
   foodHandlerOther?: string;
   experience?: string;
-  otherExperience?: string;
   transport?: boolean;
   transportOther?: string;
   workOnFeet?: boolean;
@@ -51,7 +50,6 @@ router.post('/signup', async (req, res) => {
     foodHandler,
     foodHandlerOther,
     experience,
-    otherExperience,
     transport,
     transportOther,
     workOnFeet,
@@ -89,7 +87,6 @@ router.post('/signup', async (req, res) => {
     Able_to_get_food_handler_cert__c: foodHandler,
     Cooking_Experience__c: experience,
     How_did_they_hear_about_CK__c: source,
-    Other_Cooking_Experience__c: otherExperience,
     Portal_Username__c: uniqueUsername,
     Portal_Temporary_Password__c: temporaryPassword,
     Able_to_get_food_handler_other__c: foodHandlerOther,
@@ -97,6 +94,7 @@ router.post('/signup', async (req, res) => {
     Able_to_work_on_feet_other__c: workOnFeetOther,
     Able_to_Commit__c: transport,
     Able_to_cook_and_transport_other__c: transportOther,
+    GW_Volunteers__Volunteer_Status__c: 'Prospective',
   };
 
   if (programs.other) {

@@ -17,7 +17,6 @@ export interface UnformattedContact {
   Able_to_work_on_feet__c?: boolean;
   Able_to_work_on_feet_other__c?: string;
   Cooking_Experience__c?: string;
-  Other_Cooking_Experience__c?: string;
   How_did_they_hear_about_CK__c?: string;
   Portal_Username__c?: string;
   Portal_Temporary_Password__c?: string;
