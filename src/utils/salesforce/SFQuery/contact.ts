@@ -8,16 +8,16 @@ export interface UnformattedContact {
   LastName?: string;
   Email?: string;
   HomePhone?: string;
-  GW_Volunteers__Volunteer_Availability__c?: string;
   GW_Volunteers__Volunteer_Skills__c?: string;
   GW_Volunteers__Volunteer_Status__c?: string;
   GW_Volunteers__Volunteer_Notes__c?: string;
   Instagram_Handle__c?: string;
-  Able_to_Commit__c?: boolean;
   Able_to_get_food_handler_cert__c?: boolean;
+  Able_to_get_food_handler_other__c?: string;
+  Able_to_work_on_feet__c?: boolean;
+  Able_to_work_on_feet_other__c?: string;
   Cooking_Experience__c?: string;
-  Able_to_attend_orientation__c?: boolean;
-  Meal_Transportation__c?: boolean;
+  Other_Cooking_Experience__c?: string;
   How_did_they_hear_about_CK__c?: string;
   Portal_Username__c?: string;
   Portal_Temporary_Password__c?: string;
@@ -27,11 +27,9 @@ export interface UnformattedContact {
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   npsp__HHId__c?: string;
-  Maybe_interested_in_transporting_meals__c?: boolean;
-  Other_Cooking_Experience__c?: string;
-  Able_to_get_food_handler_other__c?: string;
   Interest_in_other_volunteer_programs__c?: string;
-  D4J_Points__c?: number;
+  Able_to_Commit__c?: boolean;
+  Able_to_cook_and_transport_other__c?: string;
 }
 
 // export interface IncomingContactInfo {
@@ -178,7 +176,6 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
     email: contact.Email!,
     firstName: contact.FirstName!,
     id: contact.Id!,
-    d4jPoints: contact.D4J_Points__c,
   };
 };
 

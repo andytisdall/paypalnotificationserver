@@ -8,6 +8,7 @@ const adminEmail = 'communitykitchens@ckoakland.org';
 
 const prodUrls = {
   cocktailsCampaignId: '7018Z000003KptzQAC',
+  corporateVolunteersCampaignId: '701UP000005bM5AYAU',
   orwCampaignId: '701UP0000035lFuYAI',
   townFridgeCampaignId: '7018Z000003C3Mx',
   salesforce: 'https://communitykitchens.my.salesforce.com/services',
@@ -29,6 +30,7 @@ const prodUrls = {
 const testUrls = {
   cocktailsCampaignId: '701VF000003nkA3YAI',
   townFridgeCampaignId: '70174000000Yqjh',
+  corporateVolunteersCampaignId: '',
   salesforce:
     'https://communitykitchens--ckhomechef.sandbox.my.salesforce.com/services',
   salesforceMeal:

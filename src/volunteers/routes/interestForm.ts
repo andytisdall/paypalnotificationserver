@@ -17,23 +17,28 @@ import urls from '../../utils/urls';
 const User = mongoose.model('User');
 const router = express.Router();
 
-interface HomeChefSignupForm {
+interface VolunteerInterestFormArgs {
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
   instagramHandle?: string;
-  commit?: boolean;
   foodHandler?: boolean;
-  daysAvailable?: Record<string, boolean>;
+  foodHandlerOther?: string;
   experience?: string;
-  pickup?: boolean;
+  otherExperience?: string;
+  transport?: boolean;
+  transportOther?: string;
+  workOnFeet?: boolean;
+  workOnFeetOther?: string;
   source: string;
   extraInfo?: string;
-  otherExperience?: string;
-  foodHandlerOther?: string;
-  pickupMaybe: boolean;
-  programs: { ckKitchen: boolean; ckHomeChefs: boolean; other: string };
+  programs: {
+    ckKitchen: boolean;
+    ckHomeChefs: boolean;
+    corporate: boolean;
+    other: string;
+  };
 }
 
 router.post('/signup', async (req, res) => {
@@ -44,16 +49,17 @@ router.post('/signup', async (req, res) => {
     phoneNumber,
     instagramHandle,
     foodHandler,
-    daysAvailable,
+    foodHandlerOther,
     experience,
-    pickup,
+    otherExperience,
+    transport,
+    transportOther,
+    workOnFeet,
+    workOnFeetOther,
     source,
     extraInfo,
-    otherExperience,
-    foodHandlerOther,
-    pickupMaybe,
     programs,
-  }: HomeChefSignupForm = req.body;
+  }: VolunteerInterestFormArgs = req.body;
 
   const temporaryPassword = passwordGenerator.generate({
     length: 10,
@@ -72,30 +78,25 @@ router.post('/signup', async (req, res) => {
     i++;
   }
 
-  const formattedDays = daysAvailable
-    ? Object.keys(daysAvailable)
-        .filter((d) => daysAvailable[d])
-        .join(';') + ';'
-    : undefined;
-
   const contactInfo: UnformattedContact = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,
     HomePhone: phoneNumber,
-    GW_Volunteers__Volunteer_Availability__c: formattedDays,
     GW_Volunteers__Volunteer_Skills__c: 'Cooking',
     GW_Volunteers__Volunteer_Notes__c: extraInfo,
     Instagram_Handle__c: instagramHandle,
     Able_to_get_food_handler_cert__c: foodHandler,
     Cooking_Experience__c: experience,
-    Meal_Transportation__c: pickup,
-    Maybe_interested_in_transporting_meals__c: pickupMaybe,
     How_did_they_hear_about_CK__c: source,
     Other_Cooking_Experience__c: otherExperience,
     Portal_Username__c: uniqueUsername,
     Portal_Temporary_Password__c: temporaryPassword,
     Able_to_get_food_handler_other__c: foodHandlerOther,
+    Able_to_work_on_feet__c: workOnFeet,
+    Able_to_work_on_feet_other__c: workOnFeetOther,
+    Able_to_Commit__c: transport,
+    Able_to_cook_and_transport_other__c: transportOther,
   };
 
   if (programs.other) {
@@ -134,6 +135,15 @@ router.post('/signup', async (req, res) => {
   if (programs.ckKitchen) {
     const campaignMember: CampaignMemberObject = {
       CampaignId: urls.ckKitchenCampaignId,
+      ContactId: existingContact.id!,
+      Status: 'Confirmed',
+    };
+    await insertCampaignMember(campaignMember);
+  }
+
+  if (programs.corporate) {
+    const campaignMember: CampaignMemberObject = {
+      CampaignId: urls.corporateVolunteersCampaignId,
       ContactId: existingContact.id!,
       Status: 'Confirmed',
     };
