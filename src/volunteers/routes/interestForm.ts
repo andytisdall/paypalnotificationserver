@@ -93,6 +93,7 @@ router.post('/signup', async (req, res) => {
     Able_to_work_on_feet__c: workOnFeet,
     Able_to_work_on_feet_other__c: workOnFeetOther,
     Able_to_Commit__c: transport,
+
     Able_to_cook_and_transport_other__c: transportOther,
     GW_Volunteers__Volunteer_Status__c: 'Prospective',
   };
@@ -111,6 +112,7 @@ router.post('/signup', async (req, res) => {
 
   let existingContact = await getContact(lastName, firstName);
   if (existingContact) {
+    console.log(existingContact.id, contactInfo);
     await updateContact(existingContact.id!, contactInfo);
   } else {
     // contact needs to be added first so that opp can have a contactid
