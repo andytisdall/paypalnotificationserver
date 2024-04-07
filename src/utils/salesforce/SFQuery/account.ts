@@ -152,7 +152,7 @@ export const getD4jRestaurants = async (): Promise<
 export const getBars = async () => {
   await fetcher.setService('salesforce');
 
-  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND Status = 'Responded'`;
+  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND HasResponded = True`;
 
   const { data } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
