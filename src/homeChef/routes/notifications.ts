@@ -45,17 +45,11 @@ router.post(
   }
 );
 
-router.get(
-  '/notifications',
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const notifications = await Notification.find({ app: 'homechef' }).sort([
-      ['date', -1],
-    ]);
-    res.send(notifications);
-  }
-);
+router.get('/notifications', currentUser, requireAuth, async (req, res) => {
+  const notifications = await Notification.find({ app: 'homechef' }).sort([
+    ['date', -1],
+  ]);
+  res.send(notifications);
+});
 
 export default router;

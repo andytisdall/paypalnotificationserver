@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
     googleId: String,
     appleId: String,
     homeChefNotificationToken: String,
+    secretCode: String,
   },
   {
     toJSON: {
@@ -36,6 +37,7 @@ const userSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.password;
         delete ret.__v;
+        delete ret.secretCode;
       },
     },
   }

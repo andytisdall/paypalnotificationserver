@@ -237,15 +237,4 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// router.get(
-//   '/sf-user-info',
-//   currentUser,
-//   requireAuth,
-//   requireAdmin,
-//   async (req, res) => {
-//     const data = await getUsers();
-//     res.send(data);
-//   }
-// );
-
 export default router;

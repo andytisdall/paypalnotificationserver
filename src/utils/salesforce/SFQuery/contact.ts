@@ -206,3 +206,8 @@ export const getContactByEmail = async (
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
   };
 };
+
+export const deleteContact = async (id: string) => {
+  await fetcher.setService('salesforce');
+  await fetcher.delete(urls.SFOperationPrefix + '/' + id);
+};

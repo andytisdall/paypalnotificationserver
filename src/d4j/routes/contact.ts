@@ -1,13 +1,16 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import { generate } from 'generate-password';
 
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
 import {
   addContact,
   getContactByEmail,
+  deleteContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import getSecrets from '../../utils/getSecrets';
+import { sendEmail } from '../../utils/email';
 
 const D4JUser = mongoose.model('D4JUser');
 
@@ -99,6 +102,50 @@ router.get('/contact', currentD4JUser, async (req, res) => {
     return res.sendStatus(204);
   }
   res.send(req.currentD4JUser);
+});
+
+router.get('/delete-account/:email', async (req, res) => {
+  const { email } = req.params;
+
+  const code = generate({ length: 5, numbers: true });
+
+  const emailText = `<p>Your code from Community Kitchens is</p><p><strong>${code}</strong></p>`;
+
+  const user = await D4JUser.findOne({ email });
+
+  if (!user) {
+    throw Error('User not found');
+  }
+
+  user.secretCode = code;
+  await user.save();
+
+  await sendEmail({
+    to: email,
+    from: 'andy@ckoakland.org',
+    subject: 'Your code from CK',
+    html: emailText,
+  });
+
+  res.sendStatus(204);
+});
+
+router.post('/delete-account', async (req, res) => {
+  const { code, email }: { code: string; email: string } = req.body;
+
+  const user = await D4JUser.findOne({ email });
+
+  if (!code === user.secretCode) {
+    throw Error('Incorrect Code');
+  }
+
+  // delete salesforce contact
+  await deleteContact(user.salesforceId);
+
+  // delete user
+  await D4JUser.deleteOne({ email });
+
+  res.sendStatus(204);
 });
 
 export default router;
