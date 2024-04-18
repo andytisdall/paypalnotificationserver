@@ -5,6 +5,7 @@ const d4jUserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     token: String,
     salesforceId: String,
+    secretCode: String,
   },
 
   {

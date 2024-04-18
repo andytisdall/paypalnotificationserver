@@ -57,6 +57,16 @@ export const updateD4jCheckInAsWinner = async (id: string) => {
   });
 };
 
+export const deleteAllUserCheckIns = async (ids: string[]) => {
+  await fetcher.setService('salesforce');
+
+  const promises = ids.map((id) => {
+    fetcher.delete(urls.SFOperationPrefix + '/D4J_Check_In__c/' + id);
+  });
+
+  await Promise.all(promises);
+};
+
 export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
 

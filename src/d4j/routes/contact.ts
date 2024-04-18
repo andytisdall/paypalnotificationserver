@@ -11,6 +11,8 @@ import {
 } from '../../utils/salesforce/SFQuery/contact';
 import getSecrets from '../../utils/getSecrets';
 import { sendEmail } from '../../utils/email';
+import { CheckIn } from '../models/checkIn';
+import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
 
 const D4JUser = mongoose.model('D4JUser');
 
@@ -144,6 +146,16 @@ router.post('/delete-account', async (req, res) => {
 
   // delete user
   await D4JUser.deleteOne({ email });
+
+  const checkIns = await CheckIn.find({ user: user.id });
+  const allCheckInIds = checkIns
+    .map(({ salesforceId }: { salesforceId?: string }) => salesforceId)
+    .filter((item) => item);
+
+  //@ts-ignore
+  await deleteAllUserCheckIns(allCheckInIds);
+
+  await CheckIn.deleteMany({ user: user.id });
 
   res.sendStatus(204);
 });
