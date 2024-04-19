@@ -26,6 +26,32 @@ export interface FormattedVolunteerCampaign {
   buttonText?: string;
 }
 
+interface FormattedEventCampaign {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate?: string;
+  venue?: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  url?: string;
+  photo?: string;
+}
+
+interface UnformattedEventCampaign {
+  Id: string;
+  Name: string;
+  StartDate: string;
+  EndDate?: string;
+  stayclassy__venue_name__c?: string;
+  Description?: string;
+  stayclassy__address1__c?: string;
+  stayclassy__city__c?: string;
+  stayclassy__campaign_url__c?: string;
+  stayclassy__Event_Image_URL__c?: string;
+}
+
 export const getVolunteerCampaigns: () => Promise<
   FormattedVolunteerCampaign[]
 > = async () => {
@@ -45,7 +71,6 @@ export const getVolunteerCampaigns: () => Promise<
     return {
       name: cam.Name,
       startDate: cam.StartDate,
-      endDate: cam.EndDate,
       description: cam.Description,
       id: cam.Id,
       buttonText: cam.Portal_Button_Text__c,
@@ -53,31 +78,35 @@ export const getVolunteerCampaigns: () => Promise<
   });
 };
 
-// export const getD4JCampaigns: () => Promise<
-//   FormattedVolunteerCampaign[]
-// > = async () => {
-//   await fetcher.setService('salesforce');
-//   const query = `SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE ParentId = ${urls.d4jCampaignId}`;
-//   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+export const getD4JCampaigns: () => Promise<
+  FormattedEventCampaign[]
+> = async () => {
+  await fetcher.setService('salesforce');
+  const query = `SELECT Name, Id, Description, StartDate, EndDate, stayclassy__venue_name__c, stayclassy__address1__c, stayclassy__city__c, stayclassy__campaign_url__c, stayclassy__Event_Image_URL__c FROM Campaign WHERE ParentId = ${urls.d4jCampaignId} AND RecordTypeId = 0128Z000001BIZDQA4`;
+  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-//   const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
-//     await fetcher.get(queryUri);
+  const { data }: { data: { records?: UnformattedEventCampaign[] } } =
+    await fetcher.get(queryUri);
 
-//   if (!data.records) {
-//     throw Error('Could not query');
-//   }
+  if (!data.records) {
+    throw Error('Could not query');
+  }
 
-//   return data.records.map((cam) => {
-//     return {
-//       name: cam.Name,
-//       startDate: cam.StartDate,
-//       endDate: cam.EndDate,
-//       description: cam.Description,
-//       id: cam.Id,
-//       buttonText: cam.Portal_Button_Text__c,
-//     };
-//   });
-// };
+  return data.records.map((cam) => {
+    return {
+      id: cam.Id,
+      name: cam.Name,
+      startDate: cam.StartDate,
+      endDate: cam.EndDate,
+      venue: cam.stayclassy__venue_name__c,
+      description: cam.Description,
+      address: cam.stayclassy__address1__c,
+      city: cam.stayclassy__city__c,
+      url: cam.stayclassy__campaign_url__c,
+      photo: cam.stayclassy__Event_Image_URL__c,
+    };
+  });
+};
 
 export const getCampaign = async (id: string) => {
   const {

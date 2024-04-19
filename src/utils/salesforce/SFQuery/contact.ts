@@ -209,5 +209,5 @@ export const getContactByEmail = async (
 
 export const deleteContact = async (id: string) => {
   await fetcher.setService('salesforce');
-  await fetcher.delete(urls.SFOperationPrefix + '/' + id);
+  await fetcher.delete(urls.SFOperationPrefix + '/Contact/' + id);
 };

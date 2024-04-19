@@ -141,21 +141,22 @@ router.post('/delete-account', async (req, res) => {
     throw Error('Incorrect Code');
   }
 
-  // delete salesforce contact
-  await deleteContact(user.salesforceId);
-
-  // delete user
-  await D4JUser.deleteOne({ email });
-
+  // delete salesforce check ins
   const checkIns = await CheckIn.find({ user: user.id });
   const allCheckInIds = checkIns
     .map(({ salesforceId }: { salesforceId?: string }) => salesforceId)
     .filter((item) => item);
-
   //@ts-ignore
   await deleteAllUserCheckIns(allCheckInIds);
 
+  // delete salesforce contact
+  await deleteContact(user.salesforceId);
+
+  // delete mongo check ins
   await CheckIn.deleteMany({ user: user.id });
+
+  // delete user
+  await D4JUser.deleteOne({ email });
 
   res.sendStatus(204);
 });
