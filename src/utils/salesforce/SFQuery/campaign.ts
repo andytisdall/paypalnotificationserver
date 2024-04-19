@@ -42,13 +42,13 @@ interface FormattedEventCampaign {
 interface UnformattedEventCampaign {
   Id: string;
   Name: string;
-  StartDate: string;
-  EndDate?: string;
+  stayclassy__Start_Date__c: string;
+  stayclassy__End_Date__c?: string;
   stayclassy__venue_name__c?: string;
   Description?: string;
   stayclassy__address1__c?: string;
   stayclassy__city__c?: string;
-  stayclassy__campaign_url__c?: string;
+  Event_URL__c?: string;
   stayclassy__Event_Image_URL__c?: string;
 }
 
@@ -82,7 +82,7 @@ export const getD4JCampaigns: () => Promise<
   FormattedEventCampaign[]
 > = async () => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Name, Id, Description, StartDate, EndDate, stayclassy__venue_name__c, stayclassy__address1__c, stayclassy__city__c, stayclassy__campaign_url__c, stayclassy__Event_Image_URL__c FROM Campaign WHERE ParentId = ${urls.d4jCampaignId} AND RecordTypeId = 0128Z000001BIZDQA4`;
+  const query = `SELECT Name, Id, Description, stayclassy__Start_Date__c, stayclassy__End_Date__c, stayclassy__venue_name__c, stayclassy__address1__c, stayclassy__city__c, Event_URL__c, stayclassy__Event_Image_URL__c FROM Campaign WHERE ParentId = '${urls.d4jCampaignId}' AND RecordTypeId = '0128Z000001BIZDQA4' AND stayclassy__Start_Date__c != NULL`;
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedEventCampaign[] } } =
@@ -96,13 +96,13 @@ export const getD4JCampaigns: () => Promise<
     return {
       id: cam.Id,
       name: cam.Name,
-      startDate: cam.StartDate,
-      endDate: cam.EndDate,
+      startDate: cam.stayclassy__Start_Date__c,
+      endDate: cam.stayclassy__End_Date__c,
       venue: cam.stayclassy__venue_name__c,
       description: cam.Description,
       address: cam.stayclassy__address1__c,
       city: cam.stayclassy__city__c,
-      url: cam.stayclassy__campaign_url__c,
+      url: cam.Event_URL__c,
       photo: cam.stayclassy__Event_Image_URL__c,
     };
   });

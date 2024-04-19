@@ -196,6 +196,7 @@ export interface CBOReportParams {
     raceMixed: number;
     raceMixedText: number;
   };
+  individuals: number;
   households: number;
   zips: Record<ZipCode, number | undefined>;
   feedback: string;
@@ -222,6 +223,7 @@ export interface CBOReportObject {
   Calfresh_Postcards__c: number;
   CBO_Name__c: string;
   Feedback__c: string;
+  Individuals_Provided_Food__c: number;
   Households_Provided_Food__c: number;
   Meals_Provided__c: number;
   Month__c: string;
@@ -328,6 +330,7 @@ router.post('/cbo-report', async (req, res) => {
     performanceMeasures,
     age,
     race,
+    individuals,
     households,
     zips,
     feedback,
@@ -360,6 +363,7 @@ router.post('/cbo-report', async (req, res) => {
     Calfresh_Postcards__c: performanceMeasures.postcards,
     CBO_Name__c: CBOName,
     Feedback__c: feedback,
+    Individuals_Provided_Food__c: individuals,
     Households_Provided_Food__c: households,
     Meals_Provided__c: performanceMeasures.mealsProvided,
     Month__c: format(lastDay, 'LLLL'),
