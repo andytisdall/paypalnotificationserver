@@ -40,6 +40,7 @@ export interface UnformattedD4JRestaurant {
   Photo_URL__c?: string;
   Cocktail_Name__c?: string;
   Cocktail_Description__c?: string;
+  D4J_Status__c?: 'Active' | 'Former' | 'Paused';
 }
 
 type Coordinates = { latitude: number; longitude: number };
@@ -59,6 +60,7 @@ export interface FormattedD4JRestaurant {
   photo?: string;
   cocktailName?: string;
   cocktailDescription?: string;
+  status?: 'Active' | 'Former' | 'Paused';
 }
 
 const getCoords = (latitude?: number, longitude?: number) => {
@@ -116,6 +118,7 @@ const formatAccount = (
     photo: account.Photo_URL__c,
     cocktailName: account.Cocktail_Name__c,
     cocktailDescription: account.Cocktail_Description__c,
+    status: account.D4J_Status__c || 'Active',
   };
 };
 
@@ -135,7 +138,7 @@ export const getD4jRestaurants = async (): Promise<
 > => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c FROM Account WHERE D4J_Status__c = 'Active'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

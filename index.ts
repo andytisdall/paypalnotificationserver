@@ -18,6 +18,7 @@ import './src/homeChef/models/notifications';
 import './src/text/models/scheduledText';
 import './src/d4j/models/checkIn';
 import './src/d4j/models/d4jUser';
+import './src/d4j/models/cocktailVote';
 
 // routes
 
