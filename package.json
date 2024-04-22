@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"ts-node-dev --poll index.ts\" \"npm run start --prefix client\"",
+    "dev": "NODE_ENV=development concurrently \"ts-node-dev --poll index.ts\" \"npm run start --prefix client\"",
     "test": "NODE_ENV=test jest --testTimeout=30000 --detectOpenHandles=true --watchAll",
     "start": "node built/index.js",
-    "server": "ts-node-dev --poll index.ts"
+    "server": "NODE_ENV=development ts-node-dev --poll index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -36,7 +36,7 @@
     "path": "^0.12.7",
     "sharp": "^0.32.4",
     "supertest": "^6.3.3",
-    "twilio": "^3.83.3",
+    "twilio": "^5.0.4",
     "typescript": "^5.2.2"
   },
   "devDependencies": {

@@ -33,130 +33,6 @@ export type OutgoingText = {
   scheduleType?: 'fixed';
 };
 
-smsRouter.post(
-  '/outgoing/mobile',
-  currentUser,
-  requireAuth,
-  async (req, res) => {
-    const twilioClient = await getTwilioClient();
-
-    const {
-      message,
-      region,
-      feedbackId,
-      number,
-      photo,
-    }: {
-      message: string;
-      region: Region;
-      feedbackId?: string;
-      number?: string;
-      photo?: string;
-    } = req.body;
-    if (!message) {
-      res.status(422);
-      throw new Error('No message to send');
-    }
-
-    if (!region && !number) {
-      res.status(422);
-      throw new Error('No region or number specified');
-    }
-
-    if (req.currentUser!.id === urls.appleReviewerId) {
-      throw Error('You are not authorized to send text alerts');
-    }
-
-    let formattedNumbers: string[] = [];
-    const responsePhoneNumber = REGIONS[region] || REGIONS.WEST_OAKLAND;
-
-    if (region && !number) {
-      const allPhoneNumbers = await Phone.find({ region });
-      formattedNumbers = allPhoneNumbers.map((p) => p.number);
-    } else if (number) {
-      const phoneNumber = number.replace(/[^\d]/g, '');
-      if (phoneNumber.length !== 10) {
-        res.status(422);
-        throw new Error('Phone number must have 10 digits');
-      }
-
-      formattedNumbers = ['+1' + phoneNumber];
-    }
-
-    // formattedNumbers = [
-    //   '+14158190251',
-    //   '+15107070075',
-    //   '+15108307243',
-    //   '+17185017050',
-    // ];
-
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-      formattedNumbers = ['+14158190251'];
-    }
-
-    const { MESSAGING_SERVICE_SID } = await getSecrets([
-      'MESSAGING_SERVICE_SID',
-    ]);
-
-    if (!MESSAGING_SERVICE_SID) {
-      throw Error('Could not find messaging service ID');
-    }
-
-    const outgoingText: OutgoingText = {
-      body: message,
-      from: responsePhoneNumber,
-      messagingServiceSid: MESSAGING_SERVICE_SID,
-    };
-
-    let mediaUrl = photo;
-
-    if (req.files?.photo && !Array.isArray(req.files.photo)) {
-      const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
-
-      mediaUrl = await storeFile({
-        file: req.files.photo,
-        name: fileName,
-      });
-
-      outgoingText.mediaUrl = [mediaUrl];
-    } else if (photo) {
-      outgoingText.mediaUrl = [photo];
-    }
-
-    const createOutgoingText = async (phone: string) => {
-      await twilioClient.messages.create({ ...outgoingText, to: phone });
-    };
-
-    const textPromises = formattedNumbers.map(createOutgoingText);
-    await Promise.all(textPromises);
-
-    if (feedbackId) {
-      const feedback = await Feedback.findById(feedbackId);
-      if (feedback) {
-        const response = { message, date: moment().format() };
-        if (feedback.response) {
-          feedback.response.push(response);
-        } else {
-          feedback.response = [response];
-        }
-        await feedback.save();
-      }
-    }
-
-    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
-      {
-        sender: req.currentUser!.id,
-        region: number || region,
-        message,
-        image: mediaUrl,
-      }
-    );
-    await newOutgoingTextRecord.save();
-
-    res.send({ message, region, photoUrl: mediaUrl, number });
-  }
-);
-
 smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   const twilioClient = await getTwilioClient();
 
@@ -267,6 +143,15 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   res.send({ message, region, photoUrl: mediaUrl, number, storedText });
 });
 
+smsRouter.post(
+  '/outgoing/mobile',
+  async (req, res, next) => {
+    req.url = '/outgoing';
+    next();
+  },
+  smsRouter
+);
+
 export const getTwilioClient = async () => {
   const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
     'TWILIO_ID',
@@ -275,7 +160,7 @@ export const getTwilioClient = async () => {
   if (!TWILIO_ID || !TWILIO_AUTH_TOKEN) {
     throw Error('Could not find twilio credentials');
   }
-  return new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN);
+  return new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN, { autoRetry: true });
 };
 
 export default smsRouter;

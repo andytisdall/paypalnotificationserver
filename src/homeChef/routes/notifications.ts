@@ -49,6 +49,32 @@ router.get('/notifications', currentUser, requireAuth, async (req, res) => {
   const notifications = await Notification.find({ app: 'homechef' }).sort([
     ['date', -1],
   ]);
+  // const notifications = [
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  // ];
   res.send(notifications);
 });
 

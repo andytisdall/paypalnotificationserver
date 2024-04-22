@@ -63,6 +63,7 @@ const convertCBODataFromSalesforce = (
       raceMixed: report.Race_Mixed__c,
       raceMixedText: report.Race_Mixed_Specify__c,
     },
+    individuals: report.Individuals_Provided_Food__c,
     households: report.Households_Provided_Food__c,
     feedback: report.Feedback__c,
     phoneNumber: report.Phone_Number__c,
