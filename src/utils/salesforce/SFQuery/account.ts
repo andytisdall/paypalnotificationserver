@@ -3,7 +3,7 @@ import node_geocoder from 'node-geocoder';
 import getSecrets from '../../getSecrets';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import { FormattedPlaceDetails } from '../../getPlaceDetails';
+import { FormattedPlaceDetails, getPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;
@@ -69,24 +69,23 @@ const getCoords = (latitude?: number, longitude?: number) => {
   }
 };
 
-export const updateDetails = async (
-  restaurantId: string,
-  details: FormattedPlaceDetails
-) => {
+export const updateDetails = async (restaurantId: string) => {
   await fetcher.setService('salesforce');
 
-  const { data } = await fetcher.get(
-    urls.SFOperationPrefix + '/Contact/' + restaurantId
-  );
+  const uri = urls.SFOperationPrefix + '/Account/' + restaurantId;
+
+  const { data } = await fetcher.get(uri);
 
   if (!data) {
     throw Error('Restaurant Not Found');
   }
 
-  const updateUri = urls.SFOperationPrefix + '/Account/' + data.Id;
+  const details = await getPlaceDetails(data.Google_ID__c);
 
   // check existence of geocoordinates and matching open hours
   if (!data.Geolocation__c?.latitude || !data.Geolocation__c.longitude) {
+    console.log('Updating geocoordinates: ' + data.Name);
+
     const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
 
     const geocoder = node_geocoder({
@@ -95,7 +94,7 @@ export const updateDetails = async (
     });
 
     const coords = await geocoder.geocode(details.address);
-    await fetcher.patch(updateUri, {
+    await fetcher.patch(uri, {
       Geolocation__latitude__s: coords[0].latitude,
       Geolocation__longitude__s: coords[0].longitude,
       Open_Hours__c: details.openHours?.join('_'),
@@ -103,7 +102,9 @@ export const updateDetails = async (
   }
 
   if (details.openHours?.join('_') !== data.Open_Hours__c) {
-    await fetcher.patch(updateUri, {
+    console.log('Updating open hours: ' + data.Name);
+
+    await fetcher.patch(uri, {
       Open_Hours__c: details.openHours?.join('_'),
     });
   }
