@@ -20,15 +20,6 @@ router.get('/contest/cocktails', async (req, res) => {
   res.send(COCKTAILS);
 });
 
-router.get('/contest/vote', currentD4JUser, async (req, res) => {
-  if (!req.currentD4JUser) {
-    throw Error('No user signed in');
-  }
-
-  const existingVote = await CocktailVote.find({ user: req.currentD4JUser.id });
-  res.send(existingVote);
-});
-
 router.get('/contest/votes', async (req, res) => {
   const allVotes = await CocktailVote.find();
   res.send(allVotes);
