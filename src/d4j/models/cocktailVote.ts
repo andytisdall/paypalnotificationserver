@@ -8,8 +8,8 @@ const cocktailVoteSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    cocktail: {
-      type: String,
+    bar: {
+      type: String, // salesforce ID of bar or restaurant
       required: true,
     },
   },

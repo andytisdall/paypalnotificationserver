@@ -4,6 +4,7 @@ import { getPlaceDetails } from '../../utils/getPlaceDetails';
 import {
   getBars,
   getD4jRestaurants,
+  updateDetails,
 } from '../../utils/salesforce/SFQuery/account';
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get('/restaurantDetails/:restaurantId', async (req, res) => {
 
   try {
     const restaurantDetails = await getPlaceDetails(restaurantId);
+    updateDetails(restaurantId, restaurantDetails);
     res.send(restaurantDetails);
   } catch (err) {
     throw Error('Could not get restaurant details. Please try again.');

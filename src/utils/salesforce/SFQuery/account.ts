@@ -3,7 +3,7 @@ import node_geocoder from 'node-geocoder';
 import getSecrets from '../../getSecrets';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import { getPlaceDetails } from '../../getPlaceDetails';
+import { FormattedPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;
@@ -69,18 +69,25 @@ const getCoords = (latitude?: number, longitude?: number) => {
   }
 };
 
-export const updateDetails = async (account: UnformattedD4JRestaurant) => {
-  if (
-    account.Google_ID__c &&
-    !(
-      account.Geolocation__c?.latitude &&
-      account.Geolocation__c.longitude &&
-      account.Open_Hours__c
-    )
-  ) {
+export const updateDetails = async (
+  restaurantId: string,
+  details: FormattedPlaceDetails
+) => {
+  await fetcher.setService('salesforce');
+
+  const { data } = await fetcher.get(
+    urls.SFOperationPrefix + '/Contact/' + restaurantId
+  );
+
+  if (!data) {
+    throw Error('Restaurant Not Found');
+  }
+
+  const updateUri = urls.SFOperationPrefix + '/Account/' + data.Id;
+
+  // check existence of geocoordinates and matching open hours
+  if (!data.Geolocation__c?.latitude || !data.Geolocation__c.longitude) {
     const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
-    const updateUri = urls.SFOperationPrefix + '/Account/' + account.Id;
-    const details = await getPlaceDetails(account.Google_ID__c);
 
     const geocoder = node_geocoder({
       provider: 'google',
@@ -88,10 +95,15 @@ export const updateDetails = async (account: UnformattedD4JRestaurant) => {
     });
 
     const coords = await geocoder.geocode(details.address);
-    console.log(details);
     await fetcher.patch(updateUri, {
       Geolocation__latitude__s: coords[0].latitude,
       Geolocation__longitude__s: coords[0].longitude,
+      Open_Hours__c: details.openHours?.join('_'),
+    });
+  }
+
+  if (details.openHours?.join('_') !== data.Open_Hours__c) {
+    await fetcher.patch(updateUri, {
       Open_Hours__c: details.openHours?.join('_'),
     });
   }
@@ -178,6 +190,5 @@ export const getBars = async () => {
     throw Error('Could not get account info');
   }
 
-  res.data.records.map(updateDetails);
   return res.data.records.map((account) => formatAccount(account, true));
 };

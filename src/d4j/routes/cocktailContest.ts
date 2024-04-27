@@ -9,7 +9,7 @@ const router = express.Router();
 
 interface Cocktail {
   name: string;
-  ingredients: string;
+  description: string;
   photo: string;
   bar: string; // salesforce ID of bar/restaurant
 }
@@ -65,3 +65,5 @@ router.patch('/contest/vote', currentD4JUser, async (req, res) => {
 
   res.sendStatus(204);
 });
+
+export default router;

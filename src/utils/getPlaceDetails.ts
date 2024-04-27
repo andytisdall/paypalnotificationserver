@@ -16,7 +16,7 @@ interface UnformattedPlaceDetails {
   shortFormattedAddress: string;
 }
 
-interface FormattedPlaceDetails {
+export interface FormattedPlaceDetails {
   url: string;
   openNow?: boolean;
   openHours?: string[];
