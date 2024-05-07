@@ -57,7 +57,7 @@ export const getVolunteerCampaigns: () => Promise<
 > = async () => {
   await fetcher.setService('salesforce');
   const query =
-    'SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True';
+    'SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True AND stayclassy__Start_Date__c > TODAY';
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
