@@ -13,7 +13,15 @@ const router = express.Router();
 router.get('/restaurants', async (req, res) => {
   const restaurants = await getD4jRestaurants();
   const bars = await getBars();
-  res.send([...restaurants, ...bars]);
+  const ids: string[] = [];
+  const uniqueRestaurants = [...restaurants, ...bars].filter((account) => {
+    if (ids.includes(account.id)) {
+      return false;
+    }
+    ids.push(account.id);
+    return true;
+  });
+  res.send(uniqueRestaurants);
 });
 
 router.get('/restaurantDetails/:restaurantId', async (req, res) => {

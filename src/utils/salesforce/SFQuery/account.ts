@@ -3,7 +3,7 @@ import node_geocoder from 'node-geocoder';
 import getSecrets from '../../getSecrets';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import { FormattedPlaceDetails, getPlaceDetails } from '../../getPlaceDetails';
+import { getPlaceDetails } from '../../getPlaceDetails';
 
 export interface AccountAddress {
   street: string;

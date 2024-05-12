@@ -12,6 +12,14 @@ interface D4JCheckIn {
   Id: string;
 }
 
+const CK_STAFF_IDS = [
+  '0038Z000035IIhKQAW',
+  '0038Z000035GzLQQA0',
+  '0038Z00003UX3YEQA1',
+  '0038Z000035HOHMQA4',
+  '0038Z00003Rh3IyQAJ',
+];
+
 // D4J check ins have a status of "Valid", "Spent" or "Winner"
 
 export const createD4jCheckIn = async ({
@@ -70,8 +78,9 @@ export const deleteAllUserCheckIns = async (ids: string[]) => {
 export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
 
-  const query =
-    "SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid'";
+  const stringOfEmployeeIds = "('" + CK_STAFF_IDS.join("','") + "')";
+
+  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid' and Id not in ${stringOfEmployeeIds}`;
 
   const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(query)
