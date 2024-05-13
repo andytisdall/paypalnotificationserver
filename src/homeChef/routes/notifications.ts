@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { subDays } from 'date-fns';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
@@ -46,9 +47,10 @@ router.post(
 );
 
 router.get('/notifications', currentUser, requireAuth, async (req, res) => {
-  const notifications = await Notification.find({ app: 'homechef' }).sort([
-    ['date', -1],
-  ]);
+  const notifications = await Notification.find({
+    app: 'homechef',
+    date: { $gt: subDays(new Date(), 14) },
+  }).sort([['date', -1]]);
   // const notifications = [
   //   {
   //     date: new Date(),
