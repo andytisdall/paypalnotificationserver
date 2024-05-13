@@ -14,7 +14,9 @@ router.get('/restaurants', async (req, res) => {
   const restaurants = await getD4jRestaurants();
   const bars = await getBars();
   const ids: string[] = [];
-  const uniqueRestaurants = [...restaurants, ...bars].filter((account) => {
+
+  // filter out duplicates
+  const uniqueRestaurants = [...bars, ...restaurants].filter((account) => {
     if (ids.includes(account.id)) {
       return false;
     }

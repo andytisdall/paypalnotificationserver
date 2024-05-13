@@ -109,15 +109,20 @@ router.get('/contact', currentD4JUser, async (req, res) => {
 router.get('/delete-account/:email', async (req, res) => {
   const { email } = req.params;
 
-  const code = generate({ length: 5, numbers: true });
-
-  const emailText = `<p>Your code from Community Kitchens is</p><p><strong>${code}</strong></p>`;
-
   const user = await D4JUser.findOne({ email });
 
   if (!user) {
     throw Error('User not found');
   }
+
+  const code = generate({
+    length: 5,
+    numbers: true,
+    lowercase: false,
+    uppercase: false,
+  });
+
+  const emailText = `<p>Your code from Community Kitchens is</p><p><strong>${code}</strong></p>`;
 
   user.secretCode = code;
   await user.save();
@@ -137,7 +142,7 @@ router.post('/delete-account', async (req, res) => {
 
   const user = await D4JUser.findOne({ email });
 
-  if (!code === user.secretCode) {
+  if (code !== user.secretCode) {
     throw Error('Incorrect Code');
   }
 
@@ -149,8 +154,12 @@ router.post('/delete-account', async (req, res) => {
   //@ts-ignore
   await deleteAllUserCheckIns(allCheckInIds);
 
-  // delete salesforce contact
-  await deleteContact(user.salesforceId);
+  try {
+    // delete salesforce contact
+    await deleteContact(user.salesforceId);
+  } catch (err) {
+    console.log(err);
+  }
 
   // delete mongo check ins
   await CheckIn.deleteMany({ user: user.id });
