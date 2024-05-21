@@ -40,6 +40,8 @@ export interface UnformattedD4JRestaurant {
   Photo_URL__c?: string;
   Cocktail_Name__c?: string;
   Cocktail_Description__c?: string;
+  Cocktail_2_Name__c?: string;
+  Cocktail_2_Description__c?: string;
   D4J_Status__c?: 'Active' | 'Former' | 'Paused';
 }
 
@@ -60,6 +62,8 @@ export interface FormattedD4JRestaurant {
   photo?: string;
   cocktailName?: string;
   cocktailDescription?: string;
+  cocktail2Name?: string;
+  cocktail2Description?: string;
   status?: 'Active' | 'Former' | 'Paused';
 }
 
@@ -131,6 +135,8 @@ const formatAccount = (
     photo: account.Photo_URL__c,
     cocktailName: account.Cocktail_Name__c,
     cocktailDescription: account.Cocktail_Description__c,
+    cocktail2Name: account.Cocktail_2_Name__c,
+    cocktail2Description: account.Cocktail_2_Description__c,
     status: account.D4J_Status__c || 'Active',
   };
 };
@@ -182,7 +188,7 @@ export const getBars = async () => {
   );
   const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
 
-  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c FROM Account WHERE Id IN ${stringOfBarIds}`;
+  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Cocktail_2_Description__c FROM Account WHERE Id IN ${stringOfBarIds}`;
 
   const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));

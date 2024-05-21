@@ -8,7 +8,7 @@ interface Prize {
 
 const CONTEST_RULES = `Eligibility - To be eligible to enter the contest, you must live in California
 
-Requirements - To receive 1 D4J point, you must use the D4J app's check-in feature while physically present at any of the businesses featured in the app, and with your mobile device's location services enabled. CK will verify that your device's location matches the check-in location, and award 1 point to your user account once verified. 1 D4J point represents one entry in the contest.
+Requirements - To receive 1 D4J point, you must use the D4J app's check-in feature while physically present at any of the businesses featured in the app, and with your mobile device's location services enabled. CK will verify that your device's location matches the check-in location, and award 1 point to your user account once verified. 1 D4J point represents one entry in the contest. A user may only check in to each location once per day.
 
 Duration - This contest will be active from June 1st, 2024 - June 30th, 2024, using Pacific Standard Time.  Entries submitted before June 1st 2024 will not be valid. Entries submitted after the contest has ended will not be eligible for this contest, but can be used as entries in subsequent contests.
 
@@ -28,24 +28,18 @@ This contest is not sponsored by Apple.
 const PRIZES: Prize[] = [
   {
     title: 'Grand Prize',
-    description: '2 tickets to a Golden State Warriors home game',
+    description: '$100 gift card to alaMar Dominican Kitchen',
     photo:
-      'https://images.squarespace-cdn.com/content/v1/61760bdeb9da1d30a3f0c301/9fcc6e36-fa0a-458b-a142-36fa4606bd4c/steph.jpeg?format=2500w',
+      'https://lh3.googleusercontent.com/p/AF1QipPk1quqPI9fk-Yk34Q5hM2iWaaTIVSqnYFlznzy=s1360-w1360-h1020',
   },
   {
     title: '1st Prize',
-    description: '2 tickets to an Oakland Roots home game',
+    description: 'AVA induction cooktop',
     photo:
-      'https://images.squarespace-cdn.com/content/v1/61760bdeb9da1d30a3f0c301/c3cf3086-1976-4ba9-a642-a8b55d547537/Copy+of+Roots+Single+Color+%28Black%29.png?format=750w',
+      'https://storage.googleapis.com/coherent-vision-368820.appspot.com/induction.jpg',
   },
   {
     title: '2nd Prize',
-    description: '$50 Gift Certificate to any Dining for Justice restaurant',
-    photo:
-      'https://images.squarespace-cdn.com/content/v1/61760bdeb9da1d30a3f0c301/1d65ab25-6175-4dcf-8a8e-186c445ff86a/leftfood.jpeg?format=2500w',
-  },
-  {
-    title: '3rd Prize',
     description: 'Oakland Spice Shop spice kit',
     photo:
       'https://goodeggs4.imgix.net/4c86488e-8095-426c-9aea-4e53bcfda14d.jpg?w=840&h=525&fm=jpg&q=80&fit=crop',

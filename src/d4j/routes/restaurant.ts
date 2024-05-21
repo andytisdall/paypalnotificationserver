@@ -40,10 +40,11 @@ router.get('/restaurantDetails/:restaurantId', async (req, res) => {
 router.patch('/restaurants', currentD4JUser, async (req, res) => {
   const { restaurantId } = req.body;
 
-  if (!req.currentD4JUser) {
-    throw Error('No user sign in');
+  if (req.currentD4JUser) {
+    await updateDetails(restaurantId);
   }
-  await updateDetails(restaurantId);
+
+  res.sendStatus(204);
 });
 
 export default router;
