@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { addDays, format } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import mongoose from 'mongoose';
 
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
@@ -51,12 +51,13 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
     return res.send(result);
   }
 
-  const midnightToday = new Date();
+  const midnightToday = utcToZonedTime(new Date(date), 'America/Los_Angeles');
   midnightToday.setHours(0);
   midnightToday.setMinutes(0);
-  const lowerBound = zonedTimeToUtc(midnightToday, 'America/Los_Angeles');
+  const lowerBound = zonedTimeToUtc(midnightToday, 'America.Los_Angeles');
   const upperBound = addDays(lowerBound, 1);
-  const checkInDate = zonedTimeToUtc(new Date(date), 'America/Los_Angeles');
+
+  console.log(lowerBound, upperBound);
 
   const existingCheckIn = await CheckIn.findOne({
     date: { $gte: lowerBound, $lt: upperBound },
@@ -74,7 +75,7 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   const newCheckIn = new CheckIn({
     restaurant: restaurantId,
     user: req.currentD4JUser.id,
-    date: checkInDate,
+    date: new Date(),
   });
 
   await newCheckIn.save();

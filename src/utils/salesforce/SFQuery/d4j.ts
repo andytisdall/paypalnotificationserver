@@ -1,3 +1,4 @@
+import { utcToZonedTime } from 'date-fns-tz';
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 
@@ -18,6 +19,8 @@ const CK_STAFF_IDS = [
   '0038Z00003UX3YEQA1',
   '0038Z000035HOHMQA4',
   '0038Z00003Rh3IyQAJ',
+  '0038Z00003Rh1gTQAR',
+  '0038Z00003ApeG0QAJ',
 ];
 
 // D4J check ins have a status of "Valid", "Spent" or "Winner"
@@ -34,7 +37,7 @@ export const createD4jCheckIn = async ({
   const createUri = urls.SFOperationPrefix + '/D4J_Check_In__c';
 
   const createData: CreateD4JCheckInObject = {
-    Date__c: new Date(),
+    Date__c: utcToZonedTime(new Date(), 'America/Los_Angeles'),
     Contact__c: contactId,
     Restaurant__c: restaurantId,
   };
@@ -78,9 +81,7 @@ export const deleteAllUserCheckIns = async (ids: string[]) => {
 export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
 
-  const stringOfEmployeeIds = "('" + CK_STAFF_IDS.join("','") + "')";
-
-  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid' and Id not in ${stringOfEmployeeIds}`;
+  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid'`;
 
   const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(query)
@@ -90,5 +91,7 @@ export const getValidD4jCheckIns = async () => {
     throw Error('Could not fetch check-ins');
   }
 
-  return data.records;
+  return data.records.filter(
+    (checkIn) => !CK_STAFF_IDS.includes(checkIn.Contact__c)
+  );
 };

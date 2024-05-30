@@ -7,6 +7,7 @@ const googleMaps = 'https://places.googleapis.com/v1/places';
 const adminEmail = 'communitykitchens@ckoakland.org';
 
 const prodUrls = {
+  stGeorgeCampaignId: '701UP000006WOmvYAG',
   d4jCampaignId: '7018Z000003KpqIQAS',
   cocktailsCampaignId: '7018Z000003KptzQAC',
   corporateVolunteersCampaignId: '701UP000005bM5AYAU',
@@ -29,6 +30,7 @@ const prodUrls = {
 };
 
 const testUrls = {
+  stGeorgeCampaignId: '',
   d4jCampaignId: '',
   cocktailsCampaignId: '701VF000003nkA3YAI',
   townFridgeCampaignId: '70174000000Yqjh',
