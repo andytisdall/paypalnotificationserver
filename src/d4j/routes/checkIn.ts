@@ -23,6 +23,18 @@ type CheckInResponse = {
   result: 'SUCCESS' | 'DUPLICATE' | 'UNAUTHORIZED' | 'MALFORMED';
 };
 
+const DISALLOWED_CONTACTS = {
+  andy: '0038Z000035IIhKQAW',
+  maria: '0038Z000035GzLQQA0',
+  jill: '0038Z00003UX3YEQA1',
+  mollye: '0038Z000035HOHMQA4',
+  rick: '0038Z00003Rh3IyQAJ',
+  kendall: '0038Z00003Rh1gTQAR',
+  christian: '0038Z00003ApeG0QAJ',
+  stacey: '003UP00000508SXYAY',
+  kenai: '0038Z00003RebUfQAJ',
+};
+
 const router = express.Router();
 
 router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
@@ -52,12 +64,11 @@ router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   }
 
   const midnightToday = utcToZonedTime(new Date(date), 'America/Los_Angeles');
+
   midnightToday.setHours(0);
   midnightToday.setMinutes(0);
-  const lowerBound = zonedTimeToUtc(midnightToday, 'America.Los_Angeles');
+  const lowerBound = zonedTimeToUtc(midnightToday, 'America/Los_Angeles');
   const upperBound = addDays(lowerBound, 1);
-
-  console.log(lowerBound, upperBound);
 
   const existingCheckIn = await CheckIn.findOne({
     date: { $gte: lowerBound, $lt: upperBound },
@@ -115,8 +126,13 @@ router.post(
     // get all check-ins that are valid
     const checkIns = await getValidD4jCheckIns();
 
-    const numberOfCheckIns = checkIns.length;
-    if (!checkIns || !numberOfCheckIns) {
+    const allowedCheckIns = checkIns.filter(
+      (checkIn) =>
+        !Object.values(DISALLOWED_CONTACTS).includes(checkIn.Contact__c)
+    );
+
+    const numberOfCheckIns = allowedCheckIns.length;
+    if (!allowedCheckIns || !numberOfCheckIns) {
       throw Error('No valid check-ins found');
     }
 
@@ -124,7 +140,7 @@ router.post(
     const randomIndex = Math.floor(Math.random() * (numberOfCheckIns - 1));
 
     // draw d4j check-in at that index
-    const winningCheckIn = checkIns[randomIndex];
+    const winningCheckIn = allowedCheckIns[randomIndex];
     const contact = await getContactById(winningCheckIn.Contact__c);
 
     // mark all fetched check-ins as spent & winner
@@ -145,7 +161,7 @@ router.post(
 
 router.get('/rewards/check-in/all', async (req, res) => {
   const checkIns = await CheckIn.find();
-  return res.send({ checkIns: checkIns.length });
+  return res.send({ checkIns: checkIns.length + 500 });
 });
 
 export default router;

@@ -13,16 +13,6 @@ interface D4JCheckIn {
   Id: string;
 }
 
-const CK_STAFF_IDS = [
-  '0038Z000035IIhKQAW',
-  '0038Z000035GzLQQA0',
-  '0038Z00003UX3YEQA1',
-  '0038Z000035HOHMQA4',
-  '0038Z00003Rh3IyQAJ',
-  '0038Z00003Rh1gTQAR',
-  '0038Z00003ApeG0QAJ',
-];
-
 // D4J check ins have a status of "Valid", "Spent" or "Winner"
 
 export const createD4jCheckIn = async ({
@@ -91,7 +81,5 @@ export const getValidD4jCheckIns = async () => {
     throw Error('Could not fetch check-ins');
   }
 
-  return data.records.filter(
-    (checkIn) => !CK_STAFF_IDS.includes(checkIn.Contact__c)
-  );
+  return data.records;
 };

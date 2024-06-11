@@ -198,10 +198,10 @@ router.post('/forgot-password', async (req, res) => {
     }
   } else if (contact) {
     sendEmail({
-      subject: 'Portal user forgot password',
-      to: 'andy@ckoakland.org',
+      subject: 'Community Kitchens Volunteer Portal',
+      to: email,
       from: urls.adminEmail,
-      text: `${contact.firstName} ${contact.lastName} has requested a new password but they don't have a username.`,
+      html: '<p>Hello, you have requested a password update for the CK volunteer portal. Unfortunately you do not have a user account yet, but you can start one here:</p><p>https://portal.ckoakland.org/forms/volunteer</p><p>Note that you do not need an account to sign up for CK Kitchen volunteer shifts-- you can sign up for shifts with just your email (no password) here:</p><p>https://portal.ckoakland.org/volunteers/ck-kitchen</p><p>If you have any issues, please email Andy at andy@ckoakland.org.</p><p>Thanks!<br>Community Kitchens</p>',
     });
   }
   res.sendStatus(204);

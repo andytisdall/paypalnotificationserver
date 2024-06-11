@@ -6,6 +6,7 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import createNotificationsService from '../../utils/pushNotifications';
 import { D4JUser } from '../models/d4jUser';
+import { NotificationPayload } from '../../homeChef/routes/notifications';
 
 const Notification = mongoose.model('Notification');
 
@@ -20,11 +21,19 @@ router.post(
     const { title, message }: { title: string; message: string } = req.body;
     const notificationsService = await createNotificationsService('d4j');
 
-    const userTokens = (await D4JUser.find())
+    const userTokens = (await D4JUser.find({ email: 'andy@ckoakland.org' }))
       .filter((user) => user.token)
       .map(({ token }) => token) as string[];
 
-    const payload = { title, body: message };
+    const payload: NotificationPayload = {
+      title,
+      body: message,
+      custom: {
+        screen: 'Events',
+        subScreen: 'EventDetail',
+        params: { id: '701UP000007eOAtYAM' },
+      },
+    };
 
     await notificationsService.send(userTokens, payload);
     const newNotification = new Notification({

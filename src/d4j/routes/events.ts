@@ -1,10 +1,14 @@
 import express from 'express';
+import mongoose from 'mongoose';
 
 import { getD4JCampaigns } from '../../utils/salesforce/SFQuery/campaign';
+import { currentD4JUser } from '../../middlewares/current-d4j-user';
+
+const CocktailVote = mongoose.model('CocktailVote');
 
 const router = express.Router();
 
-const COCKTAIL_PARTICIPANT_IDS = ['0018Z00003E88yMQAR', '001UP000002xIMLYA2'];
+const COCKTAIL_PARTICIPANT_IDS: string[] = [];
 
 router.get('/events', async (req, res) => {
   const events = await getD4JCampaigns();
@@ -14,6 +18,43 @@ router.get('/events', async (req, res) => {
 
 router.get('/events/cocktail-competition', async (req, res) => {
   res.send(COCKTAIL_PARTICIPANT_IDS);
+});
+
+router.get('/contest/votes', async (req, res) => {
+  const allVotes = await CocktailVote.find();
+  res.send(allVotes);
+});
+
+router.post('/contest/vote', currentD4JUser, async (req, res) => {
+  const { barId }: { barId: string } = req.body;
+  if (!req.currentD4JUser) {
+    throw Error('No user signed in');
+  }
+
+  const newVote = new CocktailVote({ user: req.currentD4JUser.id, bar: barId });
+  await newVote.save();
+
+  res.sendStatus(204);
+});
+
+router.patch('/contest/vote', currentD4JUser, async (req, res) => {
+  const { barId }: { barId: string } = req.body;
+  if (!req.currentD4JUser) {
+    throw Error('No user signed in');
+  }
+
+  const existingVote = await CocktailVote.findOne({
+    user: req.currentD4JUser.id,
+  });
+
+  if (!existingVote) {
+    throw Error('No vote found');
+  }
+
+  existingVote.bar = barId;
+  await existingVote.save();
+
+  res.sendStatus(204);
 });
 
 export default router;

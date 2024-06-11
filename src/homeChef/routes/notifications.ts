@@ -12,6 +12,16 @@ const User = mongoose.model('User');
 
 const router = express.Router();
 
+export interface NotificationPayload {
+  title: string;
+  body: string;
+  custom?: {
+    screen: string;
+    subScreen?: string;
+    params?: Record<string, string>;
+  };
+}
+
 router.post(
   '/notifications',
   currentUser,
@@ -22,6 +32,7 @@ router.post(
     const notificationsService = await createNotificationsService('homechef');
     const users = await User.find({
       homeChefNotificationToken: { $ne: undefined },
+      username: 'Andy',
     });
     // const users = await User.find().or([
     //   { username: 'Testo' },
@@ -29,7 +40,15 @@ router.post(
     // ]);
     const userTokens = users.map((u) => u.homeChefNotificationToken);
 
-    const payload = { title, body: message };
+    const payload: NotificationPayload = {
+      title,
+      body: message,
+      custom: {
+        screen: 'Signup',
+        subScreen: 'ShiftDetail',
+        params: { shiftId: 'a0yUP00000178KDYAY' },
+      },
+    };
 
     // const userTokens = [
     //   '47b31d349fc99621bd19367321bb3f50f6bcc7f0860e41f6512d8ae239750494',

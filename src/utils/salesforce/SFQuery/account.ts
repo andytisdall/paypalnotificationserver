@@ -173,6 +173,7 @@ export const getD4jRestaurants = async (): Promise<
 
 export const getBars = async () => {
   await fetcher.setService('salesforce');
+  console.log('sd');
 
   const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND HasResponded = True`;
 

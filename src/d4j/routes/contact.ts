@@ -62,8 +62,6 @@ router.post('/contact', async (req, res) => {
   }: { email: string; firstName: string; lastName: string; token?: string } =
     req.body;
 
-  console.log('call to post contact');
-
   if (!email || !firstName || !lastName) {
     throw Error('You must provide an email, first name and last name.');
   }
