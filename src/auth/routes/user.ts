@@ -17,6 +17,7 @@ import {
 } from '../../utils/salesforce/SFQuery/contact';
 import { sendEmail } from '../../utils/email';
 import urls from '../../utils/urls';
+import salesforceRouter from './salesforceUser';
 
 const User = mongoose.model('User');
 const router = express.Router();
@@ -236,5 +237,7 @@ router.post('/reset-password', async (req, res) => {
     throw Error('Unable to reset password');
   }
 });
+
+router.use(salesforceRouter);
 
 export default router;

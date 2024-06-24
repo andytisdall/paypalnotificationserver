@@ -14,6 +14,8 @@ import { sendEmail } from '../../utils/email';
 import { CheckIn } from '../models/checkIn';
 import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
 
+const LATEST_D4J_APP_VERSION = '1.10';
+
 const D4JUser = mongoose.model('D4JUser');
 
 const router = express.Router();
@@ -166,6 +168,10 @@ router.post('/delete-account', async (req, res) => {
   await D4JUser.deleteOne({ email });
 
   res.sendStatus(204);
+});
+
+router.get('/version', (req, res) => {
+  res.send({ currentVersion: LATEST_D4J_APP_VERSION });
 });
 
 export default router;
