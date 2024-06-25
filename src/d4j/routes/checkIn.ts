@@ -161,7 +161,7 @@ router.post(
 
 router.get('/rewards/check-in/all', async (req, res) => {
   const checkIns = await CheckIn.find();
-  return res.send({ checkIns: checkIns.length + 500 });
+  return res.send({ checkIns: checkIns.length + 1500 });
 });
 
 export default router;
