@@ -86,9 +86,9 @@ router.get(
 
 router.get('/announcement', async (req, res) => {
   const payload: Announcement = {
-    title: 'This is an announcement!',
+    title: "Tito's Street Fighter and Karaoke Crawl!",
     message:
-      'When you click on this, various things will happen! Try it out today! Buenos dias!',
+      'Join us for the Cocktails for a Cause wrap party at Beeryland & Legionnaire on Wednesday, July 3rd',
     data: {
       screen: 'Events',
       subScreen: 'EventDetail',
@@ -98,7 +98,7 @@ router.get('/announcement', async (req, res) => {
       'https://storage.googleapis.com/coherent-vision-368820.appspot.com/ryu.jpeg',
   };
 
-  res.send(null);
+  res.send(payload);
 });
 
 export default router;

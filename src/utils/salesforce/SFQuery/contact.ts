@@ -100,6 +100,34 @@ export const getContact = async (
   }
 };
 
+export const getContactByLastNameAndEmail = async (
+  lastName: string,
+  email: string
+): Promise<FormattedContact | null> => {
+  await fetcher.setService('salesforce');
+  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
+
+  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const contactQueryResponse: {
+    data: { records: UnformattedContact[] | undefined; totalSize: number };
+  } = await fetcher.get(contactQueryUri);
+  if (
+    !contactQueryResponse.data.records ||
+    contactQueryResponse.data.records.length === 0
+  ) {
+    return null;
+  } else {
+    const contact = contactQueryResponse.data.records[0];
+    return {
+      id: contact.Id,
+      name: contact.Name,
+      householdId: contact.npsp__HHId__c,
+      portalUsername: contact.Portal_Username__c,
+    };
+  }
+};
+
 export const addContact = async (
   contactToAdd: UnformattedContact
 ): Promise<FormattedContact> => {

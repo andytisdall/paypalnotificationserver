@@ -14,7 +14,7 @@ import { sendEmail } from '../../utils/email';
 import { CheckIn } from '../models/checkIn';
 import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
 
-const LATEST_D4J_APP_VERSION = '1.12';
+const LATEST_D4J_APP_VERSION = '1.14';
 
 const D4JUser = mongoose.model('D4JUser');
 

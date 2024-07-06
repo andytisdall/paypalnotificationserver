@@ -17,6 +17,7 @@ import {
 import {
   getVolunteerCampaigns,
   getCampaignFromHours,
+  insertCampaignMember,
 } from '../../utils/salesforce/SFQuery/campaign';
 import urls from '../../utils/urls';
 import {
@@ -202,6 +203,28 @@ router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
   } else {
     throw Error('Volunteer hours do not belong to this contact');
   }
+});
+
+router.post('/home-chef-registration', async (req, res) => {
+  const { email, firstName, lastName, phone } = req.body;
+
+  let contact = await getContactByEmail(email);
+  if (!contact) {
+    contact = await addContact({
+      Email: email,
+      FirstName: firstName,
+      LastName: lastName,
+      HomePhone: phone,
+    });
+  }
+
+  await insertCampaignMember({
+    ContactId: contact.id!,
+    CampaignId: urls.homeChefInPersonCampaignId,
+    Status: 'Confirmed',
+  });
+
+  res.send(204);
 });
 
 export default router;
