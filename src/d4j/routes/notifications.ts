@@ -98,7 +98,7 @@ router.get('/announcement', async (req, res) => {
       'https://storage.googleapis.com/coherent-vision-368820.appspot.com/ryu.jpeg',
   };
 
-  res.send(payload);
+  res.send(null);
 });
 
 export default router;

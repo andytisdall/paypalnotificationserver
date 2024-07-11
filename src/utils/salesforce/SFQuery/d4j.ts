@@ -1,4 +1,5 @@
-import { utcToZonedTime } from 'date-fns-tz';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 
@@ -8,7 +9,7 @@ interface CreateD4JCheckInObject {
   Date__c: Date;
 }
 
-interface D4JCheckIn {
+export interface D4JCheckIn {
   Contact__c: string;
   Id: string;
 }
@@ -70,8 +71,10 @@ export const deleteAllUserCheckIns = async (ids: string[]) => {
 
 export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
+  const startDate = zonedTimeToUtc(new Date('6/1/2024'), 'America/Los_Angeles');
+  const endDate = zonedTimeToUtc(new Date('6/30/2024'), 'America/Los_Angeles');
 
-  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid'`;
+  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid' AND Date__c >= ${startDate} AND Date__c <= ${endDate}`;
 
   const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(query)

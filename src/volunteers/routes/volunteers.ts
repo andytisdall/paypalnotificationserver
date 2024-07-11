@@ -206,7 +206,13 @@ router.delete('/hours/:id/:salesforceId?', currentUser, async (req, res) => {
 });
 
 router.post('/home-chef-registration', async (req, res) => {
-  const { email, firstName, lastName, phone } = req.body;
+  const {
+    email,
+    firstName,
+    lastName,
+    phone,
+  }: { email: string; firstName?: string; lastName?: string; phone?: string } =
+    req.body;
 
   let contact = await getContactByEmail(email);
   if (!contact) {
