@@ -117,6 +117,8 @@ router.post('/signup', async (req, res) => {
     await updateContact(existingContact.id!, contactInfo);
   } else {
     // contact needs to be added first so that opp can have a contactid
+    contactInfo.Portal_Username__c = uniqueUsername;
+    contactInfo.Portal_Temporary_Password__c = temporaryPassword;
     existingContact = await addContact(contactInfo);
   }
 

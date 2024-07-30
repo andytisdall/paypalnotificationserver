@@ -14,7 +14,7 @@ import { sendEmail } from '../../utils/email';
 import { CheckIn } from '../models/checkIn';
 import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
 
-const LATEST_D4J_APP_VERSION = '1.14';
+const LATEST_D4J_APP_VERSION = '1.15';
 
 const D4JUser = mongoose.model('D4JUser');
 
@@ -95,8 +95,25 @@ router.post('/contact', async (req, res) => {
     LastName: lastName,
   });
 
+  // CONFIRM EMAIL:
+  // generate code
+  // store code on user
+  // send email to contact with code in url
+  // front end queries db for code and confirms that user
+
   newUser.salesforceId = contact.id;
   newUser.save();
+});
+
+router.get('/confirm-email/:emailCode', async (req, res) => {
+  const { emailCode } = req.params;
+  const user = await D4JUser.findOne({ secretCode: emailCode });
+  if (!user) {
+    throw Error('User not found');
+  }
+  user.unconfirmed = false;
+  await user.save();
+  res.sendStatus(204);
 });
 
 router.get('/contact', currentD4JUser, async (req, res) => {

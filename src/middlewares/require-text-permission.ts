@@ -9,7 +9,7 @@ export const requireTextPermission = async (
   next: NextFunction
 ) => {
   const thisUser = await User.findById(req.currentUser?.id);
-  if (!thisUser?.admin && !thisUser?.textPermission) {
+  if (!thisUser?.admin && !thisUser?.busDriver) {
     res.status(403);
     throw new Error('User must have permission to send alert texts');
   }

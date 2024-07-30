@@ -43,6 +43,7 @@ export interface UnformattedD4JRestaurant {
   Cocktail_2_Name__c?: string;
   Cocktail_2_Description__c?: string;
   D4J_Status__c?: 'Active' | 'Former' | 'Paused';
+  Closed__c?: boolean;
 }
 
 type Coordinates = { latitude: number; longitude: number };
@@ -65,6 +66,7 @@ export interface FormattedD4JRestaurant {
   cocktail2Name?: string;
   cocktail2Description?: string;
   status?: 'Active' | 'Former' | 'Paused';
+  closed?: boolean;
 }
 
 const getCoords = (latitude?: number, longitude?: number) => {
@@ -137,7 +139,8 @@ const formatAccount = (
     cocktailDescription: account.Cocktail_Description__c,
     cocktail2Name: account.Cocktail_2_Name__c,
     cocktail2Description: account.Cocktail_2_Description__c,
-    status: account.D4J_Status__c || 'Active',
+    status: account.D4J_Status__c || 'Former',
+    closed: account.Closed__c,
   };
 };
 
@@ -157,7 +160,7 @@ export const getD4jRestaurants = async (): Promise<
 > => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c, Closed__c FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -173,7 +176,6 @@ export const getD4jRestaurants = async (): Promise<
 
 export const getBars = async () => {
   await fetcher.setService('salesforce');
-  console.log('sd');
 
   const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND HasResponded = True`;
 
@@ -189,7 +191,36 @@ export const getBars = async () => {
   );
   const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
 
-  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Cocktail_2_Description__c FROM Account WHERE Id IN ${stringOfBarIds}`;
+  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Cocktail_2_Description__c, Closed__c FROM Account WHERE Id IN ${stringOfBarIds}`;
+
+  const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
+    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
+
+  if (!res.data?.records) {
+    throw Error('Could not get account info');
+  }
+
+  return res.data.records.map((account) => formatAccount(account, true));
+};
+
+export const getStyleWeekBars = async () => {
+  await fetcher.setService('salesforce');
+
+  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.styleWeekCampaignId}'`;
+
+  const { data } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
+  );
+
+  if (!data?.records) {
+    throw Error('Could not get campaign members');
+  }
+  const arrayOfBarIds = data.records.map(
+    (rec: { AccountId: string }) => rec.AccountId
+  );
+  const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
+
+  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Cocktail_2_Description__c, Closed__c FROM Account WHERE Id IN ${stringOfBarIds}`;
 
   const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));

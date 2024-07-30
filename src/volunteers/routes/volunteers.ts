@@ -5,7 +5,6 @@ import {
   addContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
 import fetcher from '../../utils/fetcher';
 import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
@@ -90,7 +89,7 @@ router.get('/hours/:campaignId/:contactId?', async (req, res) => {
   const campaignId = req.params.campaignId;
   const contactId = req.params.contactId;
   if (!contactId) {
-    return res.send(204);
+    return res.sendStatus(204);
   }
   await fetcher.setService('salesforce');
   const shortenedCampaignId = campaignId.substring(0, campaignId.length - 3);
@@ -211,8 +210,14 @@ router.post('/home-chef-registration', async (req, res) => {
     firstName,
     lastName,
     phone,
-  }: { email: string; firstName?: string; lastName?: string; phone?: string } =
-    req.body;
+    source,
+  }: {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    source?: string;
+  } = req.body;
 
   let contact = await getContactByEmail(email);
   if (!contact) {
@@ -221,6 +226,7 @@ router.post('/home-chef-registration', async (req, res) => {
       FirstName: firstName,
       LastName: lastName,
       HomePhone: phone,
+      How_did_they_hear_about_CK__c: source,
     });
   }
 
@@ -230,7 +236,7 @@ router.post('/home-chef-registration', async (req, res) => {
     Status: 'Confirmed',
   });
 
-  res.send(204);
+  res.sendStatus(204);
 });
 
 export default router;

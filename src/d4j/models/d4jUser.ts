@@ -6,6 +6,7 @@ const d4jUserSchema = new mongoose.Schema(
     token: String,
     salesforceId: String,
     secretCode: String,
+    unconfirmed: { type: Boolean, default: false },
   },
 
   {

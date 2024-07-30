@@ -1,4 +1,4 @@
-import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { utcToZonedTime, zonedTimeToUtc, format } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
@@ -71,10 +71,16 @@ export const deleteAllUserCheckIns = async (ids: string[]) => {
 
 export const getValidD4jCheckIns = async () => {
   await fetcher.setService('salesforce');
-  const startDate = zonedTimeToUtc(new Date('6/1/2024'), 'America/Los_Angeles');
-  const endDate = zonedTimeToUtc(new Date('6/30/2024'), 'America/Los_Angeles');
+  // const startDate = format(
+  //   zonedTimeToUtc(new Date('6/1/2024'), 'America/Los_Angeles'),
+  //   'T'
+  // );
+  // const endDate = format(
+  //   zonedTimeToUtc(new Date('6/30/2024'), 'America/Los_Angeles'),
+  //   'T'
+  // );
 
-  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid' AND Date__c >= ${startDate} AND Date__c <= ${endDate}`;
+  const query = `SELECT Contact__c, Id from D4J_Check_In__c where Status__c = 'Valid' AND Date__c >= 2024-06-01 AND Date__c <= 2024-06-30`;
 
   const { data }: { data: { records?: D4JCheckIn[] } } = await fetcher.get(
     urls.SFQueryPrefix + encodeURIComponent(query)

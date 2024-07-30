@@ -9,6 +9,7 @@ import { requireAuth } from '../../middlewares/require-auth';
 import urls from '../../utils/urls';
 import { storeFile } from '../../files/google/storeFileGoogle';
 import getSecrets from '../../utils/getSecrets';
+import { removeTextSubscriber } from '../../utils/salesforce/SFQuery/text';
 
 const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
@@ -113,11 +114,26 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   }
 
   const createOutgoingText = async (phone: string) => {
-    await twilioClient.messages.create({ ...outgoingText, to: phone });
+    return await twilioClient.messages.create({ ...outgoingText, to: phone });
   };
 
   const textPromises = formattedNumbers.map(createOutgoingText);
-  await Promise.all(textPromises);
+  const sentMessages = await Promise.all(textPromises);
+
+  try {
+    const errorNumbers = sentMessages
+      .filter((msg) => msg.status === 'undelivered')
+      .map((msg) => msg.to);
+
+    const errorPromises = errorNumbers.map((num) => {
+      console.log('deleting number: ' + num);
+      removeTextSubscriber(num);
+    });
+
+    await Promise.all(errorPromises);
+  } catch (err) {
+    console.log('automatic deletion of errored numbers failed');
+  }
 
   if (feedbackId) {
     const feedback = await Feedback.findById(feedbackId);

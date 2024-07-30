@@ -1,39 +1,45 @@
-// import { addDays, subDays } from 'date-fns';
-// import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { format, utcToZonedTime } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 import { getAccountById } from './account';
 import { UnformattedRestaurant } from './account';
 
+export interface NewMobileOasisDelivery {
+  numberOfMealsMeat: number;
+  numberOfMealsVeg: number;
+}
+
 interface UnformattedMealDelivery {
   Date__c: string;
   CBO__c: string;
   Restaurant__c: string;
-  Id: string;
-  Time__c: string;
+  Id?: string;
+  Time__c?: string;
+  TextTime__c?: string;
   Delivery_Method__c: string;
   Number_of_Meals_Meat__c: number;
   Number_of_Meals_Veg__c: number;
   Delivery_Notes__c: string;
-  Price_Per_Meal__c: number;
-  Is_This_Week__c: boolean;
-  Is_Next_Week__c: boolean;
+  Price_Per_Meal__c?: number;
+  Is_This_Week__c?: boolean;
+  Is_Next_Week__c?: boolean;
+  Funding_Source__c?: string;
 }
 
 interface FormattedMealDelivery {
   date: string;
   cbo: string;
   restaurant: string;
-  id: string;
+  id?: string;
   time: string;
   deliveryMethod: string;
   numberOfMealsMeat: number;
   numberOfMealsVeg: number;
   notes: string;
-  price: number;
-  isThisWeek: boolean;
-  isNextWeek: boolean;
+  price?: number;
+  isThisWeek?: boolean;
+  isNextWeek?: boolean;
 }
 
 const formatMealDelivery = (
@@ -44,7 +50,7 @@ const formatMealDelivery = (
     cbo: unformattedDelivery.CBO__c,
     restaurant: unformattedDelivery.Restaurant__c,
     id: unformattedDelivery.Id,
-    time: unformattedDelivery.Time__c,
+    time: unformattedDelivery.Time__c!,
     deliveryMethod: unformattedDelivery.Delivery_Method__c,
     numberOfMealsMeat: unformattedDelivery.Number_of_Meals_Meat__c,
     numberOfMealsVeg: unformattedDelivery.Number_of_Meals_Veg__c,
@@ -121,22 +127,26 @@ export const getRestaurantMealProgramSchedule = async (accountId: string) => {
   };
 };
 
-// export const deleteMay = async () => {
-//   await fetcher.setService('salesforce');
-//   const lowerBound = '2023-04-30';
-//   const upperBound = '2023-06-01';
-//   const getQuery = `SELECT Id, Date__c from Meal_Program_Delivery__c WHERE Date__c > ${lowerBound} AND Date__c < ${upperBound}`;
+export const createScheduledDelivery = async (
+  delivery: NewMobileOasisDelivery
+) => {
+  await fetcher.setService('salesforce');
+  const insertUri = urls.SFOperationPrefix + '/Meal_Program_Delivery__c';
 
-//   const getUri = urls.SFQueryPrefix + encodeURIComponent(getQuery);
+  const newDelivery: UnformattedMealDelivery = {
+    Date__c: new Date().toISOString(),
+    CBO__c: urls.ckKitchenAccountId,
+    Restaurant__c: urls.townFridgeAccountId,
+    TextTime__c: format(
+      utcToZonedTime(new Date(), 'America/Los_Angeles'),
+      'hh:mm:ss.SSS'
+    ),
+    Delivery_Method__c: 'CK Pickup',
+    Number_of_Meals_Meat__c: delivery.numberOfMealsMeat,
+    Number_of_Meals_Veg__c: delivery.numberOfMealsVeg,
+    Delivery_Notes__c: 'Added by mobile oasis driver',
+    Funding_Source__c: 'CK',
+  };
 
-//   const getResult = await fetcher.get(getUri);
-//   console.log(getResult.data.records.length);
-
-//   const promises = getResult.data.records.map((del: any) => {
-//     const deleteUri =
-//       urls.SFOperationPrefix + '/Meal_Program_Delivery__c/' + del.Id;
-//     fetcher.delete(deleteUri);
-//   });
-
-//   await Promise.all(promises);
-// };
+  await fetcher.post(insertUri, newDelivery);
+};
