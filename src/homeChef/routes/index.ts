@@ -6,6 +6,7 @@ import hoursRouter from './hours';
 import inviteRouter from './invite';
 import campaignRouter from './campaign';
 import notificationsRouter from './notifications';
+import quizRouter from './quiz';
 
 const homeChefRouter = express.Router({ mergeParams: true });
 
@@ -15,5 +16,6 @@ homeChefRouter.use(hoursRouter);
 homeChefRouter.use(inviteRouter);
 homeChefRouter.use(campaignRouter);
 homeChefRouter.use(notificationsRouter);
+homeChefRouter.use(quizRouter);
 
 export default homeChefRouter;

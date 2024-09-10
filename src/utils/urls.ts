@@ -32,10 +32,10 @@ const prodUrls = {
 };
 
 const testUrls = {
-  ckKitchenAccountId: '0018Z0000362TqLQAU',
-  townFridgeAccountId: '0018Z000037fa6cQAA',
+  ckKitchenAccountId: '',
+  townFridgeAccountId: '',
   styleWeekCampaignId: '',
-  homeChefInPersonCampaignId: '701UP000008zJFdYAM',
+  homeChefInPersonCampaignId: '',
   d4jCampaignId: '',
   cocktailsCampaignId: '701VF000003nkA3YAI',
   townFridgeCampaignId: '70174000000Yqjh',

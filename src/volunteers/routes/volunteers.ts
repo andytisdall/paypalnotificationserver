@@ -227,6 +227,14 @@ router.post('/home-chef-registration', async (req, res) => {
       LastName: lastName,
       HomePhone: phone,
       How_did_they_hear_about_CK__c: source,
+      Home_Chef_Status__c: 'Prospective',
+      GW_Volunteers__Volunteer_Status__c: 'Prospective',
+    });
+
+    await insertCampaignMember({
+      CampaignId: urls.townFridgeCampaignId,
+      ContactId: contact.id!,
+      Status: 'Confirmed',
     });
   }
 

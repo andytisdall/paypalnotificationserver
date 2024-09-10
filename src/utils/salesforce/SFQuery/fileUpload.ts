@@ -19,6 +19,7 @@ export type AccountData = {
   Home_Chef_Status__c?: string;
   CK_Kitchen_Volunteer_Status__c?: string;
   CK_Kitchen_Agreement__c?: boolean;
+  Home_Chef_Quiz_Passed__c?: boolean;
   Id?: string;
 };
 

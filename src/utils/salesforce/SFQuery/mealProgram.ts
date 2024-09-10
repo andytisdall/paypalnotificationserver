@@ -135,8 +135,8 @@ export const createScheduledDelivery = async (
 
   const newDelivery: UnformattedMealDelivery = {
     Date__c: new Date().toISOString(),
-    CBO__c: urls.ckKitchenAccountId,
-    Restaurant__c: urls.townFridgeAccountId,
+    CBO__c: urls.townFridgeAccountId,
+    Restaurant__c: urls.ckKitchenAccountId,
     TextTime__c: format(
       utcToZonedTime(new Date(), 'America/Los_Angeles'),
       'hh:mm:ss.SSS'

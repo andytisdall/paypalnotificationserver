@@ -3,7 +3,11 @@ import { fileInfo } from './metadata';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
 
-export default async (fileTitles: string[], contact: AccountData) => {
+export default async (
+  fileTitles: string[],
+  contact: AccountData,
+  homeChefQuizPass?: boolean
+) => {
   const patchData: Partial<AccountData> = {};
   if (fileTitles.includes(fileInfo.FH.title)) {
     patchData.Home_Chef_Food_Handler_Certification__c = true;
@@ -15,6 +19,9 @@ export default async (fileTitles: string[], contact: AccountData) => {
     patchData.CK_Kitchen_Agreement__c = true;
     patchData.CK_Kitchen_Volunteer_Status__c = 'Active';
   }
+  if (homeChefQuizPass) {
+    patchData.Home_Chef_Quiz_Passed__c = true;
+  }
   //  mark account as active if all required docs are present
   const foodHandlerPresent =
     contact.Home_Chef_Food_Handler_Certification__c ||
@@ -22,8 +29,10 @@ export default async (fileTitles: string[], contact: AccountData) => {
   const homeChefAgreementPresent =
     contact.Home_Chef_Volunteeer_Agreement__c ||
     patchData.Home_Chef_Volunteeer_Agreement__c;
+  const homeChefQuizPasssed =
+    homeChefQuizPass || contact.Home_Chef_Quiz_Passed__c;
 
-  if (foodHandlerPresent && homeChefAgreementPresent) {
+  if (foodHandlerPresent && homeChefAgreementPresent && homeChefQuizPasssed) {
     patchData.Home_Chef_Status__c = 'Active';
   }
 

@@ -4,6 +4,7 @@ import { getPlaceDetails } from '../../utils/getPlaceDetails';
 import {
   getBars,
   getD4jRestaurants,
+  getStyleWeekBars,
   updateDetails,
 } from '../../utils/salesforce/SFQuery/account';
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
@@ -45,6 +46,11 @@ router.patch('/restaurants', currentD4JUser, async (req, res) => {
   }
 
   res.sendStatus(204);
+});
+
+router.get('/restaurants/style-week', async (req, res) => {
+  const bars = await getStyleWeekBars();
+  res.send(bars);
 });
 
 export default router;

@@ -16,14 +16,21 @@ router.post('/salesforce', requireSalesforceAuth, async (req, res) => {
   }: { firstName?: string; lastName: string; id: string } = req.body;
 
   const existingUser = await User.findOne({ salesforceId: id });
-  if (existingUser) {
-    throw Error('contact already has a user account');
-  }
 
   const temporaryPassword = passwordGenerator.generate({
     length: 10,
     numbers: true,
   });
+
+  if (existingUser) {
+    existingUser.password = temporaryPassword;
+    await existingUser.save();
+    return res.status(200).send({
+      username: existingUser.username,
+      password: temporaryPassword,
+    });
+  }
+
   const username = (
     firstName?.charAt(0).toLowerCase() + lastName.toLowerCase()
   ).replace(' ', '');

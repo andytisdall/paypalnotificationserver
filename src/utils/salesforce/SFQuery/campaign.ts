@@ -82,7 +82,7 @@ export const getD4JCampaigns: () => Promise<
   FormattedEventCampaign[]
 > = async () => {
   await fetcher.setService('salesforce');
-  const query = `SELECT Name, Id, Description, stayclassy__Start_Date__c, stayclassy__End_Date__c, stayclassy__venue_name__c, stayclassy__address1__c, stayclassy__city__c, Event_URL__c, stayclassy__Event_Image_URL__c FROM Campaign WHERE ParentId = '${urls.cocktailsCampaignId}' AND RecordTypeId = '0128Z000001BIZDQA4' AND stayclassy__Start_Date__c != NULL ORDER BY stayclassy__Start_Date__c`;
+  const query = `SELECT Name, Id, Description, stayclassy__Start_Date__c, stayclassy__End_Date__c, stayclassy__venue_name__c, stayclassy__address1__c, stayclassy__city__c, Event_URL__c, stayclassy__Event_Image_URL__c FROM Campaign WHERE ParentId = '${urls.d4jCampaignId}' AND RecordTypeId = '0128Z000001BIZDQA4' AND stayclassy__Start_Date__c != NULL ORDER BY stayclassy__Start_Date__c`;
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedEventCampaign[] } } =

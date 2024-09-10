@@ -46,6 +46,7 @@ router.get('/userInfo', currentUser, async (req, res) => {
     foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
     homeChefStatus: contact.Home_Chef_Status__c,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+    homeChefQuizPassed: contact.Home_Chef_Quiz_Passed__c,
   };
   res.send(contactInfo);
 });

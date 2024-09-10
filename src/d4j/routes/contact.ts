@@ -14,8 +14,6 @@ import { sendEmail } from '../../utils/email';
 import { CheckIn } from '../models/checkIn';
 import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
 
-const LATEST_D4J_APP_VERSION = '1.15';
-
 const D4JUser = mongoose.model('D4JUser');
 
 const router = express.Router();
@@ -101,17 +99,34 @@ router.post('/contact', async (req, res) => {
   // send email to contact with code in url
   // front end queries db for code and confirms that user
 
+  //  const code = generate({
+  //   length: 5,
+  //   numbers: true,
+  //   lowercase: false,
+  //   uppercase: false,
+  // });
+
+  // newUser.unconfirmed = true;
+  // newUser.secretCode = code;
+
   newUser.salesforceId = contact.id;
   newUser.save();
+
+  // sendConfirmD4JUserEmail(contact, code);
 });
 
 router.get('/confirm-email/:emailCode', async (req, res) => {
   const { emailCode } = req.params;
+  if (!emailCode) {
+    throw Error('No code provided');
+  }
   const user = await D4JUser.findOne({ secretCode: emailCode });
   if (!user) {
     throw Error('User not found');
   }
   user.unconfirmed = false;
+  user.secretCode = undefined;
+
   await user.save();
   res.sendStatus(204);
 });
@@ -185,10 +200,6 @@ router.post('/delete-account', async (req, res) => {
   await D4JUser.deleteOne({ email });
 
   res.sendStatus(204);
-});
-
-router.get('/version', (req, res) => {
-  res.send({ currentVersion: LATEST_D4J_APP_VERSION });
 });
 
 export default router;

@@ -29,6 +29,7 @@ export interface UnformattedContact {
   Interest_in_other_volunteer_programs__c?: string;
   Able_to_Commit__c?: boolean;
   Able_to_cook_and_transport_other__c?: string;
+  Home_Chef_Quiz_Passed__c?: boolean;
 }
 
 // export interface IncomingContactInfo {
@@ -53,6 +54,7 @@ export interface FormattedContact {
   foodHandler?: boolean;
   ckKitchenStatus?: string;
   homeChefStatus?: string;
+  homeChefQuizPassed?: boolean;
   email?: string;
 }
 

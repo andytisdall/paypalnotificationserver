@@ -200,7 +200,7 @@ export const getBars = async () => {
     throw Error('Could not get account info');
   }
 
-  return res.data.records.map((account) => formatAccount(account, true));
+  return res.data.records.map((account) => formatAccount(account, false));
 };
 
 export const getStyleWeekBars = async () => {
