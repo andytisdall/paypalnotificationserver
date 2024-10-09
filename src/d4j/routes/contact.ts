@@ -13,6 +13,10 @@ import getSecrets from '../../utils/getSecrets';
 import { sendEmail } from '../../utils/email';
 import { CheckIn } from '../models/checkIn';
 import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
+import { sendConfirmD4JUserEmail } from '../../utils/email';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
 
 const D4JUser = mongoose.model('D4JUser');
 
@@ -68,11 +72,10 @@ router.post('/contact', async (req, res) => {
 
   const existingUser = await D4JUser.findOne({ email });
   if (existingUser) {
-    throw Error('There is already an account with this email address');
+    throw Error('There is already a user with this email address');
   }
 
-  const newUser = new D4JUser({ email, token });
-  await newUser.save();
+  const user = new D4JUser({ email, token });
 
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
   if (!JWT_KEY) {
@@ -80,18 +83,17 @@ router.post('/contact', async (req, res) => {
   }
   const jwtToken = jwt.sign(
     {
-      id: newUser.id,
+      id: user.id,
     },
     JWT_KEY
   );
-
-  res.send({ contact: newUser, token: jwtToken });
 
   const contact = await addContact({
     Email: email,
     FirstName: firstName,
     LastName: lastName,
   });
+  user.salesforceId = contact!.id;
 
   // CONFIRM EMAIL:
   // generate code
@@ -99,30 +101,31 @@ router.post('/contact', async (req, res) => {
   // send email to contact with code in url
   // front end queries db for code and confirms that user
 
-  //  const code = generate({
-  //   length: 5,
-  //   numbers: true,
-  //   lowercase: false,
-  //   uppercase: false,
-  // });
+  const code = generate({
+    length: 5,
+    numbers: true,
+    lowercase: false,
+    uppercase: false,
+  });
 
-  // newUser.unconfirmed = true;
-  // newUser.secretCode = code;
+  user.unconfirmed = true;
+  user.secretCode = code;
+  await user.save();
 
-  newUser.salesforceId = contact.id;
-  newUser.save();
+  // @ts-ignore
+  await sendConfirmD4JUserEmail(contact, code);
 
-  // sendConfirmD4JUserEmail(contact, code);
+  res.send({ contact: user, token: jwtToken });
 });
 
-router.get('/confirm-email/:emailCode', async (req, res) => {
-  const { emailCode } = req.params;
-  if (!emailCode) {
+router.post('/confirm-email', async (req, res) => {
+  const { code } = req.body;
+  if (!code) {
     throw Error('No code provided');
   }
-  const user = await D4JUser.findOne({ secretCode: emailCode });
+  const user = await D4JUser.findOne({ secretCode: code });
   if (!user) {
-    throw Error('User not found');
+    throw Error('Invalid Code');
   }
   user.unconfirmed = false;
   user.secretCode = undefined;
@@ -201,5 +204,21 @@ router.post('/delete-account', async (req, res) => {
 
   res.sendStatus(204);
 });
+
+router.get(
+  '/delete-andy',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const email = 'andrew.tisdall@gmail.com';
+
+    const contact = await getContactByEmail(email);
+    await deleteContact(contact!.id!);
+
+    await D4JUser.deleteOne({ email });
+    res.sendStatus(204);
+  }
+);
 
 export default router;

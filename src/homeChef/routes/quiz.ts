@@ -19,6 +19,7 @@ interface HomeChefQuizResponse {
   passed: boolean;
   score: number;
   wrongAnswers: number[];
+  rightAnswers?: string[];
 }
 
 const MIN_SCORE = 7;
@@ -126,6 +127,10 @@ router.post('/quiz', currentUser, requireAuth, async (req, res) => {
   const score = questions.length - wrongAnswers.length;
   const passed = score >= MIN_SCORE;
 
+  const rightAnswers = wrongAnswers.map(
+    (index) => questions[index].answers[correctAnswers[index]]
+  );
+
   const response: HomeChefQuizResponse = {
     passed,
     wrongAnswers,
@@ -138,6 +143,7 @@ router.post('/quiz', currentUser, requireAuth, async (req, res) => {
   if (passed) {
     const contact = await getContactById(req.currentUser!.salesforceId);
     await homeChefUpdate([], contact, true);
+    response.rightAnswers = rightAnswers;
   }
 
   res.send(response);

@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 
 import { getD4JCampaigns } from '../../utils/salesforce/SFQuery/campaign';
 import { currentD4JUser } from '../../middlewares/current-d4j-user';
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
+import { getAccountById } from '../../utils/salesforce/SFQuery/account';
 
 const CocktailVote = mongoose.model('CocktailVote');
 
@@ -56,5 +60,43 @@ router.patch('/contest/vote', currentD4JUser, async (req, res) => {
 
   res.sendStatus(204);
 });
+
+router.post(
+  '/contest/winner',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const allVotes = await CocktailVote.find();
+    const totals: Record<string, number> = allVotes.reduce(
+      (voteObj, currentVote) => {
+        if (voteObj[currentVote.bar]) {
+          voteObj[currentVote.bar] += 1;
+        } else {
+          voteObj[currentVote.bar] = 1;
+        }
+        return voteObj;
+      },
+      {}
+    );
+
+    console.log(totals);
+
+    const winningNumberOfVotes = Object.values(totals).reduce(
+      (mostVotesSoFar, currentVote) =>
+        currentVote > mostVotesSoFar ? currentVote : mostVotesSoFar,
+      0
+    );
+
+    const winningIds = Object.keys(totals).filter(
+      (bar) => totals[bar] === winningNumberOfVotes
+    );
+
+    const winningPromises = winningIds.map((id) => getAccountById(id));
+    const winningAccounts = await Promise.all(winningPromises);
+    const winningNames = winningAccounts.map(({ Name }) => Name);
+    res.send(winningNames);
+  }
+);
 
 export default router;

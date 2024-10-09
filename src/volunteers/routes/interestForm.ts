@@ -2,7 +2,6 @@ import express from 'express';
 import passwordGenerator from 'generate-password';
 
 import {
-  getContact,
   addContact,
   updateContact,
   UnformattedContact,

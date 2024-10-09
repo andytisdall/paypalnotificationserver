@@ -10,7 +10,7 @@ const CONTEST_RULES = `Eligibility - To be eligible to enter the contest, you mu
 
 Requirements - To receive 1 D4J point, you must use the D4J app's check-in feature while physically present at any of the businesses featured in the app, and with your mobile device's location services enabled. CK will verify that your device's location matches the check-in location, and award 1 point to your user account once verified. 1 D4J point represents one entry in the contest. A user may only check in to each location once per day.
 
-Duration - This contest will be active from June 1st, 2024 - June 30th, 2024, using Pacific Standard Time.  Entries submitted before June 1st 2024 will not be valid. Entries submitted after the contest has ended will not be eligible for this contest, but can be used as entries in subsequent contests.
+Duration - This contest will be active from October 9th, 2024 - October 31st, 2024, using Pacific Standard Time.  Entries submitted before June 1st 2024 will not be valid. Entries submitted after the contest has ended will not be eligible for this contest, but can be used as entries in subsequent contests.
 
 Selection - The winning entries will be randomly chosen from all entries (check-ins) submitted during the duration of the contest. One entry will be selected for each prize. Limit 1 prize per contest participant. If a selected entry belongs to an ineligible contest participant, the selection will be discarded and the selection process will repeat until an eligible entry is found.
 
@@ -28,21 +28,15 @@ This contest is not sponsored by Apple.
 const PRIZES: Prize[] = [
   {
     title: 'Grand Prize',
-    description: '$100 gift card to alaMar Dominican Kitchen',
+    description: 'One night stay at The Kissel Uptown and dinner at Parche',
     photo:
-      'https://lh3.googleusercontent.com/p/AF1QipPk1quqPI9fk-Yk34Q5hM2iWaaTIVSqnYFlznzy=s1360-w1360-h1020',
+      'https://storage.googleapis.com/coherent-vision-368820.appspot.com/kissel.jpeg',
   },
   {
     title: '1st Prize',
-    description: 'AVA induction cooktop',
+    description: 'Dinner at ACRE Kitchen & Bar',
     photo:
-      'https://storage.googleapis.com/coherent-vision-368820.appspot.com/induction.jpg',
-  },
-  {
-    title: '2nd Prize',
-    description: 'Oakland Spice Shop spice kit',
-    photo:
-      'https://goodeggs4.imgix.net/4c86488e-8095-426c-9aea-4e53bcfda14d.jpg?w=840&h=525&fm=jpg&q=80&fit=crop',
+      'https://storage.googleapis.com/coherent-vision-368820.appspot.com/acre.jpg',
   },
 ];
 
