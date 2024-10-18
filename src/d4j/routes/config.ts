@@ -13,20 +13,20 @@ interface EventConfig {
 
 const Event = mongoose.model('Event');
 
-const STYLE_WEEK_ID = '67044fab8f93ddc0f28e0bce';
+export const STYLE_WEEK_ID = '67044fab8f93ddc0f28e0bce';
 
 const router = express.Router();
 
-const LATEST_D4J_APP_VERSION = '2.3';
+const LATEST_D4J_APP_VERSION = '2.4';
 
 router.get('/version', (req, res) => {
   res.send({ currentVersion: LATEST_D4J_APP_VERSION });
 });
 
 router.get('/style-week', currentD4JUser, async (req, res) => {
-  if (req.currentD4JUser?.email === 'andy@ckoakland.org') {
-    return res.send({ contestActive: true, styleMonthActive: true });
-  }
+  // if (req.currentD4JUser?.email === 'andy@ckoakland.org') {
+  //   return res.send({ contestActive: true, styleMonthActive: true });
+  // }
   const styleWeekEvent = await Event.findById(STYLE_WEEK_ID);
   res.send(styleWeekEvent);
 });

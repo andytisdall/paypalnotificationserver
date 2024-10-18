@@ -19,7 +19,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   const userInfo = {
     username: 'test',
     password: 'password',
-    salesforceId: '0037400000FU7XrAAL',
+    salesforceId: '003UP00000EqGQPYA3',
     admin,
   };
   const newUser = new User(userInfo);
@@ -32,7 +32,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
   const Restaurant = mongoose.model('Restaurant');
   const newRestaurant = new Restaurant({
     name: 'Vesuvio',
-    salesforceId: '0017400000IG2R9AAL',
+    salesforceId: '0018Z00002lLOweQAG',
     user: newUser.id,
   });
   await newRestaurant.save();

@@ -90,7 +90,9 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
     return {
       id: js.Id,
       startTime: js.GW_Volunteers__Start_Date_Time__c,
-      open: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
+      open:
+        js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === null ||
+        js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
       slots: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c,
       job: jobId,
       restaurantMeals: js.Restaurant_Meals__c,

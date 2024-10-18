@@ -1,6 +1,7 @@
 import fetcher from '../../fetcher';
 import urls from '../../urls';
 import { InsertSuccessResponse } from './reusableTypes';
+import { STYLE_WEEK_ID } from '../../../d4j/routes/config';
 
 export interface CampaignMemberObject {
   CampaignId: string;

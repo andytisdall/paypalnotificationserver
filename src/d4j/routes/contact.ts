@@ -108,7 +108,6 @@ router.post('/contact', async (req, res) => {
     uppercase: false,
   });
 
-  user.unconfirmed = true;
   user.secretCode = code;
   await user.save();
 
