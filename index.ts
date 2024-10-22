@@ -42,8 +42,7 @@ import homeChefRouter from './src/homeChef/routes';
 import docusignRouter from './src/docusign/routes/signDocuments';
 
 // auth
-import authRouter from './src/auth/routes/auth';
-import userRouter from './src/auth/routes/user';
+import authRouter from './src/auth/routes';
 
 //events
 import volunteersRouter from './src/volunteers/routes';
@@ -73,7 +72,6 @@ const apiRouter = express.Router({ mergeParams: true });
 
 apiRouter.use(authRouter);
 apiRouter.use('/paypal', paypalRouter);
-apiRouter.use('/user', userRouter);
 apiRouter.use('/text', textRouter);
 apiRouter.use('/meal-program', mealProgramRouter);
 apiRouter.use('/files', fileRouter);

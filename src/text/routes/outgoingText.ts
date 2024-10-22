@@ -46,12 +46,19 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     storedText,
   }: {
     message: string;
-    region: Region;
+    region: Region | 'both';
     feedbackId?: string;
     number?: string;
     photo?: string;
     storedText?: string;
   } = req.body;
+
+  const { MESSAGING_SERVICE_SID } = await getSecrets(['MESSAGING_SERVICE_SID']);
+
+  if (!MESSAGING_SERVICE_SID) {
+    throw Error('Could not find messaging service ID');
+  }
+
   if (!message) {
     res.status(422);
     throw new Error('No message to send');
@@ -67,10 +74,12 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   }
 
   let formattedNumbers: string[] = [];
-  const responsePhoneNumber = REGIONS[region] || REGIONS.WEST_OAKLAND;
+  const responsePhoneNumber =
+    region === 'both' || number ? REGIONS.WEST_OAKLAND : REGIONS[region];
 
   if (region && !number) {
-    const allPhoneNumbers = await Phone.find({ region });
+    const allPhoneNumbers =
+      region === 'both' ? await Phone.find() : await Phone.find({ region });
     formattedNumbers = allPhoneNumbers.map((p) => p.number);
   } else if (number) {
     const phoneNumber = number.replace(/[^\d]/g, '');
@@ -84,12 +93,6 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
 
   if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     formattedNumbers = ['+14158190251'];
-  }
-
-  const { MESSAGING_SERVICE_SID } = await getSecrets(['MESSAGING_SERVICE_SID']);
-
-  if (!MESSAGING_SERVICE_SID) {
-    throw Error('Could not find messaging service ID');
   }
 
   const outgoingText: OutgoingText = {
@@ -118,22 +121,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   };
 
   const textPromises = formattedNumbers.map(createOutgoingText);
-  const sentMessages = await Promise.all(textPromises);
-
-  try {
-    const errorNumbers = sentMessages
-      .filter((msg) => msg.status === 'undelivered')
-      .map((msg) => msg.to);
-
-    const errorPromises = errorNumbers.map((num) => {
-      console.log('deleting number: ' + num);
-      removeTextSubscriber(num);
-    });
-
-    await Promise.all(errorPromises);
-  } catch (err) {
-    console.log('automatic deletion of errored numbers failed');
-  }
+  await Promise.all(textPromises);
 
   if (feedbackId) {
     const feedback = await Feedback.findById(feedbackId);

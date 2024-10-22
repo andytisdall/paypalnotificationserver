@@ -10,7 +10,7 @@ export default (shift: { date: string; name?: string; event: string }) => {
       <li>Event: ${shift.event}</li>
         <li>Date: ${format(
           utcToZonedTime(shift.date, 'America/Los_Angeles'),
-          'eeee M/d/YY'
+          'eeee M/d/yy'
         )}</li>
       </ul>
       <p>To sign up for a different time, <a href="https://portal.ckoakland.org">please sign into your portal</a>. Thank you for your commitment to providing all Oaklanders meals made with love and dignity.<p>

@@ -14,7 +14,7 @@ const baseUrls = {
   cocktailsCampaignId: '7018Z000003KptzQAC',
   corporateVolunteersCampaignId: '701UP000005bM5AYAU',
   townFridgeCampaignId: '7018Z000003C3Mx',
-  ckKitchenCampaignId: '7018Z000002jtq0',
+  ckKitchenCampaignId: '7018Z000002jtq0QAA',
 };
 
 const prodUrls = {
