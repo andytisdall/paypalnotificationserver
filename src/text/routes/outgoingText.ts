@@ -9,7 +9,6 @@ import { requireAuth } from '../../middlewares/require-auth';
 import urls from '../../utils/urls';
 import { storeFile } from '../../files/google/storeFileGoogle';
 import getSecrets from '../../utils/getSecrets';
-import { removeTextSubscriber } from '../../utils/salesforce/SFQuery/text';
 
 const Phone = mongoose.model('Phone');
 const Feedback = mongoose.model('Feedback');
@@ -79,7 +78,13 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
 
   if (region && !number) {
     const allPhoneNumbers =
-      region === 'both' ? await Phone.find() : await Phone.find({ region });
+      region === 'both'
+        ? await Phone.find({
+            region: {
+              $in: ['EAST_OAKLAND', 'WEST_OAKLAND'],
+            },
+          })
+        : await Phone.find({ region });
     formattedNumbers = allPhoneNumbers.map((p) => p.number);
   } else if (number) {
     const phoneNumber = number.replace(/[^\d]/g, '');
