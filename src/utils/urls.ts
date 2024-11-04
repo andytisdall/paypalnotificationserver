@@ -15,6 +15,7 @@ const baseUrls = {
   corporateVolunteersCampaignId: '701UP000005bM5AYAU',
   townFridgeCampaignId: '7018Z000003C3Mx',
   ckKitchenCampaignId: '7018Z000002jtq0QAA',
+  cookieDate: '2024-12-14',
 };
 
 const prodUrls = {
@@ -24,6 +25,8 @@ const prodUrls = {
   docusign: 'https://na4.docusign.net/restapi',
   client: 'https://portal.ckoakland.org',
   server: 'https://portal.ckoakland.org',
+  cookieShiftId: 'a0yUP000002pdHjYAI',
+  cookieJobId: 'a0wUP000001DM3lYAG',
 };
 
 const testUrls = {
@@ -36,6 +39,8 @@ const testUrls = {
   client: 'http://localhost:3000',
   server: 'http://localhost:3001',
   appleReviewerId: '64e69853db4b5043abcd55b6',
+  cookieShiftId: 'a0yU8000000VKNRIA4',
+  cookieJobId: 'a0wU8000002AsM9IAK',
 };
 
 export default process.env.NODE_ENV === 'production' ? prodUrls : testUrls;

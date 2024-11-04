@@ -209,6 +209,7 @@ export interface CBOReportParams {
   extraItemAmount?: number;
   tortillaChips?: number;
   granolaBars?: number;
+  cboId: string;
 }
 
 export interface CBOReportObject {
@@ -320,6 +321,7 @@ export interface CBOReportObject {
   Extra_Item__c?: string;
   Granola_Bars_Distributed__c?: number;
   Tortilla_Chip_Bags_Distributed__c?: number;
+  CBO__c: string;
 }
 
 router.post('/cbo-report', async (req, res) => {

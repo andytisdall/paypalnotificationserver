@@ -9,6 +9,7 @@ interface CreateHoursParams {
   date: string;
   soup?: boolean;
   mealCount?: number;
+  numberOfVolunteers?: number;
 }
 
 export interface FormattedHours {
@@ -31,6 +32,7 @@ interface UnformattedHours {
   Type_of_Meal__c?: string;
   GW_Volunteers__Contact__c?: string;
   GW_Volunteers__Start_Date__c?: string;
+  GW_Volunteers__Number_of_Volunteers__c?: number;
 }
 
 export interface HoursQueryResponse {
@@ -48,6 +50,7 @@ export const createHours = async ({
   date,
   soup,
   mealCount,
+  numberOfVolunteers,
 }: CreateHoursParams): Promise<FormattedHours> => {
   await fetcher.setService('salesforce');
   const { data } = await fetcher.get(
@@ -72,6 +75,10 @@ export const createHours = async ({
     const mealType = soup ? 'Soup' : 'Entree';
     hoursToAdd.Type_of_Meal__c = mealType;
     hoursToAdd.Number_of_Meals__c = mealCount;
+  }
+
+  if (numberOfVolunteers) {
+    hoursToAdd.GW_Volunteers__Number_of_Volunteers__c = numberOfVolunteers;
   }
 
   const hoursInsertUri =

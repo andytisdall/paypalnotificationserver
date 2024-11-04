@@ -49,8 +49,8 @@ router.patch('/restaurants', currentD4JUser, async (req, res) => {
 });
 
 router.get('/restaurants/style-week', async (req, res) => {
-  const bars = await getStyleWeekBars();
-  res.send(bars);
+  // const bars = await getStyleWeekBars();
+  res.send([]);
 });
 
 export default router;

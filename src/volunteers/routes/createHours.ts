@@ -6,10 +6,7 @@ import {
   addContact,
   getContact,
 } from '../../utils/salesforce/SFQuery/contact';
-
-const SHIFT_ID = 'a0yU8000000VKNRIA4';
-const JOB_ID = 'a0wU8000002AsM9IAK';
-const DATE = '2024-12-14';
+import urls from '../../utils/urls';
 
 const router = express.Router();
 
@@ -43,11 +40,13 @@ router.post('/hours/cookies', async (req, res) => {
     firstName,
     lastName,
     phone,
+    numberOfVolunteers,
   }: {
     email: string;
     firstName: string;
     lastName: string;
     phone?: string;
+    numberOfVolunteers: number;
   } = req.body;
 
   let contact = await getContactByEmail(email);
@@ -71,9 +70,9 @@ router.post('/hours/cookies', async (req, res) => {
 
   await createHours({
     contactId: contact.id!,
-    shiftId: SHIFT_ID,
-    jobId: JOB_ID,
-    date: DATE,
+    shiftId: urls.cookieShiftId,
+    jobId: urls.cookieJobId,
+    date: urls.cookieDate,
   });
 
   res.sendStatus(204);

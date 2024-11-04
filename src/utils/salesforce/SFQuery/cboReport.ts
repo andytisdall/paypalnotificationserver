@@ -33,6 +33,7 @@ const convertCBODataFromSalesforce = (
     month: report.Month__c,
     year: format(new Date(report.Date__c), 'yyyy'),
     name: report.Name,
+    cboId: report.CBO__c,
     CBOName: report.CBO_Name__c,
     performanceMeasures: {
       percentWOAccess: report.Percent_without__c,
@@ -140,6 +141,7 @@ const convertCBODataFromSalesforce = (
     waters: report.Water_Bottles_Distributed__c,
     juices: report.Juice_Boxes_Distributed__c,
     socks: report.Pairs_of_Socks_Distributed__c,
+
     extraItem: report.Extra_Item__c,
     extraItemAmount: report.Amount_of_Extra_Item__c,
   };
