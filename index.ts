@@ -49,6 +49,8 @@ import volunteersRouter from './src/volunteers/routes';
 
 import d4jRouter from './src/d4j/routes';
 
+import acrobatRouter from './src/acrobat/routes';
+
 import { errorHandler } from './src/middlewares/error-handler';
 
 const PORT = process.env.PORT || 3001;
@@ -79,6 +81,7 @@ apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
 apiRouter.use('/volunteers', volunteersRouter);
 apiRouter.use('/d4j', d4jRouter);
+apiRouter.use('/acrobat', acrobatRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get('/*', (req, res) => {

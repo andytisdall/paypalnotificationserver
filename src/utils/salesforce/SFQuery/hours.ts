@@ -20,6 +20,7 @@ export interface FormattedHours {
   status: string;
   shift: string;
   campaign?: string;
+  mealType?: 'Entree' | 'Soup';
 }
 
 interface UnformattedHours {
@@ -29,7 +30,7 @@ interface UnformattedHours {
   Id?: string;
   Number_of_Meals__c?: number;
   GW_Volunteers__Shift_Start_Date_Time__c?: string;
-  Type_of_Meal__c?: string;
+  Type_of_Meal__c?: 'Soup' | 'Entree';
   GW_Volunteers__Contact__c?: string;
   GW_Volunteers__Start_Date__c?: string;
   GW_Volunteers__Number_of_Volunteers__c?: number;
@@ -110,7 +111,7 @@ export const createHours = async ({
 };
 
 export const getHours = async (campaignId: string, contactId: string) => {
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${campaignId}' AND GW_Volunteers__Contact__c = '${contactId}'`;
+  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c, Type_of_Meal__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${campaignId}' AND GW_Volunteers__Contact__c = '${contactId}'`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -131,6 +132,7 @@ export const getHours = async (campaignId: string, contactId: string) => {
       status: h.GW_Volunteers__Status__c,
       shift: h.GW_Volunteers__Volunteer_Shift__c,
       campaign: campaignId,
+      mealType: h.Type_of_Meal__c,
     };
   });
   return hours;

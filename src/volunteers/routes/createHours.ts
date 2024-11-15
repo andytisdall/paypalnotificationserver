@@ -73,6 +73,7 @@ router.post('/hours/cookies', async (req, res) => {
     shiftId: urls.cookieShiftId,
     jobId: urls.cookieJobId,
     date: urls.cookieDate,
+    numberOfVolunteers,
   });
 
   res.sendStatus(204);

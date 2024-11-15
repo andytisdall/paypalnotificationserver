@@ -17,7 +17,7 @@ export const STYLE_WEEK_ID = '67044fab8f93ddc0f28e0bce';
 
 const router = express.Router();
 
-const LATEST_D4J_APP_VERSION = '2.4';
+const LATEST_D4J_APP_VERSION = '2.5';
 
 router.get('/version', (req, res) => {
   res.send({ currentVersion: LATEST_D4J_APP_VERSION });

@@ -3,8 +3,9 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import urls from './urls';
 import getDSJWT from '../docusign/getDSJWT';
 import getSFToken from './salesforce/getSFToken';
+import getAcrobatToken from './acrobat/getToken';
 
-export type Service = 'salesforce' | 'docusign';
+export type Service = 'salesforce' | 'docusign' | 'acrobat';
 
 class fetcher {
   instance: AxiosInstance;
@@ -16,6 +17,7 @@ class fetcher {
     this.token = {
       salesforce: undefined,
       docusign: undefined,
+      acrobat: undefined,
     };
   }
 
@@ -51,6 +53,9 @@ class fetcher {
     }
     if (this.service === 'docusign') {
       token = await getDSJWT();
+    }
+    if (this.service === 'acrobat') {
+      token = await getAcrobatToken();
     }
     if (!token) {
       throw Error('Could not get token');

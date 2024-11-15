@@ -36,6 +36,7 @@
     "path": "^0.12.7",
     "sharp": "^0.32.4",
     "supertest": "^6.3.3",
+    "swagger-js-client": "^1.0.0",
     "twilio": "^5.0.4",
     "typescript": "^5.2.2"
   },

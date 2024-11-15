@@ -4,11 +4,14 @@ import fetcher from '../../fetcher';
 import urls from '../../urls';
 import { getAccountById } from './account';
 import { UnformattedRestaurant } from './account';
+import { MealSurveyArgs } from '../../../mealProgram/routes/survey';
 
 export interface NewMobileOasisDelivery {
   numberOfMealsMeat: number;
   numberOfMealsVeg: number;
 }
+
+interface MealSurveyData {}
 
 interface UnformattedMealDelivery {
   Date__c: string;
@@ -149,4 +152,17 @@ export const createScheduledDelivery = async (
   };
 
   await fetcher.post(insertUri, newDelivery);
+};
+
+export const submitMealSurveyData = async (data: MealSurveyArgs) => {
+  await fetcher.setService('salesforce');
+
+  const surveyData: MealSurveyData = data;
+
+  const insertUri = urls.SFOperationPrefix + '/Meal_Survey_Data__c';
+  const response = await fetcher.post(insertUri, surveyData);
+
+  if (!response.data.success) {
+    throw new Error('Could not save the survey results');
+  }
 };
