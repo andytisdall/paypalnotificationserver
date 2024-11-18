@@ -9,6 +9,17 @@ import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
 
 const router = express.Router();
 
+const BARLTETT_ID = 'a0w8Z00000YU0nHQAT';
+
+router.get('/fridges', currentUser, requireAuth, async (req, res) => {
+  // this router gets the fridges for text app purposes
+  // fridges without a region are excluded
+  await fetcher.setService('salesforce');
+
+  const jobs = await getJobs(urls.townFridgeCampaignId);
+  res.send(jobs.filter((j) => j.id !== BARLTETT_ID));
+});
+
 router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
   await fetcher.setService('salesforce');
 

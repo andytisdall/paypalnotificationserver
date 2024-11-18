@@ -29,6 +29,8 @@ export interface Job {
   GW_Volunteers__Ongoing__c: boolean;
   GW_Volunteers__Description__c: string;
   GW_Volunteers__Location_Street__c: string;
+  Region__c: 'East Oakland' | 'West Oakland';
+  Fridge_Notes__c?: string;
 }
 
 export interface FormattedJob {
@@ -40,10 +42,12 @@ export interface FormattedJob {
   ongoing: boolean;
   description: string;
   campaign: string;
+  region: 'East Oakland' | 'West Oakland';
+  notes?: string;
 }
 
 export const getJobs = async (id: string): Promise<FormattedJob[]> => {
-  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
+  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c,Fridge_Notes__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${id}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -69,6 +73,8 @@ export const getJobs = async (id: string): Promise<FormattedJob[]> => {
         )
       ),
       campaign: id,
+      region: j.Region__c,
+      notes: j.Fridge_Notes__c,
     };
   });
 };
