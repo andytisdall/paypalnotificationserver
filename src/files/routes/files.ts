@@ -11,6 +11,7 @@ import {
   getAccountForFileUpload,
 } from '../salesforce/getModel';
 import { bucket } from '../google/bucket';
+import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 
 const router = express.Router();
 
@@ -40,15 +41,12 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
 
   // make api call to salesforce
 
-  const account: Account | undefined = await getAccountForFileUpload(
-    accountType,
-    req.currentUser!
-  );
-  if (!account) {
-    throw Error('Could not get account');
+  const contact = await getContactById(req.currentUser?.salesforceId!);
+  if (!contact) {
+    throw Error('Could not get contact');
   }
 
-  const filesAdded = await uploadFiles(account, fileList, expiration);
+  const filesAdded = await uploadFiles(contact, fileList);
 
   res.send(filesAdded);
 });

@@ -49,7 +49,7 @@ import volunteersRouter from './src/volunteers/routes';
 
 import d4jRouter from './src/d4j/routes';
 
-import acrobatRouter from './src/acrobat/routes';
+import signRouter from './src/sign/routes';
 
 import { errorHandler } from './src/middlewares/error-handler';
 
@@ -81,7 +81,7 @@ apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
 apiRouter.use('/volunteers', volunteersRouter);
 apiRouter.use('/d4j', d4jRouter);
-apiRouter.use('/acrobat', acrobatRouter);
+apiRouter.use('/sign', signRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get('/*', (req, res) => {

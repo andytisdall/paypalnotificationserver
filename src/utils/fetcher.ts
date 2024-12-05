@@ -116,6 +116,24 @@ class fetcher {
     }
   }
 
+  async put(
+    url: string,
+    body: Record<string, any> | FormData,
+    options?: AxiosRequestConfig
+  ) {
+    if (!this.service) {
+      throw Error('Base url has not been set');
+    }
+    const put = async () => {
+      return await this.instance.put(url, body, options);
+    };
+    try {
+      return await put();
+    } catch (err) {
+      return await this.retryCall(put);
+    }
+  }
+
   async delete(url: string, options?: AxiosRequestConfig) {
     if (!this.service) {
       throw Error('Base url has not been set');

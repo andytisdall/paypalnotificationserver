@@ -32,7 +32,7 @@ const accountConfig: Record<string, AccountInfo> = {
   },
   HC: {
     filename: 'home-chef-agreement',
-    url: '/home-chef/onboarding/docusign/success',
+    url: '/home-chef/onboarding/sign/success',
   },
   W9: {
     filename: 'W9',
@@ -44,7 +44,7 @@ const accountConfig: Record<string, AccountInfo> = {
   },
   CKK: {
     filename: 'ck-kitchen-agreement',
-    url: '/volunteers/docusign/success',
+    url: '/volunteers/sign/success',
   },
 };
 
@@ -131,10 +131,10 @@ router.post('/getDoc', currentUser, async (req, res) => {
     },
   };
 
-  const filesAdded = await uploadFiles(account, [file]);
+  // const filesAdded = await uploadFiles(account, [file]);
 
   res.status(201);
-  res.send(filesAdded);
+  res.send({});
 });
 
 export default router;

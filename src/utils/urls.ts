@@ -16,7 +16,8 @@ const baseUrls = {
   townFridgeCampaignId: '7018Z000003C3Mx',
   ckKitchenCampaignId: '7018Z000002jtq0QAA',
   cookieDate: '2024-12-14',
-  acrobat: '',
+  acrobat: 'https://api.na3.adobesign.com/api/rest/v6',
+  docMadeEasy: 'https://api.docmadeeasy.com/rest',
 };
 
 const prodUrls = {

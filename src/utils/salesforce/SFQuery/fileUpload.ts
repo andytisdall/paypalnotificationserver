@@ -9,6 +9,7 @@ import {
   FileWithType,
   FileMetaData,
 } from '../../../files/salesforce/metadata';
+import { UnformattedContact } from './contact';
 
 export type AccountData = {
   Health_Department_Expiration_Date__c?: string;
@@ -23,20 +24,21 @@ export type AccountData = {
   Id?: string;
 };
 
-export const formatFilename = (file: FileMetaData, account: Account) => {
+export const formatFilename = (file: FileMetaData, lastName: string) => {
   const format = (string: string) => string.replace(/ /g, '_').toUpperCase();
-  const accountName =
-    account.type === 'contact' ? account.lastName : account.name;
-  return format(file.title) + '_' + format(accountName);
+  return format(file.title) + '_' + format(lastName);
 };
 
-export const insertFile = async (account: Account, file: FileWithType) => {
+export const insertFile = async (
+  contact: UnformattedContact,
+  file: FileWithType
+) => {
   const typeOfFile = fileInfo[file.docType];
-  const title = formatFilename(typeOfFile, account);
+  const title = formatFilename(typeOfFile, contact.LastName!);
   await uploadFileToSalesforce(
     { title, description: typeOfFile.description, folder: typeOfFile.folder },
     file.file,
-    account.salesforceId
+    contact.Id!
   );
 };
 

@@ -8,14 +8,16 @@ export default async (
   contact: AccountData,
   homeChefQuizPass?: boolean
 ) => {
+  await fetcher.setService('salesforce');
+
   const patchData: Partial<AccountData> = {};
   if (fileTitles.includes(fileInfo.FH.title)) {
     patchData.Home_Chef_Food_Handler_Certification__c = true;
   }
-  if (fileTitles.includes(fileInfo.HC.title)) {
+  if (fileTitles.includes('HC') || fileTitles.includes(fileInfo.HC.title)) {
     patchData.Home_Chef_Volunteeer_Agreement__c = true;
   }
-  if (fileTitles.includes(fileInfo.CKK.title)) {
+  if (fileTitles.includes('CKK') || fileTitles.includes(fileInfo.CKK.title)) {
     patchData.CK_Kitchen_Agreement__c = true;
     patchData.CK_Kitchen_Volunteer_Status__c = 'Active';
   }

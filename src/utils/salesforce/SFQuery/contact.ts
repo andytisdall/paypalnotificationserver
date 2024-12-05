@@ -30,6 +30,7 @@ export interface UnformattedContact {
   Able_to_Commit__c?: boolean;
   Able_to_cook_and_transport_other__c?: string;
   Home_Chef_Quiz_Passed__c?: boolean;
+  CK_Kitchen_Agreement__c?: boolean;
 }
 
 // export interface IncomingContactInfo {
@@ -226,6 +227,42 @@ export const getContactByEmail = async (
     return null;
   }
   const contact = contactQueryResponse.data?.records[0];
+  return {
+    id: contact.Id,
+    householdId: contact.npsp__HHId__c,
+    portalUsername: contact.Portal_Username__c,
+    firstName: contact.FirstName,
+    name: contact.Name,
+    lastName: contact.LastName,
+    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+  };
+};
+
+export const getUnformattedContactByEmail = async (
+  email: string
+): Promise<UnformattedContact | undefined> => {
+  await fetcher.setService('salesforce');
+
+  const query = `SELECT Id from Contact WHERE Email = '${email}'`;
+  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const contactQueryResponse: {
+    data: { records: UnformattedContact[] } | undefined;
+  } = await fetcher.get(contactQueryUri);
+  if (!contactQueryResponse.data?.records[0]) {
+    return undefined;
+  }
+  const contact = contactQueryResponse.data?.records[0];
+
+  if (contact.Id) {
+    const unformattedContact = await getContactById(contact.Id);
+    return unformattedContact;
+  }
+};
+
+export const formatContact = (
+  contact: UnformattedContact
+): FormattedContact => {
   return {
     id: contact.Id,
     householdId: contact.npsp__HHId__c,
