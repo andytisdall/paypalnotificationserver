@@ -10,7 +10,7 @@ import {
   restaurantFileInfo,
   RestaurantDocType,
 } from '../../files/salesforce/metadata';
-import { getAccountById } from '../../utils/salesforce/SFQuery/account';
+import { getAccountById } from '../../utils/salesforce/SFQuery/account/account';
 
 const User = mongoose.model('User');
 const Restaurant = mongoose.model('Restaurant');

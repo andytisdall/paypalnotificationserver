@@ -1,6 +1,6 @@
-import fetcher from '../../fetcher';
-import urls from '../../urls';
-import { InsertSuccessResponse } from './reusableTypes';
+import fetcher from '../../../fetcher';
+import urls from '../../../urls';
+import { InsertSuccessResponse } from './../reusableTypes';
 
 interface CreateHoursParams {
   contactId: string;
@@ -23,7 +23,7 @@ export interface FormattedHours {
   mealType?: 'Entree' | 'Soup';
 }
 
-interface UnformattedHours {
+export interface UnformattedHours {
   GW_Volunteers__Volunteer_Job__c: string;
   GW_Volunteers__Volunteer_Shift__c: string;
   GW_Volunteers__Status__c: string;

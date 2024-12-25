@@ -5,7 +5,7 @@ import {
   getContactByEmail,
   addContact,
 } from '../../utils/salesforce/SFQuery/contact';
-import { insertCampaignMember } from '../../utils/salesforce/SFQuery/campaign';
+import { insertCampaignMember } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember';
 
 const router = express.Router();
 

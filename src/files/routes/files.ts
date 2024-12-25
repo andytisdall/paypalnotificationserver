@@ -5,13 +5,10 @@ import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 import { uploadFiles } from '../salesforce/uploadToSalesforce';
 import { DocType, FileWithType } from '../salesforce/metadata';
-import {
-  AccountType,
-  Account,
-  getAccountForFileUpload,
-} from '../salesforce/getModel';
+import { AccountType } from '../salesforce/getModel';
 import { bucket } from '../google/bucket';
 import { getContactById } from '../../utils/salesforce/SFQuery/contact';
+import homeChefUpdate from '../salesforce/homeChefUpdate';
 
 const router = express.Router();
 
@@ -26,11 +23,6 @@ router.get('/images/:fileName', async (req, res) => {
 });
 
 router.post('/', currentUser, requireAuth, async (req, res) => {
-  const {
-    accountType,
-    expiration,
-  }: { accountId: string; accountType: AccountType; expiration?: string } =
-    req.body;
   const fileList: FileWithType[] = [];
   for (let entry in req.files) {
     if (!Array.isArray(req.files[entry])) {
@@ -46,7 +38,10 @@ router.post('/', currentUser, requireAuth, async (req, res) => {
     throw Error('Could not get contact');
   }
 
+  const docs = fileList.map((f) => f.docType);
+
   const filesAdded = await uploadFiles(contact, fileList);
+  await homeChefUpdate(docs, contact);
 
   res.send(filesAdded);
 });

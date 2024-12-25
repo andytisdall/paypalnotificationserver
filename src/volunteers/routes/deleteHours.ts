@@ -5,8 +5,8 @@ import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import {
   getHours,
   deleteVolunteerHours,
-} from '../../utils/salesforce/SFQuery/hours';
-import { getCampaignFromHours } from '../../utils/salesforce/SFQuery/campaign';
+} from '../../utils/salesforce/SFQuery/volunteer/hours';
+import { getCampaignFromHours } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
 import urls from '../../utils/urls';
 import {
   sendKitchenShiftCancelEmail,

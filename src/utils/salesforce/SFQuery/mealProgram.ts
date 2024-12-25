@@ -2,8 +2,8 @@ import { format, utcToZonedTime } from 'date-fns-tz';
 
 import fetcher from '../../fetcher';
 import urls from '../../urls';
-import { getAccountById } from './account';
-import { UnformattedRestaurant } from './account';
+import { getAccountById } from './account/account';
+import { UnformattedRestaurant } from './account/types';
 import { MealSurveyArgs } from '../../../mealProgram/routes/survey';
 
 export interface NewMobileOasisDelivery {
@@ -157,7 +157,7 @@ export const createScheduledDelivery = async (
     Restaurant__c: urls.ckKitchenAccountId,
     TextTime__c: format(
       utcToZonedTime(new Date(), 'America/Los_Angeles'),
-      'hh:mm:ss.SSS'
+      'HH:mm:ss.SSS'
     ),
     Delivery_Method__c: 'CK Pickup',
     Number_of_Meals_Meat__c: delivery.numberOfMealsMeat,

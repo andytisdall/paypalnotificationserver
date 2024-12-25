@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getMealProgramData } from '../../utils/salesforce/SFQuery/campaign';
+import { getMealProgramData } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
 
 const router = express.Router();
 

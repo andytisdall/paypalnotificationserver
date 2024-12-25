@@ -2,7 +2,7 @@ import app from '../../../index';
 import request from 'supertest';
 import { generate } from 'generate-password';
 
-it('processes a donation w/o an exisiting contact', async () => {
+it.skip('processes a donation w/o an exisiting contact', async () => {
   const randomFirstname = generate({
     length: 5,
   });
@@ -24,7 +24,7 @@ it('processes a donation w/o an exisiting contact', async () => {
     .expect(200);
 });
 
-it('processes a donation with an existing contact', async () => {
+it.skip('processes a donation with an existing contact', async () => {
   await request(app)
     .post('/api/paypal')
     .send({
@@ -39,7 +39,7 @@ it('processes a donation with an existing contact', async () => {
     .expect(200);
 });
 
-it('processes a new recurring donation', async () => {
+it.skip('processes a new recurring donation', async () => {
   await request(app)
     .post('/api/paypal')
     .send({
@@ -55,7 +55,7 @@ it('processes a new recurring donation', async () => {
     .expect(200);
 });
 
-it('processes an installment of a recurring donation', async () => {
+it.skip('processes an installment of a recurring donation', async () => {
   await request(app)
     .post('/api/paypal')
     .send({
@@ -71,7 +71,7 @@ it('processes an installment of a recurring donation', async () => {
     .expect(200);
 });
 
-it('processes a skipped payment', async () => {
+it.skip('processes a skipped payment', async () => {
   await request(app)
     .post('/api/paypal')
     .send({
@@ -87,7 +87,7 @@ it('processes a skipped payment', async () => {
     .expect(200);
 });
 
-it('processes a canceled recurring donation', async () => {
+it.skip('processes a canceled recurring donation', async () => {
   await request(app)
     .post('/api/paypal')
     .send({

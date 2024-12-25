@@ -217,7 +217,7 @@ export const getContactByEmail = async (
 ): Promise<FormattedContact | null> => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Name, FirstName, LastName, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Volunteer_Status__c from Contact WHERE Email = '${email}'`;
+  const query = `SELECT Name, FirstName, LastName, Email, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Volunteer_Status__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse: {
@@ -235,6 +235,7 @@ export const getContactByEmail = async (
     name: contact.Name,
     lastName: contact.LastName,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+    email: contact.Email,
   };
 };
 

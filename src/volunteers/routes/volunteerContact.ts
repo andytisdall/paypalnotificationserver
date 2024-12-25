@@ -30,7 +30,8 @@ router.post('/', async (req, res) => {
 router.get('/:email', async (req, res) => {
   const { email } = req.params;
   const contact = await getContactByEmail(email);
-  return res.send(contact);
+
+  return res.send({ ...contact, email });
 });
 
 export default router;

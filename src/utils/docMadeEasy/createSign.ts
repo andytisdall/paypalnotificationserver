@@ -16,8 +16,6 @@ const createSign = async ({
 }): Promise<string> => {
   const { DOCMADEEASY_KEY } = await getSecrets(['DOCMADEEASY_KEY']);
 
-  // docmadeeasy.auth(DOCMADEEASY_KEY);
-
   const redirectUrl = urls.client + doc.url + '/' + contact.email;
 
   const templateId = doc.template;
@@ -32,14 +30,13 @@ const createSign = async ({
       },
     ],
     redirectUrl,
-    testMode: true,
+    testMode: process.env.NODE_ENV !== 'production',
     allowReassign: true,
     allowDecline: true,
-    deliverEmail: true,
     linkExpire: '30',
     message:
       'Hello {{recipient_name}},\n\n{{sender_name}} has sent you a new document to view and sign. Please click on the link to begin signing.',
-    subject: 'Please sign the document.',
+    subject: 'Please sign this document',
   };
 
   const requestUrl =
@@ -56,33 +53,6 @@ const createSign = async ({
   }
 
   return result.data.recipients[0].url;
-
-  // const redirectUrl =
-  //   urls.client +
-  //   doc.url +
-  //   '/' +
-  //   doc.type +
-  //   '/' +
-  //   contact.email +
-  //   '/' +
-  //   envelopeId;
-
-  // const linkUrl =
-  //   urls.docMadeEasy +
-  //   '/envelope/link/' +
-  //   envelopeId +
-  //   '?akey=' +
-  //   DOCMADEEASY_KEY;
-
-  // const linkRequestBody = { linkExpire: '30' };
-
-  // const { data } = await axios.post(linkUrl, linkRequestBody);
-
-  // if (!data.recipients) {
-  //   throw Error('Could not get signing URL');
-  // }
-
-  // return data.recipients[0].url;
 };
 
 export default createSign;

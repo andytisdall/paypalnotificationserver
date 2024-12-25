@@ -1,5 +1,4 @@
 import { AccountData } from '../../utils/salesforce/SFQuery/fileUpload';
-import { fileInfo } from './metadata';
 import fetcher from '../../utils/fetcher';
 import urls from '../../utils/urls';
 
@@ -11,13 +10,13 @@ export default async (
   await fetcher.setService('salesforce');
 
   const patchData: Partial<AccountData> = {};
-  if (fileTitles.includes(fileInfo.FH.title)) {
+  if (fileTitles.includes('FH')) {
     patchData.Home_Chef_Food_Handler_Certification__c = true;
   }
-  if (fileTitles.includes('HC') || fileTitles.includes(fileInfo.HC.title)) {
+  if (fileTitles.includes('HC')) {
     patchData.Home_Chef_Volunteeer_Agreement__c = true;
   }
-  if (fileTitles.includes('CKK') || fileTitles.includes(fileInfo.CKK.title)) {
+  if (fileTitles.includes('CKK')) {
     patchData.CK_Kitchen_Agreement__c = true;
     patchData.CK_Kitchen_Volunteer_Status__c = 'Active';
   }

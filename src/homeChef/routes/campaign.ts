@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { getHomeChefCampaign } from '../../utils/salesforce/SFQuery/campaign';
+import { getHomeChefCampaign } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
 

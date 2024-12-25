@@ -1,8 +1,8 @@
 import { decode } from 'html-entities';
 import moment from 'moment';
 
-import fetcher from '../../fetcher';
-import urls from '../../urls';
+import fetcher from '../../../fetcher';
+import urls from '../../../urls';
 
 export interface Shift {
   Id: string;
@@ -57,6 +57,7 @@ export const getJobs = async (id: string): Promise<FormattedJob[]> => {
   if (!res.data.records) {
     throw Error('failed querying volunteer Jobs');
   }
+
   return res.data.records.map((j: Job) => {
     // rename attributes to something sane
     return {

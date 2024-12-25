@@ -7,10 +7,8 @@ import {
   UnformattedContact,
   getContactByLastNameAndEmail,
 } from '../../utils/salesforce/SFQuery/contact';
-import {
-  insertCampaignMember,
-  CampaignMemberObject,
-} from '../../utils/salesforce/SFQuery/campaign';
+import { insertCampaignMember } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember';
+import { CampaignMemberObject } from '../../utils/salesforce/SFQuery/volunteer/campaign/types';
 import mongoose from 'mongoose';
 import urls from '../../utils/urls';
 

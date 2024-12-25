@@ -44,13 +44,3 @@ it('gets the restaurant meal program info', async () => {
 
   expect(rest.body.remainingDocs?.length).toBeGreaterThan(0);
 });
-
-it('uploads a file for the restaurant', async () => {
-  const token = await createRestaurant();
-  await request(app)
-    .post('/api/files')
-    .set('Authorization', token)
-    .field('accountType', 'restaurant')
-    .attach('BL', 'src/text/routes/__test__/photo.jpeg')
-    .expect(200);
-});

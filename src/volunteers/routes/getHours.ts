@@ -1,7 +1,7 @@
 import express from 'express';
 
 import fetcher from '../../utils/fetcher';
-import { getHours } from '../../utils/salesforce/SFQuery/hours';
+import { getHours } from '../../utils/salesforce/SFQuery/volunteer/hours';
 
 const router = express.Router();
 

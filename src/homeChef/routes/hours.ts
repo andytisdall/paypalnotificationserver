@@ -8,7 +8,7 @@ import {
   getHours,
   createHours,
   editHours,
-} from '../../utils/salesforce/SFQuery/hours';
+} from '../../utils/salesforce/SFQuery/volunteer/hours';
 import { getContactById } from '../../utils/salesforce/SFQuery/contact';
 import { sendShiftEditEmail } from '../../utils/email';
 

@@ -4,8 +4,11 @@ import fetcher from '../../utils/fetcher';
 import {
   getCampaign,
   getVolunteerCampaigns,
-} from '../../utils/salesforce/SFQuery/campaign';
-import { getJobs, getShifts } from '../../utils/salesforce/SFQuery/jobs';
+} from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
+import {
+  getJobs,
+  getShifts,
+} from '../../utils/salesforce/SFQuery/volunteer/jobs';
 import urls from '../../utils/urls';
 
 const router = express.Router();

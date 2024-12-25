@@ -38,9 +38,6 @@ import fileRouter from './src/files/routes/files';
 // home chef
 import homeChefRouter from './src/homeChef/routes';
 
-// shared
-import docusignRouter from './src/docusign/routes/signDocuments';
-
 // auth
 import authRouter from './src/auth/routes';
 
@@ -77,7 +74,6 @@ apiRouter.use('/paypal', paypalRouter);
 apiRouter.use('/text', textRouter);
 apiRouter.use('/meal-program', mealProgramRouter);
 apiRouter.use('/files', fileRouter);
-apiRouter.use('/docusign', docusignRouter);
 apiRouter.use('/home-chef', homeChefRouter);
 apiRouter.use('/volunteers', volunteersRouter);
 apiRouter.use('/d4j', d4jRouter);

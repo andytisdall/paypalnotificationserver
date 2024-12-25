@@ -1,11 +1,11 @@
 export type RestaurantDocType = 'BL' | 'HD' | 'RC' | 'W9' | 'DD' | 'IN';
 export type ContactDocType = 'HC' | 'FH';
-export type D4JDocType = 'D4J';
+// export type D4JDocType = 'D4J';
 export type CKKitchenDocType = 'CKK';
 export type DocType =
   | RestaurantDocType
   | ContactDocType
-  | D4JDocType
+  // | D4JDocType
   | CKKitchenDocType;
 
 export interface FileMetaData {
@@ -42,7 +42,7 @@ export const restaurantFileInfo: Record<RestaurantDocType, FileMetaData> = {
 };
 
 export const chefFileInfo: Record<ContactDocType, FileMetaData> = {
-  HC: { title: 'Vol Agreement', description: '', folder: 'home-chef' },
+  HC: { title: 'Home Chef Agreement', description: '', folder: 'home-chef' },
   FH: {
     title: 'Food Handler',
     description: '',
@@ -50,9 +50,9 @@ export const chefFileInfo: Record<ContactDocType, FileMetaData> = {
   },
 };
 
-export const d4jFileInfo: Record<D4JDocType, FileMetaData> = {
-  D4J: { title: 'D4J Receipt', description: '', folder: 'd4j' },
-};
+// export const d4jFileInfo: Record<D4JDocType, FileMetaData> = {
+//   D4J: { title: 'D4J Receipt', description: '', folder: 'd4j' },
+// };
 
 export const CKKitchenFileInfo: Record<CKKitchenDocType, FileMetaData> = {
   CKK: { title: 'CK Kitchen Agreement', description: '', folder: 'ck-kitchen' },
@@ -61,7 +61,7 @@ export const CKKitchenFileInfo: Record<CKKitchenDocType, FileMetaData> = {
 export const fileInfo: FileInfo = {
   ...restaurantFileInfo,
   ...chefFileInfo,
-  ...d4jFileInfo,
+  // ...d4jFileInfo,
   ...CKKitchenFileInfo,
 };
 

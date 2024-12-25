@@ -5,6 +5,8 @@ import {
   getUnformattedContactByEmail,
   getContactById,
   UnformattedContact,
+  getContactByEmail,
+  addContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import homeChefUpdate from '../../files/salesforce/homeChefUpdate';
 import createSign from '../../utils/docMadeEasy/createSign';
@@ -41,17 +43,47 @@ export interface DocInformation {
 const docInfo: Record<DocType, DocInformation> = {
   HC: {
     type: 'HC',
-    url: '/home-chef/onboarding/new-sign/success',
+    url: '/home-chef/onboarding/sign/success',
     template: 'C4mpEbExyMHD4S6z8WY4Wqsog1g79UZje',
     name: 'CK Home Chef Volunteer Agreement',
   },
   CKK: {
     type: 'CKK',
     url: '/volunteers/sign/success',
-    template: 'CBJCHBCAABAAdMTW4H-fNdp2U2FA3lL0eoPFkO6YXosL',
+    template: 'C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV',
     name: 'CK Kitchen Volunteer Agreement',
   },
 };
+
+router.post('/kitchen', async (req, res) => {
+  const {
+    firstName,
+    lastName,
+    email,
+  }: { firstName: string; lastName: string; email: string } = req.body;
+
+  let contact = await getContactByEmail(email);
+  if (!contact) {
+    contact = await addContact({
+      Email: email,
+      FirstName: firstName,
+      LastName: lastName,
+    });
+  }
+
+  if (contact.ckKitchenStatus === 'Active') {
+    throw Error('Document has already been signed.');
+  }
+
+  const doc = { ...docInfo.CKK, url: '/forms/kitchen-agreement/success' };
+
+  const signingUrl = await createSign({
+    contact: { name: contact.name!, email: contact.email! },
+    doc,
+  });
+
+  res.send({ signingUrl });
+});
 
 router.get('/:docType/:contactId?', currentUser, async (req, res) => {
   const { docType } = req.params as { docType: DocType };
@@ -66,7 +98,7 @@ router.get('/:docType/:contactId?', currentUser, async (req, res) => {
   if (req.currentUser) {
     contact = await getContactById(req.currentUser.salesforceId);
   } else if (contactId) {
-    const contact = await getContactById(contactId);
+    contact = await getContactById(contactId);
     if (!contact) {
       throw Error('Invalid Email Address');
     }

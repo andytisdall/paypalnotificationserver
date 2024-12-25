@@ -45,7 +45,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     storedText,
   }: {
     message: string;
-    region: Region | 'both';
+    region: Region | 'both' | 'East Oakland' | 'West Oakland';
     feedbackId?: string;
     number?: string;
     photo?: string;
@@ -72,11 +72,21 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     throw Error('You are not authorized to send text alerts');
   }
 
+  let formattedRegion = region;
+
+  if (formattedRegion === 'East Oakland') {
+    formattedRegion = 'EAST_OAKLAND';
+  } else if (formattedRegion === 'West Oakland') {
+    formattedRegion = 'WEST_OAKLAND';
+  }
+
   let formattedNumbers: string[] = [];
   const responsePhoneNumber =
-    region === 'both' || number ? REGIONS.WEST_OAKLAND : REGIONS[region];
+    formattedRegion === 'both' || number
+      ? REGIONS.WEST_OAKLAND
+      : REGIONS[formattedRegion];
 
-  if (region && !number) {
+  if (!number) {
     const allPhoneNumbers =
       region === 'both'
         ? await Phone.find({
@@ -84,9 +94,9 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
               $in: ['EAST_OAKLAND', 'WEST_OAKLAND'],
             },
           })
-        : await Phone.find({ region });
+        : await Phone.find({ region: formattedRegion });
     formattedNumbers = allPhoneNumbers.map((p) => p.number);
-  } else if (number) {
+  } else {
     const phoneNumber = number.replace(/[^\d]/g, '');
     if (phoneNumber.length !== 10) {
       res.status(422);
@@ -141,13 +151,17 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     }
   }
 
-  const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>({
-    sender: req.currentUser!.id,
-    region: number || region,
-    message,
-    image: mediaUrl,
-  });
-  await newOutgoingTextRecord.save();
+  if (process.env.NODE_ENV !== 'development') {
+    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
+      {
+        sender: req.currentUser!.id,
+        region: number || region,
+        message,
+        image: mediaUrl,
+      }
+    );
+    await newOutgoingTextRecord.save();
+  }
 
   res.send({ message, region, photoUrl: mediaUrl, number, storedText });
 });

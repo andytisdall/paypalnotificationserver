@@ -1,64 +1,18 @@
-import fetcher from '../../fetcher';
-import urls from '../../urls';
-import { InsertSuccessResponse } from './reusableTypes';
-import { STYLE_WEEK_ID } from '../../../d4j/routes/config';
-
-export interface CampaignMemberObject {
-  CampaignId: string;
-  ContactId: string;
-  Status: string;
-}
-
-export interface UnformattedVolunteerCampaign {
-  Name: string;
-  StartDate?: string;
-  EndDate?: string;
-  Description?: string;
-  Id: string;
-  Portal_Button_Text__c?: string;
-}
-
-export interface FormattedVolunteerCampaign {
-  name: string;
-  startDate?: string;
-  endDate?: string;
-  description?: string;
-  id: string;
-  buttonText?: string;
-}
-
-interface FormattedEventCampaign {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate?: string;
-  venue?: string;
-  description?: string;
-  address?: string;
-  city?: string;
-  url?: string;
-  photo?: string;
-}
-
-interface UnformattedEventCampaign {
-  Id: string;
-  Name: string;
-  stayclassy__Start_Date__c: string;
-  stayclassy__End_Date__c?: string;
-  stayclassy__venue_name__c?: string;
-  Description?: string;
-  stayclassy__address1__c?: string;
-  stayclassy__city__c?: string;
-  Event_URL__c?: string;
-  stayclassy__Event_Image_URL__c?: string;
-}
+import fetcher from '../../../../fetcher';
+import urls from '../../../../urls';
+import {
+  FormattedVolunteerCampaign,
+  UnformattedVolunteerCampaign,
+  FormattedEventCampaign,
+  UnformattedEventCampaign,
+} from './types';
 
 export const getVolunteerCampaigns: () => Promise<
   FormattedVolunteerCampaign[]
 > = async () => {
   await fetcher.setService('salesforce');
   const query =
-    'SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True';
+    'SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True AND StartDate > TODAY';
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
@@ -132,28 +86,6 @@ export const getHomeChefCampaign = async () => {
     throw Error('Could not get campaign info');
   }
   return data;
-};
-
-export const insertCampaignMember = async (
-  campaignMember: CampaignMemberObject
-) => {
-  await fetcher.setService('salesforce');
-  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${campaignMember.ContactId}' AND CampaignId = '${campaignMember.CampaignId}'`;
-  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
-  const existingCampaignMember: {
-    data: { records: { Id: string }[] } | undefined;
-  } = await fetcher.get(getUrl);
-  if (existingCampaignMember.data?.records[0]) {
-    return;
-  }
-  const url = urls.SFOperationPrefix + '/CampaignMember';
-  const res: { data: InsertSuccessResponse | undefined } = await fetcher.post(
-    url,
-    campaignMember
-  );
-  if (!res.data?.success) {
-    throw Error('Could not insert campaign member object');
-  }
 };
 
 export const getCampaignFromHours = async (id: string) => {

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { createHours } from '../../utils/salesforce/SFQuery/hours';
+import { createHours } from '../../utils/salesforce/SFQuery/volunteer/hours';
 import {
   getContactByEmail,
   addContact,
