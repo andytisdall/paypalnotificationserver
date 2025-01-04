@@ -1,5 +1,12 @@
 import express from 'express';
 
+import { currentUser } from '../../middlewares/current-user';
+import { requireAuth } from '../../middlewares/require-auth';
+import { requireAdmin } from '../../middlewares/require-admin';
+import {
+  checkInVolunteer,
+  getTodaysKitchenVolunteers,
+} from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 import {
   getContactByEmail,
   addContact,
@@ -33,5 +40,30 @@ router.get('/:email', async (req, res) => {
 
   return res.send({ ...contact, email });
 });
+
+router.get(
+  '/kitchen/contacts',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const contacts = await getTodaysKitchenVolunteers();
+    res.send(contacts);
+  }
+);
+
+router.post(
+  '/check-in',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { hoursId }: { hoursId: string } = req.body;
+
+    await checkInVolunteer(hoursId);
+
+    res.sendStatus(204);
+  }
+);
 
 export default router;

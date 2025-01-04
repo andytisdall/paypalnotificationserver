@@ -91,7 +91,7 @@ router.post('/signup', async (req, res) => {
     i++;
   }
 
-  const contactInfo: UnformattedContact = {
+  const contactInfo: Partial<UnformattedContact> = {
     FirstName: firstName,
     LastName: lastName,
     Email: email,

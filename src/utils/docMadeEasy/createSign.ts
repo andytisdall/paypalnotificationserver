@@ -10,13 +10,14 @@ const createSign = async ({
 }: {
   contact: {
     name: string;
+    id: string;
     email: string;
   };
   doc: DocInformation;
 }): Promise<string> => {
   const { DOCMADEEASY_KEY } = await getSecrets(['DOCMADEEASY_KEY']);
 
-  const redirectUrl = urls.client + doc.url + '/' + contact.email;
+  const redirectUrl = urls.client + doc.url + '/' + contact.id;
 
   const templateId = doc.template;
 

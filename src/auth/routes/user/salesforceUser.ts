@@ -20,7 +20,7 @@ router.get('/userInfo', currentUser, async (req, res) => {
     throw Error('User does not have a salesforce ID');
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
-  const contactInfo: FormattedContact = {
+  const contactInfo: Partial<FormattedContact> = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
     volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,

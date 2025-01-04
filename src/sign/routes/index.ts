@@ -49,7 +49,7 @@ const docInfo: Record<DocType, DocInformation> = {
   },
   CKK: {
     type: 'CKK',
-    url: '/volunteers/sign/success',
+    url: '/volunteer-check-in/sign/success',
     template: 'C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV',
     name: 'CK Kitchen Volunteer Agreement',
   },
@@ -71,14 +71,14 @@ router.post('/kitchen', async (req, res) => {
     });
   }
 
-  if (contact.ckKitchenStatus === 'Active') {
+  if (contact.volunteerAgreement) {
     throw Error('Document has already been signed.');
   }
 
   const doc = { ...docInfo.CKK, url: '/forms/kitchen-agreement/success' };
 
   const signingUrl = await createSign({
-    contact: { name: contact.name!, email: contact.email! },
+    contact: { name: contact.name, email, id: contact.id },
     doc,
   });
 
@@ -95,13 +95,13 @@ router.get('/:docType/:contactId?', currentUser, async (req, res) => {
     throw Error('Request must have a user or pass info into the URL');
   }
 
-  if (req.currentUser) {
-    contact = await getContactById(req.currentUser.salesforceId);
-  } else if (contactId) {
+  if (contactId) {
     contact = await getContactById(contactId);
     if (!contact) {
-      throw Error('Invalid Email Address');
+      throw Error('Invalid Contact Id');
     }
+  } else if (req.currentUser) {
+    contact = await getContactById(req.currentUser.salesforceId);
   }
 
   if (!contact) {
@@ -124,7 +124,7 @@ router.get('/:docType/:contactId?', currentUser, async (req, res) => {
   }
 
   const signingUrl = await createSign({
-    contact: { name: contact.Name!, email: contact.Email! },
+    contact: { name: contact.Name!, email: contact.Email, id: contact.Id },
     doc,
   });
 

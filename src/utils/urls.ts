@@ -14,7 +14,7 @@ const baseUrls = {
   cocktailsCampaignId: '7018Z000003KptzQAC',
   corporateVolunteersCampaignId: '701UP000005bM5AYAU',
   townFridgeCampaignId: '7018Z000003C3Mx',
-  ckKitchenCampaignId: '7018Z000002jtq0QAA',
+  ckKitchenCampaignId: '7018Z000002jtq0',
   cookieDate: '2024-12-14',
   acrobat: 'https://api.na3.adobesign.com/api/rest/v6',
   docMadeEasy: 'https://api.docmadeeasy.com/rest',
