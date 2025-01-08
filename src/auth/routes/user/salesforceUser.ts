@@ -20,6 +20,7 @@ router.get('/userInfo', currentUser, async (req, res) => {
     throw Error('User does not have a salesforce ID');
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
+<<<<<<< Updated upstream
   const contactInfo: Partial<FormattedContact> = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
@@ -27,7 +28,27 @@ router.get('/userInfo', currentUser, async (req, res) => {
     homeChefAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
     foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
     homeChefStatus: contact.Home_Chef_Status__c,
+=======
+  const contactInfo: Pick<
+    FormattedContact,
+    | 'firstName'
+    | 'lastName'
+    | 'homeChefAgreement'
+    | 'foodHandler'
+    | 'homeChefQuizPassed'
+    | 'homeChefStatus'
+    | 'volunteerAgreement'
+    | 'ckKitchenStatus'
+  > = {
+    firstName: contact.FirstName,
+    lastName: contact.LastName,
+    homeChefAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+    foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
+>>>>>>> Stashed changes
     homeChefQuizPassed: contact.Home_Chef_Quiz_Passed__c,
+    homeChefStatus: contact.Home_Chef_Status__c,
+    volunteerAgreement: contact.CK_Kitchen_Agreement__c,
+    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
   };
   res.send(contactInfo);
 });

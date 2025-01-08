@@ -126,7 +126,7 @@ router.get('/:docType/:contactId?', currentUser, async (req, res) => {
   }
 
   const signingUrl = await createSign({
-    contact: { name: contact.Name!, email: contact.Email, id: contact.Id },
+    contact: { name: contact.Name, email: contact.Email, id: contact.Id },
     doc,
   });
   res.send({ signingUrl });
