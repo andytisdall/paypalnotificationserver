@@ -3,6 +3,7 @@ import cors from 'cors';
 import fileUpload from 'express-fileupload';
 import { join } from 'path';
 import 'express-async-errors';
+import mongoose from 'mongoose';
 
 import { connectDb } from './src/setupDb';
 
@@ -51,6 +52,8 @@ import signRouter from './src/sign/routes';
 import { errorHandler } from './src/middlewares/error-handler';
 
 const PORT = process.env.PORT || 3001;
+
+mongoose.set('strictQuery', false);
 
 // initialize app and add middleware
 const app = express();

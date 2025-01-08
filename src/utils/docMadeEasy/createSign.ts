@@ -11,7 +11,7 @@ const createSign = async ({
   contact: {
     name: string;
     id: string;
-    email: string;
+    email?: string;
   };
   doc: DocInformation;
 }): Promise<string> => {

@@ -22,7 +22,6 @@ export interface UnformattedContact {
   Portal_Temporary_Password__c?: string;
   Home_Chef_Status__c?: string;
   Id: string;
-  CK_Kitchen_Volunteer_Status__c?: string;
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   npsp__HHId__c: string;
@@ -31,6 +30,7 @@ export interface UnformattedContact {
   Able_to_cook_and_transport_other__c?: string;
   Home_Chef_Quiz_Passed__c?: boolean;
   CK_Kitchen_Agreement__c?: boolean;
+  CK_Kitchen_Volunteer_Status__c?: string;
 }
 
 export interface FormattedContact {
@@ -43,6 +43,7 @@ export interface FormattedContact {
   volunteerAgreement?: boolean;
   foodHandler?: boolean;
   ckKitchenStatus?: string;
+  homeChefAgreement: boolean;
   homeChefStatus?: string;
   homeChefQuizPassed?: boolean;
   email?: string;
@@ -67,7 +68,7 @@ type ContactRawData = Pick<
   | 'CK_Kitchen_Agreement__c'
 >;
 
-type ContactData = Pick<
+export type ContactData = Pick<
   FormattedContact,
   | 'id'
   | 'name'
@@ -243,7 +244,7 @@ export const getContactByEmail = async (
 ): Promise<ContactData | null> => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Name, FirstName, LastName, Email, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Volunteer_Status__c from Contact WHERE Email = '${email}'`;
+  const query = `SELECT Name, FirstName, LastName, Email, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Agreement__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const contactQueryResponse: {
@@ -291,19 +292,28 @@ export const getUnformattedContactByEmail = async (
   }
 };
 
-export const formatContact = (
-  contact: UnformattedContact
-): FormattedContact => {
-  return {
-    id: contact.Id,
-    householdId: contact.npsp__HHId__c,
-    portalUsername: contact.Portal_Username__c,
-    firstName: contact.FirstName,
-    name: contact.Name,
-    lastName: contact.LastName,
-    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
-  };
-};
+// const formatContact = (
+//   contact: UnformattedContact
+// ): Pick<
+//   FormattedContact,
+//   | 'id'
+//   | 'householdId'
+//   | 'portalUsername'
+//   | 'firstName'
+//   | 'name'
+//   | 'lastName'
+//   | 'ckKitchenStatus'
+// > => {
+//   return {
+//     id: contact.Id,
+//     householdId: contact.npsp__HHId__c,
+//     portalUsername: contact.Portal_Username__c,
+//     firstName: contact.FirstName,
+//     name: contact.Name,
+//     lastName: contact.LastName,
+//     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+//   };
+// };
 
 export const deleteContact = async (id: string) => {
   await fetcher.setService('salesforce');

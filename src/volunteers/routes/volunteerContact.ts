@@ -5,7 +5,8 @@ import { requireAuth } from '../../middlewares/require-auth';
 import { requireAdmin } from '../../middlewares/require-admin';
 import {
   checkInVolunteer,
-  getTodaysKitchenVolunteers,
+  getKitchenVolunteers,
+  getTodaysKitchenShift,
 } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 import {
   getContactByEmail,
@@ -19,10 +20,10 @@ router.post('/', async (req, res) => {
     email,
     firstName,
     lastName,
-  }: { email: string; firstName: string; lastName: string } = req.body;
+  }: { email?: string; firstName: string; lastName: string } = req.body;
 
-  if (!email || !firstName || !lastName) {
-    throw Error('You must provide an email, first name and last name.');
+  if (!firstName || !lastName) {
+    throw Error('You must provide first name and last name.');
   }
 
   const contact = await addContact({
@@ -38,16 +39,28 @@ router.get('/:email', async (req, res) => {
   const { email } = req.params;
   const contact = await getContactByEmail(email);
 
-  return res.send({ ...contact, email });
+  return res.send(contact);
 });
 
 router.get(
-  '/kitchen/contacts',
+  '/check-in/shifts',
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const contacts = await getTodaysKitchenVolunteers();
+    const shiftId = await getTodaysKitchenShift();
+    res.send({ shiftId });
+  }
+);
+
+router.get(
+  '/check-in/:shiftId',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { shiftId } = req.params;
+    const contacts = await getKitchenVolunteers(shiftId);
     res.send(contacts);
   }
 );

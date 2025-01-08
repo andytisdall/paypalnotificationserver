@@ -237,7 +237,7 @@ const sendFBNotification = async (feedbackArgs: Feedback) => {
   <p><b>Region:</b> ${feedbackArgs.region}</p>
   `;
 
-  const RECIPIENT = 'mollye@ckoakland.org';
+  const RECIPIENT = 'kenai@ckoakland.org';
   const SUBJECT = 'CK Text Service: You received feedback';
   await sendEmail({
     to: RECIPIENT,

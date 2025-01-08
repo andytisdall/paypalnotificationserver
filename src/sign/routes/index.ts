@@ -49,7 +49,7 @@ const docInfo: Record<DocType, DocInformation> = {
   },
   CKK: {
     type: 'CKK',
-    url: '/volunteer-check-in/sign/success',
+    url: '/volunteers/sign/success',
     template: 'C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV',
     name: 'CK Kitchen Volunteer Agreement',
   },
@@ -71,11 +71,13 @@ router.post('/kitchen', async (req, res) => {
     });
   }
 
+  // create shift for today!
+
   if (contact.volunteerAgreement) {
     throw Error('Document has already been signed.');
   }
 
-  const doc = { ...docInfo.CKK, url: '/forms/kitchen-agreement/success' };
+  const doc = { ...docInfo.CKK, url: '/volunteer-check-in/sign/success' };
 
   const signingUrl = await createSign({
     contact: { name: contact.name, email, id: contact.id },
@@ -127,11 +129,10 @@ router.get('/:docType/:contactId?', currentUser, async (req, res) => {
     contact: { name: contact.Name!, email: contact.Email, id: contact.Id },
     doc,
   });
-
   res.send({ signingUrl });
 });
 
-router.post('/update-contact', currentUser, async (req, res) => {
+router.post('/update-contact', async (req, res) => {
   const { envelope, eventType }: DocWebhookBody = req.body;
 
   if (eventType !== 'envelope_signed') {

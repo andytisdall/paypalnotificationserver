@@ -6,10 +6,12 @@ import { sendDonationAckEmail } from '../../utils/email';
 import {
   addContact,
   FormattedContact,
+  ContactData,
   getContactByEmail,
 } from '../../utils/salesforce/SFQuery/contact';
 import urls from '../../utils/urls';
 import fetcher from '../../utils/fetcher';
+
 import { activeCampaigns } from '../activeCampaigns';
 
 const PaypalTxn = mongoose.model('PaypalTxn');
@@ -167,10 +169,7 @@ const formatDate = (date: string) => {
 //   }
 // };
 
-const addRecurring = async (
-  paypalData: PaypalData,
-  contact: FormattedContact
-) => {
+const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   const formattedDate = formatDate(paypalData.time_created);
 
   let dayOfMonth = moment(formattedDate).format('D');
@@ -210,7 +209,7 @@ const addRecurring = async (
 
 const cancelRecurring = async (
   paypalData: PaypalData,
-  contact: FormattedContact
+  contact: ContactData
 ) => {
   const recurringQuery = [
     'SELECT',
@@ -258,7 +257,7 @@ const cancelRecurring = async (
 
 const updateRecurringOpp = async (
   paypalData: PaypalData,
-  contact: FormattedContact,
+  contact: ContactData,
   status: 'Closed Lost' | 'Posted'
 ) => {
   // query donations to get ID
@@ -305,10 +304,7 @@ const updateRecurringOpp = async (
     throw Error('Existing opportunity not found');
   }
 };
-const addDonation = async (
-  paypalData: PaypalData,
-  contact: FormattedContact
-) => {
+const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
   if (!paypalData.payment_date) {
     throw Error('Could not add donation without a payment date');
   }

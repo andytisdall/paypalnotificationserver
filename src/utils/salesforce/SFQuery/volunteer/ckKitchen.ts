@@ -3,10 +3,27 @@ import urls from '../../../urls';
 import { UnformattedContact } from './../contact';
 import { UnformattedHours } from './../volunteer/hours';
 
-export const getTodaysKitchenVolunteers = async () => {
+export const getTodaysKitchenShift = async () => {
   await fetcher.setService('salesforce');
 
-  const hoursQuery = `SELECT Id, GW_Volunteers__Contact__c, GW_Volunteers__Status__c FROM GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${urls.ckKitchenCampaignId}' AND GW_Volunteers__Status__c != 'Canceled' AND GW_Volunteers__Start_Date__c = TODAY`;
+  const shortenedCampaignId = urls.ckKitchenCampaignId.substring(
+    0,
+    urls.ckKitchenCampaignId.length - 3
+  );
+
+  const shiftQuery = `SELECT Id FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${shortenedCampaignId}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
+
+  const { data }: { data?: { records: { Id: string }[] } } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(shiftQuery)
+  );
+
+  return data?.records[0].Id;
+};
+
+export const getKitchenVolunteers = async (shiftId: string) => {
+  await fetcher.setService('salesforce');
+
+  const hoursQuery = `SELECT Id, GW_Volunteers__Contact__c, GW_Volunteers__Status__c FROM GW_Volunteers__Volunteer_Hours__c WHERE AND GW_Volunteers__Status__c != 'Canceled' AND GW_Volunteers__Shift__c = ${shiftId}`;
 
   const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(hoursQuery);
 
@@ -43,7 +60,7 @@ export const getTodaysKitchenVolunteers = async () => {
     };
   } = await fetcher.get(urls.SFQueryPrefix + contactQuery);
 
-  return hours.map(
+  const contacts = hours.map(
     ({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
       const contact = data.records.find(
         ({ Id }) => Id === GW_Volunteers__Contact__c
@@ -55,12 +72,14 @@ export const getTodaysKitchenVolunteers = async () => {
           firstName: contact.FirstName,
           lastName: contact.LastName,
           email: contact.Email,
-          agreementSigned: contact.CK_Kitchen_Agreement__c,
+          volunteerAgreement: contact.CK_Kitchen_Agreement__c,
           status: GW_Volunteers__Status__c,
         };
       }
     }
   );
+
+  return contacts;
 };
 
 export const checkInVolunteer = async (hoursId: string) => {

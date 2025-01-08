@@ -23,10 +23,10 @@ router.get('/userInfo', currentUser, async (req, res) => {
   const contactInfo: Partial<FormattedContact> = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
-    volunteerAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
+    volunteerAgreement: contact.CK_Kitchen_Agreement__c,
+    homeChefAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
     foodHandler: contact.Home_Chef_Food_Handler_Certification__c,
     homeChefStatus: contact.Home_Chef_Status__c,
-    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
     homeChefQuizPassed: contact.Home_Chef_Quiz_Passed__c,
   };
   res.send(contactInfo);
