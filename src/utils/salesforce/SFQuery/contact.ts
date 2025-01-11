@@ -22,7 +22,7 @@ export interface UnformattedContact {
   Portal_Temporary_Password__c?: string;
   Home_Chef_Status__c?: string;
   Id: string;
-  Home_Chef_Volunteeer_Agreement__c?: boolean;
+  Home_Chef_Volunteeer_Agreement__c: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   npsp__HHId__c: string;
   Interest_in_other_volunteer_programs__c?: string;

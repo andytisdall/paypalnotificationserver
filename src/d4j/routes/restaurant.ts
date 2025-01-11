@@ -26,6 +26,10 @@ router.get('/restaurants', async (req, res) => {
   res.send(uniqueRestaurants);
 });
 
+router.get('/restaurants/style-week', async (req, res) => {
+  res.send([]);
+});
+
 router.get('/restaurantDetails/:restaurantId', async (req, res) => {
   const { restaurantId } = req.params; // google ID
 
