@@ -16,7 +16,7 @@ router.get('/restaurants', async (req, res) => {
   const ids: string[] = [];
 
   // filter out duplicates
-  const uniqueRestaurants = [...bars, ...restaurants].filter((account) => {
+  const uniqueRestaurants = [...restaurants, ...bars].filter((account) => {
     if (ids.includes(account.id)) {
       return false;
     }

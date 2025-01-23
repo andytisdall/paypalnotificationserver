@@ -1,4 +1,5 @@
 import express from 'express';
+import { formatISO } from 'date-fns';
 
 import { currentUser } from '../../middlewares/current-user';
 import { requireAuth } from '../../middlewares/require-auth';
@@ -12,6 +13,8 @@ import {
   getContactByEmail,
   addContact,
 } from '../../utils/salesforce/SFQuery/contact';
+import { createHours } from '../../utils/salesforce/SFQuery/volunteer/hours';
+import urls from '../../utils/urls';
 
 const router = express.Router();
 
@@ -49,7 +52,11 @@ router.get(
   requireAdmin,
   async (req, res) => {
     const shiftId = await getTodaysKitchenShift();
-    res.send({ shiftId });
+    if (shiftId) {
+      res.send({ shiftId });
+    } else {
+      res.send(null);
+    }
   }
 );
 
@@ -74,6 +81,26 @@ router.post(
     const { hoursId }: { hoursId: string } = req.body;
 
     await checkInVolunteer(hoursId);
+
+    res.sendStatus(204);
+  }
+);
+
+router.post(
+  '/check-in/hours',
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { contactId, shiftId }: { contactId: string; shiftId: string } =
+      req.body;
+
+    await createHours({
+      shiftId,
+      contactId,
+      jobId: urls.kitchenMealPrepJobId,
+      date: formatISO(new Date()),
+    });
 
     res.sendStatus(204);
   }

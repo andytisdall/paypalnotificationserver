@@ -22,12 +22,10 @@ router.patch('/', currentUser, requireAuth, async (req, res) => {
   }
 
   if (u.id !== req.currentUser!.id && !req.currentUser!.admin) {
-    res.status(403);
     throw new Error('User not authorized to modify this user');
   }
 
   if (u.id !== req.currentUser!.id && u.admin) {
-    res.status(403);
     throw new Error('Admin users can only be modified by themselves');
   }
 

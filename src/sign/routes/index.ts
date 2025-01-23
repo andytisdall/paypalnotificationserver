@@ -5,14 +5,15 @@ import {
   getUnformattedContactByEmail,
   getContactById,
   UnformattedContact,
-  getContactByEmail,
-  addContact,
 } from '../../utils/salesforce/SFQuery/contact';
 import homeChefUpdate from '../../files/salesforce/homeChefUpdate';
 import createSign from '../../utils/docMadeEasy/createSign';
 import { uploadFiles } from '../../files/salesforce/uploadToSalesforce';
 import downloadFile from '../../utils/docMadeEasy/downloadFile';
 import { FileWithType } from '../../files/salesforce/metadata';
+import getAccount from '../../utils/docMadeEasy/getAccount';
+import { requireAuth } from '../../middlewares/require-auth';
+import { sendEmail } from '../../utils/email';
 
 const router = express.Router();
 
@@ -49,88 +50,78 @@ const docInfo: Record<DocType, DocInformation> = {
   },
   CKK: {
     type: 'CKK',
-    url: '/volunteers/sign/success',
+    url: '/volunteer-check-in/sign/success',
     template: 'C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV',
     name: 'CK Kitchen Volunteer Agreement',
   },
 };
 
-router.post('/kitchen', async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    email,
-  }: { firstName: string; lastName: string; email: string } = req.body;
+router.get('/config', async (req, res) => {
+  const account = await getAccount();
 
-  let contact = await getContactByEmail(email);
-  if (!contact) {
-    contact = await addContact({
-      Email: email,
-      FirstName: firstName,
-      LastName: lastName,
-    });
-  }
+  const limitReached = account.apiSigns > 39;
 
-  // create shift for today!
-
-  if (contact.volunteerAgreement) {
-    throw Error('Document has already been signed.');
-  }
-
-  const doc = { ...docInfo.CKK, url: '/volunteer-check-in/sign/success' };
-
-  const signingUrl = await createSign({
-    contact: { name: contact.name, email, id: contact.id },
-    doc,
-  });
-
-  res.send({ signingUrl });
+  res.send({ limitReached });
 });
 
-router.get('/:docType/:contactId?', currentUser, async (req, res) => {
-  const { docType } = req.params as { docType: DocType };
-  const { contactId } = req.params;
+router.get(
+  '/:docType?/:shiftId?/:contactId?',
+  currentUser,
+  async (req, res) => {
+    const { docType, contactId, shiftId } = req.params as {
+      docType?: DocType;
+      contactId?: string;
+      shiftId?: string;
+    };
 
-  let contact: UnformattedContact | undefined;
+    let contact: UnformattedContact | undefined;
 
-  if (!req.currentUser && !contactId) {
-    throw Error('Request must have a user or pass info into the URL');
-  }
-
-  if (contactId) {
-    contact = await getContactById(contactId);
-    if (!contact) {
-      throw Error('Invalid Contact Id');
+    if (!req.currentUser && !contactId) {
+      throw Error('Request must have a user or pass info into the URL');
     }
-  } else if (req.currentUser) {
-    contact = await getContactById(req.currentUser.salesforceId);
+
+    if (!docType || !docInfo[docType]) {
+      throw Error('Invalid document requested');
+    }
+
+    if (contactId) {
+      contact = await getContactById(contactId);
+      if (!contact) {
+        throw Error('Invalid Contact Id');
+      }
+    } else if (req.currentUser) {
+      contact = await getContactById(req.currentUser.salesforceId);
+    }
+
+    if (!contact) {
+      throw Error('Contact Not Found');
+    }
+    if (!contact.Email) {
+      throw Error(
+        'Contact has no email, which is required for document signing'
+      );
+    }
+
+    const doc = docInfo[docType];
+
+    // check if doc is signed and return early
+    const homeChefAlreadySigned =
+      contact.Home_Chef_Volunteeer_Agreement__c && docType === 'HC';
+    const kitchenAlreadySigned =
+      contact.CK_Kitchen_Agreement__c && docType === 'CKK';
+
+    if (homeChefAlreadySigned || kitchenAlreadySigned) {
+      return res.send({ signingUrl: '' });
+    }
+
+    const signingUrl = await createSign({
+      contact: { name: contact.Name, email: contact.Email, id: contact.Id },
+      doc,
+      shiftId,
+    });
+    res.send({ signingUrl });
   }
-
-  if (!contact) {
-    throw Error('Contact Not Found');
-  }
-  if (!contact.Email) {
-    throw Error('Contact has no email, which is required for document signing');
-  }
-
-  const doc = docInfo[docType];
-
-  // check if doc is signed and return early
-  const homeChefAlreadySigned =
-    contact.Home_Chef_Volunteeer_Agreement__c && docType === 'HC';
-  const kitchenAlreadySigned =
-    contact.CK_Kitchen_Agreement__c && docType === 'CKK';
-
-  if (homeChefAlreadySigned || kitchenAlreadySigned) {
-    return res.send({ signingUrl: '' });
-  }
-
-  const signingUrl = await createSign({
-    contact: { name: contact.Name, email: contact.Email, id: contact.Id },
-    doc,
-  });
-  res.send({ signingUrl });
-});
+);
 
 router.post('/update-contact', async (req, res) => {
   const { envelope, eventType }: DocWebhookBody = req.body;
@@ -165,6 +156,21 @@ router.post('/update-contact', async (req, res) => {
 
   await uploadFiles(contact, [file]);
   await homeChefUpdate([doc.type], contact);
+
+  res.sendStatus(200);
+});
+
+router.get('/emailAgreement', currentUser, requireAuth, async (req, res) => {
+  const contact = await getContactById(req.currentUser!.salesforceId);
+
+  const emailText = `${contact.FirstName} ${contact.LastName} has requested a Home Chef volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
+
+  await sendEmail({
+    text: emailText,
+    to: 'andy@ckoakland.org',
+    from: 'andy@ckoakland.org',
+    subject: 'Home Chef agreement requested',
+  });
 
   res.sendStatus(200);
 });

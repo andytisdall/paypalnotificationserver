@@ -106,7 +106,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     formattedNumbers = ['+1' + phoneNumber];
   }
 
-  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV !== 'production') {
     formattedNumbers = ['+14158190251'];
   }
 
@@ -151,7 +151,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     }
   }
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV === 'production') {
     const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
       {
         sender: req.currentUser!.id,

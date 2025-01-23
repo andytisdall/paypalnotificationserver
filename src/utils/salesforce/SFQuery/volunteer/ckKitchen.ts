@@ -17,7 +17,11 @@ export const getTodaysKitchenShift = async () => {
     };
   } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(shiftQuery));
 
-  return data?.records[0].Id;
+  const shift = data?.records[0];
+
+  if (shift) {
+    return shift.Id;
+  }
 };
 
 export const getKitchenVolunteers = async (shiftId: string) => {
@@ -88,5 +92,10 @@ export const checkInVolunteer = async (hoursId: string) => {
   const updateUri =
     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + hoursId;
 
-  await fetcher.patch(updateUri, { GW_Volunteers__Status__c: 'Completed' });
+  const updatedHours: Partial<UnformattedHours> = {
+    GW_Volunteers__Status__c: 'Completed',
+    GW_Volunteers__Hours_Worked__c: 3,
+  };
+
+  await fetcher.patch(updateUri, updatedHours);
 };

@@ -34,6 +34,7 @@ export interface UnformattedHours {
   GW_Volunteers__Contact__c?: string;
   GW_Volunteers__Start_Date__c?: string;
   GW_Volunteers__Number_of_Volunteers__c?: number;
+  GW_Volunteers__Hours_Worked__c?: number;
 }
 
 export interface HoursQueryResponse {

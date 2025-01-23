@@ -7,17 +7,23 @@ import getSecrets from '../getSecrets';
 const createSign = async ({
   contact,
   doc,
+  shiftId,
 }: {
   contact: {
     name: string;
     id: string;
-    email?: string;
+    email: string;
   };
   doc: DocInformation;
+  shiftId?: string;
 }): Promise<string> => {
   const { DOCMADEEASY_KEY } = await getSecrets(['DOCMADEEASY_KEY']);
 
-  const redirectUrl = urls.client + doc.url + '/' + contact.id;
+  let redirectUrl = urls.client + doc.url;
+
+  if (shiftId) {
+    redirectUrl += `/${shiftId}/${contact.id}`;
+  }
 
   const templateId = doc.template;
 
