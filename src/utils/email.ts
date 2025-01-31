@@ -1,4 +1,5 @@
 import sgMail from '@sendgrid/mail';
+import { lastDayOfMonth, format } from 'date-fns';
 
 import getSecrets from './getSecrets';
 import createDonationAckEmail from './emailTemplates/donationAck';
@@ -12,6 +13,8 @@ import { D4JContact, FormattedContact } from './salesforce/SFQuery/contact';
 import createPrizeRequestEmail from './emailTemplates/prizeRequest';
 import urls from './urls';
 import confirmD4JUser from './emailTemplates/confirmD4JUser';
+import { createCBOReportDataEmail } from './emailTemplates/CBOReportData';
+import { getPeriodCBOReports } from './salesforce/SFQuery/cboReport';
 
 export const initializeEmail = async () => {
   const { SENDGRID_KEY } = await getSecrets(['SENDGRID_KEY']);
@@ -19,6 +22,51 @@ export const initializeEmail = async () => {
     throw new Error('Could not find sendgrid key to initialize email');
   }
   sgMail.setApiKey(SENDGRID_KEY);
+};
+
+export const sendCBOReportDataEmail = async () => {
+  const lastMonthStartDate = new Date();
+  lastMonthStartDate.setDate(1);
+  lastMonthStartDate.setMonth(lastMonthStartDate.getMonth() - 1);
+  const lastMonthEndDate = lastDayOfMonth(lastMonthStartDate);
+  const lastMonthReports = await getPeriodCBOReports({
+    startDate: lastMonthStartDate,
+    endDate: lastMonthEndDate,
+  });
+
+  const yearToDateStartDate = new Date();
+  yearToDateStartDate.setDate(1);
+  yearToDateStartDate.setMonth(0);
+  const yearToDateReports = await getPeriodCBOReports({
+    startDate: yearToDateStartDate,
+    endDate: new Date(),
+  });
+
+  const html =
+    `<h1>CBO Report Data</h1><h2 style="textAlign: center">Last Month: ${format(
+      lastMonthStartDate,
+      'M/d/yy'
+    )} - ${format(lastMonthEndDate, 'M/d/yy')}</h2><h3>${
+      lastMonthReports.length
+    } Reports</h3>` +
+    createCBOReportDataEmail(lastMonthReports) +
+    '<br /><br />' +
+    `<h2 style="textAlign: center">Year to Date: ${format(
+      yearToDateStartDate,
+      'M/d/yy'
+    )} - ${format(new Date(), 'M/d/yy')}</h2><h3>${
+      yearToDateReports.length
+    } Reports</h3>` +
+    createCBOReportDataEmail(yearToDateReports);
+
+  const msg = {
+    to: 'andy@ckoakland.org',
+    from: urls.adminEmail,
+    subject: 'CBO Report Data for last month',
+    html,
+  };
+
+  await sendEmail(msg);
 };
 
 export const sendEmailToSelf = async ({

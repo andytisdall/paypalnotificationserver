@@ -12,20 +12,21 @@ export interface NewMobileOasisDelivery {
 }
 
 interface MealSurveyData {
-  Access_to_Healthy_Meals__c?: boolean;
+  Age__c?: string;
+  Ethnicity__c?: string;
+  Zip_Code__c?: string;
   Access_to_Microwave__c?: boolean;
   Access_to_Utensils__c?: boolean;
-  Children_under_10__c?: boolean;
-  Desired_Protein__c?: string;
-  Desired_types_of_meals__c?: string;
-  Dietary_Preferences__c?: string;
-  Enjoying_Meals__c?: boolean;
-  Fruit_Wanted__c?: boolean;
-  Has_a_way_to_heat_food__c?: boolean;
   How_many_people_served__c?: string;
-  Salad_Wanted__c?: boolean;
-  Skip_a_Meal__c?: boolean;
+  Children_under_10__c?: boolean;
   Town_fridge_access_time_of_day__c?: string;
+  Favorite_Food__c?: string;
+  Favorite_Food_2__c?: string;
+  Dietary_Preferences__c?: string;
+  Fruit_Wanted__c?: boolean;
+  Enjoying_Meals__c?: boolean;
+  Access_to_Healthy_Meals__c?: boolean;
+  Skip_a_Meal__c?: string;
 }
 
 interface UnformattedMealDelivery {
@@ -173,20 +174,21 @@ export const submitMealSurveyData = async (data: MealSurveyArgs) => {
   await fetcher.setService('salesforce');
 
   const surveyData: MealSurveyData = {
-    Access_to_Healthy_Meals__c: data.access,
+    Age__c: data.age,
+    Ethnicity__c: data.ethnicity,
+    Zip_Code__c: data.zip,
     Access_to_Microwave__c: data.microwave,
     Access_to_Utensils__c: data.utensils,
     Children_under_10__c: data.children,
-    Desired_Protein__c: data.protein.join(';'),
-    Desired_types_of_meals__c: data.mealType.join(';'),
-    Dietary_Preferences__c: data.dietary.join(';'),
+    How_many_people_served__c: data.numberOfPeople,
+    Favorite_Food__c: data.mealType,
+    Favorite_Food_2__c: data.mealType2,
+    Dietary_Preferences__c: data.dietary?.join(';'),
     Enjoying_Meals__c: data.taste,
     Fruit_Wanted__c: data.fruit,
-    Has_a_way_to_heat_food__c: data.heatFood,
-    How_many_people_served__c: data.numberOfPeople,
-    Salad_Wanted__c: data.salad,
+    Town_fridge_access_time_of_day__c: data.time,
+    Access_to_Healthy_Meals__c: data.access,
     Skip_a_Meal__c: data.skip,
-    Town_fridge_access_time_of_day__c: data.time.join(';'),
   };
 
   const insertUri = urls.SFOperationPrefix + '/Meal_Survey_Data_2__c';

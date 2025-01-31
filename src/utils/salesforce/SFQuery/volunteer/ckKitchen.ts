@@ -2,26 +2,35 @@ import fetcher from '../../../fetcher';
 import urls from '../../../urls';
 import { UnformattedContact } from './../contact';
 import { UnformattedHours } from './../volunteer/hours';
-import { Shift } from './jobs';
+import { Job, Shift } from './jobs';
 
-export const getTodaysKitchenShift = async () => {
+export const getTodaysKitchenShifts = async () => {
   await fetcher.setService('salesforce');
 
-  const shiftQuery = `SELECT Id FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${urls.kitchenMealPrepJobId}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
+  const jobQuery = `SELECT Id, Name FROM GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${urls.ckKitchenCampaignId}'`;
 
-  const {
-    data,
-  }: {
-    data?: {
-      records: { Id: Pick<Shift, 'Id'> }[];
-    };
-  } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(shiftQuery));
+  const { data }: { data: { records: Pick<Job, 'Id' | 'Name'>[] } } =
+    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(jobQuery));
 
-  const shift = data?.records[0];
+  const shiftPromises = data.records.map(async (job) => {
+    const shiftQuery = `SELECT Id FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${job.Id}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
 
-  if (shift) {
-    return shift.Id;
-  }
+    const response: {
+      data?: {
+        records: { Id: Pick<Shift, 'Id'> }[];
+      };
+    } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(shiftQuery));
+
+    const shift = response.data?.records[0];
+
+    if (shift) {
+      return { id: shift.Id, job: job.Name };
+    }
+  });
+
+  const shifts = await Promise.all(shiftPromises);
+
+  return shifts.filter((shift) => shift);
 };
 
 export const getKitchenVolunteers = async (shiftId: string) => {

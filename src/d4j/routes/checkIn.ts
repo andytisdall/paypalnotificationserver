@@ -43,6 +43,9 @@ const router = express.Router();
 
 router.post('/rewards/check-in', currentD4JUser, async (req, res) => {
   const { D4J_CHECK_IN_KEY } = await getSecrets(['D4J_CHECK_IN_KEY']);
+  if (!D4J_CHECK_IN_KEY) {
+    throw Error();
+  }
 
   const { value }: { value: string } = req.body;
 

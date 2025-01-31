@@ -93,7 +93,7 @@ router.post('/intake-survey', async (req, res) => {
   res.sendStatus(204);
 });
 
-type ZipCode =
+export type ZipCode =
   | '94501'
   | '94502'
   | '94536'

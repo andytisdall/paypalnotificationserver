@@ -24,7 +24,6 @@ export interface UnformattedD4JRestaurant {
   BillingAddress: AccountAddress;
   Google_ID__c: string;
   Minority_Owned__c?: string;
-  Restaurant_Underserved_Neighborhood__c: boolean;
   Restaurant_Vegan__c: boolean;
   Female_Owned__c: boolean;
   Type_of_Food__c?: string;
@@ -37,6 +36,7 @@ export interface UnformattedD4JRestaurant {
   Cocktail_2_Description__c?: string;
   D4J_Status__c?: 'Active' | 'Former' | 'Paused';
   Closed__c?: boolean;
+  Website?: string;
 }
 
 export type Coordinates = { latitude: number; longitude: number };
@@ -47,7 +47,6 @@ export interface FormattedD4JRestaurant {
   neighborhood?: string;
   cuisine?: string;
   pocOwned?: string;
-  underservedNeighborhood: boolean;
   vegan: boolean;
   femaleOwned: boolean;
   googleId: string;
@@ -60,4 +59,5 @@ export interface FormattedD4JRestaurant {
   cocktail2Description?: string;
   status?: 'Active' | 'Former' | 'Paused';
   closed?: boolean;
+  url?: string;
 }

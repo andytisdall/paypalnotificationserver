@@ -27,8 +27,6 @@ export const updateDetails = async (restaurantId: string) => {
 
   // check existence of geocoordinates and matching open hours
   if (!data.Geolocation__c?.latitude || !data.Geolocation__c.longitude) {
-    console.log('Updating geocoordinates: ' + data.Name);
-
     const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
 
     const geocoder = node_geocoder({
@@ -51,6 +49,12 @@ export const updateDetails = async (restaurantId: string) => {
       Open_Hours__c: details.openHours?.join('_'),
     });
   }
+
+  if (details.url !== data.Website) {
+    await fetcher.patch(uri, {
+      Website: details.url,
+    });
+  }
 };
 
 const formatAccount = (
@@ -63,7 +67,6 @@ const formatAccount = (
     pocOwned: account.Minority_Owned__c,
     femaleOwned: account.Female_Owned__c,
     vegan: account.Restaurant_Vegan__c,
-    underservedNeighborhood: account.Restaurant_Underserved_Neighborhood__c,
     cuisine: cocktails ? 'cocktails' : account.Type_of_Food__c,
     googleId: account.Google_ID__c,
     coords: getCoords(
@@ -78,6 +81,7 @@ const formatAccount = (
     cocktail2Description: account.Cocktail_2_Description__c,
     status: account.D4J_Status__c || 'Former',
     closed: account.Closed__c,
+    url: account.Website,
   };
 };
 
@@ -86,12 +90,33 @@ export const getD4jRestaurants = async (): Promise<
 > => {
   await fetcher.setService('salesforce');
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c, Closed__c FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
+  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c, Closed__c, Website FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
-  const { data }: { data: { records?: UnformattedD4JRestaurant[] } } =
-    await fetcher.get(queryUri);
+  const {
+    data,
+  }: {
+    data: {
+      records?: Pick<
+        UnformattedD4JRestaurant,
+        | 'Id'
+        | 'Name'
+        | 'BillingAddress'
+        | 'Google_ID__c'
+        | 'Minority_Owned__c'
+        | 'Type_of_Food__c'
+        | 'Restaurant_Vegan__c'
+        | 'Female_Owned__c'
+        | 'Geolocation__c'
+        | 'Open_Hours__c'
+        | 'Photo_URL__c'
+        | 'D4J_Status__c'
+        | 'Closed__c'
+        | 'Website'
+      >[];
+    };
+  } = await fetcher.get(queryUri);
 
   if (!data.records) {
     throw Error('Could not get restaurants');
@@ -117,10 +142,29 @@ export const getBars = async () => {
   );
   const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
 
-  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Cocktail_2_Description__c, Closed__c FROM Account WHERE Id IN ${stringOfBarIds}`;
+  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Website, Cocktail_2_Description__c, Closed__c FROM Account WHERE Id IN ${stringOfBarIds}`;
 
-  const res: { data?: { records?: UnformattedD4JRestaurant[] } } =
-    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
+  const res: {
+    data?: {
+      records?: Pick<
+        UnformattedD4JRestaurant,
+        | 'Id'
+        | 'Name'
+        | 'BillingAddress'
+        | 'Google_ID__c'
+        | 'Minority_Owned__c'
+        | 'Type_of_Food__c'
+        | 'Restaurant_Vegan__c'
+        | 'Female_Owned__c'
+        | 'Geolocation__c'
+        | 'Open_Hours__c'
+        | 'Photo_URL__c'
+        | 'D4J_Status__c'
+        | 'Closed__c'
+        | 'Website'
+      >[];
+    };
+  } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
 
   if (!res.data?.records) {
     throw Error('Could not get account info');

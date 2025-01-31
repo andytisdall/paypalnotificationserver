@@ -10,6 +10,7 @@ export interface Shift {
   GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
   Restaurant_Meals__c: boolean;
   GW_Volunteers__Duration__c: number;
+  GW_Volunteers__Volunteer_Job__c: string;
 }
 
 export interface FormattedShift {

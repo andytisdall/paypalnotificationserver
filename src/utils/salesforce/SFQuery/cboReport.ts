@@ -146,3 +146,32 @@ const convertCBODataFromSalesforce = (
     extraItemAmount: report.Amount_of_Extra_Item__c,
   };
 };
+
+export const getPeriodCBOReports = async ({
+  startDate,
+  endDate,
+}: {
+  startDate: Date;
+  endDate: Date;
+}): Promise<CBOReportParams[]> => {
+  await fetcher.setService('salesforce');
+
+  const query = `SELECT Id FROM CBO_Report_Data__c WHERE Date__c >= ${format(
+    startDate,
+    'yyyy-MM-dd'
+  )} AND Date__c <= ${format(endDate, 'yyyy-MM-dd')}`;
+
+  const getUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
+    getUri
+  );
+
+  const promises = data.records.map(async ({ Id }) => {
+    const { data: report }: { data: CBOReportObject } = await fetcher.get(
+      `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`
+    );
+    return convertCBODataFromSalesforce(report);
+  });
+  const reports = await Promise.all(promises);
+  return reports;
+};

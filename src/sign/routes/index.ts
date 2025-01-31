@@ -64,6 +64,21 @@ router.get('/config', async (req, res) => {
   res.send({ limitReached });
 });
 
+router.get('/emailAgreement', currentUser, requireAuth, async (req, res) => {
+  const contact = await getContactById(req.currentUser!.salesforceId);
+
+  const emailText = `${contact.FirstName} ${contact.LastName} has requested a Home Chef volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
+
+  await sendEmail({
+    text: emailText,
+    to: 'andy@ckoakland.org',
+    from: 'andy@ckoakland.org',
+    subject: 'Home Chef agreement requested',
+  });
+
+  res.send(200);
+});
+
 router.get(
   '/:docType?/:shiftId?/:contactId?',
   currentUser,
@@ -156,21 +171,6 @@ router.post('/update-contact', async (req, res) => {
 
   await uploadFiles(contact, [file]);
   await homeChefUpdate([doc.type], contact);
-
-  res.sendStatus(200);
-});
-
-router.get('/emailAgreement', currentUser, requireAuth, async (req, res) => {
-  const contact = await getContactById(req.currentUser!.salesforceId);
-
-  const emailText = `${contact.FirstName} ${contact.LastName} has requested a Home Chef volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
-
-  await sendEmail({
-    text: emailText,
-    to: 'andy@ckoakland.org',
-    from: 'andy@ckoakland.org',
-    subject: 'Home Chef agreement requested',
-  });
 
   res.sendStatus(200);
 });

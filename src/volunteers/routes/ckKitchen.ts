@@ -7,7 +7,7 @@ import { requireAdmin } from '../../middlewares/require-admin';
 import {
   checkInVolunteer,
   getKitchenVolunteers,
-  getTodaysKitchenShift,
+  getTodaysKitchenShifts,
 } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 import {
   getContactByEmail,
@@ -15,6 +15,8 @@ import {
 } from '../../utils/salesforce/SFQuery/contact';
 import { createHours } from '../../utils/salesforce/SFQuery/volunteer/hours';
 import urls from '../../utils/urls';
+import fetcher from '../../utils/fetcher';
+import { Shift } from '../../utils/salesforce/SFQuery/volunteer/jobs';
 
 const router = express.Router();
 
@@ -51,12 +53,8 @@ router.get(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const shiftId = await getTodaysKitchenShift();
-    if (shiftId) {
-      res.send({ shiftId });
-    } else {
-      res.send(null);
-    }
+    const shifts = await getTodaysKitchenShifts();
+    res.send(shifts);
   }
 );
 
@@ -95,10 +93,17 @@ router.post(
     const { contactId, shiftId }: { contactId: string; shiftId: string } =
       req.body;
 
+    await fetcher.setService('salesforce');
+    const { data: shift }: { data: Shift } = await fetcher.get(
+      urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
+    );
+
+    // must change desired # of volunteers if the shift is full, otherwise it can't create the hours
+
     await createHours({
       shiftId,
       contactId,
-      jobId: urls.kitchenMealPrepJobId,
+      jobId: shift.GW_Volunteers__Volunteer_Job__c,
       date: formatISO(new Date()),
     });
 

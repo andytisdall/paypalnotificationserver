@@ -103,6 +103,9 @@ router.post(
     const { MESSAGING_SERVICE_SID } = await getSecrets([
       'MESSAGING_SERVICE_SID',
     ]);
+    if (!MESSAGING_SERVICE_SID) {
+      throw Error();
+    }
 
     const twilioClient = await getTwilioClient();
     const alertText: OutgoingText = {

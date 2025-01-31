@@ -21,6 +21,10 @@ router.post('/google-signin/mobile', async (req, res) => {
 
   const { JWT_KEY } = await getSecrets(['JWT_KEY']);
 
+  if (!JWT_KEY) {
+    throw Error();
+  }
+
   if (!googleId) {
     throw Error('No Google ID Provided');
   }
