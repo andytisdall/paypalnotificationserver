@@ -4,13 +4,14 @@
     "allowJs": true,
     "target": "es5",
     "esModuleInterop": true,
-    "strict": true,                          
+    "strict": true,
     "noImplicitAny": true,
     "downlevelIteration": true,
-    "skipLibCheck": true,  /* Skip type checking of declaration files. */
-    "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
+    "skipLibCheck": true /* Skip type checking of declaration files. */,
+    "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*"],
+  "exclude": ["./keys.js"],
+  "include": ["./src/**/*"]
 }

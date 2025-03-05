@@ -1,26 +1,31 @@
-import express from 'express';
-import { formatISO } from 'date-fns';
+import express from "express";
+import { formatISO } from "date-fns";
 
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
 import {
   checkInVolunteer,
   getKitchenVolunteers,
   getTodaysKitchenShifts,
-} from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
+} from "../../utils/salesforce/SFQuery/volunteer/ckKitchen";
 import {
   getContactByEmail,
   addContact,
-} from '../../utils/salesforce/SFQuery/contact';
-import { createHours } from '../../utils/salesforce/SFQuery/volunteer/hours';
-import urls from '../../utils/urls';
-import fetcher from '../../utils/fetcher';
-import { Shift } from '../../utils/salesforce/SFQuery/volunteer/jobs';
+} from "../../utils/salesforce/SFQuery/contact";
+import { createHours } from "../../utils/salesforce/SFQuery/volunteer/hours";
+
+import {
+  addSlotToShift,
+  getShift,
+} from "../../utils/salesforce/SFQuery/volunteer/shifts";
+import { sendEmail } from "../../utils/email";
+import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
+import urls from "../../utils/urls";
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const {
     email,
     firstName,
@@ -28,19 +33,19 @@ router.post('/', async (req, res) => {
   }: { email?: string; firstName: string; lastName: string } = req.body;
 
   if (!firstName || !lastName) {
-    throw Error('You must provide first name and last name.');
+    throw Error("You must provide first name and last name.");
   }
 
   const contact = await addContact({
     Email: email,
     FirstName: firstName,
     LastName: lastName,
-    CK_Kitchen_Volunteer_Status__c: 'Prospective',
+    CK_Kitchen_Volunteer_Status__c: "Prospective",
   });
   res.send(contact);
 });
 
-router.get('/:email', async (req, res) => {
+router.get("/:email", async (req, res) => {
   const { email } = req.params;
   const contact = await getContactByEmail(email);
 
@@ -48,7 +53,7 @@ router.get('/:email', async (req, res) => {
 });
 
 router.get(
-  '/check-in/shifts',
+  "/check-in/shifts",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -59,7 +64,7 @@ router.get(
 );
 
 router.get(
-  '/check-in/:shiftId',
+  "/check-in/:shiftId",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -71,7 +76,7 @@ router.get(
 );
 
 router.post(
-  '/check-in',
+  "/check-in",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -85,7 +90,7 @@ router.post(
 );
 
 router.post(
-  '/check-in/hours',
+  "/check-in/hours",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -93,22 +98,83 @@ router.post(
     const { contactId, shiftId }: { contactId: string; shiftId: string } =
       req.body;
 
-    await fetcher.setService('salesforce');
-    const { data: shift }: { data: Shift } = await fetcher.get(
-      urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
-    );
-
     // must change desired # of volunteers if the shift is full, otherwise it can't create the hours
+
+    const shift = await getShift(shiftId);
+    if (!shift) {
+      throw Error("Shift not found");
+    }
+    if (!shift.open) {
+      await addSlotToShift(shift);
+    }
 
     await createHours({
       shiftId,
       contactId,
-      jobId: shift.GW_Volunteers__Volunteer_Job__c,
+      jobId: shift.job,
       date: formatISO(new Date()),
     });
 
     res.sendStatus(204);
   }
 );
+
+router.post("/doorfront", async (req, res) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    daysAvailable,
+  }: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    daysAvailable: string[];
+  } = req.body;
+
+  let contact = await getContactByEmail(email);
+  if (!contact) {
+    contact = await addContact({
+      FirstName: firstName,
+      LastName: lastName,
+      Email: email,
+    });
+  }
+
+  if (contact) {
+    await insertCampaignMember({
+      CampaignId: urls.frontDoorCampaignId,
+      ContactId: contact.id,
+      Status: "Prospect",
+    });
+  }
+
+  const body = `
+  <p>This info was submitted through the doorfront volunteer signup form:</p>
+  <ul>
+  <li>
+  Name: ${firstName} ${lastName}
+  </li>
+  <li>
+  email: ${email}
+  </li>
+  <li>
+  Days Available: ${daysAvailable.map((day) => `${day} `)}
+  </li>
+  </ul>
+  <p>A list of people who have filled out this form is <a href="https://communitykitchens.lightning.force.com/lightning/r/Campaign/701UP00000JdCfxYAF/view">here.</a></p>
+  `;
+
+  await sendEmail({
+    html: body,
+    subject: "Someone submitted a doorfront volunteer form!",
+    to: "kenai@ckoakland.org",
+    from: "andy@ckoakland.org",
+  });
+
+  // email kenai
+
+  res.send(null);
+});
 
 export default router;

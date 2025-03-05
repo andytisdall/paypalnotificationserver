@@ -22,13 +22,10 @@
 
 # below:
 
-# .git
-
-# .gitignore
+.git
+.gitignore
 
 # Node.js dependencies:
 
 node_modules/
-client/
 keys.js
-built/keys.js

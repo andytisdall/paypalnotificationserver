@@ -1,30 +1,28 @@
-import express from 'express';
-import moment from 'moment';
+import express from "express";
+import moment from "moment";
 
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import urls from '../../utils/urls';
-import fetcher from '../../utils/fetcher';
-import {
-  getJobs,
-  getShifts,
-} from '../../utils/salesforce/SFQuery/volunteer/jobs';
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import urls from "../../utils/urls";
+import fetcher from "../../utils/fetcher";
+import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
+import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
 
 const router = express.Router();
 
-const BARLTETT_ID = 'a0w8Z00000YU0nHQAT';
+const BARLTETT_ID = "a0w8Z00000YU0nHQAT";
 
-router.get('/fridges', currentUser, requireAuth, async (req, res) => {
+router.get("/fridges", currentUser, requireAuth, async (req, res) => {
   // this router gets the fridges for text app purposes
   // fridges without a region are excluded
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   const jobs = await getJobs(urls.townFridgeCampaignId);
   res.send(jobs.filter((j) => j.id !== BARLTETT_ID));
 });
 
-router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
-  await fetcher.setService('salesforce');
+router.get("/job-listing", currentUser, requireAuth, async (req, res) => {
+  await fetcher.setService("salesforce");
 
   const jobs = await getJobs(urls.townFridgeCampaignId);
   const shiftPromises = jobs.map(async (j) => {
@@ -34,8 +32,8 @@ router.get('/job-listing', currentUser, requireAuth, async (req, res) => {
       .map((js) => {
         return {
           ...js,
-          startTime: moment(js.startTime, 'YYYY-MM-DDTHH:mm:ssZ').format(
-            'YYYY-MM-DD'
+          startTime: moment(js.startTime, "YYYY-MM-DDTHH:mm:ssZ").format(
+            "YYYY-MM-DD"
           ),
         };
       });

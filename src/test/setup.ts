@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
-import '../auth/models/user';
-import '../mealProgram/models/restaurant';
-import getSecrets from '../utils/getSecrets';
+import "../auth/models/user";
+import "../mealProgram/models/restaurant";
+import getSecrets from "../utils/getSecrets";
+const storeFileGoogle = require("../__mocks__/storeFileGoogle");
 
 declare global {
   function getToken({ admin }: { admin: boolean }): Promise<string>;
@@ -11,28 +12,30 @@ declare global {
   var userId: string;
 }
 
-jest.mock('@sendgrid/mail');
-jest.mock('twilio');
+jest.mock("@sendgrid/mail");
+jest.mock("twilio");
+//@ts-ignore
+jest.mock("../files/google/storeFileGoogle", storeFileGoogle);
 
 global.getToken = async ({ admin }: { admin: boolean }) => {
-  const User = mongoose.model('User');
+  const User = mongoose.model("User");
   const userInfo = {
-    username: 'test',
-    password: 'password',
-    salesforceId: '0038Z000035IIhKQAW',
+    username: "test",
+    password: "password",
+    salesforceId: "0038Z000035IIhKQAW",
     admin,
   };
   const newUser = new User(userInfo);
   await newUser.save();
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw new Error('No JWT key found');
+    throw new Error("No JWT key found");
   }
   global.userId = newUser.id;
-  const Restaurant = mongoose.model('Restaurant');
+  const Restaurant = mongoose.model("Restaurant");
   const newRestaurant = new Restaurant({
-    name: 'Vesuvio',
-    salesforceId: '0018Z00002lLOweQAG',
+    name: "Vesuvio",
+    salesforceId: "0018Z00002lLOweQAG",
     user: newUser.id,
   });
   await newRestaurant.save();
@@ -45,11 +48,11 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
 };
 
 global.signIn = async (username: string) => {
-  const User = mongoose.model('User');
+  const User = mongoose.model("User");
   const user = await User.findOne({ username });
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw new Error('No JWT key found');
+    throw new Error("No JWT key found");
   }
   return jwt.sign(
     {
@@ -60,16 +63,16 @@ global.signIn = async (username: string) => {
 };
 
 beforeAll(() => {
-  const uri = process.env['MONGO_URI'];
+  const uri = process.env["MONGO_URI"];
   if (!uri) {
-    throw new Error('could not find mongo memory server uri');
+    throw new Error("could not find mongo memory server uri");
   }
   mongoose.connect(uri);
 });
 
 afterEach(async () => {
-  const User = mongoose.model('User');
-  const Restaurant = mongoose.model('Restaurant');
+  const User = mongoose.model("User");
+  const Restaurant = mongoose.model("Restaurant");
   await User.deleteMany();
   await Restaurant.deleteMany();
 });

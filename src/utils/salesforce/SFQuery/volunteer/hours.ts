@@ -1,6 +1,6 @@
-import fetcher from '../../../fetcher';
-import urls from '../../../urls';
-import { InsertSuccessResponse } from './../reusableTypes';
+import fetcher from "../../../fetcher";
+import urls from "../../../urls";
+import { InsertSuccessResponse } from "./../reusableTypes";
 
 interface CreateHoursParams {
   contactId: string;
@@ -10,6 +10,7 @@ interface CreateHoursParams {
   soup?: boolean;
   mealCount?: number;
   numberOfVolunteers?: number;
+  restaurantMeals?: boolean;
 }
 
 export interface FormattedHours {
@@ -20,21 +21,22 @@ export interface FormattedHours {
   status: string;
   shift: string;
   campaign?: string;
-  mealType?: 'Entree' | 'Soup';
+  mealType?: "Entree" | "Soup";
 }
 
 export interface UnformattedHours {
   GW_Volunteers__Volunteer_Job__c: string;
   GW_Volunteers__Volunteer_Shift__c: string;
   GW_Volunteers__Status__c: string;
-  Id?: string;
+  GW_Volunteers__Start_Date__c: string;
+  Id: string;
   Number_of_Meals__c?: number;
   GW_Volunteers__Shift_Start_Date_Time__c?: string;
-  Type_of_Meal__c?: 'Soup' | 'Entree';
+  Type_of_Meal__c?: "Soup" | "Entree";
   GW_Volunteers__Contact__c?: string;
-  GW_Volunteers__Start_Date__c?: string;
   GW_Volunteers__Number_of_Volunteers__c?: number;
   GW_Volunteers__Hours_Worked__c?: number;
+  Restaurant_Meals__c?: boolean;
 }
 
 export interface HoursQueryResponse {
@@ -53,28 +55,30 @@ export const createHours = async ({
   soup,
   mealCount,
   numberOfVolunteers,
+  restaurantMeals,
 }: CreateHoursParams): Promise<FormattedHours> => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
   const { data } = await fetcher.get(
-    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Shift__c/' + shiftId
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shiftId
   );
   // getting this error
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
     console.log(data);
-    console.log('Contact trying to book is ' + contactId);
-    throw new Error('This shift has no available slots');
+    console.log("Contact trying to book is " + contactId);
+    throw new Error("This shift has no available slots");
   }
 
-  const hoursToAdd: UnformattedHours = {
+  const hoursToAdd: Partial<UnformattedHours> = {
     GW_Volunteers__Contact__c: contactId,
     GW_Volunteers__Volunteer_Shift__c: shiftId,
-    GW_Volunteers__Status__c: 'Confirmed',
+    GW_Volunteers__Status__c: "Confirmed",
     GW_Volunteers__Volunteer_Job__c: jobId,
     GW_Volunteers__Start_Date__c: date,
+    Restaurant_Meals__c: restaurantMeals,
   };
 
   if (mealCount) {
-    const mealType = soup ? 'Soup' : 'Entree';
+    const mealType = soup ? "Soup" : "Entree";
     hoursToAdd.Type_of_Meal__c = mealType;
     hoursToAdd.Number_of_Meals__c = mealCount;
   }
@@ -84,26 +88,26 @@ export const createHours = async ({
   }
 
   const hoursInsertUri =
-    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c';
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c";
   const insertRes: { data: InsertSuccessResponse } = await fetcher.post(
     hoursInsertUri,
     hoursToAdd
   );
 
   if (!insertRes.data?.success) {
-    throw new Error('Unable to insert hours!');
+    throw new Error("Unable to insert hours!");
   }
   const res: { data: UnformattedHours | undefined } = await fetcher.get(
     urls.SFOperationPrefix +
-      '/GW_Volunteers__Volunteer_Hours__c/' +
+      "/GW_Volunteers__Volunteer_Hours__c/" +
       insertRes.data.id
   );
   if (!res.data) {
-    throw Error('Could not get newly created volunteer hours');
+    throw Error("Could not get newly created volunteer hours");
   }
   return {
     id: res.data.Id!,
-    mealCount: res.data.Number_of_Meals__c?.toString() || '0',
+    mealCount: res.data.Number_of_Meals__c?.toString() || "0",
     shift: res.data.GW_Volunteers__Volunteer_Shift__c,
     job: res.data.GW_Volunteers__Volunteer_Job__c,
     time: res.data.GW_Volunteers__Shift_Start_Date_Time__c!,
@@ -118,7 +122,7 @@ export const getHours = async (campaignId: string, contactId: string) => {
 
   const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
   if (!response.data?.records) {
-    throw Error('Could not query volunteer hours');
+    throw Error("Could not query volunteer hours");
   }
   const hours: FormattedHours[] = response.data.records.map((h) => {
     let mealCount = h.Number_of_Meals__c;
@@ -145,7 +149,7 @@ export const editHours = async (
   cancel: boolean,
   id: string
 ) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   interface updateHours {
     Number_of_Meals__c: number;
@@ -155,24 +159,24 @@ export const editHours = async (
 
   const hoursToUpdate: updateHours = {
     Number_of_Meals__c: mealCount,
-    Type_of_Meal__c: soup ? 'Soup' : 'Entree',
+    Type_of_Meal__c: soup ? "Soup" : "Entree",
   };
 
   if (cancel) {
-    hoursToUpdate.GW_Volunteers__Status__c = 'Canceled';
+    hoursToUpdate.GW_Volunteers__Status__c = "Canceled";
   }
 
   const hoursUpdateUri =
-    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c/" + id;
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 };
 
 export const deleteVolunteerHours = async (id: string) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
-  const hoursToUpdate = { GW_Volunteers__Status__c: 'Canceled' };
+  const hoursToUpdate = { GW_Volunteers__Status__c: "Canceled" };
 
   const hoursUpdateUri =
-    urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Hours__c/' + id;
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c/" + id;
   await fetcher.patch(hoursUpdateUri, hoursToUpdate);
 };

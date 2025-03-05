@@ -1,14 +1,14 @@
-import app from '../../../../index';
-import request from 'supertest';
+import app from "../../../../index";
+import request from "supertest";
 
-import { FormattedShift } from '../../../utils/salesforce/SFQuery/volunteer/jobs';
-import { FormattedHours } from '../../../utils/salesforce/SFQuery/volunteer/hours';
+import { FormattedShift } from "../../../utils/salesforce/SFQuery/volunteer/shifts";
+import { FormattedHours } from "../../../utils/salesforce/SFQuery/volunteer/hours";
 
-it('gets the list of shifts and signs up for a shift', async () => {
+it("gets the list of shifts and signs up for a shift", async () => {
   const token = await global.getToken({ admin: false });
   const res = await request(app)
-    .get('/api/home-chef/job-listing')
-    .set('Authorization', token)
+    .get("/api/home-chef/job-listing")
+    .set("Authorization", token)
     .expect(200);
 
   const shifts: FormattedShift[] = res.body.shifts;
@@ -20,10 +20,10 @@ it('gets the list of shifts and signs up for a shift', async () => {
   const date = shift.startTime;
 
   await request(app)
-    .post('/api/home-chef/hours')
-    .set('Authorization', token)
+    .post("/api/home-chef/hours")
+    .set("Authorization", token)
     .send({
-      mealCount: '25',
+      mealCount: "25",
       shiftId: shift.id,
       jobId: shift.job,
       date,
@@ -31,27 +31,27 @@ it('gets the list of shifts and signs up for a shift', async () => {
     .expect(201);
 });
 
-it('gets the hours for a contact and then edits one', async () => {
+it("gets the hours for a contact and then edits one", async () => {
   const token = await global.getToken({ admin: false });
   const hoursRes = await request(app)
-    .get('/api/home-chef/hours')
-    .set('Authorization', token)
+    .get("/api/home-chef/hours")
+    .set("Authorization", token)
     .expect(200);
 
   const hours: FormattedHours[] = hoursRes.body;
   const hour = hours[0];
   if (!hour) {
-    throw Error('No hours to edit');
+    throw Error("No hours to edit");
   }
 
   await request(app)
     .patch(`/api/home-chef/hours/${hour.id}`)
-    .set('Authorization', token)
+    .set("Authorization", token)
     .send({
-      mealCount: '50',
+      mealCount: "50",
       cancel: false,
       completed: false,
-      emailData: { fridge: 'Homies', date: new Date() },
+      emailData: { fridge: "Homies", date: new Date() },
     })
     .expect(200);
 });

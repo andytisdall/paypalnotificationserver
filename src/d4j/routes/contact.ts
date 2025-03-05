@@ -1,28 +1,28 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import { generate } from 'generate-password';
+import express from "express";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import { generate } from "generate-password";
 
-import { currentD4JUser } from '../../middlewares/current-d4j-user';
+import { currentD4JUser } from "../../middlewares/current-d4j-user";
 import {
   addContact,
   getContactByEmail,
   deleteContact,
-} from '../../utils/salesforce/SFQuery/contact';
-import getSecrets from '../../utils/getSecrets';
-import { sendEmail } from '../../utils/email';
-import { CheckIn } from '../models/checkIn';
-import { deleteAllUserCheckIns } from '../../utils/salesforce/SFQuery/d4j';
-import { sendConfirmD4JUserEmail } from '../../utils/email';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
+} from "../../utils/salesforce/SFQuery/contact";
+import getSecrets from "../../utils/getSecrets";
+import { sendEmail } from "../../utils/email";
+import { CheckIn } from "../models/checkIn";
+import { deleteAllUserCheckIns } from "../../utils/salesforce/SFQuery/d4j";
+import { sendConfirmD4JUserEmail } from "../../utils/email";
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
 
-const D4JUser = mongoose.model('D4JUser');
+const D4JUser = mongoose.model("D4JUser");
 
 const router = express.Router();
 
-router.post('/contact/signin', async (req, res) => {
+router.post("/contact/signin", async (req, res) => {
   const { email, token }: { email: string; token?: string } = req.body;
 
   let user = await D4JUser.findOne({ email });
@@ -42,9 +42,9 @@ router.post('/contact/signin', async (req, res) => {
     await user.save();
   }
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('Could not find JWT secret key');
+    throw Error("Could not find JWT secret key");
   }
 
   const jwtToken = jwt.sign(
@@ -57,7 +57,7 @@ router.post('/contact/signin', async (req, res) => {
   res.send({ contact: user, token: jwtToken });
 });
 
-router.post('/contact', async (req, res) => {
+router.post("/contact", async (req, res) => {
   const {
     email,
     firstName,
@@ -67,19 +67,19 @@ router.post('/contact', async (req, res) => {
     req.body;
 
   if (!email || !firstName || !lastName) {
-    throw Error('You must provide an email, first name and last name.');
+    throw Error("You must provide an email, first name and last name.");
   }
 
   const existingUser = await D4JUser.findOne({ email });
   if (existingUser) {
-    throw Error('There is already a user with this email address');
+    throw Error("There is already a user with this email address");
   }
 
   const user = new D4JUser({ email, token });
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('Could not find JWT secret key');
+    throw Error("Could not find JWT secret key");
   }
   const jwtToken = jwt.sign(
     {
@@ -117,14 +117,14 @@ router.post('/contact', async (req, res) => {
   res.send({ contact: user, token: jwtToken });
 });
 
-router.post('/confirm-email', async (req, res) => {
+router.post("/confirm-email", async (req, res) => {
   const { code } = req.body;
   if (!code) {
-    throw Error('No code provided');
+    throw Error("No code provided");
   }
   const user = await D4JUser.findOne({ secretCode: code });
   if (!user) {
-    throw Error('Invalid Code');
+    throw Error("Invalid Code");
   }
   user.unconfirmed = false;
   user.secretCode = undefined;
@@ -133,20 +133,20 @@ router.post('/confirm-email', async (req, res) => {
   res.sendStatus(204);
 });
 
-router.get('/contact', currentD4JUser, async (req, res) => {
+router.get("/contact", currentD4JUser, async (req, res) => {
   if (!req.currentD4JUser) {
     return res.sendStatus(204);
   }
   res.send(req.currentD4JUser);
 });
 
-router.get('/delete-account/:email', async (req, res) => {
+router.get("/delete-account/:email", async (req, res) => {
   const { email } = req.params;
 
   const user = await D4JUser.findOne({ email });
 
   if (!user) {
-    throw Error('User not found');
+    throw Error("User not found");
   }
 
   const code = generate({
@@ -163,21 +163,21 @@ router.get('/delete-account/:email', async (req, res) => {
 
   await sendEmail({
     to: email,
-    from: 'andy@ckoakland.org',
-    subject: 'Your code from CK',
+    from: "andy@ckoakland.org",
+    subject: "Your code from CK",
     html: emailText,
   });
 
   res.sendStatus(204);
 });
 
-router.post('/delete-account', async (req, res) => {
+router.post("/delete-account", async (req, res) => {
   const { code, email }: { code: string; email: string } = req.body;
 
   const user = await D4JUser.findOne({ email });
 
   if (code !== user.secretCode) {
-    throw Error('Incorrect Code');
+    throw Error("Incorrect Code");
   }
 
   // delete salesforce check ins
@@ -205,12 +205,12 @@ router.post('/delete-account', async (req, res) => {
 });
 
 router.get(
-  '/delete-andy',
+  "/delete-andy",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const email = 'andrew.tisdall@gmail.com';
+    const email = "andrew.tisdall@gmail.com";
 
     const contact = await getContactByEmail(email);
     await deleteContact(contact!.id!);

@@ -1,27 +1,27 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import twilio, { twiml } from 'twilio';
-import moment from 'moment';
+import express from "express";
+import mongoose from "mongoose";
+import twilio, { twiml } from "twilio";
+import moment from "moment";
 
-import { REGIONS, Region, DROPOFF_NUMBER } from '../models/phone';
-import textResponses from '../textResponses';
-import { sendEmail } from '../../utils/email';
-import urls from '../../utils/urls';
-import { OutgoingText, getTwilioClient } from './outgoingText';
+import { REGIONS, Region, DROPOFF_NUMBER } from "../models/phone";
+import textResponses from "../textResponses";
+import { sendEmail } from "../../utils/email";
+import urls from "../../utils/urls";
+import { OutgoingText, getTwilioClient } from "./outgoingText";
 import {
   addTextSubscriber,
   editTextSubscriber,
-} from '../../utils/salesforce/SFQuery/text';
-import getSecrets from '../../utils/getSecrets';
+} from "../../utils/salesforce/SFQuery/text";
+import getSecrets from "../../utils/getSecrets";
 
-const Feedback = mongoose.model('Feedback');
-const Phone = mongoose.model('Phone');
+const Feedback = mongoose.model("Feedback");
+const Phone = mongoose.model("Phone");
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
 
-const DROPOFF_EMAIL_SUBSCRIBERS = ['mollye@ckoakland.org'];
+const DROPOFF_EMAIL_SUBSCRIBERS = ["mollye@ckoakland.org"];
 
-const DROPOFF_PHONE_SUBSCRIBERS = ['+17185017050'];
+const DROPOFF_PHONE_SUBSCRIBERS = ["+17185017050"];
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -40,8 +40,8 @@ export type PhoneNumber =
   | null;
 
 router.post(
-  '/incoming',
-  twilio.webhook({ protocol: 'https' }),
+  "/incoming",
+  twilio.webhook({ protocol: "https" }),
   async (req, res) => {
     const response = new MessagingResponse();
 
@@ -54,24 +54,24 @@ router.post(
 
     response.message(responseMessage);
 
-    res.set('Content-Type', 'text/xml');
+    res.set("Content-Type", "text/xml");
     return res.send(response.toString());
   }
 );
 
 router.post(
-  '/incoming/dropoff',
-  twilio.webhook({ protocol: 'https' }),
+  "/incoming/dropoff",
+  twilio.webhook({ protocol: "https" }),
   async (req, res) => {
     const { Body, From, DateSent } = req.body;
 
     const images = getImages(req.body);
 
-    const textUrl = urls.client + '/text/send-text';
+    const textUrl = urls.client + "/text/send-text";
 
     const formattedDate = moment(DateSent)
-      .subtract(7, 'hours')
-      .format('MM/DD/YY hh:mm a');
+      .subtract(7, "hours")
+      .format("MM/DD/YY hh:mm a");
 
     let html = `
     <h4>This is a CK Home Chef drop off alert</h4>
@@ -93,7 +93,7 @@ router.post(
     const msg = {
       to: DROPOFF_EMAIL_SUBSCRIBERS,
       from: urls.adminEmail,
-      subject: 'You got a text on the Home Chef drop-off line',
+      subject: "You got a text on the Home Chef drop-off line",
       mediaUrl: images,
       html,
     };
@@ -101,7 +101,7 @@ router.post(
     await sendEmail(msg);
 
     const { MESSAGING_SERVICE_SID } = await getSecrets([
-      'MESSAGING_SERVICE_SID',
+      "MESSAGING_SERVICE_SID",
     ]);
     if (!MESSAGING_SERVICE_SID) {
       throw Error();
@@ -125,7 +125,7 @@ router.post(
     const response = new MessagingResponse();
     response.message(textResponses.dropOffResponse);
 
-    res.set('Content-Type', 'text/xml');
+    res.set("Content-Type", "text/xml");
     res.send(response.toString());
   }
 );
@@ -154,10 +154,10 @@ const routeTextToResponse = async (
   const regions = Object.keys(REGIONS) as Region[];
   const region = regions.find((reg) => REGIONS[reg] === To);
   if (!region) {
-    throw Error('could not map recipient number to a region');
+    throw Error("could not map recipient number to a region");
   }
 
-  const keyword = Body.toLowerCase().replace(' ', '');
+  const keyword = Body.toLowerCase().replace(" ", "");
 
   const existingNumber = await Phone.findOne({ number: From });
 
@@ -206,7 +206,7 @@ const addPhoneNumber = async (
     await newPhone.save();
     await addTextSubscriber(newPhone.number, newPhone.region);
   }
-  return textResponses.signUpResponse(region, number);
+  return textResponses.signUpResponse(region);
 };
 
 const removePhoneNumber = async (user: PhoneNumber, region: Region) => {
@@ -229,7 +229,7 @@ const receiveFeedback = async (feedbackArgs: Feedback) => {
   const newFeedback = new Feedback(feedbackArgs);
   await newFeedback.save();
   await sendFBNotification(feedbackArgs);
-  return textResponses.feedbackResponse(feedbackArgs.sender);
+  return textResponses.feedbackResponse();
 };
 
 const sendFBNotification = async (feedbackArgs: Feedback) => {
@@ -240,8 +240,8 @@ const sendFBNotification = async (feedbackArgs: Feedback) => {
   <p><b>Region:</b> ${feedbackArgs.region}</p>
   `;
 
-  const RECIPIENT = 'kenai@ckoakland.org';
-  const SUBJECT = 'CK Text Service: You received feedback';
+  const RECIPIENT = "kenai@ckoakland.org";
+  const SUBJECT = "CK Text Service: You received feedback";
   await sendEmail({
     to: RECIPIENT,
     from: RECIPIENT,
