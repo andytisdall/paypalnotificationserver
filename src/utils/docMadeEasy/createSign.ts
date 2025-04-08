@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
-import urls from '../urls';
-import { DocInformation } from '../../sign/routes';
-import getSecrets from '../getSecrets';
+import urls from "../urls";
+import { DocInformation } from "../../sign/routes";
+import getSecrets from "../getSecrets";
 
 const createSign = async ({
   contact,
   doc,
-  shiftId,
+  hoursId,
 }: {
   contact: {
     name: string;
@@ -15,14 +15,14 @@ const createSign = async ({
     email: string;
   };
   doc: DocInformation;
-  shiftId?: string;
+  hoursId?: string;
 }): Promise<string> => {
-  const { DOCMADEEASY_KEY } = await getSecrets(['DOCMADEEASY_KEY']);
+  const { DOCMADEEASY_KEY } = await getSecrets(["DOCMADEEASY_KEY"]);
 
   let redirectUrl = urls.client + doc.url;
 
-  if (shiftId) {
-    redirectUrl += `/${shiftId}/${contact.id}`;
+  if (hoursId) {
+    redirectUrl = redirectUrl + `/${contact.id}/${hoursId}`;
   }
 
   const templateId = doc.template;
@@ -32,31 +32,31 @@ const createSign = async ({
       {
         name: contact.name,
         email: contact.email,
-        order: '1',
-        select: '1',
+        order: "1",
+        select: "1",
       },
     ],
     redirectUrl,
-    testMode: process.env.NODE_ENV !== 'production',
+    testMode: process.env.NODE_ENV !== "production",
     allowReassign: true,
     allowDecline: true,
-    linkExpire: '30',
+    linkExpire: "30",
     message:
-      'Hello {{recipient_name}},\n\n{{sender_name}} has sent you a new document to view and sign. Please click on the link to begin signing.',
-    subject: 'Please sign this document',
+      "Hello {{recipient_name}},\n\n{{sender_name}} has sent you a new document to view and sign. Please click on the link to begin signing.",
+    subject: "Please sign this document",
   };
 
   const requestUrl =
     urls.docMadeEasy +
-    '/envelope/create/' +
+    "/envelope/create/" +
     templateId +
-    '?akey=' +
+    "?akey=" +
     DOCMADEEASY_KEY;
 
   const result = await axios.post(requestUrl, signRequestBody);
 
   if (!result.data.success) {
-    throw Error('Could not create agreement');
+    throw Error("Could not create agreement");
   }
 
   return result.data.recipients[0].url;

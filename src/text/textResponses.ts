@@ -35,7 +35,7 @@ const duplicateResponse = (region: string) => {
 };
 
 const feedbackResponse = () => {
-  return `Thank you for your feedback. A team member will review your message soon. If you want to fill out a survey about your experience with Community Kitchens, please follow this link: ${MEAL_SURVEY_URL}`;
+  return `Thank you for your feedback. A team member will review your message soon. If you are able to complete our short survey, we won't share your data and it helps greatly with funding to provide free meals to the people: ${MEAL_SURVEY_URL}`;
 };
 
 const generalInfoResponse = (region: string) => {

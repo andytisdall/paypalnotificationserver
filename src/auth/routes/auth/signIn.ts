@@ -1,21 +1,21 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
+import express from "express";
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 
-import { currentUser } from '../../../middlewares/current-user';
-import { requireAuth } from '../../../middlewares/require-auth';
-import { requireAdmin } from '../../../middlewares/require-admin';
-import getSecrets from '../../../utils/getSecrets';
-import { Password } from '../../password';
+import { currentUser } from "../../../middlewares/current-user";
+import { requireAuth } from "../../../middlewares/require-auth";
+import { requireAdmin } from "../../../middlewares/require-admin";
+import getSecrets from "../../../utils/getSecrets";
+import { Password } from "../../password";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 const router = express.Router();
 
-router.post('/signin', async (req, res) => {
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+router.post("/signin", async (req, res) => {
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('No JWT key found');
+    throw Error("No JWT key found");
   }
 
   const { username, password } = req.body;
@@ -23,7 +23,7 @@ router.post('/signin', async (req, res) => {
   const existingUser = await User.findOne({ username });
   if (!existingUser) {
     res.status(401);
-    throw new Error('Credentials Invalid');
+    throw new Error("Credentials Invalid");
   }
 
   const passwordsMatch = await Password.compare(
@@ -33,7 +33,7 @@ router.post('/signin', async (req, res) => {
 
   if (!passwordsMatch) {
     res.status(401);
-    throw new Error('Credentials Invalid');
+    throw new Error("Credentials Invalid");
   }
 
   const token = jwt.sign(
@@ -47,7 +47,7 @@ router.post('/signin', async (req, res) => {
 });
 
 router.post(
-  '/admin-signin',
+  "/admin-signin",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -57,12 +57,12 @@ router.post(
     const user = await User.findById(userId);
 
     if (!user) {
-      throw Error('User not found');
+      throw Error("User not found");
     }
 
-    const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+    const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
     if (!JWT_KEY) {
-      throw Error('No JWT key found');
+      throw Error("No JWT key found");
     }
 
     const token = jwt.sign(

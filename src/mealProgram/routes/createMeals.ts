@@ -18,15 +18,15 @@ router.post("/", currentUser, requireTextPermission, async (req, res) => {
   // create home chef restaurant meals delivery
 
   const shiftId = await createShift(body.fridge);
-  // const newHours = {
-  //   contactId: req.currentUser?.salesforceId!,
-  //   shiftId: shiftId,
-  //   jobId: body.fridge,
-  //   date: new Date().toISOString(),
-  //   mealCount: body.numberOfMealsMeat + body.numberOfMealsVeg,
-  //   restaurantMeals: true,
-  // };
-  // await createHours(newHours);
+  const newHours = {
+    contactId: req.currentUser?.salesforceId!,
+    shiftId: shiftId,
+    jobId: body.fridge,
+    date: new Date().toISOString(),
+    mealCount: body.numberOfMealsMeat + body.numberOfMealsVeg,
+    restaurantMeals: true,
+  };
+  await createHours(newHours);
 
   res.sendStatus(204);
 });

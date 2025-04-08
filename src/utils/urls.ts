@@ -30,6 +30,8 @@ const prodUrls = {
   cookieShiftId: "a0yUP000002pdHjYAI",
   cookieJobId: "a0wUP000001DM3lYAG",
   frontDoorCampaignId: "701UP00000JdCfxYAF",
+  ckDoorCampaignId: "701UP00000JyWOgYAN",
+  ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
 };
 
 const testUrls = {
@@ -45,6 +47,8 @@ const testUrls = {
   cookieShiftId: "a0yU8000000VKNRIA4",
   cookieJobId: "a0wU8000002AsM9IAK",
   frontDoorCampaignId: "701U800000KMZoQIAX",
+  ckDoorCampaignId: "701U800000KMZoQIAX",
+  ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
 };
 
 export default process.env.NODE_ENV === "production" ? prodUrls : testUrls;

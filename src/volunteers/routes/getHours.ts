@@ -1,7 +1,9 @@
 import express from "express";
 
-import fetcher from "../../utils/fetcher";
-import { getHours } from "../../utils/salesforce/SFQuery/volunteer/hours";
+import {
+  getHours,
+  getHour,
+} from "../../utils/salesforce/SFQuery/volunteer/hours";
 // import { getRecurringHours } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 
 const router = express.Router();
@@ -12,7 +14,6 @@ router.get("/hours/:campaignId/:contactId?", async (req, res) => {
   if (!contactId) {
     return res.sendStatus(204);
   }
-  await fetcher.setService("salesforce");
   const shortenedCampaignId = campaignId.substring(0, campaignId.length - 3);
   const hours = await getHours(shortenedCampaignId, contactId);
   res.send(hours);
@@ -22,5 +23,11 @@ router.get("/hours/:campaignId/:contactId?", async (req, res) => {
 //   const days = await getRecurringHours();
 //   res.send(days);
 // });
+
+router.get("/hour/:hoursId", async (req, res) => {
+  const { hoursId } = req.params;
+  const hour = await getHour(hoursId);
+  res.send(hour);
+});
 
 export default router;

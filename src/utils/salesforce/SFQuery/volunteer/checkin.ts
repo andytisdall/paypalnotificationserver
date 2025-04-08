@@ -1,7 +1,7 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-import { UnformattedContact } from "./../contact";
-import { UnformattedHours } from "./../volunteer/hours";
+import { UnformattedContact } from "../contact";
+import { UnformattedHours } from "./hours";
 import { Job } from "./jobs";
 import { Shift } from "./shifts";
 
@@ -14,10 +14,22 @@ interface UnformatterVolunteerRecurrenceSchedule {
   GW_Volunteers__Duration__c: number;
 }
 
-export const getTodaysKitchenShifts = async () => {
+export const getTodaysVolunteerShifts = async () => {
   await fetcher.setService("salesforce");
 
-  const jobQuery = `SELECT Id, Name FROM GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${urls.ckKitchenCampaignId}'`;
+  const campaignQuery = `SELECT Id FROM Campaign WHERE Portal_Signups_Enabled__c = True AND StartDate > TODAY`;
+  const campaignResponse: { data: { records: { Id: string }[] } } =
+    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(campaignQuery));
+
+  const idList = [
+    ...campaignResponse.data.records.map(({ Id }) => Id),
+    urls.ckKitchenCampaignId,
+    urls.ckDoorCampaignId,
+  ];
+
+  let idListString = `('${idList.join("','")}')`;
+
+  const jobQuery = `SELECT Id, Name FROM GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c IN ${idListString}`;
 
   const { data }: { data: { records: Pick<Job, "Id" | "Name">[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(jobQuery));
@@ -43,7 +55,7 @@ export const getTodaysKitchenShifts = async () => {
   return shifts.filter((shift) => shift);
 };
 
-export const getKitchenVolunteers = async (shiftId: string) => {
+export const getVolunteersForCheckIn = async (shiftId: string) => {
   await fetcher.setService("salesforce");
 
   const hoursQuery = `SELECT Id, GW_Volunteers__Contact__c, GW_Volunteers__Status__c FROM GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Status__c != 'Canceled' AND GW_Volunteers__Volunteer_Shift__c = '${shiftId}'`;
