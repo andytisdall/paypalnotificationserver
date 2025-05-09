@@ -212,3 +212,38 @@ export const submitMealSurveyData = async (data: MealSurveyArgs) => {
     throw new Error("Could not save the survey results");
   }
 };
+
+// for one-time migration to new salesforce object
+export const getOldSurveyData = async () => {
+  await fetcher.setService("salesforce");
+  const query = "SELECT Age__c, Ethnicity__c, Zip_Code__c FROM Client_Data__c";
+  const uri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const {
+    data,
+  }: {
+    data: {
+      records: Pick<
+        MealSurveyData,
+        "Age__c" | "Ethnicity__c" | "Zip_Code__c"
+      >[];
+    };
+  } = await fetcher.get(uri);
+  return data.records;
+};
+
+export const deleteSurveyData = async () => {
+  await fetcher.setService("salesforce");
+  const query =
+    "SELECT Id FROM Meal_Survey_Data_2__c WHERE CreatedDate = TODAY";
+  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
+    urls.SFQueryPrefix + encodeURIComponent(query)
+  );
+  const promises = data.records
+    .filter((rec) => rec.Id !== "a10UP00000AZvwwYAD")
+    .map((rec) =>
+      fetcher.delete(
+        urls.SFOperationPrefix + "/Meal_Survey_Data_2__c/" + rec.Id
+      )
+    );
+  await Promise.all(promises);
+};

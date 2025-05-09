@@ -1,6 +1,6 @@
-import fetcher from '../../fetcher';
-import urls from '../../urls';
-import { InsertSuccessResponse } from './reusableTypes';
+import fetcher from "../../fetcher";
+import urls from "../../urls";
+import { InsertSuccessResponse } from "./reusableTypes";
 
 export interface UnformattedContact {
   Name: string;
@@ -8,6 +8,14 @@ export interface UnformattedContact {
   LastName: string;
   Email?: string;
   HomePhone?: string;
+  Id: string;
+  npsp__HHId__c: string;
+
+  // general volunteer
+
+  Portal_Username__c?: string;
+  Portal_Temporary_Password__c?: string;
+
   GW_Volunteers__Volunteer_Skills__c?: string;
   GW_Volunteers__Volunteer_Status__c?: string;
   GW_Volunteers__Volunteer_Notes__c?: string;
@@ -18,35 +26,46 @@ export interface UnformattedContact {
   Able_to_work_on_feet_other__c?: string;
   Cooking_Experience__c?: string;
   How_did_they_hear_about_CK__c?: string;
-  Portal_Username__c?: string;
-  Portal_Temporary_Password__c?: string;
-  Home_Chef_Status__c?: string;
-  Id: string;
-  Home_Chef_Volunteeer_Agreement__c: boolean;
-  Home_Chef_Food_Handler_Certification__c?: boolean;
-  npsp__HHId__c: string;
-  Interest_in_other_volunteer_programs__c?: string;
   Able_to_Commit__c?: boolean;
   Able_to_cook_and_transport_other__c?: string;
+  Interest_in_other_volunteer_programs__c?: string;
+
+  // home chef
+  Home_Chef_Status__c?: string;
+  Home_Chef_Volunteeer_Agreement__c?: boolean;
+  Home_Chef_Food_Handler_Certification__c?: boolean;
   Home_Chef_Quiz_Passed__c?: boolean;
+
+  //ck kitchen
   CK_Kitchen_Agreement__c?: boolean;
   CK_Kitchen_Volunteer_Status__c?: string;
+
+  // driver
+  Car_Size__c?: "Small" | "Medium" | "Large";
+  Driver_s_License_Expiration__c?: string;
+  Driver_Volunteer_Status__c?: "Active" | "Inactive";
 }
 
 export interface FormattedContact {
   householdId: string;
   name: string;
   id: string;
+  email?: string;
   portalUsername?: string;
   firstName?: string;
   lastName: string;
   volunteerAgreement?: boolean;
+
   foodHandler?: boolean;
-  ckKitchenStatus?: string;
-  homeChefAgreement: boolean;
+  homeChefAgreement?: boolean;
   homeChefStatus?: string;
   homeChefQuizPassed?: boolean;
-  email?: string;
+
+  ckKitchenStatus?: string;
+
+  driverStatus?: "Active" | "Inactive";
+  carSize?: "Small" | "Medium" | "Large";
+  driversLicenseExpiration: Date;
 }
 
 export interface D4JContact {
@@ -58,33 +77,33 @@ export interface D4JContact {
 
 type ContactRawData = Pick<
   UnformattedContact,
-  | 'Id'
-  | 'Name'
-  | 'npsp__HHId__c'
-  | 'Portal_Username__c'
-  | 'Email'
-  | 'FirstName'
-  | 'LastName'
-  | 'CK_Kitchen_Agreement__c'
+  | "Id"
+  | "Name"
+  | "npsp__HHId__c"
+  | "Portal_Username__c"
+  | "Email"
+  | "FirstName"
+  | "LastName"
+  | "CK_Kitchen_Agreement__c"
 >;
 
 export type ContactData = Pick<
   FormattedContact,
-  | 'id'
-  | 'name'
-  | 'householdId'
-  | 'portalUsername'
-  | 'email'
-  | 'firstName'
-  | 'lastName'
-  | 'volunteerAgreement'
+  | "id"
+  | "name"
+  | "householdId"
+  | "portalUsername"
+  | "email"
+  | "firstName"
+  | "lastName"
+  | "volunteerAgreement"
 >;
 
 export const getContact = async (
   lastName: string,
   firstName: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
   const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${lastName}' AND FirstName = '${firstName}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
@@ -119,7 +138,7 @@ export const getContactByLastNameAndEmail = async (
   lastName: string,
   email: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
   const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
@@ -153,8 +172,8 @@ export const getContactByLastNameAndEmail = async (
 export const addContact = async (
   contactToAdd: Partial<UnformattedContact>
 ): Promise<ContactData> => {
-  await fetcher.setService('salesforce');
-  const contactInsertUri = urls.SFOperationPrefix + '/Contact';
+  await fetcher.setService("salesforce");
+  const contactInsertUri = urls.SFOperationPrefix + "/Contact";
 
   try {
     const insertRes: { data: InsertSuccessResponse | undefined } =
@@ -163,9 +182,9 @@ export const addContact = async (
     if (insertRes.data?.success) {
       const newContact: {
         data: UnformattedContact | undefined;
-      } = await fetcher.get(contactInsertUri + '/' + insertRes.data.id);
+      } = await fetcher.get(contactInsertUri + "/" + insertRes.data.id);
       if (!newContact.data?.Name) {
-        throw Error('Could not get created contact');
+        throw Error("Could not get created contact");
       }
       return {
         id: newContact.data.Id,
@@ -178,7 +197,7 @@ export const addContact = async (
         volunteerAgreement: newContact.data.CK_Kitchen_Agreement__c,
       };
     } else {
-      throw new Error('Unable to insert contact!');
+      throw new Error("Unable to insert contact!");
     }
   } catch (err) {
     // if a duplicate error comes back, get that contact and return it
@@ -211,18 +230,18 @@ export const updateContact = async (
   id: string,
   contactToUpdate: Partial<UnformattedContact>
 ) => {
-  await fetcher.setService('salesforce');
-  const contactUpdateUri = urls.SFOperationPrefix + '/Contact/' + id;
+  await fetcher.setService("salesforce");
+  const contactUpdateUri = urls.SFOperationPrefix + "/Contact/" + id;
   await fetcher.patch(contactUpdateUri, contactToUpdate);
 };
 
 export const getContactById = async (id: string) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
   const res: { data: UnformattedContact | undefined } = await fetcher.get(
-    urls.SFOperationPrefix + '/Contact/' + id
+    urls.SFOperationPrefix + "/Contact/" + id
   );
   if (!res.data?.LastName) {
-    throw Error('Contact not found');
+    throw Error("Contact not found");
   }
   return res.data;
 };
@@ -242,7 +261,7 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
 export const getContactByEmail = async (
   email: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   const query = `SELECT Name, FirstName, LastName, Email, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Agreement__c from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
@@ -273,7 +292,7 @@ export const getContactByEmail = async (
 export const getUnformattedContactByEmail = async (
   email: string
 ): Promise<UnformattedContact | undefined> => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   const query = `SELECT Id from Contact WHERE Email = '${email}'`;
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
@@ -316,6 +335,6 @@ export const getUnformattedContactByEmail = async (
 // };
 
 export const deleteContact = async (id: string) => {
-  await fetcher.setService('salesforce');
-  await fetcher.delete(urls.SFOperationPrefix + '/Contact/' + id);
+  await fetcher.setService("salesforce");
+  await fetcher.delete(urls.SFOperationPrefix + "/Contact/" + id);
 };
