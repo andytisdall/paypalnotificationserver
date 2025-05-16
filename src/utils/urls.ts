@@ -15,9 +15,10 @@ const baseUrls = {
   corporateVolunteersCampaignId: "701UP000005bM5AYAU",
   townFridgeCampaignId: "7018Z000003C3Mx",
   ckKitchenCampaignId: "7018Z000002jtq0QAA",
-  cookieDate: "2024-12-14",
   acrobat: "https://api.na3.adobesign.com/api/rest/v6",
   docMadeEasy: "https://api.docmadeeasy.com/rest",
+  ninja: "https://public.opendatasoft.com/api/explore/v2.1",
+  ckDoorCampaignId: "701U800000KMZoQIAX",
 };
 
 const prodUrls = {
@@ -27,10 +28,6 @@ const prodUrls = {
   docusign: "https://na4.docusign.net/restapi",
   client: "https://portal.ckoakland.org",
   server: "https://portal.ckoakland.org",
-  cookieShiftId: "a0yUP000002pdHjYAI",
-  cookieJobId: "a0wUP000001DM3lYAG",
-  frontDoorCampaignId: "701UP00000JdCfxYAF",
-  ckDoorCampaignId: "701UP00000JyWOgYAN",
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
 };
 
@@ -44,10 +41,6 @@ const testUrls = {
   client: "http://localhost:3000",
   server: "http://localhost:3001",
   appleReviewerId: "64e69853db4b5043abcd55b6",
-  cookieShiftId: "a0yU8000000VKNRIA4",
-  cookieJobId: "a0wU8000002AsM9IAK",
-  frontDoorCampaignId: "701U800000KMZoQIAX",
-  ckDoorCampaignId: "701U800000KMZoQIAX",
   ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
 };
 

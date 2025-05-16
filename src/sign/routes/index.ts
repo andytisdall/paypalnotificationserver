@@ -5,15 +5,16 @@ import {
   getUnformattedContactByEmail,
   getContactById,
   UnformattedContact,
+  updateContact,
 } from "../../utils/salesforce/SFQuery/contact";
-import homeChefUpdate from "../../files/salesforce/homeChefUpdate";
 import createSign from "../../utils/docMadeEasy/createSign";
-import { uploadFiles } from "../../files/salesforce/uploadToSalesforce";
+import { uploadFileToSalesforce } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import downloadFile from "../../utils/docMadeEasy/downloadFile";
-import { FileWithType } from "../../files/salesforce/metadata";
+import { FileWithMetadata } from "../../utils/salesforce/SFQuery/files/metadata";
 import getAccount from "../../utils/docMadeEasy/getAccount";
 import { requireAuth } from "../../middlewares/require-auth";
 import { sendEmail } from "../../utils/email";
+import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
 
 const router = express.Router();
 
@@ -57,6 +58,12 @@ const docInfo: Record<string, DocInformation> = {
   CKK: {
     type: "CKK",
     url: "/volunteers/sign/success",
+    template: "C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV",
+    name: "CK Kitchen Volunteer Agreement",
+  },
+  DRV: {
+    type: "CKK",
+    url: "/volunteers/ck-kitchen/driver/sign/success",
     template: "C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV",
     name: "CK Kitchen Volunteer Agreement",
   },
@@ -167,7 +174,7 @@ router.post("/update-contact", async (req, res) => {
 
   const data = await downloadFile(envelope.id);
 
-  const file: FileWithType = {
+  const file: FileWithMetadata = {
     docType: doc.type,
     file: {
       name: doc.name + ".pdf",
@@ -175,8 +182,18 @@ router.post("/update-contact", async (req, res) => {
     },
   };
 
-  await uploadFiles(contact, [file]);
-  await homeChefUpdate([doc.type], contact);
+  await uploadFileToSalesforce(contact, file);
+
+  if (doc.type === "CKK") {
+    await updateContact(contact.Id, {
+      CK_Kitchen_Agreement__c: true,
+      CK_Kitchen_Volunteer_Status__c: "Active",
+    });
+  }
+
+  if (doc.type === "HC") {
+    await updateHomeChefStatus(contact, { agreement: true });
+  }
 
   res.sendStatus(200);
 });

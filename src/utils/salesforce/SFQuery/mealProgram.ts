@@ -2,8 +2,8 @@ import { format, utcToZonedTime } from "date-fns-tz";
 
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { getAccountById } from "./account/account";
-import { UnformattedRestaurant } from "./account/types";
+// import { getAccountById } from "./account/account";
+// import { UnformattedRestaurant } from "./account/types";
 import { MealSurveyArgs } from "../../../mealProgram/routes/survey";
 
 export interface NewMobileOasisDelivery {
@@ -87,71 +87,71 @@ const formatMealDelivery = (
   };
 };
 
-export const getMealProgramSchedule = async () => {
-  await fetcher.setService("salesforce");
+// export const getMealProgramSchedule = async () => {
+//   await fetcher.setService("salesforce");
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week__c = true`;
-  const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
-  const deliveryResponse = await fetcher.get(deliveryyUri);
-  const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
+//   const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week__c = true`;
+//   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
+//   const deliveryResponse = await fetcher.get(deliveryyUri);
+//   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
 
-  const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
-  const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
-  const accountResponse = await fetcher.get(accountUri);
-  const accounts: UnformattedRestaurant[] = accountResponse.data.records;
+//   const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
+//   const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
+//   const accountResponse = await fetcher.get(accountUri);
+//   const accounts: UnformattedRestaurant[] = accountResponse.data.records;
 
-  const missingCBOPromises = deliveries
-    .filter((del) => {
-      return !accounts.find((acc) => del.CBO__c === acc.Id);
-    })
-    .map(async (delivery: UnformattedMealDelivery) => {
-      return getAccountById(delivery.CBO__c);
-    });
+//   const missingCBOPromises = deliveries
+//     .filter((del) => {
+//       return !accounts.find((acc) => del.CBO__c === acc.Id);
+//     })
+//     .map(async (delivery: UnformattedMealDelivery) => {
+//       return getAccountById(delivery.CBO__c);
+//     });
 
-  const missingRestaurantPromises = deliveries
-    .filter((del) => {
-      return !accounts.find((acc) => del.Restaurant__c === acc.Id);
-    })
-    .map(async (delivery: UnformattedMealDelivery) => {
-      return getAccountById(delivery.Restaurant__c);
-    });
+//   const missingRestaurantPromises = deliveries
+//     .filter((del) => {
+//       return !accounts.find((acc) => del.Restaurant__c === acc.Id);
+//     })
+//     .map(async (delivery: UnformattedMealDelivery) => {
+//       return getAccountById(delivery.Restaurant__c);
+//     });
 
-  const remainingAccounts = await Promise.all([
-    ...missingCBOPromises,
-    ...missingRestaurantPromises,
-  ]);
+//   const remainingAccounts = await Promise.all([
+//     ...missingCBOPromises,
+//     ...missingRestaurantPromises,
+//   ]);
 
-  return {
-    accounts: [...accounts, ...remainingAccounts].map((a) => {
-      return { id: a.Id, name: a.Name, address: a.Billing_Address };
-    }),
-    deliveries: deliveries.map(formatMealDelivery),
-  };
-};
+//   return {
+//     accounts: [...accounts, ...remainingAccounts].map((a) => {
+//       return { id: a.Id, name: a.Name, address: a.Billing_Address };
+//     }),
+//     deliveries: deliveries.map(formatMealDelivery),
+//   };
+// };
 
-export const getRestaurantMealProgramSchedule = async (accountId: string) => {
-  await fetcher.setService("salesforce");
+// export const getRestaurantMealProgramSchedule = async (accountId: string) => {
+//   await fetcher.setService("salesforce");
 
-  const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c, Is_This_Week__c, Is_Next_Week__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
-  const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
-  const deliveryResponse = await fetcher.get(deliveryyUri);
-  const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
+//   const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c, Is_This_Week__c, Is_Next_Week__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
+//   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
+//   const deliveryResponse = await fetcher.get(deliveryyUri);
+//   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
 
-  const accountPromises = deliveries.map(
-    async (delivery: UnformattedMealDelivery) => {
-      return getAccountById(delivery.CBO__c);
-    }
-  );
+//   const accountPromises = deliveries.map(
+//     async (delivery: UnformattedMealDelivery) => {
+//       return getAccountById(delivery.CBO__c);
+//     }
+//   );
 
-  const accounts = await Promise.all(accountPromises);
+//   const accounts = await Promise.all(accountPromises);
 
-  return {
-    accounts: accounts.map((a) => {
-      return { id: a.Id, name: a.Name };
-    }),
-    deliveries: deliveries.map(formatMealDelivery),
-  };
-};
+//   return {
+//     accounts: accounts.map((a) => {
+//       return { id: a.Id, name: a.Name };
+//     }),
+//     deliveries: deliveries.map(formatMealDelivery),
+//   };
+// };
 
 export const createScheduledDelivery = async (
   delivery: NewMobileOasisDelivery

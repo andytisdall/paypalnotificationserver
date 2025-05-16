@@ -8,6 +8,7 @@ import createHoursRouter from "./createHours";
 import getCampaignsRouter from "./getCampaigns";
 import eventsRouter from "./events";
 import checkInRouter from "./checkIn";
+import driverRouter from "./driver";
 
 const volunteerRouter = express.Router({ mergeParams: true });
 
@@ -16,8 +17,9 @@ volunteerRouter.use(interestFormRouter);
 volunteerRouter.use(getHoursRouter);
 volunteerRouter.use(createHoursRouter);
 volunteerRouter.use(getCampaignsRouter);
-volunteerRouter.use(getVolunteerRouter);
 volunteerRouter.use(eventsRouter);
 volunteerRouter.use(checkInRouter);
+volunteerRouter.use(driverRouter);
+volunteerRouter.use(getVolunteerRouter);
 
 export default volunteerRouter;

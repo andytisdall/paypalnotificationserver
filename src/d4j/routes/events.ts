@@ -1,38 +1,38 @@
-import express from 'express';
-import mongoose from 'mongoose';
+import express from "express";
+import mongoose from "mongoose";
 
-import { getD4JCampaigns } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
-import { currentD4JUser } from '../../middlewares/current-d4j-user';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
-import { getAccountById } from '../../utils/salesforce/SFQuery/account/account';
+import { getD4JCampaigns } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
+import { currentD4JUser } from "../../middlewares/current-d4j-user";
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
+// import { getAccountById } from '../../utils/salesforce/SFQuery/account/account';
 
-const CocktailVote = mongoose.model('CocktailVote');
+const CocktailVote = mongoose.model("CocktailVote");
 
 const router = express.Router();
 
 const COCKTAIL_PARTICIPANT_IDS: string[] = [];
 
-router.get('/events', async (req, res) => {
+router.get("/events", async (req, res) => {
   const events = await getD4JCampaigns();
 
   res.send(events);
 });
 
-router.get('/events/cocktail-competition', async (req, res) => {
+router.get("/events/cocktail-competition", async (req, res) => {
   res.send(COCKTAIL_PARTICIPANT_IDS);
 });
 
-router.get('/contest/votes', async (req, res) => {
+router.get("/contest/votes", async (req, res) => {
   const allVotes = await CocktailVote.find();
   res.send(allVotes);
 });
 
-router.post('/contest/vote', currentD4JUser, async (req, res) => {
+router.post("/contest/vote", currentD4JUser, async (req, res) => {
   const { barId }: { barId: string } = req.body;
   if (!req.currentD4JUser) {
-    throw Error('No user signed in');
+    throw Error("No user signed in");
   }
 
   const newVote = new CocktailVote({ user: req.currentD4JUser.id, bar: barId });
@@ -41,10 +41,10 @@ router.post('/contest/vote', currentD4JUser, async (req, res) => {
   res.sendStatus(204);
 });
 
-router.patch('/contest/vote', currentD4JUser, async (req, res) => {
+router.patch("/contest/vote", currentD4JUser, async (req, res) => {
   const { barId }: { barId: string } = req.body;
   if (!req.currentD4JUser) {
-    throw Error('No user signed in');
+    throw Error("No user signed in");
   }
 
   const existingVote = await CocktailVote.findOne({
@@ -52,7 +52,7 @@ router.patch('/contest/vote', currentD4JUser, async (req, res) => {
   });
 
   if (!existingVote) {
-    throw Error('No vote found');
+    throw Error("No vote found");
   }
 
   existingVote.bar = barId;
@@ -62,7 +62,7 @@ router.patch('/contest/vote', currentD4JUser, async (req, res) => {
 });
 
 router.post(
-  '/contest/winner',
+  "/contest/winner",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -92,10 +92,10 @@ router.post(
       (bar) => totals[bar] === winningNumberOfVotes
     );
 
-    const winningPromises = winningIds.map((id) => getAccountById(id));
-    const winningAccounts = await Promise.all(winningPromises);
-    const winningNames = winningAccounts.map(({ Name }) => Name);
-    res.send(winningNames);
+    // const winningPromises = winningIds.map((id) => getAccountById(id));
+    // const winningAccounts = await Promise.all(winningPromises);
+    // const winningNames = winningAccounts.map(({ Name }) => Name);
+    res.send(winningIds);
   }
 );
 

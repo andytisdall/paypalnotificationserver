@@ -1,9 +1,10 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import urls from './urls';
-import getSFToken from './salesforce/getSFToken';
+import urls from "./urls";
+import getSFToken from "./salesforce/getSFToken";
+import getSecrets from "./getSecrets";
 
-export type Service = 'salesforce';
+export type Service = "salesforce" | "ninja";
 
 class fetcher {
   instance: AxiosInstance;
@@ -14,6 +15,7 @@ class fetcher {
     this.instance = axios.create();
     this.token = {
       salesforce: undefined,
+      ninja: undefined,
     };
   }
 
@@ -29,9 +31,14 @@ class fetcher {
       this.instance.defaults.baseURL = baseURL;
       const token = this.token[this.service];
       if (token) {
-        this.instance.defaults.headers.common[
-          'Authorization'
-        ] = `Bearer ${token}`;
+        if (this.service === "salesforce") {
+          this.instance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${token}`;
+        }
+        if (this.service === "ninja") {
+          this.instance.defaults.headers.common["X-Api-Key"] = token;
+        }
       } else {
         await this.getToken();
       }
@@ -44,15 +51,19 @@ class fetcher {
 
   private async getToken() {
     let token: string | undefined;
-    if (this.service === 'salesforce') {
+    if (this.service === "salesforce") {
       token = await getSFToken();
+      this.instance.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${token}`;
+      this.instance.defaults.headers.common["Content-Type"] =
+        "application/json";
     }
-
-    if (!token) {
-      throw Error('Could not get token');
+    if (this.service === "ninja") {
+      const { API_NINJA_KEY } = await getSecrets(["API_NINJA_KEY"]);
+      token = API_NINJA_KEY;
+      this.instance.defaults.headers.common["X-Api-Key"] = token;
     }
-    this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    this.instance.defaults.headers.common['Content-Type'] = 'application/json';
     this.token[this.service!] = token;
   }
 
@@ -95,7 +106,7 @@ class fetcher {
     options?: AxiosRequestConfig
   ) {
     if (!this.service) {
-      throw Error('Base url has not been set');
+      throw Error("Base url has not been set");
     }
     const patch = async () => {
       return await this.instance.patch(url, body, options);
@@ -113,7 +124,7 @@ class fetcher {
     options?: AxiosRequestConfig
   ) {
     if (!this.service) {
-      throw Error('Base url has not been set');
+      throw Error("Base url has not been set");
     }
     const put = async () => {
       return await this.instance.put(url, body, options);
@@ -127,7 +138,7 @@ class fetcher {
 
   async delete(url: string, options?: AxiosRequestConfig) {
     if (!this.service) {
-      throw Error('Base url has not been set');
+      throw Error("Base url has not been set");
     }
     const del = async () => {
       return await this.instance.delete(url, options);

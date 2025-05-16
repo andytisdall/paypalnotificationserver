@@ -15,20 +15,17 @@ const router = express.Router();
 router.get("/campaigns", async (req, res) => {
   const campaigns = await getVolunteerCampaigns();
   const ckKitchenCampaign = await getCampaign(urls.ckKitchenCampaignId);
-  const doorCampaign = await getCampaign(urls.ckDoorCampaignId);
 
-  const campaignPromises = [...campaigns, doorCampaign].map(
-    async (campaign) => {
-      const jobs = await getJobs(campaign.id);
-      const shiftPromises = jobs.map(async (j) => {
-        const shifts = await getShifts(j.id, 42);
-        j.shifts = shifts.map((sh) => sh.id);
-        return shifts;
-      });
-      const shifts = (await Promise.all(shiftPromises)).flat();
-      return { jobs, shifts, ...campaign };
-    }
-  );
+  const campaignPromises = campaigns.map(async (campaign) => {
+    const jobs = await getJobs(campaign.id);
+    const shiftPromises = jobs.map(async (j) => {
+      const shifts = await getShifts(j.id, 42);
+      j.shifts = shifts.map((sh) => sh.id);
+      return shifts;
+    });
+    const shifts = (await Promise.all(shiftPromises)).flat();
+    return { jobs, shifts, ...campaign };
+  });
 
   const kitchenJobs = await getJobs(ckKitchenCampaign.id);
   const shiftPromises = kitchenJobs.map(async (j) => {

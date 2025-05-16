@@ -1,4 +1,4 @@
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 
 interface Secrets {
   SF_CLIENT_ID: string;
@@ -22,6 +22,7 @@ interface Secrets {
   APPLE_TEAM_ID: string;
   APPLE_KID: string;
   APPLE_AUTH_KEY: string;
+  API_NINJA_KEY: string;
 }
 
 type Secret = keyof Secrets;
@@ -29,8 +30,8 @@ type Secret = keyof Secrets;
 const getSecrets: (nameList: Secret[]) => Promise<Partial<Secrets>> = async (
   nameList
 ) => {
-  if (process.env.NODE_ENV !== 'production') {
-    const keys: any = await import('../../keys');
+  if (process.env.NODE_ENV !== "production") {
+    const keys: any = await import("../../keys");
     return keys as Secrets;
   }
   const secrets: Partial<Secrets> = {};

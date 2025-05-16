@@ -5,19 +5,6 @@ export interface AccountAddress {
   postalCode: string;
 }
 
-export interface UnformattedRestaurant {
-  Meal_Program_Onboarding__c: string;
-  Meal_Program_Status__c: string;
-  Health_Department_Expiration_Date__c: string;
-  Name: string;
-  Id: string;
-  Billing_Address: AccountAddress;
-}
-
-export interface Restaurant {
-  onboarding: string;
-}
-
 export interface UnformattedD4JRestaurant {
   Name: string;
   Id: string;
@@ -34,7 +21,7 @@ export interface UnformattedD4JRestaurant {
   Cocktail_Description__c?: string;
   Cocktail_2_Name__c?: string;
   Cocktail_2_Description__c?: string;
-  D4J_Status__c?: 'Active' | 'Former' | 'Paused';
+  D4J_Status__c?: "Active" | "Former" | "Paused";
   Closed__c?: boolean;
   Website?: string;
 }
@@ -57,7 +44,7 @@ export interface FormattedD4JRestaurant {
   cocktailDescription?: string;
   cocktail2Name?: string;
   cocktail2Description?: string;
-  status?: 'Active' | 'Former' | 'Paused';
+  status?: "Active" | "Former" | "Paused";
   closed?: boolean;
   url?: string;
 }
