@@ -1,5 +1,5 @@
 import fetcher from "../../../fetcher";
-import { UnformattedContact } from "../contact";
+import { UnformattedContact } from "../contact/contact";
 import urls from "../../../urls";
 
 export default async (

@@ -3,27 +3,7 @@ import moment from "moment";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 
-export interface Shift {
-  Id: string;
-  GW_Volunteers__Start_Date_Time__c: string;
-  GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
-  Restaurant_Meals__c: boolean;
-  GW_Volunteers__Duration__c: number;
-  GW_Volunteers__Volunteer_Job__c: string;
-  GW_Volunteers__Desired_Number_of_Volunteers__c: number;
-  Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
-}
-
-export interface FormattedShift {
-  id: string;
-  startTime: string;
-  open: boolean;
-  job: string;
-  restaurantMeals: boolean;
-  duration: number;
-  slots: number;
-  totalSlots: number;
-}
+import { Shift, FormattedShift } from "./types";
 
 export const getShift = async (
   shiftId: string
@@ -71,7 +51,7 @@ export const getShifts = async (
             | "GW_Volunteers__Number_of_Volunteers_Still_Needed__c"
             | "Restaurant_Meals__c"
             | "GW_Volunteers__Duration__c"
-            // | "Car_Size_Required__c"
+            | "Car_Size_Required__c"
             | "GW_Volunteers__Desired_Number_of_Volunteers__c"
           >[]
         | undefined;

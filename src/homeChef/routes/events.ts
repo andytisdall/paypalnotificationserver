@@ -1,15 +1,15 @@
-import express from 'express';
+import express from "express";
 
-import urls from '../../utils/urls';
+import urls from "../../utils/urls";
 import {
   getContactByEmail,
   addContact,
-} from '../../utils/salesforce/SFQuery/contact';
-import { insertCampaignMember } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember';
+} from "../../utils/salesforce/SFQuery/contact/contact";
+import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
 
 const router = express.Router();
 
-router.post('/home-chef-registration', async (req, res) => {
+router.post("/home-chef-registration", async (req, res) => {
   const {
     email,
     firstName,
@@ -32,21 +32,21 @@ router.post('/home-chef-registration', async (req, res) => {
       LastName: lastName,
       HomePhone: phone,
       How_did_they_hear_about_CK__c: source,
-      Home_Chef_Status__c: 'Prospective',
-      GW_Volunteers__Volunteer_Status__c: 'Prospective',
+      Home_Chef_Status__c: "Prospective",
+      GW_Volunteers__Volunteer_Status__c: "Prospective",
     });
 
     await insertCampaignMember({
       CampaignId: urls.townFridgeCampaignId,
       ContactId: contact.id!,
-      Status: 'Confirmed',
+      Status: "Confirmed",
     });
   }
 
   await insertCampaignMember({
     ContactId: contact.id!,
     CampaignId: urls.homeChefInPersonCampaignId,
-    Status: 'Confirmed',
+    Status: "Confirmed",
   });
 
   res.sendStatus(204);

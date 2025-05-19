@@ -1,4 +1,4 @@
-import { D4JContact } from '../salesforce/SFQuery/contact';
+import { D4JContact } from "../salesforce/SFQuery/contact/types";
 
 export default (
   contact: D4JContact,
@@ -10,7 +10,7 @@ export default (
   <ul>
   <li>Contact: ${contact.email}</li>
   <li>Prize: ${prize}</li>
-  ${restaurantName ? `Restaurant: ${restaurantName}` : ''}
+  ${restaurantName ? `Restaurant: ${restaurantName}` : ""}
   Best, Yourself.
   `;
 };

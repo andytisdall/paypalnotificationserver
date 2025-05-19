@@ -10,7 +10,7 @@ import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
 import {
   getContactById,
   updateContact,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
 import {
   formatFilesFromFileArray,
   uploadFileToSalesforce,
@@ -107,17 +107,6 @@ router.get("/driver/cars", async (req, res) => {
 
   res.send(data.results);
 });
-
-router.get(
-  "/driver/directions/:origin/:destination",
-  currentUser,
-  requireAuth,
-  async (req, res) => {
-    const { origin, destination } = req.params;
-    const distance = await getDirections(origin, destination);
-    res.send({ distance });
-  }
-);
 
 export const checkAndUpdateDriverStatus = async (contactId: string) => {
   const contact = await getContactById(contactId);

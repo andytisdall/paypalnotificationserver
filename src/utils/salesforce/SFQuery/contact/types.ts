@@ -1,0 +1,97 @@
+export interface UnformattedContact {
+  Name: string;
+  FirstName?: string;
+  LastName: string;
+  Email?: string;
+  HomePhone?: string;
+  Id: string;
+  npsp__HHId__c: string;
+
+  // general volunteer
+
+  Portal_Username__c?: string;
+  Portal_Temporary_Password__c?: string;
+
+  GW_Volunteers__Volunteer_Skills__c?: string;
+  GW_Volunteers__Volunteer_Status__c?: string;
+  GW_Volunteers__Volunteer_Notes__c?: string;
+  Instagram_Handle__c?: string;
+  Able_to_get_food_handler_cert__c?: boolean;
+  Able_to_get_food_handler_other__c?: string;
+  Able_to_work_on_feet__c?: boolean;
+  Able_to_work_on_feet_other__c?: string;
+  Cooking_Experience__c?: string;
+  How_did_they_hear_about_CK__c?: string;
+  Able_to_Commit__c?: boolean;
+  Able_to_cook_and_transport_other__c?: string;
+  Interest_in_other_volunteer_programs__c?: string;
+
+  // home chef
+  Home_Chef_Status__c?: string;
+  Home_Chef_Volunteeer_Agreement__c?: boolean;
+  Home_Chef_Food_Handler_Certification__c?: boolean;
+  Home_Chef_Quiz_Passed__c?: boolean;
+
+  //ck kitchen
+  CK_Kitchen_Agreement__c?: boolean;
+  CK_Kitchen_Volunteer_Status__c?: string;
+
+  // driver
+  Car_Size__c?: "Small" | "Medium" | "Large";
+  Driver_s_License_Expiration__c?: string;
+  Driver_Volunteer_Status__c?: "Active" | "Inactive";
+  Insurance_Expiration_Date__c?: string;
+}
+
+export interface FormattedContact {
+  householdId: string;
+  name: string;
+  id: string;
+  email?: string;
+  portalUsername?: string;
+  firstName?: string;
+  lastName: string;
+  volunteerAgreement?: boolean;
+
+  foodHandler?: boolean;
+  homeChefAgreement?: boolean;
+  homeChefStatus?: string;
+  homeChefQuizPassed?: boolean;
+
+  ckKitchenStatus?: string;
+
+  driverStatus?: "Active" | "Inactive";
+  carSize?: "Small" | "Medium" | "Large";
+  driversLicenseExpiration: Date;
+}
+
+export interface D4JContact {
+  firstName: string;
+  email: string;
+  id: string;
+  d4jPoints?: number;
+}
+
+export type ContactRawData = Pick<
+  UnformattedContact,
+  | "Id"
+  | "Name"
+  | "npsp__HHId__c"
+  | "Portal_Username__c"
+  | "Email"
+  | "FirstName"
+  | "LastName"
+  | "CK_Kitchen_Agreement__c"
+>;
+
+export type ContactData = Pick<
+  FormattedContact,
+  | "id"
+  | "name"
+  | "householdId"
+  | "portalUsername"
+  | "email"
+  | "firstName"
+  | "lastName"
+  | "volunteerAgreement"
+>;

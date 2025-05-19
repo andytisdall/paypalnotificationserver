@@ -5,7 +5,7 @@ import passwordGenerator from "generate-password";
 import {
   getContactByEmail,
   updateContact,
-} from "../../../utils/salesforce/SFQuery/contact";
+} from "../../../utils/salesforce/SFQuery/contact/contact";
 
 const User = mongoose.model("User");
 

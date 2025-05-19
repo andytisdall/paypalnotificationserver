@@ -9,7 +9,10 @@ import createShiftEditEmail from "./emailTemplates/shiftEdit";
 import createForgotPasswordEmail from "./emailTemplates/forgotPassword";
 import createKitchenShiftCancelEmail from "./emailTemplates/kitchenShiftCancel";
 import createEventShiftCancelEmail from "./emailTemplates/eventShiftCancel";
-import { D4JContact, FormattedContact } from "./salesforce/SFQuery/contact";
+import {
+  D4JContact,
+  FormattedContact,
+} from "./salesforce/SFQuery/contact/types";
 import createPrizeRequestEmail from "./emailTemplates/prizeRequest";
 import urls from "./urls";
 import confirmD4JUser from "./emailTemplates/confirmD4JUser";

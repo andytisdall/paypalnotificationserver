@@ -1,21 +1,21 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
-import axios from 'axios';
-import { getUnixTime } from 'date-fns';
+import express from "express";
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import axios from "axios";
+import { getUnixTime } from "date-fns";
 
-import getSecrets from '../../../utils/getSecrets';
+import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
   getContactByEmail,
-} from '../../../utils/salesforce/SFQuery/contact';
-import urls from '../../../utils/urls';
+} from "../../../utils/salesforce/SFQuery/contact/contact";
+import urls from "../../../utils/urls";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 const router = express.Router();
 
-router.post('/apple-signin', async (req, res) => {
+router.post("/apple-signin", async (req, res) => {
   const {
     id,
     familyName,
@@ -32,16 +32,16 @@ router.post('/apple-signin', async (req, res) => {
 
   const { JWT_KEY, APPLE_AUTH_KEY, APPLE_KID, APPLE_TEAM_ID } =
     await getSecrets([
-      'JWT_KEY',
-      'APPLE_AUTH_KEY',
-      'APPLE_KID',
-      'APPLE_TEAM_ID',
+      "JWT_KEY",
+      "APPLE_AUTH_KEY",
+      "APPLE_KID",
+      "APPLE_TEAM_ID",
     ]);
   if (!JWT_KEY) {
-    throw Error('No JWT key found');
+    throw Error("No JWT key found");
   }
   if (!APPLE_AUTH_KEY || !APPLE_KID || !APPLE_TEAM_ID) {
-    throw Error('No Apple key found');
+    throw Error("No Apple key found");
   }
 
   // validate authorization code from frontend
@@ -50,31 +50,31 @@ router.post('/apple-signin', async (req, res) => {
   const expiresAt = issuedAt + 15776000;
 
   const appleTokenHeader = {
-    alg: 'ES256',
+    alg: "ES256",
     kid: APPLE_KID,
   };
   const appleTokenPayload = {
     iss: APPLE_TEAM_ID,
     iat: issuedAt,
     exp: expiresAt,
-    aud: 'https://appleid.apple.com',
-    sub: 'org.ckoakland.ckhomechef',
+    aud: "https://appleid.apple.com",
+    sub: "org.ckoakland.ckhomechef",
   };
 
   const encodedAppleToken = jwt.sign(appleTokenPayload, APPLE_AUTH_KEY, {
     header: appleTokenHeader,
-    algorithm: 'ES256',
+    algorithm: "ES256",
   });
 
   const appleValidationPostBody = {
-    client_id: 'org.ckoakland.ckhomechef',
+    client_id: "org.ckoakland.ckhomechef",
     client_secret: encodedAppleToken,
     code: authorizationCode,
-    grant_type: 'authorization_code',
+    grant_type: "authorization_code",
   };
 
   await axios.post(urls.apple, appleValidationPostBody, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
   });
 
   let user;
@@ -94,7 +94,7 @@ router.post('/apple-signin', async (req, res) => {
         user = await User.findOne({ username: contact.portalUsername });
         if (!user) {
           throw Error(
-            'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
+            "Your information could not be found. Please contact the administrator at andy@ckoakland.org"
           );
         }
         user.appleId = id;
@@ -102,7 +102,7 @@ router.post('/apple-signin', async (req, res) => {
       } else {
         // create user?
         throw Error(
-          'You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!'
+          "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!"
         );
       }
     }
@@ -116,7 +116,7 @@ router.post('/apple-signin', async (req, res) => {
   // user = await User.findById(urls.appleReviewerId);
 
   if (!user) {
-    throw Error('User Not Found');
+    throw Error("User Not Found");
   }
 
   const JWT = jwt.sign(

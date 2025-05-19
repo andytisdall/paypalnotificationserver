@@ -5,7 +5,7 @@ import { FileArray } from "express-fileupload";
 import urls from "../../../urls";
 import fetcher from "../../../fetcher";
 import { fileInfo, FileWithMetadata, FileMetadata, Doc } from "./metadata";
-import { UnformattedContact } from "../contact";
+import { UnformattedContact } from "../contact/types";
 import { deleteFiles } from "./deleteFiles";
 
 export const formatFilesFromFileArray = (files: FileArray) => {

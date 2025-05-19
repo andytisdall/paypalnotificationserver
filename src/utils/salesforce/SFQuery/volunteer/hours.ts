@@ -1,52 +1,12 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { InsertSuccessResponse } from "./../reusableTypes";
-
-interface CreateHoursParams {
-  contactId: string;
-  shiftId: string;
-  jobId: string;
-  date: string;
-  soup?: boolean;
-  mealCount?: number;
-  numberOfVolunteers?: number;
-  restaurantMeals?: boolean;
-}
-
-export interface FormattedHours {
-  id: string;
-  mealCount: string;
-  time: string;
-  job: string;
-  status: string;
-  shift: string;
-  campaign?: string;
-  mealType?: "Entree" | "Soup";
-}
-
-export interface UnformattedHours {
-  GW_Volunteers__Volunteer_Job__c: string;
-  GW_Volunteers__Volunteer_Shift__c: string;
-  GW_Volunteers__Status__c: string;
-  GW_Volunteers__Start_Date__c: string;
-  Id: string;
-  Number_of_Meals__c?: number;
-  GW_Volunteers__Shift_Start_Date_Time__c?: string;
-  GW_Volunteers__Volunteer_Campaign__c: string;
-  Type_of_Meal__c?: "Soup" | "Entree";
-  GW_Volunteers__Contact__c?: string;
-  GW_Volunteers__Number_of_Volunteers__c?: number;
-  GW_Volunteers__Hours_Worked__c?: number;
-  Restaurant_Meals__c?: boolean;
-}
-
-export interface HoursQueryResponse {
-  data:
-    | {
-        records: UnformattedHours[];
-      }
-    | undefined;
-}
+import {
+  CreateHoursParams,
+  FormattedHours,
+  UnformattedHours,
+  HoursQueryResponse,
+} from "./types";
 
 export const createHours = async ({
   contactId,

@@ -2,33 +2,11 @@ import { decode } from "html-entities";
 
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-
-export interface Job {
-  Id: string;
-  Name: string;
-  GW_Volunteers__Inactive__c: boolean;
-  GW_Volunteers__Ongoing__c: boolean;
-  GW_Volunteers__Description__c: string;
-  GW_Volunteers__Location_Street__c: string;
-  Region__c?: "East Oakland" | "West Oakland";
-  Fridge_Notes__c?: string;
-}
-
-export interface FormattedJob {
-  id: string;
-  name: string;
-  location: string;
-  shifts: string[];
-  active: boolean;
-  ongoing: boolean;
-  description: string;
-  campaign: string;
-  region?: "East Oakland" | "West Oakland";
-  notes?: string;
-}
+import { Job, FormattedJob } from "./types";
+import { getDirections } from "../../googleApis/getDirections";
 
 export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
-  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c,Fridge_Notes__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${campaignId}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
+  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c,Fridge_Notes__c, Destination__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${campaignId}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -39,7 +17,15 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
     throw Error("failed querying volunteer Jobs");
   }
 
-  return res.data.records.map((j: Job) => {
+  const promises = res.data.records.map(async (j: Job) => {
+    let distance;
+    if (j.Destination__c) {
+      distance = await getDirections(
+        j.GW_Volunteers__Location_Street__c,
+        j.Destination__c
+      );
+    }
+
     // rename attributes to something sane
     return {
       id: j.Id,
@@ -57,6 +43,9 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       campaign: campaignId,
       region: j.Region__c,
       notes: j.Fridge_Notes__c,
+      distance,
     };
   });
+
+  return await Promise.all(promises);
 };

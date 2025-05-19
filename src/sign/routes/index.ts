@@ -4,9 +4,9 @@ import { currentUser } from "../../middlewares/current-user";
 import {
   getUnformattedContactByEmail,
   getContactById,
-  UnformattedContact,
   updateContact,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
+import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 import createSign from "../../utils/docMadeEasy/createSign";
 import { uploadFileToSalesforce } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import downloadFile from "../../utils/docMadeEasy/downloadFile";

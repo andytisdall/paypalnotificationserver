@@ -1,7 +1,10 @@
 import axios from "axios";
 import getSecrets from "../../getSecrets";
 
-export const getDirections = async (origin: string, destination: string) => {
+export const getDirections = async (
+  origin: string,
+  destination: string
+): Promise<string> => {
   const { GOOGLE_MAPS_API_KEY } = await getSecrets(["GOOGLE_MAPS_API_KEY"]);
 
   console.log(origin);

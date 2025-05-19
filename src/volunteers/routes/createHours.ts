@@ -5,7 +5,7 @@ import {
   getContactByEmail,
   addContact,
   getContact,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
 import urls from "../../utils/urls";
 // import { createRecurringHours } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 

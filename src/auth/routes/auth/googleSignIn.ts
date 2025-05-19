@@ -1,32 +1,32 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
+import express from "express";
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
-import getSecrets from '../../../utils/getSecrets';
+import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
   getContactByEmail,
-} from '../../../utils/salesforce/SFQuery/contact';
+} from "../../../utils/salesforce/SFQuery/contact/contact";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 const router = express.Router();
 
-router.post('/google-signin/mobile', async (req, res) => {
+router.post("/google-signin/mobile", async (req, res) => {
   const googleId: string = req.body.googleId;
   const familyName: string = req.body.familyName;
   const givenName: string = req.body.givenName;
   const email: string = req.body.email;
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
 
   if (!JWT_KEY) {
     throw Error();
   }
 
   if (!googleId) {
-    throw Error('No Google ID Provided');
+    throw Error("No Google ID Provided");
   }
 
   let existingUser = await User.findOne({ googleId });
@@ -48,7 +48,7 @@ router.post('/google-signin/mobile', async (req, res) => {
       existingUser = await User.findOne({ username: contact.portalUsername });
       if (!existingUser) {
         throw Error(
-          'Your information could not be found. Please contact the administrator at andy@ckoakland.org'
+          "Your information could not be found. Please contact the administrator at andy@ckoakland.org"
         );
       }
       existingUser.googleId = googleId;
@@ -56,7 +56,7 @@ router.post('/google-signin/mobile', async (req, res) => {
     } else {
       // create user?
       throw Error(
-        'You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!'
+        "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!"
       );
     }
   }
@@ -71,16 +71,16 @@ router.post('/google-signin/mobile', async (req, res) => {
   res.send({ user: existingUser, token: JWT });
 });
 
-router.post('/google-signin', async (req, res) => {
+router.post("/google-signin", async (req, res) => {
   const { JWT_KEY, GOOGLE_CLIENT_ID } = await getSecrets([
-    'JWT_KEY',
-    'GOOGLE_CLIENT_ID',
+    "JWT_KEY",
+    "GOOGLE_CLIENT_ID",
   ]);
   if (!JWT_KEY) {
-    throw Error('No JWT key found');
+    throw Error("No JWT key found");
   }
   if (!GOOGLE_CLIENT_ID) {
-    throw Error('No Google Client Id found');
+    throw Error("No Google Client Id found");
   }
 
   const { credential }: { credential: string } = req.body;
@@ -98,7 +98,7 @@ router.post('/google-signin', async (req, res) => {
     !googleProfile.family_name ||
     !googleProfile.sub
   ) {
-    throw Error('Could not get google profile');
+    throw Error("Could not get google profile");
   }
   let existingUser = await User.findOne({ googleId: googleProfile.sub });
   if (!existingUser) {
@@ -122,7 +122,7 @@ router.post('/google-signin', async (req, res) => {
         await existingUser.save();
       } else {
         // create user?
-        throw Error('Contact does not have portal username');
+        throw Error("Contact does not have portal username");
       }
     } else {
       //   // if contact not in sf
@@ -131,7 +131,7 @@ router.post('/google-signin', async (req, res) => {
       //   // and email us i guess
       //   // so we can manually add the google id to the portal user
       throw Error(
-        'We could not find a person in our database based on your google profile'
+        "We could not find a person in our database based on your google profile"
       );
     }
   }

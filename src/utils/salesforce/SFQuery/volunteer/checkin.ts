@@ -1,9 +1,7 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-import { UnformattedContact } from "../contact";
-import { UnformattedHours } from "./hours";
-import { Job } from "./jobs";
-import { Shift } from "./shifts";
+import { UnformattedContact } from "../contact/types";
+import { UnformattedHours, Job, Shift } from "./types";
 
 interface UnformatterVolunteerRecurrenceSchedule {
   GW_Volunteers__Volunteer_Job__c: string;

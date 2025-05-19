@@ -1,35 +1,35 @@
-import express from 'express';
-import passwordGenerator from 'generate-password';
-import mongoose from 'mongoose';
+import express from "express";
+import passwordGenerator from "generate-password";
+import mongoose from "mongoose";
 
-import { currentUser } from '../../../middlewares/current-user';
-import { getContactById } from '../../../utils/salesforce/SFQuery/contact';
-import { FormattedContact } from '../../../utils/salesforce/SFQuery/contact';
-import { requireSalesforceAuth } from '../../../middlewares/require-salesforce-auth';
+import { currentUser } from "../../../middlewares/current-user";
+import { getContactById } from "../../../utils/salesforce/SFQuery/contact/contact";
+import { FormattedContact } from "../../../utils/salesforce/SFQuery/contact/types";
+import { requireSalesforceAuth } from "../../../middlewares/require-salesforce-auth";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 const router = express.Router();
 
-router.get('/userInfo', currentUser, async (req, res) => {
+router.get("/userInfo", currentUser, async (req, res) => {
   // fail silently so users don't get an error on volunteer page
   if (!req.currentUser) {
     return res.sendStatus(204);
   }
   if (!req.currentUser!.salesforceId) {
-    throw Error('User does not have a salesforce ID');
+    throw Error("User does not have a salesforce ID");
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
   const contactInfo: Pick<
     FormattedContact,
-    | 'firstName'
-    | 'lastName'
-    | 'homeChefAgreement'
-    | 'foodHandler'
-    | 'homeChefQuizPassed'
-    | 'homeChefStatus'
-    | 'volunteerAgreement'
-    | 'ckKitchenStatus'
+    | "firstName"
+    | "lastName"
+    | "homeChefAgreement"
+    | "foodHandler"
+    | "homeChefQuizPassed"
+    | "homeChefStatus"
+    | "volunteerAgreement"
+    | "ckKitchenStatus"
   > = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
@@ -44,7 +44,7 @@ router.get('/userInfo', currentUser, async (req, res) => {
 });
 
 // route for salesforce flow to create portal user
-router.post('/salesforce', requireSalesforceAuth, async (req, res) => {
+router.post("/salesforce", requireSalesforceAuth, async (req, res) => {
   const {
     firstName,
     lastName,
@@ -69,7 +69,7 @@ router.post('/salesforce', requireSalesforceAuth, async (req, res) => {
 
   const username = (
     firstName?.charAt(0).toLowerCase() + lastName.toLowerCase()
-  ).replace(' ', '');
+  ).replace(" ", "");
 
   let uniqueUsername = username;
   let existingUsername = await User.findOne({ username });

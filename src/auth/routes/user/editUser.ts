@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
-import { updateContact } from "../../../utils/salesforce/SFQuery/contact";
+import { updateContact } from "../../../utils/salesforce/SFQuery/contact/contact";
 
 const User = mongoose.model("User");
 const router = express.Router();

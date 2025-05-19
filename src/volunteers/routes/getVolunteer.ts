@@ -3,8 +3,7 @@ import express from "express";
 import {
   getContactByEmail,
   addContact,
-} from "../../utils/salesforce/SFQuery/contact";
-
+} from "../../utils/salesforce/SFQuery/contact/contact";
 
 const router = express.Router();
 
@@ -34,8 +33,6 @@ router.get("/:email", async (req, res) => {
 
   return res.send(contact);
 });
-
-
 
 // router.post("/doorfront", async (req, res) => {
 //   const {

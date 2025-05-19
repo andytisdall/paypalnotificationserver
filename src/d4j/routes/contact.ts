@@ -8,7 +8,7 @@ import {
   addContact,
   getContactByEmail,
   deleteContact,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email";
 import { CheckIn } from "../models/checkIn";
