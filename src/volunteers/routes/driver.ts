@@ -17,11 +17,15 @@ import {
 } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import urls from "../../utils/urls";
 import getSecrets from "../../utils/getSecrets";
+import { getDirections } from "../../utils/salesforce/googleApis/getDirections";
 
 const router = express.Router();
 
-router.get("/driver", currentUser, requireAuth, async (req, res) => {
-  const contact = await getContactById(req.currentUser!.salesforceId);
+router.get("/driver", currentUser, async (req, res) => {
+  if (!req.currentUser) {
+    return res.send(null);
+  }
+  const contact = await getContactById(req.currentUser.salesforceId);
 
   res.send({
     firstName: contact.FirstName,
@@ -65,6 +69,24 @@ router.post("/driver/license", currentUser, requireAuth, async (req, res) => {
   res.send(null);
 });
 
+router.post("/driver/insurance", currentUser, requireAuth, async (req, res) => {
+  const { expirationDate } = req.body;
+  if (!req.files) {
+    throw Error("No image attached");
+  }
+  const files = formatFilesFromFileArray(req.files);
+  const contact = await getContactById(req.currentUser!.salesforceId);
+  await uploadFileToSalesforce(contact, files[0]);
+
+  // upload file
+  await updateContact(contact.Id, {
+    Insurance_Expiration_Date__c: expirationDate,
+  });
+  await checkAndUpdateDriverStatus(contact.Id);
+
+  res.send(null);
+});
+
 router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
   const { size } = req.body;
 
@@ -86,13 +108,25 @@ router.get("/driver/cars", async (req, res) => {
   res.send(data.results);
 });
 
-const checkAndUpdateDriverStatus = async (contactId: string) => {
+router.get(
+  "/driver/directions/:origin/:destination",
+  currentUser,
+  requireAuth,
+  async (req, res) => {
+    const { origin, destination } = req.params;
+    const distance = await getDirections(origin, destination);
+    res.send({ distance });
+  }
+);
+
+export const checkAndUpdateDriverStatus = async (contactId: string) => {
   const contact = await getContactById(contactId);
   if (
     contact.Driver_s_License_Expiration__c &&
     new Date(contact.Driver_s_License_Expiration__c) > new Date() &&
     contact.Car_Size__c &&
-    contact.CK_Kitchen_Agreement__c
+    contact.CK_Kitchen_Agreement__c &&
+    new Date(contact.Insurance_Expiration_Date__c!) > new Date()
   ) {
     await updateContact(contactId, { Driver_Volunteer_Status__c: "Active" });
   }

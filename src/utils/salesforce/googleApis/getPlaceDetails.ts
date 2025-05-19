@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-import urls from './urls';
-import getSecrets from './getSecrets';
+import urls from "../../urls";
+import getSecrets from "../../getSecrets";
 
 interface UnformattedPlaceDetails {
   websiteUri: string;
@@ -34,28 +34,28 @@ export interface FormattedPlaceDetails {
 export const getPlaceDetails = async (
   id: string
 ): Promise<FormattedPlaceDetails> => {
-  const { GOOGLE_MAPS_API_KEY } = await getSecrets(['GOOGLE_MAPS_API_KEY']);
+  const { GOOGLE_MAPS_API_KEY } = await getSecrets(["GOOGLE_MAPS_API_KEY"]);
   if (!GOOGLE_MAPS_API_KEY) {
-    throw Error('API key not found');
+    throw Error("API key not found");
   }
 
   const fields = [
-    'shortFormattedAddress',
-    'regularOpeningHours',
-    'websiteUri',
-    'servesBreakfast',
-    'servesCocktails',
-    'servesWine',
-    'servesBeer',
+    "shortFormattedAddress",
+    "regularOpeningHours",
+    "websiteUri",
+    "servesBreakfast",
+    "servesCocktails",
+    "servesWine",
+    "servesBeer",
   ];
 
-  const getUri = urls.googleMaps + '/' + id;
+  const getUri = urls.googlePlaceApi + "/" + id;
 
   const { data }: { data: UnformattedPlaceDetails } = await axios.get(getUri, {
     headers: {
-      'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-      'X-Goog-FieldMask': fields.join(','),
-      'Content-Type': 'application/json',
+      "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+      "X-Goog-FieldMask": fields.join(","),
+      "Content-Type": "application/json",
     },
   });
 

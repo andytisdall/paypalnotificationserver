@@ -4,7 +4,7 @@ export interface FileMetadata {
   folder: string;
 }
 
-export type Doc = "HC" | "FH" | "CKK" | "DL";
+export type Doc = "HC" | "FH" | "CKK" | "DL" | "INS";
 
 export const fileInfo: Record<Doc, FileMetadata> = {
   HC: { title: "Home Chef Agreement", description: "", folder: "home-chef" },
@@ -15,6 +15,7 @@ export const fileInfo: Record<Doc, FileMetadata> = {
   },
   CKK: { title: "CK Kitchen Agreement", description: "", folder: "ck-kitchen" },
   DL: { title: "Driver's License", description: "", folder: "ck-kitchen" },
+  INS: { title: "Proof of Insurance", description: "", folder: "ck-kitchen" },
 };
 
 export interface FileWithMetadata {

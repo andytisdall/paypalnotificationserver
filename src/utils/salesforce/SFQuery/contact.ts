@@ -44,6 +44,7 @@ export interface UnformattedContact {
   Car_Size__c?: "Small" | "Medium" | "Large";
   Driver_s_License_Expiration__c?: string;
   Driver_Volunteer_Status__c?: "Active" | "Inactive";
+  Insurance_Expiration_Date__c?: string;
 }
 
 export interface FormattedContact {

@@ -6,6 +6,7 @@ import urls from "../../../urls";
 import fetcher from "../../../fetcher";
 import { fileInfo, FileWithMetadata, FileMetadata, Doc } from "./metadata";
 import { UnformattedContact } from "../contact";
+import { deleteFiles } from "./deleteFiles";
 
 export const formatFilesFromFileArray = (files: FileArray) => {
   const fileList: FileWithMetadata[] = [];
@@ -31,6 +32,8 @@ export const uploadFileToSalesforce = async (
   await fetcher.setService("salesforce");
   const typeOfFile = fileInfo[file.docType];
   const title = formatFilename(typeOfFile, contact.LastName);
+
+  await deleteFiles(contact.Id, [title]);
 
   const fileMetaData = {
     Title: title,

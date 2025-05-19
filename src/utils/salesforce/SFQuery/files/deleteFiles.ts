@@ -1,9 +1,12 @@
 import urls from "../../../urls";
 import fetcher from "../../../fetcher";
 
-export const deleteFiles = async (id: string, filesToDelete: string[]) => {
+export const deleteFiles = async (
+  contactId: string,
+  filesToDelete: string[]
+) => {
   // get all cdlinks tied to that account
-  const CDLinkQuery = `SELECT ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${id}'`;
+  const CDLinkQuery = `SELECT ContentDocumentId from ContentDocumentLink WHERE LinkedEntityId = '${contactId}'`;
 
   const CDLinkQueryUri = urls.SFQueryPrefix + encodeURIComponent(CDLinkQuery);
 

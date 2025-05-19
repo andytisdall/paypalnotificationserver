@@ -15,6 +15,7 @@ import getAccount from "../../utils/docMadeEasy/getAccount";
 import { requireAuth } from "../../middlewares/require-auth";
 import { sendEmail } from "../../utils/email";
 import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
 
 const router = express.Router();
 
@@ -189,6 +190,7 @@ router.post("/update-contact", async (req, res) => {
       CK_Kitchen_Agreement__c: true,
       CK_Kitchen_Volunteer_Status__c: "Active",
     });
+    await checkAndUpdateDriverStatus(contact.Id);
   }
 
   if (doc.type === "HC") {

@@ -1,16 +1,16 @@
-import express from 'express';
+import express from "express";
 
-import { getPlaceDetails } from '../../utils/getPlaceDetails';
+import { getPlaceDetails } from "../../utils/salesforce/googleApis/getPlaceDetails";
 import {
   getBars,
   getD4jRestaurants,
   updateDetails,
-} from '../../utils/salesforce/SFQuery/account/d4j';
-import { currentD4JUser } from '../../middlewares/current-d4j-user';
+} from "../../utils/salesforce/SFQuery/account/d4j";
+import { currentD4JUser } from "../../middlewares/current-d4j-user";
 
 const router = express.Router();
 
-router.get('/restaurants', async (req, res) => {
+router.get("/restaurants", async (req, res) => {
   const restaurants = await getD4jRestaurants();
   const bars = await getBars();
   const ids: string[] = [];
@@ -26,22 +26,22 @@ router.get('/restaurants', async (req, res) => {
   res.send(uniqueRestaurants);
 });
 
-router.get('/restaurants/style-week', async (req, res) => {
+router.get("/restaurants/style-week", async (req, res) => {
   res.send([]);
 });
 
-router.get('/restaurantDetails/:restaurantId', async (req, res) => {
+router.get("/restaurantDetails/:restaurantId", async (req, res) => {
   const { restaurantId } = req.params; // google ID
 
   try {
     const restaurantDetails = await getPlaceDetails(restaurantId);
     res.send(restaurantDetails);
   } catch (err) {
-    throw Error('Could not get restaurant details. Please try again.');
+    throw Error("Could not get restaurant details. Please try again.");
   }
 });
 
-router.patch('/restaurants', currentD4JUser, async (req, res) => {
+router.patch("/restaurants", currentD4JUser, async (req, res) => {
   const { restaurantId } = req.body;
 
   if (req.currentD4JUser) {

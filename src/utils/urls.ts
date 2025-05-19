@@ -4,7 +4,7 @@ const baseUrls = {
   fileBucket: "coherent-vision-368820.appspot.com",
   appleReviewerId: "64dab5b0c179cf7ef5e90ab4",
   apple: "https://appleid.apple.com/auth/token",
-  googleMaps: "https://places.googleapis.com/v1/places",
+  googlePlaceApi: "https://places.googleapis.com/v1/places",
   adminEmail: "communitykitchens@ckoakland.org",
   ckKitchenAccountId: "0018Z0000362TqLQAU",
   townFridgeAccountId: "0018Z000037fa6cQAA",
