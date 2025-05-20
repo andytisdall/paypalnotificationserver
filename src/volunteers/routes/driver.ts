@@ -1,7 +1,6 @@
 import express from "express";
 import axios from "axios";
 
-import fetcher from "../../utils/fetcher";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { getCampaign } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
@@ -17,7 +16,6 @@ import {
 } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import urls from "../../utils/urls";
 import getSecrets from "../../utils/getSecrets";
-import { getDirections } from "../../utils/salesforce/googleApis/getDirections";
 
 const router = express.Router();
 

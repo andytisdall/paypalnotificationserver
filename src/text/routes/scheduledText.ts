@@ -1,20 +1,20 @@
-import express from 'express';
-import { zonedTimeToUtc } from 'date-fns-tz';
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+import express from "express";
+import { zonedTimeToUtc } from "date-fns-tz";
+import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
-import { getTwilioClient } from './outgoingText';
-import getSecrets from '../../utils/getSecrets';
-import { REGIONS, Region } from '../models/phone';
-import { OutgoingText } from './outgoingText';
-import { requireSalesforceAuth } from '../../middlewares/require-salesforce-auth';
-import mongoose from 'mongoose';
-import { formatISO } from 'date-fns';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
+import { getTwilioClient } from "./outgoingText";
+import getSecrets from "../../utils/getSecrets";
+import { REGIONS, Region } from "../models/phone";
+import { OutgoingText } from "./outgoingText";
+import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
+import mongoose from "mongoose";
+import { formatISO } from "date-fns";
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
 
-const Phone = mongoose.model('Phone');
-const ScheduledText = mongoose.model('ScheduledText');
+const Phone = mongoose.model("Phone");
+const ScheduledText = mongoose.model("ScheduledText");
 
 interface NewScheduledTextRecord {
   message: string;
@@ -25,12 +25,12 @@ interface NewScheduledTextRecord {
 
 const router = express.Router();
 
-router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
-  const { MESSAGING_SERVICE_SID } = await getSecrets(['MESSAGING_SERVICE_SID']);
+router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
+  const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
 
   if (!MESSAGING_SERVICE_SID) {
     throw Error(
-      'No Messaging Service ID found, which is required for a scheduled message.'
+      "No Messaging Service ID found, which is required for a scheduled message."
     );
   }
 
@@ -48,45 +48,45 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
 
   if (!message) {
     res.status(422);
-    throw new Error('No message to send');
+    throw new Error("No message to send");
   }
 
   if (!region) {
     res.status(422);
-    throw new Error('No region specified');
+    throw new Error("No region specified");
   }
 
   if (!sendAt) {
     res.status(422);
-    throw new Error('No time specified');
+    throw new Error("No time specified");
   }
 
   let formattedNumbers: string[] = [];
   const responsePhoneNumber = REGIONS[region];
 
-  const allPhoneNumbers = await Phone.find({ region });
-  formattedNumbers = allPhoneNumbers.map((p) => p.number);
+  // const allPhoneNumbers = await Phone.find({ region });
+  // formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
-  // formattedNumbers = [
-  //   '+14158190251',
-  //   // '+15104098582',
-  //   // '+17185017050',
-  //   // '+14157557053',
-  // ];
+  formattedNumbers = [
+    "+14158190251",
+    //   // '+15104098582',
+    //   // '+17185017050',
+    //   // '+14157557053',
+  ];
 
   const dateTime = new Date(sendAt);
   dateTime.setHours(12);
   dateTime.setMinutes(0);
 
   // const formattedTime = formatISO(dateTime);
-  const zonedTime = zonedTimeToUtc(dateTime, 'America/Los_Angeles');
+  const zonedTime = zonedTimeToUtc(dateTime, "America/Los_Angeles");
 
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
     sendAt: zonedTime,
     messagingServiceSid: MESSAGING_SERVICE_SID,
-    scheduleType: 'fixed',
+    scheduleType: "fixed",
   };
 
   const createOutgoingText = async (phone: string) => {
@@ -110,7 +110,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
 
   if (!newScheduledTextRecord?.id) {
     console.log(newScheduledTextRecord);
-    throw Error('Scheduled Text Object ID not obtained');
+    throw Error("Scheduled Text Object ID not obtained");
   }
   res.status(201);
   res.send({ success: true, id: newScheduledTextRecord.id });
@@ -118,7 +118,7 @@ router.post('/outgoing/salesforce', requireSalesforceAuth, async (req, res) => {
 
 // delete route from salesforce to this server
 router.get(
-  '/outgoing/salesforce/:id',
+  "/outgoing/salesforce/:id",
   requireSalesforceAuth,
   async (req, res) => {
     const { id } = req.params;
@@ -127,11 +127,11 @@ router.get(
     const scheduledText = await ScheduledText.findById(id);
 
     if (!scheduledText) {
-      throw Error('Scheduled text not found');
+      throw Error("Scheduled text not found");
     }
 
     const promises = scheduledText.twilioIds.map((sid: string) => {
-      twilioClient.messages(sid).update({ status: 'canceled' });
+      twilioClient.messages(sid).update({ status: "canceled" });
     });
 
     await Promise.all(promises);
@@ -144,7 +144,7 @@ router.get(
 );
 
 router.post(
-  '/outgoing/salesforce/update',
+  "/outgoing/salesforce/update",
   requireSalesforceAuth,
   async (req, res) => {
     const { id, message }: { id: string; message: string; time: string } =
@@ -154,7 +154,7 @@ router.post(
     const scheduledText = await ScheduledText.findById(id);
 
     if (!scheduledText) {
-      throw Error('Scheduled text not found');
+      throw Error("Scheduled text not found");
     }
 
     const promises = scheduledText.twilioIds.map((sid: string) => {
@@ -170,7 +170,7 @@ router.post(
 );
 
 router.get(
-  '/scheduled',
+  "/scheduled",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -181,12 +181,12 @@ router.get(
       dateSent: undefined,
     };
     const messages = await twilioClient.messages.list(options);
-    res.send(messages.filter((txt) => txt.status === 'scheduled'));
+    res.send(messages.filter((txt) => txt.status === "scheduled"));
   }
 );
 
 router.post(
-  '/scheduled/delete',
+  "/scheduled/delete",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -196,7 +196,7 @@ router.post(
     const twilioClient = await getTwilioClient();
 
     const promises = ids.map((id: string) => {
-      return twilioClient.messages(id).update({ status: 'canceled' });
+      return twilioClient.messages(id).update({ status: "canceled" });
     });
     const updatedMessages = await Promise.all(promises);
 
