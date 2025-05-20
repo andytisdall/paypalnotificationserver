@@ -18,7 +18,6 @@ const baseUrls = {
   acrobat: "https://api.na3.adobesign.com/api/rest/v6",
   docMadeEasy: "https://api.docmadeeasy.com/rest",
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",
-  ckDoorCampaignId: "701U800000KMZoQIAX",
 };
 
 const prodUrls = {
@@ -29,6 +28,7 @@ const prodUrls = {
   client: "https://portal.ckoakland.org",
   server: "https://portal.ckoakland.org",
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
+  ckDoorCampaignId: "701UP00000JyWOgYAN",
 };
 
 const testUrls = {
@@ -41,6 +41,7 @@ const testUrls = {
   client: "http://localhost:3000",
   server: "http://localhost:3001",
   appleReviewerId: "64e69853db4b5043abcd55b6",
+  ckDoorCampaignId: "701U800000KMZoQIAX",
   ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
 };
 
