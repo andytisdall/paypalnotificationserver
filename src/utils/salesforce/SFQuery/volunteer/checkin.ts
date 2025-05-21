@@ -15,15 +15,11 @@ interface UnformatterVolunteerRecurrenceSchedule {
 export const getTodaysVolunteerShifts = async () => {
   await fetcher.setService("salesforce");
 
-  const campaignQuery = `SELECT Id FROM Campaign WHERE Portal_Signups_Enabled__c = True AND StartDate > TODAY`;
+  const campaignQuery = `SELECT Id FROM Campaign WHERE Portal_Signups_Enabled__c = True`;
   const campaignResponse: { data: { records: { Id: string }[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(campaignQuery));
 
-  const idList = [
-    ...campaignResponse.data.records.map(({ Id }) => Id),
-    urls.ckKitchenCampaignId,
-    urls.ckDoorCampaignId,
-  ];
+  const idList = [...campaignResponse.data.records.map(({ Id }) => Id)];
 
   let idListString = `('${idList.join("','")}')`;
 

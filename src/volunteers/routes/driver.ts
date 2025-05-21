@@ -3,9 +3,6 @@ import axios from "axios";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { getCampaign } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
-import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
-import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
 import {
   getContactById,
   updateContact,
@@ -33,20 +30,6 @@ router.get("/driver", currentUser, async (req, res) => {
     car: contact.Car_Size__c,
     driverStatus: contact.Driver_Volunteer_Status__c,
   });
-});
-
-router.get("/driver/shifts", currentUser, requireAuth, async (req, res) => {
-  const campaign = await getCampaign("");
-
-  const jobs = await getJobs(campaign.id);
-  const shiftPromises = jobs.map(async (j) => {
-    const shifts = await getShifts(j.id, 42);
-    j.shifts = shifts.map((sh) => sh.id);
-    return shifts;
-  });
-  const shifts = (await Promise.all(shiftPromises)).flat();
-
-  res.send({ jobs, shifts, ...campaign });
 });
 
 router.post("/driver/license", currentUser, requireAuth, async (req, res) => {

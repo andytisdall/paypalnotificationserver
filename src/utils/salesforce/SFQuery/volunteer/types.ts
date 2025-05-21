@@ -37,7 +37,7 @@ export interface FormattedJob {
   id: string;
   name: string;
   location: string;
-  shifts: string[];
+  shifts: FormattedShift[];
   active: boolean;
   ongoing: boolean;
   description: string;

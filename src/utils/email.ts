@@ -7,7 +7,7 @@ import createCampaignAckEmail from "./emailTemplates/campaignAck";
 import createHomeChefSignupEmail from "./emailTemplates/homeChefSignup";
 import createShiftEditEmail from "./emailTemplates/shiftEdit";
 import createForgotPasswordEmail from "./emailTemplates/forgotPassword";
-import createKitchenShiftCancelEmail from "./emailTemplates/kitchenShiftCancel";
+import createShiftCancelEmail from "./emailTemplates/kitchenShiftCancel";
 import createEventShiftCancelEmail from "./emailTemplates/eventShiftCancel";
 import {
   D4JContact,
@@ -172,16 +172,16 @@ export const sendShiftEditEmail = async (
   await sendEmail(msg);
 };
 
-export const sendKitchenShiftCancelEmail = async (
+export const sendShiftCancelEmail = async (
   email: string,
   shiftData: { date: string; name?: string }
 ) => {
-  const html = createKitchenShiftCancelEmail(shiftData);
+  const html = createShiftCancelEmail(shiftData);
 
   const msg = {
     to: email,
     from: "mollye@ckoakland.org",
-    subject: `You have canceled a CK Kitchen volunteer shift`,
+    subject: `You have canceled a CK volunteer shift`,
     html,
   };
 

@@ -3,7 +3,7 @@ import express from "express";
 import {
   getHours,
   getHour,
-} from "../../utils/salesforce/SFQuery/volunteer/hours";
+} from "../../../utils/salesforce/SFQuery/volunteer/hours";
 // import { getRecurringHours } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 
 const router = express.Router();

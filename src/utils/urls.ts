@@ -14,11 +14,11 @@ const baseUrls = {
   cocktailsCampaignId: "7018Z000003KptzQAC",
   corporateVolunteersCampaignId: "701UP000005bM5AYAU",
   townFridgeCampaignId: "7018Z000003C3Mx",
-  ckKitchenCampaignId: "7018Z000002jtq0QAA",
   acrobat: "https://api.na3.adobesign.com/api/rest/v6",
   docMadeEasy: "https://api.docmadeeasy.com/rest",
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",
-  ckDoorCampaignId: "701U800000KMZoQIAX",
+  ckKitchenCampaignId: "7018Z000002jtq0QAA",
+  ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
 };
 
 const prodUrls = {
@@ -28,7 +28,6 @@ const prodUrls = {
   docusign: "https://na4.docusign.net/restapi",
   client: "https://portal.ckoakland.org",
   server: "https://portal.ckoakland.org",
-  ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
 };
 
 const testUrls = {
@@ -41,7 +40,6 @@ const testUrls = {
   client: "http://localhost:3000",
   server: "http://localhost:3001",
   appleReviewerId: "64e69853db4b5043abcd55b6",
-  ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
 };
 
 export default process.env.NODE_ENV === "production" ? prodUrls : testUrls;

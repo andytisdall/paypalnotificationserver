@@ -37,7 +37,7 @@ router.get("/job-listing", currentUser, requireAuth, async (req, res) => {
           ),
         };
       });
-    j.shifts = jobShiftsExcludingRestaurantMeals.map((js) => js.id);
+    j.shifts = jobShiftsExcludingRestaurantMeals;
     return jobShiftsExcludingRestaurantMeals;
   });
   const shifts = (await Promise.all(shiftPromises)).flat();

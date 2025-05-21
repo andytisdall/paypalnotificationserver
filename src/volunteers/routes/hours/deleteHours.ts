@@ -1,17 +1,16 @@
 import express from "express";
 
-import { currentUser } from "../../middlewares/current-user";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
+import { currentUser } from "../../../middlewares/current-user";
+import { getContactById } from "../../../utils/salesforce/SFQuery/contact/contact";
 import {
   getHours,
   deleteVolunteerHours,
-} from "../../utils/salesforce/SFQuery/volunteer/hours";
-import { getCampaignFromHours } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
-import urls from "../../utils/urls";
+} from "../../../utils/salesforce/SFQuery/volunteer/hours";
+import { getCampaignFromHours } from "../../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
 import {
-  sendKitchenShiftCancelEmail,
+  sendShiftCancelEmail,
   sendEventShiftCancelEmail,
-} from "../../utils/email";
+} from "../../../utils/email";
 
 const router = express.Router();
 
@@ -43,8 +42,8 @@ router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
     await deleteVolunteerHours(id);
     const { Email, FirstName } = await getContactById(contactId);
     if (Email) {
-      if (campaign.id === urls.ckKitchenCampaignId) {
-        await sendKitchenShiftCancelEmail(Email, {
+      if (!campaign.startDate) {
+        await sendShiftCancelEmail(Email, {
           date: hour.time,
           name: FirstName,
         });
