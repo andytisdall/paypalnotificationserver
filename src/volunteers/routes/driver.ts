@@ -79,11 +79,20 @@ router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
   res.send(null);
 });
 
-router.get("/driver/cars", async (req, res) => {
-  const { API_NINJA_KEY } = await getSecrets(["API_NINJA_KEY"]);
+router.get("/driver/makes", async (req, res) => {
   const { data } = await axios.get(
     urls.ninja +
-      "/catalog/datasets/all-vehicles-model/records?select=make,model,id&limit=100"
+      "/catalog/datasets/all-vehicles-model/records?select=make&group_by=make&limit=100"
+  );
+
+  res.send(data.results);
+});
+
+router.get("/driver/models/:make", async (req, res) => {
+  const { make } = req.params;
+  const { data } = await axios.get(
+    urls.ninja +
+      `/catalog/datasets/all-vehicles-model/records?select=model&where=make%3D'${make}'&group_by=model&limit=100`
   );
 
   res.send(data.results);
