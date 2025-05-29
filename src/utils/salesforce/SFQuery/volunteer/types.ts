@@ -7,6 +7,9 @@ export interface Shift {
   GW_Volunteers__Volunteer_Job__c: string;
   GW_Volunteers__Desired_Number_of_Volunteers__c: number;
   Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
+  Dropoff_Location__c?: string;
+  Dropoff_Notes__c?: string;
+  GW_Volunteers__Job_Location_Street__c?: string;
 }
 
 export interface FormattedShift {
@@ -19,6 +22,8 @@ export interface FormattedShift {
   slots: number;
   totalSlots: number;
   carSizeRequired?: string;
+  destination?: string;
+  distance?: string;
 }
 
 export interface Job {
@@ -30,7 +35,6 @@ export interface Job {
   GW_Volunteers__Location_Street__c: string;
   Region__c?: "East Oakland" | "West Oakland";
   Fridge_Notes__c?: string;
-  Dropoff_Location_Street__c?: string;
 }
 
 export interface FormattedJob {
@@ -44,8 +48,6 @@ export interface FormattedJob {
   campaign: string;
   region?: "East Oakland" | "West Oakland";
   notes?: string;
-  destination?: string;
-  distance?: string;
 }
 
 export interface CreateHoursParams {

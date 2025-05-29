@@ -1,5 +1,4 @@
 import express from "express";
-import axios from "axios";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
@@ -11,8 +10,7 @@ import {
   formatFilesFromFileArray,
   uploadFileToSalesforce,
 } from "../../utils/salesforce/SFQuery/files/fileUpload";
-import urls from "../../utils/urls";
-import getSecrets from "../../utils/getSecrets";
+import { FormattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 
 const router = express.Router();
 
@@ -21,15 +19,21 @@ router.get("/driver", currentUser, async (req, res) => {
     return res.send(null);
   }
   const contact = await getContactById(req.currentUser.salesforceId);
-
-  res.send({
-    firstName: contact.FirstName,
-    lastName: contact.LastName,
+  const formattedContact: Partial<FormattedContact> = {
     licenseExpiration: contact.Driver_s_License_Expiration__c,
+    insuranceExpiration: contact.Insurance_Expiration_Date__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-    car: contact.Car_Size__c,
+    car: {
+      size: contact.Car_Size__c,
+      make: contact.Car_Make__c,
+      model: contact.Car_Model__c,
+      year: contact.Car_Year__c,
+      color: contact.Car_Color__c,
+    },
     driverStatus: contact.Driver_Volunteer_Status__c,
-  });
+  };
+
+  res.send(formattedContact);
 });
 
 router.post("/driver/license", currentUser, requireAuth, async (req, res) => {
@@ -69,33 +73,20 @@ router.post("/driver/insurance", currentUser, requireAuth, async (req, res) => {
 });
 
 router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
-  const { size } = req.body;
+  const { size, make, model, year, color } = req.body;
 
   const contactId = req.currentUser!.salesforceId;
 
-  await updateContact(contactId, { Car_Size__c: size });
+  await updateContact(contactId, {
+    Car_Size__c: size,
+    Car_Make__c: make,
+    Car_Model__c: model,
+    Car_Year__c: year,
+    Car_Color__c: color,
+  });
   await checkAndUpdateDriverStatus(contactId);
 
   res.send(null);
-});
-
-router.get("/driver/makes", async (req, res) => {
-  const { data } = await axios.get(
-    urls.ninja +
-      "/catalog/datasets/all-vehicles-model/records?select=make&group_by=make&limit=100"
-  );
-
-  res.send(data.results);
-});
-
-router.get("/driver/models/:make", async (req, res) => {
-  const { make } = req.params;
-  const { data } = await axios.get(
-    urls.ninja +
-      `/catalog/datasets/all-vehicles-model/records?select=model&where=make%3D'${make}'&group_by=model&limit=100`
-  );
-
-  res.send(data.results);
 });
 
 export const checkAndUpdateDriverStatus = async (contactId: string) => {

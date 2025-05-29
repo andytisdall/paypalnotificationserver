@@ -37,7 +37,11 @@ export interface UnformattedContact {
   CK_Kitchen_Volunteer_Status__c?: string;
 
   // driver
-  Car_Size__c?: "Small" | "Medium" | "Large";
+  Car_Size__c?: "Bike" | "Small" | "Medium" | "Large";
+  Car_Make__c?: string;
+  Car_Model__c?: string;
+  Car_Year__c?: string;
+  Car_Color__c?: string;
   Driver_s_License_Expiration__c?: string;
   Driver_Volunteer_Status__c?: "Active" | "Inactive";
   Insurance_Expiration_Date__c?: string;
@@ -61,8 +65,15 @@ export interface FormattedContact {
   ckKitchenStatus?: string;
 
   driverStatus?: "Active" | "Inactive";
-  carSize?: "Small" | "Medium" | "Large";
-  driversLicenseExpiration: Date;
+  car?: {
+    size?: "Bike" | "Small" | "Medium" | "Large";
+    make?: string;
+    model?: string;
+    year?: string;
+    color?: string;
+  };
+  insuranceExpiration?: string;
+  licenseExpiration?: string;
 }
 
 export interface D4JContact {

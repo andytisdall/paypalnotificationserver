@@ -15,7 +15,7 @@ export const getDistance = async (
 
   const { data } = await axios.get(url);
   if (data.rows[0].elements[0].status === "NOT_FOUND") {
-    return "Unable to calculate";
+    return "Unable to calculate distance";
   }
 
   return data.rows[0].elements[0].distance.text;
