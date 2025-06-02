@@ -35,13 +35,13 @@ router.patch("/", currentUser, requireAuth, async (req, res) => {
       throw Error("Username is already in use!");
     }
     u.username = username;
-    await updateContact(u.salesforceId, { Portal_Username__c: username });
   }
   if (password) {
     u.password = password;
   }
   if (salesforceId) {
     u.salesforceId = salesforceId;
+    await updateContact(u.salesforceId, { Portal_Username__c: u.username });
   }
   if (u.id === req.currentUser!.id && !u.active) {
     u.active = true;
