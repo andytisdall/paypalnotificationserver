@@ -9,7 +9,14 @@ const User = mongoose.model("User");
 const router = express.Router();
 
 router.patch("/", currentUser, requireAuth, async (req, res) => {
-  const { userId, username, password, salesforceId } = req.body;
+  const {
+    userId,
+    username,
+    password,
+    salesforceId,
+    busDriver,
+    textOnlyPermission,
+  } = req.body;
 
   if (!username && !password) {
     res.status(400);
@@ -43,9 +50,8 @@ router.patch("/", currentUser, requireAuth, async (req, res) => {
   if (salesforceId) {
     u.salesforceId = salesforceId;
   }
-  if (u.id === req.currentUser!.id && !u.active) {
-    u.active = true;
-  }
+  u.busDriver = busDriver;
+  u.textOnlyPermission = textOnlyPermission;
 
   await u.save();
   res.send(u);

@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { Password } from '../password';
+import mongoose from "mongoose";
+import { Password } from "../password";
 
 const userSchema = new mongoose.Schema(
   {
@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
     appleId: String,
     homeChefNotificationToken: String,
     secretCode: String,
+    textOnlyPermission: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: {
@@ -43,12 +47,12 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre('save', async function (done) {
-  if (this.isModified('password')) {
-    const hashed = await Password.toHash(this.get('password'));
-    this.set('password', hashed);
+userSchema.pre("save", async function (done) {
+  if (this.isModified("password")) {
+    const hashed = await Password.toHash(this.get("password"));
+    this.set("password", hashed);
   }
   done();
 });
 
-export const User = mongoose.model('User', userSchema);
+export const User = mongoose.model("User", userSchema);
