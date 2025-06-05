@@ -1,9 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 
-import getSecrets from '../utils/getSecrets';
-import { D4JContact } from '../utils/salesforce/SFQuery/contact';
+import getSecrets from "../utils/getSecrets";
 
 export interface D4JUserPayload {
   id: string;
@@ -24,7 +23,7 @@ declare global {
   }
 }
 
-const D4JUser = mongoose.model('D4JUser');
+const D4JUser = mongoose.model("D4JUser");
 
 export const currentD4JUser = async (
   req: Request,
@@ -37,9 +36,9 @@ export const currentD4JUser = async (
     return next();
   }
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('No JWT Key found');
+    throw Error("No JWT Key found");
   }
 
   const payload = jwt.verify(

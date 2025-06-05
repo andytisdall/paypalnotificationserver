@@ -1,21 +1,21 @@
-import express from 'express';
+import express from "express";
 
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import fetcher from '../../utils/fetcher';
-import urls from '../../utils/urls';
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import fetcher from "../../utils/fetcher";
+import urls from "../../utils/urls";
 import {
   getHours,
   createHours,
   editHours,
-} from '../../utils/salesforce/SFQuery/volunteer/hours';
-import { getContactById } from '../../utils/salesforce/SFQuery/contact';
-import { sendShiftEditEmail } from '../../utils/email';
+} from "../../utils/salesforce/SFQuery/volunteer/hours";
+import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
+import { sendShiftEditEmail } from "../../utils/email";
 
 const router = express.Router();
 
-router.get('/hours', currentUser, requireAuth, async (req, res) => {
-  await fetcher.setService('salesforce');
+router.get("/hours", currentUser, requireAuth, async (req, res) => {
+  await fetcher.setService("salesforce");
   const id = req.currentUser!.salesforceId;
   const hours = await getHours(urls.townFridgeCampaignId, id);
   res.send(hours);
@@ -29,14 +29,14 @@ interface HoursPostParams {
   soup: boolean;
 }
 
-router.post('/hours', currentUser, requireAuth, async (req, res) => {
+router.post("/hours", currentUser, requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
   if (req.currentUser!.id === urls.appleReviewerId) {
-    throw Error('You are not authorized to sign up for Home Chef shifts');
+    throw Error("You are not authorized to sign up for Home Chef shifts");
   }
   const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {
-    throw Error('User does not have a salesforce ID');
+    throw Error("User does not have a salesforce ID");
   }
   const hours = await createHours({
     contactId: salesforceId,
@@ -51,7 +51,7 @@ router.post('/hours', currentUser, requireAuth, async (req, res) => {
   res.send(hours);
 });
 
-router.patch('/hours/:id', currentUser, requireAuth, async (req, res) => {
+router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
   const { id } = req.params;
   const {
     mealCount,

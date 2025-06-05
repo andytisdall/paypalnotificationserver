@@ -14,7 +14,6 @@ const baseUrls = {
   cocktailsCampaignId: "7018Z000003KptzQAC",
   corporateVolunteersCampaignId: "701UP000005bM5AYAU",
   townFridgeCampaignId: "7018Z000003C3Mx",
-  ckKitchenCampaignId: "7018Z000002jtq0QAA",
   acrobat: "https://api.na3.adobesign.com/api/rest/v6",
   docMadeEasy: "https://api.docmadeeasy.com/rest",
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",

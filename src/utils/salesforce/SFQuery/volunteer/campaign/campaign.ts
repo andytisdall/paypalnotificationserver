@@ -98,6 +98,7 @@ export const getCampaignFromHours = async (id: string) => {
     return {
       id: data.GW_Volunteers__Volunteer_Campaign__c,
       name: data.GW_Volunteers__Volunteer_Campaign_Name__c,
+      startDate: data.GW_Volunteers__Start_Date_Time__c,
     };
   }
 };

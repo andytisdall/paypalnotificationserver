@@ -2,28 +2,8 @@ import moment from "moment";
 
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-
-export interface Shift {
-  Id: string;
-  GW_Volunteers__Start_Date_Time__c: string;
-  GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
-  Restaurant_Meals__c: boolean;
-  GW_Volunteers__Duration__c: number;
-  GW_Volunteers__Volunteer_Job__c: string;
-  GW_Volunteers__Desired_Number_of_Volunteers__c: number;
-  Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
-}
-
-export interface FormattedShift {
-  id: string;
-  startTime: string;
-  open: boolean;
-  job: string;
-  restaurantMeals: boolean;
-  duration: number;
-  slots: number;
-  totalSlots: number;
-}
+import { getDistance } from "../../googleApis/getDistance";
+import { Shift, FormattedShift, Job } from "./types";
 
 export const getShift = async (
   shiftId: string
@@ -57,7 +37,7 @@ export const getShifts = async (
 ): Promise<FormattedShift[]> => {
   const sixtyDaysFromNow = moment().add(daysInAdvance, "days").format();
 
-  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c, GW_Volunteers__Duration__c, GW_Volunteers__Desired_Number_of_Volunteers__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${jobId}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${sixtyDaysFromNow}`;
+  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c, GW_Volunteers__Duration__c, GW_Volunteers__Desired_Number_of_Volunteers__c, Car_Size_Required__c, Dropoff_Location__c, Dropoff_Notes__c, GW_Volunteers__Job_Location_Street__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${jobId}' AND GW_Volunteers__Start_Date_time__c >= TODAY AND  GW_Volunteers__Start_Date_time__c <= ${sixtyDaysFromNow}`;
 
   const shiftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -71,8 +51,11 @@ export const getShifts = async (
             | "GW_Volunteers__Number_of_Volunteers_Still_Needed__c"
             | "Restaurant_Meals__c"
             | "GW_Volunteers__Duration__c"
-            // | "Car_Size_Required__c"
+            | "Car_Size_Required__c"
             | "GW_Volunteers__Desired_Number_of_Volunteers__c"
+            | "Dropoff_Location__c"
+            | "Dropoff_Notes__c"
+            | "GW_Volunteers__Job_Location_Street__c"
           >[]
         | undefined;
     };
@@ -80,7 +63,16 @@ export const getShifts = async (
   if (!res.data.records) {
     throw Error("Failed querying volunteer shifts");
   }
-  return res.data.records.map((js) => {
+
+  const promises = res.data.records.map(async (js) => {
+    let distance;
+    if (js.Dropoff_Location__c) {
+      distance = await getDistance(
+        `${js.GW_Volunteers__Job_Location_Street__c} Oakland CA`,
+        `${js.Dropoff_Location__c} Oakland CA`
+      );
+    }
+
     return {
       id: js.Id,
       startTime: js.GW_Volunteers__Start_Date_Time__c,
@@ -92,9 +84,14 @@ export const getShifts = async (
       restaurantMeals: js.Restaurant_Meals__c,
       duration: js.GW_Volunteers__Duration__c,
       totalSlots: js.GW_Volunteers__Desired_Number_of_Volunteers__c,
-      // carSizeRequired: js.Car_Size_Required__c,
+      carSizeRequired: js.Car_Size_Required__c,
+      destination: js.Dropoff_Location__c,
+      dropoffNotes: js.Dropoff_Notes__c,
+      distance,
     };
   });
+
+  return await Promise.all(promises);
 };
 
 export const addSlotToShift = async (shift: FormattedShift) => {

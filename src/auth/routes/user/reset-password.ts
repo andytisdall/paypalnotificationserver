@@ -1,16 +1,16 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import express from "express";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
-import { sendForgotPasswordEmail } from '../../../utils/email';
-import getSecrets from '../../../utils/getSecrets';
-import { getContactByEmail } from '../../../utils/salesforce/SFQuery/contact';
-import urls from '../../../utils/urls';
+import { sendForgotPasswordEmail } from "../../../utils/email";
+import getSecrets from "../../../utils/getSecrets";
+import { getContactByEmail } from "../../../utils/salesforce/SFQuery/contact/contact";
+import urls from "../../../utils/urls";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 const router = express.Router();
 
-router.post('/forgot-password', async (req, res) => {
+router.post("/forgot-password", async (req, res) => {
   const { email }: { email: string } = req.body;
 
   const contact = await getContactByEmail(email);
@@ -19,7 +19,7 @@ router.post('/forgot-password', async (req, res) => {
     return res.send(null);
   }
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
     throw Error();
   }
@@ -37,19 +37,19 @@ router.post('/forgot-password', async (req, res) => {
     expiresAt: expirationDate,
   };
   const token = jwt.sign(payload, JWT_KEY);
-  const url = urls.client + '/reset-password/' + token;
+  const url = urls.client + "/reset-password/" + token;
 
   await sendForgotPasswordEmail(email, url, contact.portalUsername);
 
   res.send(null);
 });
 
-router.post('/reset-password', async (req, res) => {
+router.post("/reset-password", async (req, res) => {
   const { token, password }: { token: string; password: string } = req.body;
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('No JWT key found');
+    throw Error("No JWT key found");
   }
 
   const { id, expiresAt } = jwt.verify(token, JWT_KEY) as unknown as {
@@ -59,10 +59,10 @@ router.post('/reset-password', async (req, res) => {
 
   const user = await User.findById(id);
   if (!user) {
-    throw Error('Invalid reset token');
+    throw Error("Invalid reset token");
   }
   if (new Date(expiresAt) < new Date()) {
-    throw Error('Reset token has expired');
+    throw Error("Reset token has expired");
   }
   if (user) {
     user.password = password;

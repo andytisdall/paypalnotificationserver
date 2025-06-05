@@ -4,9 +4,9 @@ import { currentUser } from "../../middlewares/current-user";
 import {
   getUnformattedContactByEmail,
   getContactById,
-  UnformattedContact,
   updateContact,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
+import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 import createSign from "../../utils/docMadeEasy/createSign";
 import { uploadFileToSalesforce } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import downloadFile from "../../utils/docMadeEasy/downloadFile";
@@ -64,7 +64,7 @@ const docInfo: Record<string, DocInformation> = {
   },
   DRV: {
     type: "CKK",
-    url: "/volunteers/ck-kitchen/driver/sign/success",
+    url: "/volunteers/ck-kitchen/driver-onboarding/sign/success",
     template: "C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV",
     name: "CK Kitchen Volunteer Agreement",
   },
@@ -90,7 +90,7 @@ router.get("/emailAgreement", currentUser, requireAuth, async (req, res) => {
     subject: "Home Chef agreement requested",
   });
 
-  res.send(200);
+  res.send(null);
 });
 
 router.get(
@@ -137,7 +137,7 @@ router.get(
     const homeChefAlreadySigned =
       contact.Home_Chef_Volunteeer_Agreement__c && docType === "HC";
     const kitchenAlreadySigned =
-      contact.CK_Kitchen_Agreement__c && docType === "CKK";
+      contact.CK_Kitchen_Agreement__c && doc.type === "CKK";
 
     if (homeChefAlreadySigned || kitchenAlreadySigned) {
       return res.send({ signingUrl: "" });

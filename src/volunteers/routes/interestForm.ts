@@ -4,9 +4,9 @@ import passwordGenerator from "generate-password";
 import {
   addContact,
   updateContact,
-  UnformattedContact,
   getContactByLastNameAndEmail,
-} from "../../utils/salesforce/SFQuery/contact";
+} from "../../utils/salesforce/SFQuery/contact/contact";
+import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
 import { CampaignMemberObject } from "../../utils/salesforce/SFQuery/volunteer/campaign/types";
 import mongoose from "mongoose";

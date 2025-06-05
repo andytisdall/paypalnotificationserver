@@ -3,13 +3,20 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
-import { updateContact } from "../../../utils/salesforce/SFQuery/contact";
+import { updateContact } from "../../../utils/salesforce/SFQuery/contact/contact";
 
 const User = mongoose.model("User");
 const router = express.Router();
 
 router.patch("/", currentUser, requireAuth, async (req, res) => {
-  const { userId, username, password, salesforceId } = req.body;
+  const {
+    userId,
+    username,
+    password,
+    salesforceId,
+    busDriver,
+    textOnlyPermission,
+  } = req.body;
 
   if (!username && !password) {
     res.status(400);
@@ -43,9 +50,8 @@ router.patch("/", currentUser, requireAuth, async (req, res) => {
     u.salesforceId = salesforceId;
     await updateContact(u.salesforceId, { Portal_Username__c: u.username });
   }
-  if (u.id === req.currentUser!.id && !u.active) {
-    u.active = true;
-  }
+  u.busDriver = busDriver;
+  u.textOnlyPermission = textOnlyPermission;
 
   await u.save();
   res.send(u);

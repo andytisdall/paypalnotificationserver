@@ -1,4 +1,5 @@
-import { updateContact, UnformattedContact } from "../contact";
+import { updateContact } from "../contact/contact";
+import { UnformattedContact } from "../contact/types";
 
 export const updateHomeChefStatus = async (
   contact: UnformattedContact,

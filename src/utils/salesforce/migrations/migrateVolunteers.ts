@@ -1,14 +1,14 @@
-import passwordGenerator from 'generate-password';
-import mongoose from 'mongoose';
+import passwordGenerator from "generate-password";
+import mongoose from "mongoose";
 
-import urls from '../../urls';
-import fetcher from '../../fetcher';
-import { UnformattedContact } from '../SFQuery/contact';
+import urls from "../../urls";
+import fetcher from "../../fetcher";
+import { UnformattedContact } from "../SFQuery/contact/contact";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 const migrate = async () => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
   const contacts = await getOnboardingChefs();
 
   const promises = contacts.map(updateContact);
@@ -34,9 +34,9 @@ const fixContact = async (contact: UnformattedContact) => {
 
 const updateContact = async (contact: UnformattedContact) => {
   const username = (
-    (contact.FirstName?.charAt(0).toLowerCase() || '') +
+    (contact.FirstName?.charAt(0).toLowerCase() || "") +
     contact.LastName!.toLowerCase()
-  ).replace(' ', '');
+  ).replace(" ", "");
 
   let uniqueUsername = username;
   let existingUser = await User.findOne({ username });
@@ -51,7 +51,7 @@ const updateContact = async (contact: UnformattedContact) => {
     numbers: true,
   });
 
-  const contactUpdateUri = urls.SFOperationPrefix + '/Contact/' + contact.Id;
+  const contactUpdateUri = urls.SFOperationPrefix + "/Contact/" + contact.Id;
 
   await createUser({
     id: contact.Id!,
@@ -87,7 +87,7 @@ const getOnboardingChefs = async () => {
     data: { records: UnformattedContact[] } | undefined;
   } = await fetcher.get(contactQueryUri);
   if (!contactQueryResponse.data) {
-    throw Error('Did not get contacts');
+    throw Error("Did not get contacts");
   }
   return contactQueryResponse.data.records;
 };

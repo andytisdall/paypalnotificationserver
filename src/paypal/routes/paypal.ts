@@ -1,20 +1,19 @@
-import express from 'express';
-import moment from 'moment';
-import mongoose from 'mongoose';
+import express from "express";
+import moment from "moment";
+import mongoose from "mongoose";
 
-import { sendDonationAckEmail } from '../../utils/email';
+import { sendDonationAckEmail } from "../../utils/email";
 import {
   addContact,
-  FormattedContact,
-  ContactData,
   getContactByEmail,
-} from '../../utils/salesforce/SFQuery/contact';
-import urls from '../../utils/urls';
-import fetcher from '../../utils/fetcher';
+} from "../../utils/salesforce/SFQuery/contact/contact";
+import { ContactData } from "../../utils/salesforce/SFQuery/contact/types";
+import urls from "../../utils/urls";
+import fetcher from "../../utils/fetcher";
 
-import { activeCampaigns } from '../activeCampaigns';
+import { activeCampaigns } from "../activeCampaigns";
 
-const PaypalTxn = mongoose.model('PaypalTxn');
+const PaypalTxn = mongoose.model("PaypalTxn");
 const paypalRouter = express.Router();
 
 interface PaypalData {
@@ -63,7 +62,7 @@ interface RecurringDonationObject {
 }
 
 // listener for paypal message
-paypalRouter.post('/', async (req, res) => {
+paypalRouter.post("/", async (req, res) => {
   const paypalData: PaypalData = req.body;
 
   // check for already processed transaction
@@ -71,21 +70,21 @@ paypalRouter.post('/', async (req, res) => {
     txnId: paypalData.ipn_track_id,
   });
   if (existingTxn) {
-    console.log('Already processed this transaction, this is a duplicate');
+    console.log("Already processed this transaction, this is a duplicate");
     return res.sendStatus(200);
   }
 
   // return early if it's not a donation
 
   if (paypalData.payment_gross && parseFloat(paypalData.payment_gross) < 0) {
-    console.log('not a credit');
+    console.log("not a credit");
     return res.sendStatus(200);
   }
 
   // post a verification to paypal - not working
   // verifyPaypalMessage(paypalData);
 
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   // Check if contact exists
   let existingContact = await getContactByEmail(paypalData.payer_email);
@@ -101,26 +100,26 @@ paypalRouter.post('/', async (req, res) => {
   }
 
   const canceledSubscriptionStatuses = [
-    'recurring_payment_suspended_due_to_max_failed_payment',
-    'recurring_payment_profile_cancel',
-    'recurring_payment_expired',
-    'recurring_payment_suspended',
-    'recurring_payment_failed',
+    "recurring_payment_suspended_due_to_max_failed_payment",
+    "recurring_payment_profile_cancel",
+    "recurring_payment_expired",
+    "recurring_payment_suspended",
+    "recurring_payment_failed",
   ];
 
-  if (paypalData.txn_type === 'recurring_payment_profile_created') {
+  if (paypalData.txn_type === "recurring_payment_profile_created") {
     await addRecurring(paypalData, existingContact);
-  } else if (paypalData.txn_type === 'recurring_payment_skipped') {
-    await updateRecurringOpp(paypalData, existingContact, 'Closed Lost');
+  } else if (paypalData.txn_type === "recurring_payment_skipped") {
+    await updateRecurringOpp(paypalData, existingContact, "Closed Lost");
   } else if (canceledSubscriptionStatuses.includes(paypalData.txn_type)) {
     await cancelRecurring(paypalData, existingContact);
   } else if (!paypalData.payment_date) {
     // catch all clause for unknown transaction type
-    console.log('Unknown type of message: no payment date');
+    console.log("Unknown type of message: no payment date");
   } else if (paypalData.amount_per_cycle) {
     // if donation is recurring, pledged opp will already exist in sf
     // update payment amount and stage
-    await updateRecurringOpp(paypalData, existingContact, 'Posted');
+    await updateRecurringOpp(paypalData, existingContact, "Posted");
 
     // thank you email
 
@@ -141,8 +140,8 @@ paypalRouter.post('/', async (req, res) => {
 });
 
 const formatDate = (date: string) => {
-  const splitDate = date.split(' ').filter((el, i, a) => i !== a.length - 1);
-  return moment(splitDate, 'HH:mm:ss MMM D, YYYY').format();
+  const splitDate = date.split(" ").filter((el, i, a) => i !== a.length - 1);
+  return moment(splitDate, "HH:mm:ss MMM D, YYYY").format();
 };
 
 // const verifyPaypalMessage = async (paypalData: PaypalData) => {
@@ -172,19 +171,19 @@ const formatDate = (date: string) => {
 const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   const formattedDate = formatDate(paypalData.time_created);
 
-  let dayOfMonth = moment(formattedDate).format('D');
+  let dayOfMonth = moment(formattedDate).format("D");
   if (
     parseInt(dayOfMonth) === 31 ||
-    (moment(formattedDate).format('M') === '2' && parseInt(dayOfMonth) >= 28)
+    (moment(formattedDate).format("M") === "2" && parseInt(dayOfMonth) >= 28)
   ) {
-    dayOfMonth = 'Last_Day';
+    dayOfMonth = "Last_Day";
   }
 
   const recurringToAdd: RecurringDonationObject = {
     npe03__Contact__c: contact.id!,
     npe03__Date_Established__c: formattedDate,
     npe03__Amount__c: paypalData.amount!,
-    npsp__RecurringType__c: 'Open',
+    npsp__RecurringType__c: "Open",
     npsp__Day_of_Month__c: dayOfMonth,
     npe03__Installment_Period__c: paypalData.payment_cycle!,
     npsp__StartDate__c: moment().format(),
@@ -196,7 +195,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   }
 
   const recurringInsertUri =
-    urls.SFOperationPrefix + '/npe03__Recurring_Donation__c/';
+    urls.SFOperationPrefix + "/npe03__Recurring_Donation__c/";
 
   const response = await fetcher.post(recurringInsertUri, recurringToAdd);
   const summaryMessage = {
@@ -204,7 +203,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
     success: response.data.success,
     name: `${paypalData.first_name} ${paypalData.last_name}`,
   };
-  console.log('Recurring Donation Added: ' + JSON.stringify(summaryMessage));
+  console.log("Recurring Donation Added: " + JSON.stringify(summaryMessage));
 };
 
 const cancelRecurring = async (
@@ -212,17 +211,17 @@ const cancelRecurring = async (
   contact: ContactData
 ) => {
   const recurringQuery = [
-    'SELECT',
-    'Id',
-    'from',
-    'npe03__Recurring_Donation__c',
-    'WHERE',
-    'npe03__Contact__c',
-    '=',
+    "SELECT",
+    "Id",
+    "from",
+    "npe03__Recurring_Donation__c",
+    "WHERE",
+    "npe03__Contact__c",
+    "=",
     `'${contact.id}'`,
   ];
 
-  const recurringQueryUri = urls.SFQueryPrefix + recurringQuery.join('+');
+  const recurringQueryUri = urls.SFQueryPrefix + recurringQuery.join("+");
 
   let existingRecurring;
   const recurringQueryResponse = await fetcher.get(recurringQueryUri);
@@ -232,14 +231,14 @@ const cancelRecurring = async (
 
   if (existingRecurring) {
     const recurringToUpdate = {
-      npsp__Status__c: 'Closed',
-      npsp__ClosedReason__c: paypalData.txn_type.replace(/_/gi, ' '),
-      npsp__EndDate__c: moment().add(1, 'days'),
+      npsp__Status__c: "Closed",
+      npsp__ClosedReason__c: paypalData.txn_type.replace(/_/gi, " "),
+      npsp__EndDate__c: moment().add(1, "days"),
     };
 
     const recurringUpdateUri =
       urls.SFOperationPrefix +
-      '/npe03__Recurring_Donation__c/' +
+      "/npe03__Recurring_Donation__c/" +
       existingRecurring.Id;
 
     const response = await fetcher.patch(recurringUpdateUri, recurringToUpdate);
@@ -248,35 +247,35 @@ const cancelRecurring = async (
       name: `${paypalData.first_name} ${paypalData.last_name}`,
     };
     console.log(
-      'Recurring Donation Canceled: ' + JSON.stringify(summaryMessage)
+      "Recurring Donation Canceled: " + JSON.stringify(summaryMessage)
     );
   } else {
-    throw Error('Recurring donation not found');
+    throw Error("Recurring donation not found");
   }
 };
 
 const updateRecurringOpp = async (
   paypalData: PaypalData,
   contact: ContactData,
-  status: 'Closed Lost' | 'Posted'
+  status: "Closed Lost" | "Posted"
 ) => {
   // query donations to get ID
   const oppQuery = [
-    'SELECT',
-    'Id',
-    'from',
-    'Opportunity',
-    'WHERE',
-    'npsp__Primary_Contact__c',
-    '=',
+    "SELECT",
+    "Id",
+    "from",
+    "Opportunity",
+    "WHERE",
+    "npsp__Primary_Contact__c",
+    "=",
     `'${contact.id}'`,
-    'AND',
-    'StageName',
-    '=',
+    "AND",
+    "StageName",
+    "=",
     `'Pledged'`,
   ];
 
-  const oppQueryUri = urls.SFQueryPrefix + oppQuery.join('+');
+  const oppQueryUri = urls.SFQueryPrefix + oppQuery.join("+");
 
   let existingOpp;
 
@@ -292,21 +291,21 @@ const updateRecurringOpp = async (
     };
 
     const oppUpdateUri =
-      urls.SFOperationPrefix + '/Opportunity/' + existingOpp.Id;
+      urls.SFOperationPrefix + "/Opportunity/" + existingOpp.Id;
 
     const response = await fetcher.patch(oppUpdateUri, oppToUpdate);
     const summaryMessage = {
       success: response.status === 204,
       name: `${paypalData.first_name} ${paypalData.last_name}`,
     };
-    console.log('Donation Updated: ' + JSON.stringify(summaryMessage));
+    console.log("Donation Updated: " + JSON.stringify(summaryMessage));
   } else {
-    throw Error('Existing opportunity not found');
+    throw Error("Existing opportunity not found");
   }
 };
 const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
   if (!paypalData.payment_date) {
-    throw Error('Could not add donation without a payment date');
+    throw Error("Could not add donation without a payment date");
   }
 
   const formattedDate = formatDate(paypalData.payment_date);
@@ -315,12 +314,12 @@ const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
     Amount: paypalData.payment_gross,
     AccountId: contact.householdId!,
     npsp__Primary_Contact__c: contact.id!,
-    StageName: 'Posted',
+    StageName: "Posted",
     CloseDate: formattedDate,
     Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
       formattedDate
-    ).format('M/D/YYYY')}`,
-    RecordTypeId: '0128Z000001BIZJQA4',
+    ).format("M/D/YYYY")}`,
+    RecordTypeId: "0128Z000001BIZJQA4",
     Processing_Fee__c: paypalData.payment_fee,
   };
   // link to campaign specified by an id on the custom field
@@ -328,7 +327,7 @@ const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
     oppToAdd.CampaignId = activeCampaigns[paypalData.custom].id;
   }
 
-  const oppInsertUri = urls.SFOperationPrefix + '/Opportunity';
+  const oppInsertUri = urls.SFOperationPrefix + "/Opportunity";
   // @ts-ignore
   const response: { data: SFInsertResponse | undefined } = await fetcher.post(
     oppInsertUri,
@@ -340,7 +339,7 @@ const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
     name: `${paypalData.first_name} ${paypalData.last_name}`,
     date: paypalData.payment_date,
   };
-  console.log('Donation Added: ' + JSON.stringify(summaryMessage));
+  console.log("Donation Added: " + JSON.stringify(summaryMessage));
 };
 
 export default paypalRouter;
