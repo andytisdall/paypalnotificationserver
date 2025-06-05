@@ -64,15 +64,15 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   let formattedNumbers: string[] = [];
   const responsePhoneNumber = REGIONS[region];
 
-  // const allPhoneNumbers = await Phone.find({ region });
-  // formattedNumbers = allPhoneNumbers.map((p) => p.number);
+  const allPhoneNumbers = await Phone.find({ region });
+  formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
-  formattedNumbers = [
-    "+14158190251",
-    //   // '+15104098582',
-    //   // '+17185017050',
-    //   // '+14157557053',
-  ];
+  // formattedNumbers = [
+  //   "+14158190251",
+  //   // '+15104098582',
+  //   // '+17185017050',
+  //   // '+14157557053',
+  // ];
 
   const dateTime = new Date(sendAt);
   dateTime.setHours(12);
