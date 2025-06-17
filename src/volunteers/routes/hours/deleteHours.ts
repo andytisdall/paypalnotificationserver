@@ -11,6 +11,7 @@ import {
   sendShiftCancelEmail,
   sendEventShiftCancelEmail,
 } from "../../../utils/email";
+import { getJobFromHours } from "../../../utils/salesforce/SFQuery/volunteer/jobs";
 
 const router = express.Router();
 
@@ -41,11 +42,15 @@ router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
   if (hour) {
     await deleteVolunteerHours(id);
     const { Email, FirstName } = await getContactById(contactId);
+    const job = await getJobFromHours(hour.job);
+
     if (Email) {
       if (!campaign.startDate) {
         await sendShiftCancelEmail(Email, {
           date: hour.time,
           name: FirstName,
+          campaign: campaign.name,
+          job: job.Name,
         });
       } else {
         await sendEventShiftCancelEmail(Email, {

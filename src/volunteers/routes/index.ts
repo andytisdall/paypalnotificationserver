@@ -10,6 +10,7 @@ import eventsRouter from "./events";
 import checkInRouter from "./checkIn";
 import driverRouter from "./driver";
 import jobsRouter from "./jobs";
+import bikeRouter from "./bike";
 
 const volunteerRouter = express.Router({ mergeParams: true });
 
@@ -23,5 +24,6 @@ volunteerRouter.use(checkInRouter);
 volunteerRouter.use(driverRouter);
 volunteerRouter.use(getVolunteerRouter);
 volunteerRouter.use(jobsRouter);
+volunteerRouter.use(bikeRouter);
 
 export default volunteerRouter;

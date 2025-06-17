@@ -17,6 +17,7 @@ const baseUrls = {
   acrobat: "https://api.na3.adobesign.com/api/rest/v6",
   docMadeEasy: "https://api.docmadeeasy.com/rest",
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",
+  ckKitchenCampaignId: "7018Z000002jtq0QAA",
 };
 
 const prodUrls = {

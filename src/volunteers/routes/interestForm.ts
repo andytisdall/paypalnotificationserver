@@ -44,24 +44,6 @@ const insertCampaignMembers = async (
   programs: VolunteerPrograms,
   contactId: string
 ) => {
-  if (programs.ckHomeChefs) {
-    const campaignMember: CampaignMemberObject = {
-      CampaignId: urls.townFridgeCampaignId,
-      ContactId: contactId,
-      Status: "Confirmed",
-    };
-    await insertCampaignMember(campaignMember);
-  }
-
-  if (programs.ckKitchen) {
-    const campaignMember: CampaignMemberObject = {
-      CampaignId: urls.ckKitchenCampaignId,
-      ContactId: contactId,
-      Status: "Confirmed",
-    };
-    await insertCampaignMember(campaignMember);
-  }
-
   if (programs.corporate) {
     const campaignMember: CampaignMemberObject = {
       CampaignId: urls.corporateVolunteersCampaignId,
@@ -154,13 +136,8 @@ router.post("/signup", async (req, res) => {
     contactInfo.Interest_in_other_volunteer_programs__c = programs.other;
   }
 
-  if (programs.ckHomeChefs) {
-    contactInfo.Home_Chef_Status__c = "Prospective";
-  }
-
-  if (programs.ckKitchen) {
-    contactInfo.CK_Kitchen_Volunteer_Status__c = "Prospective";
-  }
+  contactInfo.Home_Chef_Status__c = "Prospective";
+  contactInfo.CK_Kitchen_Volunteer_Status__c = "Prospective";
 
   const uniqueUsername = await createUniqueUsername(firstName, lastName);
 

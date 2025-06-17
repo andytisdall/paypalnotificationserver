@@ -25,15 +25,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    textOnlyPermission: { type: Boolean, default: false },
     googleId: String,
     appleId: String,
     homeChefNotificationToken: String,
     secretCode: String,
-    textOnlyPermission: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     toJSON: {

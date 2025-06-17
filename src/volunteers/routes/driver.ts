@@ -79,10 +79,10 @@ router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
 
   await updateContact(contactId, {
     Car_Size__c: size,
-    Car_Make__c: make,
-    Car_Model__c: model,
-    Car_Year__c: year,
-    Car_Color__c: color,
+    Car_Make__c: size !== "Bike" ? make : "",
+    Car_Model__c: size !== "Bike" ? model : "",
+    Car_Year__c: size !== "Bike" ? year : "",
+    Car_Color__c: size !== "Bike" ? color : "",
   });
   await checkAndUpdateDriverStatus(contactId);
 

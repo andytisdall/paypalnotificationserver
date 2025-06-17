@@ -33,6 +33,7 @@ export interface Job {
   GW_Volunteers__Ongoing__c: boolean;
   GW_Volunteers__Description__c: string;
   GW_Volunteers__Location_Street__c: string;
+  GW_Volunteers__Location_Information__c: string;
   Region__c?: "East Oakland" | "West Oakland";
   Fridge_Notes__c?: string;
 }
@@ -41,6 +42,7 @@ export interface FormattedJob {
   id: string;
   name: string;
   location: string;
+  locationInfo: string;
   shifts: FormattedShift[];
   active: boolean;
   ongoing: boolean;
@@ -86,6 +88,8 @@ export interface UnformattedHours {
   GW_Volunteers__Number_of_Volunteers__c?: number;
   GW_Volunteers__Hours_Worked__c?: number;
   Restaurant_Meals__c?: boolean;
+  GW_Volunteers__Volunteer_Campaign_Name__c: string;
+  GW_Volunteers__Start_Date_Time__c: string;
 }
 
 export interface HoursQueryResponse {

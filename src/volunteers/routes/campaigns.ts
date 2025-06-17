@@ -1,14 +1,6 @@
 import express from "express";
-import { getDay, addDays } from "date-fns";
-import utcToZonedTime from "date-fns-tz/utcToZonedTime";
 
-import urls from "../../utils/urls";
-import {
-  getVolunteerCampaigns,
-  getCampaign,
-} from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
-import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
-import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
+import { getVolunteerCampaigns } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
 
 const router = express.Router();
 

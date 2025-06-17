@@ -8,6 +8,7 @@ const clientMealSchema = new mongoose.Schema(
       ref: "Client",
       required: true,
     },
+    amount: { type: Number, required: true },
   },
   {
     toJSON: {

@@ -37,14 +37,11 @@ router.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { meals, clientId }: { meals: string[]; clientId: string } = req.body;
+    const { meals, clientId }: { meals: number; clientId: string } = req.body;
     let client = await Client.findOne({ clientId });
 
-    const promises = meals.map(async (meal) => {
-      const newItem = new ClientMeal({ client: client.id });
-      await newItem.save();
-    });
-    await Promise.all(promises);
+    const newClientMeals = new ClientMeal({ client: client.id, amount: meals });
+    await newClientMeals.save();
     res.send(null);
   }
 );

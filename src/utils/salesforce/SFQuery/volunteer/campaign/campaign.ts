@@ -1,5 +1,6 @@
 import fetcher from "../../../../fetcher";
 import urls from "../../../../urls";
+import { UnformattedHours } from "../types";
 import {
   FormattedVolunteerCampaign,
   UnformattedVolunteerCampaign,
@@ -93,7 +94,7 @@ export const getCampaignFromHours = async (id: string) => {
 
   const getUri = `${urls.SFOperationPrefix}/GW_Volunteers__Volunteer_Hours__c/${id}`;
 
-  const { data } = await fetcher.get(getUri);
+  const { data }: { data: UnformattedHours } = await fetcher.get(getUri);
   if (data.GW_Volunteers__Volunteer_Campaign__c) {
     return {
       id: data.GW_Volunteers__Volunteer_Campaign__c,

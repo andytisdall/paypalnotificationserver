@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 import urls from "../../urls";
 import fetcher from "../../fetcher";
-import { UnformattedContact } from "../SFQuery/contact/contact";
+import { UnformattedContact } from "../SFQuery/contact/types";
 
 const User = mongoose.model("User");
 

@@ -1,7 +1,7 @@
-import stream from 'stream';
-import sharp from 'sharp';
+import stream from "stream";
+import sharp from "sharp";
 
-import { bucket } from './bucket';
+import { bucket } from "./bucket";
 
 export const deleteFile = async (name: string) => {
   const file = bucket.file(name);
@@ -20,10 +20,10 @@ export const storeFile = async ({
     .jpeg({ quality: 30 })
     .toBuffer();
 
-  const storedFile = bucket.file(name + '.jpg');
+  const storedFile = bucket.file(name + ".jpg");
 
   const passthroughStream = new stream.PassThrough();
-  passthroughStream.write(buffer);
+  passthroughStream.write(file.data);
   passthroughStream.end();
 
   const googleStorageStream = storedFile.createWriteStream();
@@ -31,10 +31,10 @@ export const storeFile = async ({
   passthroughStream.pipe(googleStorageStream);
 
   return new Promise((resolve, reject) => {
-    googleStorageStream.on('error', (err) => {
+    googleStorageStream.on("error", (err) => {
       reject(err);
     });
-    googleStorageStream.on('finish', () => {
+    googleStorageStream.on("finish", () => {
       resolve(storedFile.publicUrl());
     });
   });

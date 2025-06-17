@@ -38,10 +38,12 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     message,
     region,
     sendAt,
+    photo,
   }: {
     message: string;
     region: Region;
     sendAt: string;
+    photo?: string;
   } = req.body;
 
   const twilioClient = await getTwilioClient();
@@ -68,7 +70,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
   // formattedNumbers = [
-  //   "+14158190251",
+  // "+14158190251",
   //   // '+15104098582',
   //   // '+17185017050',
   //   // '+14157557053',
@@ -81,12 +83,16 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   // const formattedTime = formatISO(dateTime);
   const zonedTime = zonedTimeToUtc(dateTime, "America/Los_Angeles");
 
+  const mediaUrl = photo ? [photo] : undefined;
+
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
     sendAt: zonedTime,
     messagingServiceSid: MESSAGING_SERVICE_SID,
     scheduleType: "fixed",
+    validityPeriod: 14000,
+    mediaUrl,
   };
 
   const createOutgoingText = async (phone: string) => {
@@ -147,8 +153,7 @@ router.post(
   "/outgoing/salesforce/update",
   requireSalesforceAuth,
   async (req, res) => {
-    const { id, message }: { id: string; message: string; time: string } =
-      req.body;
+    const { id, message }: { id: string; message: string } = req.body;
     const twilioClient = await getTwilioClient();
 
     const scheduledText = await ScheduledText.findById(id);

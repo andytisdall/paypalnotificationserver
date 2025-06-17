@@ -64,7 +64,7 @@ const docInfo: Record<string, DocInformation> = {
   },
   DRV: {
     type: "CKK",
-    url: "/volunteers/ck-kitchen/driver-onboarding/sign/success",
+    url: "/volunteers/driver-onboarding/sign/success",
     template: "C4mpEu6sQgFfrLmivzFNjGa8FywTRskFV",
     name: "CK Kitchen Volunteer Agreement",
   },

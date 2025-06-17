@@ -174,7 +174,7 @@ export const sendShiftEditEmail = async (
 
 export const sendShiftCancelEmail = async (
   email: string,
-  shiftData: { date: string; name?: string }
+  shiftData: { date: string; name?: string; job: string; campaign: string }
 ) => {
   const html = createShiftCancelEmail(shiftData);
 

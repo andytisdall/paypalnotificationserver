@@ -1,18 +1,18 @@
-import express from 'express';
-import twilio from 'twilio';
-import moment from 'moment';
-import mongoose from 'mongoose';
+import express from "express";
+import twilio from "twilio";
+import moment from "moment";
+import mongoose from "mongoose";
 
-import { REGIONS, Region } from '../models/phone';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import urls from '../../utils/urls';
-import { storeFile } from '../../files/google/storeFileGoogle';
-import getSecrets from '../../utils/getSecrets';
+import { REGIONS, Region } from "../models/phone";
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import urls from "../../utils/urls";
+import { storeFile } from "../../files/google/storeFileGoogle";
+import getSecrets from "../../utils/getSecrets";
 
-const Phone = mongoose.model('Phone');
-const Feedback = mongoose.model('Feedback');
-const OutgoingTextRecord = mongoose.model('OutgoingTextRecord');
+const Phone = mongoose.model("Phone");
+const Feedback = mongoose.model("Feedback");
+const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
 export interface NewOutgoingTextRecord {
   message: string;
@@ -30,10 +30,11 @@ export type OutgoingText = {
   mediaUrl?: string[];
   sendAt?: Date;
   messagingServiceSid: string;
-  scheduleType?: 'fixed';
+  scheduleType?: "fixed";
+  validityPeriod?: number;
 };
 
-smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
+smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   const twilioClient = await getTwilioClient();
 
   const {
@@ -45,69 +46,69 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     storedText,
   }: {
     message: string;
-    region: Region | 'both' | 'East Oakland' | 'West Oakland';
+    region: Region | "both" | "East Oakland" | "West Oakland";
     feedbackId?: string;
     number?: string;
     photo?: string;
     storedText?: string;
   } = req.body;
 
-  const { MESSAGING_SERVICE_SID } = await getSecrets(['MESSAGING_SERVICE_SID']);
+  const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
 
   if (!MESSAGING_SERVICE_SID) {
-    throw Error('Could not find messaging service ID');
+    throw Error("Could not find messaging service ID");
   }
 
   if (!message) {
     res.status(422);
-    throw new Error('No message to send');
+    throw new Error("No message to send");
   }
 
   if (!region && !number) {
     res.status(422);
-    throw new Error('No region or number specified');
+    throw new Error("No region or number specified");
   }
 
   if (req.currentUser!.id === urls.appleReviewerId) {
-    throw Error('You are not authorized to send text alerts');
+    throw Error("You are not authorized to send text alerts");
   }
 
   let formattedRegion = region;
 
-  if (formattedRegion === 'East Oakland') {
-    formattedRegion = 'EAST_OAKLAND';
-  } else if (formattedRegion === 'West Oakland') {
-    formattedRegion = 'WEST_OAKLAND';
+  if (formattedRegion === "East Oakland") {
+    formattedRegion = "EAST_OAKLAND";
+  } else if (formattedRegion === "West Oakland") {
+    formattedRegion = "WEST_OAKLAND";
   }
 
   let formattedNumbers: string[] = [];
   const responsePhoneNumber =
-    formattedRegion === 'both' || number
+    formattedRegion === "both" || number
       ? REGIONS.WEST_OAKLAND
       : REGIONS[formattedRegion];
 
   if (!number) {
     const allPhoneNumbers =
-      region === 'both'
+      region === "both"
         ? await Phone.find({
             region: {
-              $in: ['EAST_OAKLAND', 'WEST_OAKLAND'],
+              $in: ["EAST_OAKLAND", "WEST_OAKLAND"],
             },
           })
         : await Phone.find({ region: formattedRegion });
     formattedNumbers = allPhoneNumbers.map((p) => p.number);
   } else {
-    const phoneNumber = number.replace(/[^\d]/g, '');
+    const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
       res.status(422);
-      throw new Error('Phone number must have 10 digits');
+      throw new Error("Phone number must have 10 digits");
     }
 
-    formattedNumbers = ['+1' + phoneNumber];
+    formattedNumbers = ["+1" + phoneNumber];
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    formattedNumbers = ['+14158190251'];
+  if (process.env.NODE_ENV !== "production") {
+    formattedNumbers = ["+14158190251"];
   }
 
   const outgoingText: OutgoingText = {
@@ -119,7 +120,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
   let mediaUrl = photo;
 
   if (req.files?.photo && !Array.isArray(req.files.photo)) {
-    const fileName = 'outgoing-text-' + moment().format('YYYY-MM-DD-hh-ss-a');
+    const fileName = "outgoing-text-" + moment().format("YYYY-MM-DD-hh-ss-a");
 
     mediaUrl = await storeFile({
       file: req.files.photo,
@@ -151,7 +152,7 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
     }
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
       {
         sender: req.currentUser!.id,
@@ -167,9 +168,9 @@ smsRouter.post('/outgoing', currentUser, requireAuth, async (req, res) => {
 });
 
 smsRouter.post(
-  '/outgoing/mobile',
+  "/outgoing/mobile",
   async (req, res, next) => {
-    req.url = '/outgoing';
+    req.url = "/outgoing";
     next();
   },
   smsRouter
@@ -177,11 +178,11 @@ smsRouter.post(
 
 export const getTwilioClient = async () => {
   const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
-    'TWILIO_ID',
-    'TWILIO_AUTH_TOKEN',
+    "TWILIO_ID",
+    "TWILIO_AUTH_TOKEN",
   ]);
   if (!TWILIO_ID || !TWILIO_AUTH_TOKEN) {
-    throw Error('Could not find twilio credentials');
+    throw Error("Could not find twilio credentials");
   }
   return new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN, { autoRetry: true });
 };
