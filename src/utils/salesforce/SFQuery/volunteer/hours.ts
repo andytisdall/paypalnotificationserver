@@ -124,12 +124,17 @@ export const getHours = async (campaignId: string, contactId: string) => {
   return hours;
 };
 
-export const editHours = async (
-  mealCount: number,
-  soup: boolean,
-  cancel: boolean,
-  id: string
-) => {
+export const editHours = async ({
+  mealCount,
+  cancel,
+  id,
+  mealType,
+}: {
+  mealCount: number;
+  cancel: boolean;
+  id: string;
+  mealType: "Entree" | "Soup";
+}) => {
   await fetcher.setService("salesforce");
 
   interface updateHours {
@@ -140,7 +145,7 @@ export const editHours = async (
 
   const hoursToUpdate: updateHours = {
     Number_of_Meals__c: mealCount,
-    Type_of_Meal__c: soup ? "Soup" : "Entree",
+    Type_of_Meal__c: mealType,
   };
 
   if (cancel) {

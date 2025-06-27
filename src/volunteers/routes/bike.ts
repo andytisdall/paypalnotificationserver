@@ -4,6 +4,8 @@ import {
   addContact,
   getContactByEmail,
 } from "../../utils/salesforce/SFQuery/contact/contact";
+import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
+import urls from "../../utils/urls";
 
 const router = express.Router();
 
@@ -24,12 +26,20 @@ router.post("/bike", async (req, res) => {
     subject: "Bike Volunteer Submission",
   });
 
-  const contact = await getContactByEmail(email);
+  let contact = await getContactByEmail(email);
   if (!contact) {
-    await addContact({
+    contact = await addContact({
       Email: email,
       FirstName: firstName,
       LastName: lastName,
+    });
+  }
+
+  if (contact) {
+    await insertCampaignMember({
+      ContactId: contact?.id,
+      Status: "Confirmed",
+      CampaignId: urls.bikeCampaignId,
     });
   }
 

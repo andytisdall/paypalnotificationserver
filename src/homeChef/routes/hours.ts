@@ -56,16 +56,16 @@ router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
   const {
     mealCount,
     cancel,
-    soup,
     emailData,
+    mealType,
   }: {
     mealCount: number;
     cancel: boolean;
-    soup: boolean;
     emailData: { fridge: string; date: string };
+    mealType: "Entree" | "Soup";
   } = req.body;
 
-  await editHours(mealCount, soup, cancel, id);
+  await editHours({ mealCount, cancel, id, mealType });
   // opp is updated by a salesforce flow
 
   // email user confirmation
@@ -78,6 +78,7 @@ router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
       fridge: emailData.fridge,
       cancel,
       mealCount,
+      mealType,
     });
   }
 

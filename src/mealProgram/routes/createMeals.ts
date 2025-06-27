@@ -31,4 +31,9 @@ router.post("/", currentUser, requireTextPermission, async (req, res) => {
   res.sendStatus(204);
 });
 
+router.get("/font", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.sendFile("acid_bold.otf", { root: __dirname });
+});
+
 export default router;

@@ -53,6 +53,8 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     storedText?: string;
   } = req.body;
 
+  console.log(req.body);
+
   const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
 
   if (!MESSAGING_SERVICE_SID) {

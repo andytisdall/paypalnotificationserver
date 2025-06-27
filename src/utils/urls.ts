@@ -18,6 +18,7 @@ const baseUrls = {
   docMadeEasy: "https://api.docmadeeasy.com/rest",
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",
   ckKitchenCampaignId: "7018Z000002jtq0QAA",
+  bikeCampaignId: "701UP00000Oyq4NYAR",
 };
 
 const prodUrls = {

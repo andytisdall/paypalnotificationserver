@@ -18,7 +18,7 @@ router.get("/fridges", currentUser, requireAuth, async (req, res) => {
   await fetcher.setService("salesforce");
 
   const jobs = await getJobs(urls.townFridgeCampaignId);
-  res.send(jobs.filter((j) => j.id !== BARLTETT_ID));
+  res.send(jobs.filter((j) => j.active && j.id !== BARLTETT_ID));
 });
 
 router.get("/job-listing", currentUser, requireAuth, async (req, res) => {

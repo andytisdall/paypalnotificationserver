@@ -156,7 +156,13 @@ export const sendForgotPasswordEmail = async (
 
 export const sendShiftEditEmail = async (
   email: string,
-  shift: { date: string; cancel: boolean; mealCount: number; fridge: string }
+  shift: {
+    date: string;
+    cancel: boolean;
+    mealCount: number;
+    fridge: string;
+    mealType: "Entree" | "Soup";
+  }
 ) => {
   const html = createShiftEditEmail(shift);
 
