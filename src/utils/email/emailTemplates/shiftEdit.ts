@@ -1,6 +1,8 @@
 import moment from "moment";
 
-export default (shift: {
+import { sendEmail } from "../email";
+
+const createShiftEditEmail = (shift: {
   date: string;
   fridge: string;
   cancel: boolean;
@@ -28,4 +30,28 @@ export default (shift: {
     <br />
     Community Kitchens</p>
   `;
+};
+
+export const sendShiftEditEmail = async (
+  email: string,
+  shift: {
+    date: string;
+    cancel: boolean;
+    mealCount: number;
+    fridge: string;
+    mealType: "Entree" | "Soup";
+  }
+) => {
+  const html = createShiftEditEmail(shift);
+
+  const action = shift.cancel ? "canceled" : "edited";
+
+  const msg = {
+    to: email,
+    from: "kenai@ckoakland.org",
+    subject: `You have ${action} a home chef shift`,
+    html,
+  };
+
+  await sendEmail(msg);
 };

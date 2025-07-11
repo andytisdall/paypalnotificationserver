@@ -33,6 +33,7 @@ export interface Job {
   GW_Volunteers__Ongoing__c: boolean;
   GW_Volunteers__Description__c: string;
   GW_Volunteers__Location_Street__c: string;
+  GW_Volunteers__Location_City__c: string;
   GW_Volunteers__Location_Information__c: string;
   Region__c?: "East Oakland" | "West Oakland";
   Fridge_Notes__c?: string;

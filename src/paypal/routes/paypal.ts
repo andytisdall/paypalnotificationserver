@@ -2,7 +2,7 @@ import express from "express";
 import moment from "moment";
 import mongoose from "mongoose";
 
-import { sendDonationAckEmail } from "../../utils/email";
+import { sendDonationAckEmail } from "../../utils/email/emailTemplates/donationAck";
 import {
   addContact,
   getContactByEmail,

@@ -5,7 +5,6 @@ import recipeRouter from "./recipes";
 import hoursRouter from "./hours";
 import inviteRouter from "./invite";
 import campaignRouter from "./campaign";
-// import jobsRouter from "./jobs";
 import notificationsRouter from "./notifications";
 import quizRouter from "./quiz";
 import eventsRouter from "./events";

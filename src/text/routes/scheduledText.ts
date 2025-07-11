@@ -48,10 +48,10 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
 
   const twilioClient = await getTwilioClient();
 
-  if (!message) {
-    res.status(422);
-    throw new Error("No message to send");
-  }
+  // if (!message) {
+  //   res.status(422);
+  //   throw new Error("No message to send");
+  // }
 
   if (!region) {
     res.status(422);

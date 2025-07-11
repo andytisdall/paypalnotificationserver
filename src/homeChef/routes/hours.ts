@@ -10,7 +10,7 @@ import {
   editHours,
 } from "../../utils/salesforce/SFQuery/volunteer/hours";
 import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
-import { sendShiftEditEmail } from "../../utils/email";
+import { sendShiftEditEmail } from "../../utils/email/emailTemplates/shiftEdit";
 
 const router = express.Router();
 
@@ -31,9 +31,7 @@ interface HoursPostParams {
 
 router.post("/hours", currentUser, requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
-  if (req.currentUser!.id === urls.appleReviewerId) {
-    throw Error("You are not authorized to sign up for Home Chef shifts");
-  }
+
   const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {
     throw Error("User does not have a salesforce ID");

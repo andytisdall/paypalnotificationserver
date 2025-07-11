@@ -10,10 +10,10 @@ import {
   deleteContact,
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import getSecrets from "../../utils/getSecrets";
-import { sendEmail } from "../../utils/email";
+import { sendEmail } from "../../utils/email/email";
 import { CheckIn } from "../models/checkIn";
 import { deleteAllUserCheckIns } from "../../utils/salesforce/SFQuery/d4j";
-import { sendConfirmD4JUserEmail } from "../../utils/email";
+// import { sendConfirmD4JUserEmail } from "../../utils/email/email";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";

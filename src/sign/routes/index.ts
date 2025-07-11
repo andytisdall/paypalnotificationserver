@@ -13,7 +13,7 @@ import downloadFile from "../../utils/docMadeEasy/downloadFile";
 import { FileWithMetadata } from "../../utils/salesforce/SFQuery/files/metadata";
 import getAccount from "../../utils/docMadeEasy/getAccount";
 import { requireAuth } from "../../middlewares/require-auth";
-import { sendEmail } from "../../utils/email";
+import { sendEmail } from "../../utils/email/email";
 import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
 import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
 
@@ -84,7 +84,7 @@ router.get("/emailAgreement", currentUser, requireAuth, async (req, res) => {
   const emailText = `${contact.FirstName} ${contact.LastName} has requested a Home Chef volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
 
   await sendEmail({
-    text: emailText,
+    html: emailText,
     to: "andy@ckoakland.org",
     from: "andy@ckoakland.org",
     subject: "Home Chef agreement requested",

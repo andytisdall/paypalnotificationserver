@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import { formatISO } from "date-fns";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
@@ -11,38 +12,70 @@ const ClientMeal = mongoose.model("ClientMeal");
 const router = express.Router();
 
 router.get(
-  "/doorfront/:clientId",
+  "/doorfront/:scanValue",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { clientId } = req.params;
-    let client = await Client.findOne({ clientId });
+    const { scanValue } = req.params;
 
-    if (!client) {
-      // create new client
-      client = new Client({ clientId });
-      await client.save();
+    if (!scanValue) {
+      throw Error("No client ID provided");
+    }
+
+    let client;
+
+    if (!scanValue.includes("C")) {
+      client = await Client.findOne({ barcode: scanValue });
+
+      if (!client) {
+        // create new client
+        client = new Client({ barcode: scanValue });
+        await client.save();
+      }
+    } else {
+      client = await Client.findOne({ cCode: scanValue });
+
+      if (!client) {
+        // create new client
+        client = new Client({ cCode: scanValue });
+        await client.save();
+      }
     }
 
     const clientMeals = await ClientMeal.find({ client: client.id });
 
-    res.send(clientMeals);
+    res.send({ clientMeals, client });
   }
 );
 
 router.post(
-  "/doorfront",
+  "/doorfront/meals",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
     const { meals, clientId }: { meals: number; clientId: string } = req.body;
-    let client = await Client.findOne({ clientId });
 
-    const newClientMeals = new ClientMeal({ client: client.id, amount: meals });
+    const newClientMeals = new ClientMeal({ client: clientId, amount: meals });
     await newClientMeals.save();
     res.send(null);
+  }
+);
+
+router.get(
+  "/doorfront/meals/:date",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { date } = req.params;
+
+    const clientMeals = await ClientMeal.find({
+      date,
+    });
+
+    res.send(clientMeals);
   }
 );
 

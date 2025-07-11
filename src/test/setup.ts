@@ -12,7 +12,7 @@ declare global {
   var userId: string;
 }
 
-jest.mock("@sendgrid/mail");
+jest.mock("postmark");
 jest.mock("twilio");
 //@ts-ignore
 jest.mock("../files/google/storeFileGoogle", storeFileGoogle);

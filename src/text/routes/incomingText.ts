@@ -5,7 +5,7 @@ import moment from "moment";
 
 import { REGIONS, Region, DROPOFF_NUMBER } from "../models/phone";
 import textResponses from "../textResponses";
-import { sendEmail } from "../../utils/email";
+import { sendEmail } from "../../utils/email/email";
 import urls from "../../utils/urls";
 import { OutgoingText, getTwilioClient } from "./outgoingText";
 import {
@@ -91,7 +91,7 @@ router.post(
     html += `<p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>`;
 
     const msg = {
-      to: DROPOFF_EMAIL_SUBSCRIBERS,
+      to: DROPOFF_EMAIL_SUBSCRIBERS.join(", "),
       from: urls.adminEmail,
       subject: "You got a text on the Home Chef drop-off line",
       mediaUrl: images,

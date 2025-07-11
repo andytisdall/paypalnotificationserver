@@ -11,7 +11,7 @@ const decodeString = (string: string) => {
 };
 
 export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
-  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c, Fridge_Notes__c, GW_Volunteers__Location_Information__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${campaignId}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
+  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c, Fridge_Notes__c, GW_Volunteers__Location_Information__c, GW_Volunteers__Location_City__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${campaignId}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
 
   const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -29,6 +29,7 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
             | "Region__c"
             | "Fridge_Notes__c"
             | "GW_Volunteers__Location_Information__c"
+            | "GW_Volunteers__Location_City__c"
           >[]
         | undefined;
     };
@@ -45,7 +46,10 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       shifts: [],
       active: !j.GW_Volunteers__Inactive__c,
       ongoing: j.GW_Volunteers__Ongoing__c,
-      location: j.GW_Volunteers__Location_Street__c,
+      location:
+        j.GW_Volunteers__Location_Street__c +
+        " " +
+        j.GW_Volunteers__Location_City__c,
       locationInfo: decodeString(j.GW_Volunteers__Location_Information__c),
       description: decodeString(j.GW_Volunteers__Description__c),
       campaign: campaignId,

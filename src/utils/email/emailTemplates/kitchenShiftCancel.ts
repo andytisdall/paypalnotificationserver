@@ -1,6 +1,8 @@
 import moment from "moment";
 
-export default (shift: {
+import { sendEmail } from "../email";
+
+const createShiftCancelEmail = (shift: {
   date: string;
   name?: string;
   job: string;
@@ -25,4 +27,20 @@ export default (shift: {
       CKoakland.org</p>
       
   `;
+};
+
+export const sendShiftCancelEmail = async (
+  email: string,
+  shiftData: { date: string; name?: string; job: string; campaign: string }
+) => {
+  const html = createShiftCancelEmail(shiftData);
+
+  const msg = {
+    to: email,
+    from: "mollye@ckoakland.org",
+    subject: `You have canceled a CK volunteer shift`,
+    html,
+  };
+
+  await sendEmail(msg);
 };

@@ -4,7 +4,7 @@ import urls from "./urls";
 import getSFToken from "./salesforce/getSFToken";
 import getSecrets from "./getSecrets";
 
-export type Service = "salesforce" | "ninja";
+export type Service = "salesforce";
 
 class fetcher {
   instance: AxiosInstance;
@@ -15,7 +15,6 @@ class fetcher {
     this.instance = axios.create();
     this.token = {
       salesforce: undefined,
-      ninja: undefined,
     };
   }
 
@@ -35,9 +34,6 @@ class fetcher {
           this.instance.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${token}`;
-        }
-        if (this.service === "ninja") {
-          this.instance.defaults.headers.common["X-Api-Key"] = token;
         }
       } else {
         await this.getToken();
@@ -59,11 +55,7 @@ class fetcher {
       this.instance.defaults.headers.common["Content-Type"] =
         "application/json";
     }
-    if (this.service === "ninja") {
-      const { API_NINJA_KEY } = await getSecrets(["API_NINJA_KEY"]);
-      token = API_NINJA_KEY;
-      this.instance.defaults.headers.common["X-Api-Key"] = token;
-    }
+
     this.token[this.service!] = token;
   }
 

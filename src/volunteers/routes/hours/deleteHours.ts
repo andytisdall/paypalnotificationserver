@@ -7,10 +7,8 @@ import {
   deleteVolunteerHours,
 } from "../../../utils/salesforce/SFQuery/volunteer/hours";
 import { getCampaignFromHours } from "../../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
-import {
-  sendShiftCancelEmail,
-  sendEventShiftCancelEmail,
-} from "../../../utils/email";
+import { sendShiftCancelEmail } from "../../../utils/email/emailTemplates/kitchenShiftCancel";
+import { sendEventShiftCancelEmail } from "../../../utils/email/emailTemplates/eventShiftCancel";
 import { getJobFromHours } from "../../../utils/salesforce/SFQuery/volunteer/jobs";
 
 const router = express.Router();

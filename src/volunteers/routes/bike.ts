@@ -1,5 +1,5 @@
 import express from "express";
-import { sendEmail } from "../../utils/email";
+import { sendEmail } from "../../utils/email/email";
 import {
   addContact,
   getContactByEmail,
@@ -20,6 +20,7 @@ router.post("/bike", async (req, res) => {
     `;
 
   await sendEmail({
+    html: body,
     text: body,
     to: "andy@ckoakland.org",
     from: "andy@ckoakland.org",

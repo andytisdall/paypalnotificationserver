@@ -8,7 +8,6 @@ interface Secrets {
   MESSAGING_SERVICE_SID: string;
   JWT_KEY: string;
   MONGO_PASSWORD: string;
-  SENDGRID_KEY: string;
   GOOGLE_CLIENT_ID: string;
   D4J_CHECK_IN_KEY: string;
   APNS_P8: string;
@@ -22,7 +21,7 @@ interface Secrets {
   APPLE_TEAM_ID: string;
   APPLE_KID: string;
   APPLE_AUTH_KEY: string;
-  API_NINJA_KEY: string;
+  POSTMARK_API_KEY: string;
 }
 
 type Secret = keyof Secrets;

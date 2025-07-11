@@ -1,15 +1,15 @@
-import express from 'express';
+import express from "express";
 
-import { getCBOReports } from '../../utils/salesforce/SFQuery/cboReport';
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
-import { sendCBOReportDataEmail } from '../../utils/email';
+import { getCBOReports } from "../../utils/salesforce/SFQuery/cboReport";
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
+import { sendCBOReportDataEmail } from "../../utils/email/emailTemplates/CBOReportData";
 
 const router = express.Router();
 
 router.get(
-  '/cbo/reports',
+  "/cbo/reports",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -20,7 +20,7 @@ router.get(
 );
 
 router.post(
-  '/cbo/email',
+  "/cbo/email",
   currentUser,
   requireAuth,
   requireAdmin,

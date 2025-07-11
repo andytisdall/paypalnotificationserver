@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
@@ -11,6 +12,8 @@ import {
   uploadFileToSalesforce,
 } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import { FormattedContact } from "../../utils/salesforce/SFQuery/contact/types";
+
+const User = mongoose.model("User");
 
 const router = express.Router();
 
@@ -99,6 +102,9 @@ export const checkAndUpdateDriverStatus = async (contactId: string) => {
     new Date(contact.Insurance_Expiration_Date__c!) > new Date()
   ) {
     await updateContact(contactId, { Driver_Volunteer_Status__c: "Active" });
+    const user = await User.findOne({ salesforceId: contactId });
+    user.busDriver = true;
+    await user.save();
   }
 };
 

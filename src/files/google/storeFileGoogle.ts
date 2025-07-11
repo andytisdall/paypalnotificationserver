@@ -2,7 +2,7 @@ import stream from "stream";
 import sharp from "sharp";
 
 import { bucket } from "./bucket";
-import { sendEmail } from "../../utils/email";
+import { sendEmail } from "../../utils/email/email";
 
 export const deleteFile = async (name: string) => {
   const file = bucket.file(name);
@@ -44,7 +44,7 @@ export const storeFile = async ({
     await sendEmail({
       to: "andy@ckoakland.org",
       from: "andy@ckoakland.org",
-      text: JSON.stringify(err),
+      html: JSON.stringify(err),
       subject: "Error when saving image file",
     });
     return "";

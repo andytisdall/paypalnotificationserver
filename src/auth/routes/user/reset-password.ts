@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-import { sendForgotPasswordEmail } from "../../../utils/email";
+import { sendForgotPasswordEmail } from "../../../utils/email/emailTemplates/forgotPassword";
 import getSecrets from "../../../utils/getSecrets";
 import { getContactByEmail } from "../../../utils/salesforce/SFQuery/contact/contact";
 import urls from "../../../utils/urls";
