@@ -42,12 +42,13 @@ export interface Job {
 export interface FormattedJob {
   id: string;
   name: string;
-  location: string;
-  locationInfo: string;
+  location?: string;
+  locationInfo?: string;
+  locationCity?: string;
   shifts: FormattedShift[];
   active: boolean;
   ongoing: boolean;
-  description: string;
+  description?: string;
   campaign: string;
   region?: "East Oakland" | "West Oakland";
   notes?: string;

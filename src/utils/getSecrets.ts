@@ -22,6 +22,7 @@ interface Secrets {
   APPLE_KID: string;
   APPLE_AUTH_KEY: string;
   POSTMARK_API_KEY: string;
+  SENDGRID_KEY: string;
 }
 
 type Secret = keyof Secrets;

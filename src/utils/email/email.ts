@@ -1,4 +1,5 @@
 import { ServerClient } from "postmark";
+import sgMail from "@sendgrid/mail";
 
 import getSecrets from "../getSecrets";
 import urls from "../urls";
@@ -12,25 +13,36 @@ export interface EmailMessage {
   html: string;
 }
 
-const initializeEmail = async () => {
-  const { POSTMARK_API_KEY } = await getSecrets(["POSTMARK_API_KEY"]);
-  if (!POSTMARK_API_KEY) {
-    throw Error("No Postmark API key");
-  }
+// export const sendEmail = async (msg: EmailMessage) => {
 
-  return new ServerClient(POSTMARK_API_KEY);
+//   const { POSTMARK_API_KEY } = await getSecrets(["POSTMARK_API_KEY"]);
+//   if (!POSTMARK_API_KEY) {
+//     throw Error("No Postmark API key");
+//   }
+
+//   const emailClient = new ServerClient(POSTMARK_API_KEY);
+
+//   await emailClient.sendEmail({
+//     From: msg.from,
+//     To: msg.to,
+//     Subject: msg.subject,
+//     HtmlBody: msg.html,
+//     TextBody: msg.text,
+//   });
+// };
+
+export const initializeEmail = async () => {
+  const { SENDGRID_KEY } = await getSecrets(["SENDGRID_KEY"]);
+  if (!SENDGRID_KEY) {
+    throw new Error("Could not find sendgrid key to initialize email");
+  }
+  sgMail.setApiKey(SENDGRID_KEY);
 };
 
 export const sendEmail = async (msg: EmailMessage) => {
-  const emailClient = await initializeEmail();
-
-  await emailClient.sendEmail({
-    From: msg.from,
-    To: msg.to,
-    Subject: msg.subject,
-    HtmlBody: msg.html,
-    TextBody: msg.text,
-  });
+  await initializeEmail();
+  await sgMail.send(msg);
+  console.log("Email sent to " + msg.to);
 };
 
 export const sendEmailToSelf = async ({

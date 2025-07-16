@@ -46,10 +46,8 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       shifts: [],
       active: !j.GW_Volunteers__Inactive__c,
       ongoing: j.GW_Volunteers__Ongoing__c,
-      location:
-        j.GW_Volunteers__Location_Street__c +
-        " " +
-        j.GW_Volunteers__Location_City__c,
+      location: j.GW_Volunteers__Location_Street__c,
+      locationCity: j.GW_Volunteers__Location_City__c,
       locationInfo: decodeString(j.GW_Volunteers__Location_Information__c),
       description: decodeString(j.GW_Volunteers__Description__c),
       campaign: campaignId,
