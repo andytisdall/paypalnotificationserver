@@ -42,22 +42,22 @@ router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
     const { Email, FirstName } = await getContactById(contactId);
     const job = await getJobFromHours(hour.job);
 
-    // if (Email) {
-    //   if (!campaign.startDate) {
-    //     await sendShiftCancelEmail(Email, {
-    //       date: hour.time,
-    //       name: FirstName,
-    //       campaign: campaign.name,
-    //       job: job.Name,
-    //     });
-    //   } else {
-    //     await sendEventShiftCancelEmail(Email, {
-    //       date: hour.time,
-    //       name: FirstName,
-    //       event: campaign.name,
-    //     });
-    //   }
-    // }
+    if (Email) {
+      if (!campaign.startDate) {
+        await sendShiftCancelEmail(Email, {
+          date: hour.time,
+          name: FirstName,
+          campaign: campaign.name,
+          job: job.Name,
+        });
+      } else {
+        await sendEventShiftCancelEmail(Email, {
+          date: hour.time,
+          name: FirstName,
+          event: campaign.name,
+        });
+      }
+    }
     res.sendStatus(204);
   } else {
     throw Error("Volunteer hours do not belong to this contact");

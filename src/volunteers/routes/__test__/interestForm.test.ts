@@ -27,15 +27,9 @@ it("correctly makes the portal user and salesforce contact when the interest for
     lastName,
     phoneNumber: "415-819-0251",
     instagramHandle: "@instagream",
-    commit: true,
-    foodHandler: false,
-    daysAvailable: { Monday: true, Wednesday: false },
-    experience: "Restaurant",
-    pickup: false,
     source: "Newspaper",
     extraInfo: "I love cooking",
-    pickupMaybe: true,
-    programs: { ckKitchen: true, ckHomeChefs: false, other: "other" },
+    corporate: true,
   };
 
   await request(app)

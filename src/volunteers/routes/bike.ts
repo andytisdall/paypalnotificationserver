@@ -10,13 +10,12 @@ import urls from "../../utils/urls";
 const router = express.Router();
 
 router.post("/bike", async (req, res) => {
-  const { email, firstName, lastName, bikeNotes } = req.body;
+  const { email, firstName, lastName } = req.body;
 
   const body = `
     Email: ${email}
     First Name: ${firstName}
     Last Name: ${lastName}
-    Bike Notes: ${bikeNotes}
     `;
 
   await sendEmail({

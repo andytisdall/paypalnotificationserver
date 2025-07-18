@@ -15,44 +15,16 @@ import urls from "../../utils/urls";
 const User = mongoose.model("User");
 const router = express.Router();
 
-interface VolunteerPrograms {
-  ckKitchen: boolean;
-  ckHomeChefs: boolean;
-  corporate: boolean;
-  other: string;
-}
-
 export interface VolunteerInterestFormArgs {
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
   instagramHandle?: string;
-  foodHandler?: boolean;
-  foodHandlerOther?: string;
-  experience?: string;
-  transport?: boolean;
-  transportOther?: string;
-  workOnFeet?: boolean;
-  workOnFeetOther?: string;
   source: string;
   extraInfo?: string;
-  programs: VolunteerPrograms;
+  corporate?: string;
 }
-
-const insertCampaignMembers = async (
-  programs: VolunteerPrograms,
-  contactId: string
-) => {
-  if (programs.corporate) {
-    const campaignMember: CampaignMemberObject = {
-      CampaignId: urls.corporateVolunteersCampaignId,
-      ContactId: contactId,
-      Status: "Confirmed",
-    };
-    await insertCampaignMember(campaignMember);
-  }
-};
 
 const createPortalUser = async ({
   username,
@@ -95,16 +67,9 @@ router.post("/signup", async (req, res) => {
     lastName,
     phoneNumber,
     instagramHandle,
-    foodHandler,
-    foodHandlerOther,
-    experience,
-    transport,
-    transportOther,
-    workOnFeet,
-    workOnFeetOther,
+    corporate,
     source,
     extraInfo,
-    programs,
   }: VolunteerInterestFormArgs = req.body;
 
   const temporaryPassword = passwordGenerator.generate({
@@ -120,24 +85,13 @@ router.post("/signup", async (req, res) => {
     GW_Volunteers__Volunteer_Skills__c: "Cooking",
     GW_Volunteers__Volunteer_Notes__c: extraInfo,
     Instagram_Handle__c: instagramHandle,
-    Able_to_get_food_handler_cert__c: foodHandler,
-    Cooking_Experience__c: experience,
     How_did_they_hear_about_CK__c: source,
-    Able_to_get_food_handler_other__c: foodHandlerOther,
-    Able_to_work_on_feet__c: workOnFeet,
-    Able_to_work_on_feet_other__c: workOnFeetOther,
-    Able_to_Commit__c: transport,
-    Able_to_cook_and_transport_other__c: transportOther,
     GW_Volunteers__Volunteer_Status__c: "Prospective",
     Portal_Temporary_Password__c: temporaryPassword,
+    Home_Chef_Status__c: "Prospective",
+    CK_Kitchen_Volunteer_Status__c: "Prospective",
+    Interest_in_volunteering_group__c: corporate,
   };
-
-  if (programs.other) {
-    contactInfo.Interest_in_other_volunteer_programs__c = programs.other;
-  }
-
-  contactInfo.Home_Chef_Status__c = "Prospective";
-  contactInfo.CK_Kitchen_Volunteer_Status__c = "Prospective";
 
   const uniqueUsername = await createUniqueUsername(firstName, lastName);
 
@@ -167,8 +121,16 @@ router.post("/signup", async (req, res) => {
     );
   }
 
+  if (corporate) {
+    const campaignMember: CampaignMemberObject = {
+      CampaignId: urls.corporateVolunteersCampaignId,
+      ContactId: existingContact.id,
+      Status: "Confirmed",
+    };
+    await insertCampaignMember(campaignMember);
+  }
+
   await updateContact(existingContact.id, contactInfo);
-  await insertCampaignMembers(programs, existingContact.id);
 
   res.sendStatus(204);
 });

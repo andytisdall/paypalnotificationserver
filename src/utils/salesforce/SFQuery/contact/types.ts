@@ -17,15 +17,8 @@ export interface UnformattedContact {
   GW_Volunteers__Volunteer_Status__c?: string;
   GW_Volunteers__Volunteer_Notes__c?: string;
   Instagram_Handle__c?: string;
-  Able_to_get_food_handler_cert__c?: boolean;
-  Able_to_get_food_handler_other__c?: string;
-  Able_to_work_on_feet__c?: boolean;
-  Able_to_work_on_feet_other__c?: string;
-  Cooking_Experience__c?: string;
   How_did_they_hear_about_CK__c?: string;
-  Able_to_Commit__c?: boolean;
-  Able_to_cook_and_transport_other__c?: string;
-  Interest_in_other_volunteer_programs__c?: string;
+  Interest_in_volunteering_group__c?: string;
 
   // home chef
   Home_Chef_Status__c?: string;

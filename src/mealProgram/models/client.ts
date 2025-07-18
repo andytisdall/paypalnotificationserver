@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const clientSchema = new mongoose.Schema(
   {
-    cCode: { type: String, unique: true },
-    barcode: { type: String, unique: true },
+    cCode: { type: String },
+    barcode: { type: String },
   },
   {
     toJSON: {
