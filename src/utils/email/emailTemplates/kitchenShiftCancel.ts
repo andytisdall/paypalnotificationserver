@@ -37,7 +37,7 @@ export const sendShiftCancelEmail = async (
 
   const msg = {
     to: email,
-    from: "mollye@ckoakland.org",
+    from: "volunteers@ckoakland.org",
     subject: `You have canceled a CK volunteer shift`,
     html,
   };

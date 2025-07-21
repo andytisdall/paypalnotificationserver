@@ -2,7 +2,6 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
 import urls from "./urls";
 import getSFToken from "./salesforce/getSFToken";
-import getSecrets from "./getSecrets";
 
 export type Service = "salesforce";
 
@@ -16,6 +15,7 @@ class fetcher {
     this.token = {
       salesforce: undefined,
     };
+    // this.setService("salesforce");
   }
 
   clearService() {

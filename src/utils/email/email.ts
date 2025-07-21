@@ -1,8 +1,6 @@
 import { ServerClient } from "postmark";
-// import sgMail from "@sendgrid/mail";
 
 import getSecrets from "../getSecrets";
-// import urls from "../urls";
 
 export interface EmailMessage {
   to: string;
@@ -29,35 +27,3 @@ export const sendEmail = async (msg: EmailMessage) => {
     TextBody: msg.text,
   });
 };
-
-// export const initializeEmail = async () => {
-//   const { SENDGRID_KEY } = await getSecrets(["SENDGRID_KEY"]);
-//   if (!SENDGRID_KEY) {
-//     throw new Error("Could not find sendgrid key to initialize email");
-//   }
-//   sgMail.setApiKey(SENDGRID_KEY);
-// };
-
-// export const sendEmail = async (msg: EmailMessage) => {
-//   await initializeEmail();
-//   await sgMail.send(msg);
-//   console.log("Email sent to " + msg.to);
-// };
-
-// export const sendEmailToSelf = async ({
-//   subject,
-//   message,
-// }: {
-//   subject: string;
-//   message: string;
-// }) => {
-//   const msg = {
-//     to: "andy@ckoakland.org",
-//     from: urls.adminEmail,
-//     subject,
-//     html: "Sent to self from server: " + message,
-//     text: "Sent to self from server: " + message,
-//   };
-
-//   await sendEmail(msg);
-// };
