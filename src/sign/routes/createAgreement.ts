@@ -1,11 +1,7 @@
 import express from "express";
 
 import { currentUser } from "../../middlewares/current-user";
-import {
-  getUnformattedContactByEmail,
-  getContactById,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
 import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 
 import { createRequest } from "../../utils/zoho/sign";
@@ -27,7 +23,7 @@ export interface DocInformation {
   name: string;
 }
 
-const docInfo: Record<string, DocInformation> = {
+export const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
     url: "/home-chef/onboarding/sign/success",
