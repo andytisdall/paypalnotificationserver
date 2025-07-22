@@ -22,11 +22,6 @@ interface WebhookBody {
 }
 
 router.post("/update-contact", async (req, res) => {
-  console.log(req.body);
-  res.send(null);
-});
-
-router.post("/update-contact", async (req, res) => {
   const { requests }: WebhookBody = req.body;
   const { request_status, actions, document_ids } = requests;
 
