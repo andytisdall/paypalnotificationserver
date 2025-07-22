@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import urls from "../urls";
-import { DocInformation } from "../../sign/routes";
+import { DocInformation } from "../../sign/routes/createAgreement";
 import getSecrets from "../getSecrets";
 
 const createSign = async ({

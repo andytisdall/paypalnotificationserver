@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 
-import { DocInformation } from "../../sign/routes";
-import urls from "../urls";
+import { DocInformation } from "../../sign/routes/createAgreement";
 import fetcher from "../fetcher";
 
 interface CreateDocArgs {
@@ -36,8 +35,6 @@ export const createRequest = async ({
 }) => {
   await fetcher.setService("zoho");
 
-  // const templateId = "489948000000041011";
-
   const response = await fetcher.get("/templates/" + doc.template);
   const { actions } = response.data.templates;
   const createDocFromTemplateBody: CreateDocArgs = {
@@ -68,7 +65,7 @@ export const createRequest = async ({
   const { fields } = data.requests;
   const { action_id } = data.requests.actions[0];
 
-  const redirectUrl = "https://portal.ckoakland.org/" + doc.url;
+  const redirectUrl = "https://portal.ckoakland.org" + doc.url;
 
   await fetcher.post("/requests/" + request_id + "/submit", {
     requests: {
