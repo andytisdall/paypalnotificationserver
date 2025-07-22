@@ -7,7 +7,6 @@ import {
   updateContact,
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
-import createSign from "../../utils/docMadeEasy/createSign";
 import { uploadFileToSalesforce } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import downloadFile from "../../utils/docMadeEasy/downloadFile";
 import { FileWithMetadata } from "../../utils/salesforce/SFQuery/files/metadata";
@@ -16,6 +15,7 @@ import { requireAuth } from "../../middlewares/require-auth";
 import { sendEmail } from "../../utils/email/email";
 import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
 import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
+import { createRequest } from "../../utils/zoho/sign";
 
 const router = express.Router();
 
@@ -47,7 +47,8 @@ const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
     url: "/home-chef/onboarding/sign/success",
-    template: "C4smCqWwfs6cQqHnZLgnvRyw5D5Pmo1Cx",
+    // template: "C4smCqWwfs6cQqHnZLgnvRyw5D5Pmo1Cx",
+    template: "489948000000041011",
     name: "CK Home Chef Volunteer Agreement",
   },
   CI: {
@@ -143,14 +144,20 @@ router.get(
       return res.send({ signingUrl: "" });
     }
 
-    const signingUrl = await createSign({
+    const signingUrl = await createRequest({
       contact: { name: contact.Name, email: contact.Email, id: contact.Id },
       doc,
       hoursId,
     });
+    // create
     res.send({ signingUrl });
   }
 );
+
+router.post("/update-contact1", async (req, res) => {
+  console.log(req.body);
+  res.send(null);
+});
 
 router.post("/update-contact", async (req, res) => {
   const { envelope, eventType }: DocWebhookBody = req.body;
