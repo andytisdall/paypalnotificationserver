@@ -43,6 +43,15 @@ export interface DocInformation {
   name: string;
 }
 
+interface WebhookBody {
+  requests: {
+    request_status: string;
+    actions: { recipient_email: string }[];
+    document_ids: { document_name: string; document_id: string }[];
+    zsdocumentid: string;
+  };
+}
+
 const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
