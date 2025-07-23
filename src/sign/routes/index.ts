@@ -83,20 +83,26 @@ router.get("/config", async (req, res) => {
   res.send({ limitReached });
 });
 
-router.get("/emailAgreement", currentUser, requireAuth, async (req, res) => {
-  const contact = await getContactById(req.currentUser!.salesforceId);
+router.get(
+  "/emailAgreement/:doc",
+  currentUser,
+  requireAuth,
+  async (req, res) => {
+    const { doc } = req.params;
+    const contact = await getContactById(req.currentUser!.salesforceId);
 
-  const emailText = `${contact.FirstName} ${contact.LastName} has requested a Home Chef volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
+    const emailText = `${contact.FirstName} ${contact.LastName} has requested a ${doc} volunteer agreement and the API limit has been reached for the month, so you have to email it to them. ID: ${contact.Id}`;
 
-  await sendEmail({
-    html: emailText,
-    to: "andy@ckoakland.org",
-    from: "andy@ckoakland.org",
-    subject: "Home Chef agreement requested",
-  });
+    await sendEmail({
+      html: emailText,
+      to: "andy@ckoakland.org",
+      from: "andy@ckoakland.org",
+      subject: "volunteer agreement requested",
+    });
 
-  res.send(null);
-});
+    res.send(null);
+  }
+);
 
 router.get(
   "/:docType?/:hoursId?/:contactId?",
