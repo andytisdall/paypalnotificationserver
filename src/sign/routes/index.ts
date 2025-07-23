@@ -70,6 +70,11 @@ const docInfo: Record<string, DocInformation> = {
   },
 };
 
+router.post("/update-contact1", async (req, res) => {
+  console.log(req.body.requests);
+  res.send(null);
+});
+
 router.get("/config", async (req, res) => {
   const account = await getAccount();
 
