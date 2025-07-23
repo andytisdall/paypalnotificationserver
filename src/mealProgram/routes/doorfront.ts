@@ -61,8 +61,13 @@ router.post(
       cCode,
     }: { meals: number; clientId: string; cCode?: string } = req.body;
 
-    const newClientMeals = new ClientMeal({ client: clientId, amount: meals });
-    await newClientMeals.save();
+    if (meals > 0) {
+      const newClientMeals = new ClientMeal({
+        client: clientId,
+        amount: meals,
+      });
+      await newClientMeals.save();
+    }
 
     if (cCode) {
       const client = await Client.findById(clientId);

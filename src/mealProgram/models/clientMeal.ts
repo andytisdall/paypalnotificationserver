@@ -6,8 +6,7 @@ const clientMealSchema = new mongoose.Schema(
     date: {
       type: String,
       required: true,
-      default: () =>
-        format(utcToZonedTime(new Date(), "America/Los_Angeles"), "yyyy-MM-dd"),
+      default: () => format(new Date(), "yyyy-MM-dd"),
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
