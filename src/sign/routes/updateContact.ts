@@ -9,7 +9,7 @@ import { FileWithMetadata } from "../../utils/salesforce/SFQuery/files/metadata"
 import { downloadFile } from "../../utils/zoho/downloadFile";
 import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
 import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
-import { docInfo } from "./createAgreement";
+import { docInfo } from "./docConfig";
 
 const router = express.Router();
 

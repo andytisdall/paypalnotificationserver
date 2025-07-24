@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import { DocInformation } from "../../sign/routes/createAgreement";
+import { DocInformation } from "../../sign/routes/docConfig";
 import fetcher from "../fetcher";
 
 interface CreateDocArgs {
