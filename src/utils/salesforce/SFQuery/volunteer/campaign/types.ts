@@ -10,7 +10,6 @@ export interface UnformattedVolunteerCampaign {
   EndDate?: string;
   Description?: string;
   Id: string;
-  Portal_Button_Text__c?: string;
 }
 
 export interface FormattedVolunteerCampaign {
@@ -19,7 +18,6 @@ export interface FormattedVolunteerCampaign {
   endDate?: string;
   description?: string;
   id: string;
-  buttonText?: string;
 }
 
 export interface FormattedEventCampaign {

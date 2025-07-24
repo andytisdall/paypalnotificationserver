@@ -15,7 +15,6 @@ class fetcher {
     this.token = {
       salesforce: undefined,
     };
-    // this.setService("salesforce");
   }
 
   clearService() {

@@ -13,7 +13,7 @@ export const getVolunteerCampaigns: () => Promise<
 > = async () => {
   await fetcher.setService("salesforce");
   const query =
-    "SELECT Name, Id, Description, StartDate, EndDate, Portal_Button_Text__c FROM Campaign WHERE Portal_Signups_Enabled__c = True AND (StartDate > TODAY OR StartDate = NULL)";
+    "SELECT Name, Id, Description, StartDate, EndDate FROM Campaign WHERE Portal_Signups_Enabled__c = True AND (StartDate > TODAY OR StartDate = NULL)";
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
   const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
@@ -29,7 +29,6 @@ export const getVolunteerCampaigns: () => Promise<
       startDate: cam.StartDate,
       description: cam.Description,
       id: cam.Id,
-      buttonText: cam.Portal_Button_Text__c,
     };
   });
 };
