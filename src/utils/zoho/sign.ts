@@ -67,7 +67,7 @@ export const createRequest = async ({
 
   const redirectUrl = "https://portal.ckoakland.org" + doc.url;
 
-  const p = await fetcher.post("/requests/" + request_id + "/submit", {
+  await fetcher.post("/requests/" + request_id + "/submit", {
     requests: {
       actions: [{ action_id, action_type: "SIGN", fields }],
       redirect_pages: {
@@ -78,8 +78,6 @@ export const createRequest = async ({
       },
     },
   });
-
-  console.log(p.data);
 
   const signResponse = await fetcher.post(
     "/requests/" + request_id + "/actions/" + action_id + "/embedtoken",

@@ -18,13 +18,13 @@ interface WebhookBody {
     request_status: string;
     actions: { recipient_email: string }[];
     document_ids: { document_name: string; document_id: string }[];
-    zsdocumentid: string;
+    request_id: string;
   };
 }
 
 router.post("/update-contact", async (req, res) => {
   const { requests }: WebhookBody = req.body;
-  const { request_status, actions, document_ids, zsdocumentid } = requests;
+  const { request_status, actions, document_ids, request_id } = requests;
 
   if (request_status !== "completed") {
     return res.sendStatus(200);
@@ -46,7 +46,7 @@ router.post("/update-contact", async (req, res) => {
     throw Error();
   }
 
-  const data = await downloadFile(zsdocumentid);
+  const data = await downloadFile(request_id);
 
   const file: FileWithMetadata = {
     docType: doc.type,
