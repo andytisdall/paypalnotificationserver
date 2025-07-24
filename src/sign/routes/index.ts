@@ -43,15 +43,6 @@ export interface DocInformation {
   name: string;
 }
 
-interface WebhookBody {
-  requests: {
-    request_status: string;
-    actions: { recipient_email: string }[];
-    document_ids: { document_name: string; document_id: string }[];
-    zsdocumentid: string;
-  };
-}
-
 const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
@@ -78,57 +69,6 @@ const docInfo: Record<string, DocInformation> = {
     name: "CK Kitchen Volunteer Agreement",
   },
 };
-
-router.post("/update-contact1", async (req, res) => {
-  const { requests }: WebhookBody = req.body;
-  const { request_status, actions, document_ids, zsdocumentid } = requests;
-
-  if (request_status !== "completed") {
-    return res.sendStatus(200);
-  }
-
-  const contact = await getUnformattedContactByEmail(
-    actions[0].recipient_email
-  );
-
-  const doc = Object.values(docInfo).find(
-    (d) => d.name === document_ids[0].document_name
-  );
-
-  if (!contact) {
-    throw Error("Could not get contact");
-  }
-
-  if (!doc) {
-    throw Error();
-  }
-
-  const data = await downloadFile(zsdocumentid);
-
-  const file: FileWithMetadata = {
-    docType: doc.type,
-    file: {
-      name: doc.name + ".pdf",
-      data: Buffer.from(data),
-    },
-  };
-
-  await uploadFileToSalesforce(contact, file);
-
-  if (doc.type === "CKK") {
-    await updateContact(contact.Id, {
-      CK_Kitchen_Agreement__c: true,
-      CK_Kitchen_Volunteer_Status__c: "Active",
-    });
-    await checkAndUpdateDriverStatus(contact.Id);
-  }
-
-  if (doc.type === "HC") {
-    await updateHomeChefStatus(contact, { agreement: true });
-  }
-
-  res.sendStatus(200);
-});
 
 router.get("/config", async (req, res) => {
   const account = await getAccount();
