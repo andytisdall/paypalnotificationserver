@@ -65,7 +65,11 @@ export const createRequest = async ({
   const { fields } = data.requests;
   const { action_id } = data.requests.actions[0];
 
-  const redirectUrl = "https://portal.ckoakland.org" + doc.url;
+  let redirectUrl = "https://portal.ckoakland.org" + doc.url;
+
+  if (hoursId) {
+    redirectUrl = redirectUrl + `/${contact.id}/${hoursId}`;
+  }
 
   await fetcher.post("/requests/" + request_id + "/submit", {
     requests: {
