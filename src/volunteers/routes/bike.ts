@@ -1,8 +1,8 @@
 import express from "express";
-import { sendEmail } from "../../utils/email/email";
 import {
   addContact,
   getContactByEmail,
+  updateContact,
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
 import urls from "../../utils/urls";
@@ -10,21 +10,7 @@ import urls from "../../utils/urls";
 const router = express.Router();
 
 router.post("/bike", async (req, res) => {
-  const { email, firstName, lastName } = req.body;
-
-  const body = `
-    Email: ${email}
-    First Name: ${firstName}
-    Last Name: ${lastName}
-    `;
-
-  await sendEmail({
-    html: body,
-    text: body,
-    to: "andy@ckoakland.org",
-    from: "andy@ckoakland.org",
-    subject: "Bike Volunteer Submission",
-  });
+  const { email, firstName, lastName, subscribe } = req.body;
 
   let contact = await getContactByEmail(email);
   if (!contact) {
@@ -32,16 +18,23 @@ router.post("/bike", async (req, res) => {
       Email: email,
       FirstName: firstName,
       LastName: lastName,
+      Subscribe_to_Bike_East_Bay_newsletter__c: subscribe,
+    });
+  } else {
+    await updateContact(contact.id, {
+      Subscribe_to_Bike_East_Bay_newsletter__c: subscribe,
     });
   }
 
-  if (contact) {
-    await insertCampaignMember({
-      ContactId: contact?.id,
-      Status: "Confirmed",
-      CampaignId: urls.bikeCampaignId,
-    });
+  if (!contact) {
+    throw Error("Could not process submission");
   }
+
+  await insertCampaignMember({
+    ContactId: contact.id,
+    Status: "Confirmed",
+    CampaignId: urls.bikeCampaignId,
+  });
 
   res.send(null);
 });

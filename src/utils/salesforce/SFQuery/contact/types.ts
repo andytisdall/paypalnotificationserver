@@ -19,6 +19,7 @@ export interface UnformattedContact {
   Instagram_Handle__c?: string;
   How_did_they_hear_about_CK__c?: string;
   Interest_in_volunteering_group__c?: string;
+  Subscribe_to_Bike_East_Bay_newsletter__c?: boolean;
 
   // home chef
   Home_Chef_Status__c?: string;
