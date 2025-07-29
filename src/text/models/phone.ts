@@ -1,13 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export const REGIONS: Record<Region, string> = {
-  WEST_OAKLAND: '+15105297288',
-  EAST_OAKLAND: '+15109301159',
+  WEST_OAKLAND: "+15105297288",
+  EAST_OAKLAND: "+15109301159",
+  BERKELEY: "+15106944697",
 };
 
-export const DROPOFF_NUMBER = '+15106944697';
-
-export type Region = 'EAST_OAKLAND' | 'WEST_OAKLAND';
+export type Region = "EAST_OAKLAND" | "WEST_OAKLAND" | "BERKELEY";
 
 const phoneSchema = new mongoose.Schema(
   {
@@ -32,4 +31,4 @@ const phoneSchema = new mongoose.Schema(
   }
 );
 
-export const Phone = mongoose.model('Phone', phoneSchema);
+export const Phone = mongoose.model("Phone", phoneSchema);

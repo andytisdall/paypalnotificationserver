@@ -1,27 +1,19 @@
 import express from "express";
 import mongoose from "mongoose";
 import twilio, { twiml } from "twilio";
-import moment from "moment";
 
-import { REGIONS, Region, DROPOFF_NUMBER } from "../models/phone";
+import { REGIONS, Region } from "../models/phone";
 import textResponses from "../textResponses";
 import { sendEmail } from "../../utils/email/email";
-import urls from "../../utils/urls";
-import { OutgoingText, getTwilioClient } from "./outgoingText";
 import {
   addTextSubscriber,
   editTextSubscriber,
 } from "../../utils/salesforce/SFQuery/text";
-import getSecrets from "../../utils/getSecrets";
 
 const Feedback = mongoose.model("Feedback");
 const Phone = mongoose.model("Phone");
 const MessagingResponse = twiml.MessagingResponse;
 const router = express.Router();
-
-const DROPOFF_EMAIL_SUBSCRIBERS = ["mollye@ckoakland.org"];
-
-const DROPOFF_PHONE_SUBSCRIBERS = ["+17185017050"];
 
 export type PhoneNumber =
   | (mongoose.Document<
@@ -56,77 +48,6 @@ router.post(
 
     res.set("Content-Type", "text/xml");
     return res.send(response.toString());
-  }
-);
-
-router.post(
-  "/incoming/dropoff",
-  twilio.webhook({ protocol: "https" }),
-  async (req, res) => {
-    const { Body, From, DateSent } = req.body;
-
-    const images = getImages(req.body);
-
-    const textUrl = urls.client + "/text/send-text";
-
-    const formattedDate = moment(DateSent)
-      .subtract(7, "hours")
-      .format("MM/DD/YY hh:mm a");
-
-    let html = `
-    <h4>This is a CK Home Chef drop off alert</h4>
-    <p>From: ${From.slice(2)}</p>
-    <p>${formattedDate}</p>
-    <p>${Body}</p>
-    `;
-
-    if (images.length) {
-      let imagesHtml = `<p>Images included with message:</p>`;
-      images.forEach((url) => {
-        imagesHtml += `<p>Copy the URL for this image: ${url}</p><a href='${url}' download='${formattedDate}'><img src='${url}' width='300px' height='auto'/></a>`;
-      });
-      html += imagesHtml;
-    }
-
-    html += `<p>Go to the <a href='${textUrl}'>CK Text Service Portal</a> to send out a text to the subscriber list.</p>`;
-
-    const msg = {
-      to: DROPOFF_EMAIL_SUBSCRIBERS.join(", "),
-      from: urls.adminEmail,
-      subject: "You got a text on the Home Chef drop-off line",
-      mediaUrl: images,
-      html,
-    };
-
-    await sendEmail(msg);
-
-    const { MESSAGING_SERVICE_SID } = await getSecrets([
-      "MESSAGING_SERVICE_SID",
-    ]);
-    if (!MESSAGING_SERVICE_SID) {
-      throw Error();
-    }
-
-    const twilioClient = await getTwilioClient();
-    const alertText: OutgoingText = {
-      from: DROPOFF_NUMBER,
-      body: Body,
-      mediaUrl: images,
-      messagingServiceSid: MESSAGING_SERVICE_SID,
-    };
-    const textPromises = DROPOFF_PHONE_SUBSCRIBERS.map((number) => {
-      return twilioClient.messages.create({
-        ...alertText,
-        to: number,
-      });
-    });
-    await Promise.all(textPromises);
-
-    const response = new MessagingResponse();
-    response.message(textResponses.dropOffResponse);
-
-    res.set("Content-Type", "text/xml");
-    res.send(response.toString());
   }
 );
 

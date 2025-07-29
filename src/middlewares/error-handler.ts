@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
   err: any,
@@ -17,9 +17,9 @@ export const errorHandler = (
       // salesforce error
       message = err.response.data[0];
       if (message.errorCode) {
-        return res.status(400).send({ error: 'Error Retreiving Data' });
+        return res.status(400).send({ error: "Error Retreiving Data" });
       }
-    } else if (err.response.data.error.message) {
+    } else if (err.response.data.error?.message) {
       message = err.response.data.error.message;
     } else {
       message = err.response.data;

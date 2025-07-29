@@ -23,6 +23,10 @@ interface Secrets {
   APPLE_AUTH_KEY: string;
   POSTMARK_API_KEY: string;
   SENDGRID_KEY: string;
+  ZOHO_SANDBOX_TOKEN: string;
+  ZOHO_CLIENT_SECRET: string;
+  ZOHO_CLIENT_ID: string;
+  ZOHO_REFRESH_TOKEN: string;
 }
 
 type Secret = keyof Secrets;

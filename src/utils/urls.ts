@@ -19,6 +19,8 @@ const baseUrls = {
   ninja: "https://public.opendatasoft.com/api/explore/v2.1",
   ckKitchenCampaignId: "7018Z000002jtq0QAA",
   bikeCampaignId: "701UP00000Oyq4NYAR",
+  zoho: "https://sign.zoho.com/api/v1",
+  zohoToken: "https://accounts.zoho.com/oauth/v2/token",
 };
 
 const prodUrls = {
@@ -39,8 +41,8 @@ const testUrls = {
   salesforceMeal:
     "https://communitykitchens--mealprog.sandbox.my.salesforce.com/services",
   docusign: "https://demo.docusign.net/restapi",
-  client: "http://localhost:3000",
-  server: "http://localhost:3001",
+  client: "http://127.0.0.1:3000",
+  server: "http://127.0.0.1:3001",
   appleReviewerId: "64e69853db4b5043abcd55b6",
   ckDoorCampaignId: "701U800000KMZoQIAX",
   ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
