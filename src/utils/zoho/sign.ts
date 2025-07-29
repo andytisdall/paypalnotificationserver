@@ -40,9 +40,9 @@ export const createRequest = async ({
   const createDocFromTemplateBody: CreateDocArgs = {
     templates: {
       field_data: {
-        field_text_data: { "Full Name": contact.name },
+        field_text_data: { "Full name": contact.name },
         field_boolean_data: {},
-        field_date_data: { date: format(new Date(), "MMM dd yyyy") },
+        field_date_data: { "Sign date": format(new Date(), "MMM dd yyyy") },
       },
       actions: [
         {
