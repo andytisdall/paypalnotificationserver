@@ -46,6 +46,8 @@ router.post("/update-contact", async (req, res) => {
     throw Error();
   }
 
+  console.log(requests);
+
   const data = await downloadFile(request_id);
 
   const file: FileWithMetadata = {
