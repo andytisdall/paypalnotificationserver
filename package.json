@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development concurrently \"ts-node-dev --poll index.ts\" \"npm run start --prefix client\"",
-    "test": "NODE_ENV=test jest --testTimeout=30000 --detectOpenHandles=true --watchAll",
+    "dev": "TZ=America/Los_Angeles NODE_ENV=development concurrently \"ts-node-dev --poll index.ts\" \"npm run start --prefix client\"",
+    "test": "TZ=America/Los_Angeles NODE_ENV=test jest --testTimeout=30000 --detectOpenHandles=true --watchAll",
     "start": "node built/index.js",
-    "server": "NODE_ENV=development ts-node-dev --poll index.ts"
+    "server": "TZ=America/Los_Angeles NODE_ENV=development ts-node-dev --poll index.ts"
   },
   "author": "",
   "license": "ISC",

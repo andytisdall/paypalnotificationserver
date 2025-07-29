@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { formatISO } from "date-fns";
+import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
@@ -10,6 +10,14 @@ const Client = mongoose.model("Client");
 const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
+
+const addZerosToCcode = (code: string) => {
+  let id = code.split("C")[1];
+  while (id.length < 8) {
+    id = "0" + id;
+  }
+  return "C" + id;
+};
 
 router.get(
   "/doorfront/:scanValue",
@@ -34,11 +42,13 @@ router.get(
         await client.save();
       }
     } else {
-      client = await Client.findOne({ cCode: scanValue });
+      const id = addZerosToCcode(scanValue);
+
+      client = await Client.findOne({ cCode: id });
 
       if (!client) {
         // create new client
-        client = new Client({ cCode: scanValue });
+        client = new Client({ cCode: id });
         await client.save();
       }
     }
@@ -59,19 +69,28 @@ router.post(
       meals,
       clientId,
       cCode,
-    }: { meals: number; clientId: string; cCode?: string } = req.body;
+      barcode,
+    }: { meals: number; clientId: string; cCode?: string; barcode?: string } =
+      req.body;
 
     if (meals > 0) {
       const newClientMeals = new ClientMeal({
         client: clientId,
         amount: meals,
+        date: new Date().toLocaleDateString(),
       });
       await newClientMeals.save();
     }
 
-    if (cCode) {
+    if (cCode || barcode) {
       const client = await Client.findById(clientId);
-      client.cCode = cCode;
+      if (cCode) {
+        const id = addZerosToCcode(cCode);
+        client.cCode = id;
+      }
+      if (barcode) {
+        client.barcode = barcode;
+      }
       await client.save();
     }
 
@@ -87,9 +106,14 @@ router.get(
   async (req, res) => {
     const { date } = req.params;
 
+    const [startDate, endDate] = date.split("&");
+
     const clientMeals = await ClientMeal.find({
-      date,
-    });
+      date: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate).setHours(24),
+      },
+    }).populate("client");
 
     res.send(clientMeals);
   }

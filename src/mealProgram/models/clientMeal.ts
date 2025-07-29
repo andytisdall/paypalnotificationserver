@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
-import { utcToZonedTime, format } from "date-fns-tz";
+import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 
 const clientMealSchema = new mongoose.Schema(
   {
     date: {
-      type: String,
+      type: Date,
       required: true,
-      default: () => format(new Date(), "yyyy-MM-dd"),
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
@@ -14,6 +13,7 @@ const clientMealSchema = new mongoose.Schema(
       required: true,
     },
     amount: { type: Number, required: true },
+    logged: { type: Boolean, default: false },
   },
   {
     toJSON: {
