@@ -65,6 +65,10 @@ router.post(
       throw Error("User not found");
     }
 
+    if (user.admin && req.currentUser?.username !== "Andy") {
+      throw Error("Cannot log in as admin");
+    }
+
     const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
     if (!JWT_KEY) {
       throw Error("No JWT key found");

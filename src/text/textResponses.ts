@@ -4,14 +4,16 @@ import urls from "../utils/urls";
 //   return phone.substring(2);
 // };
 
-interface regions extends Record<string, string> {
+interface Regions extends Record<string, string> {
   EAST_OAKLAND: string;
   WEST_OAKLAND: string;
+  BERKELEY: string;
 }
 
-export const regionKey: regions = {
+export const regionKey: Regions = {
   EAST_OAKLAND: "East Oakland",
   WEST_OAKLAND: "West Oakland",
+  BERKELEY: "Berkeley",
 };
 
 const SIGN_UP_WORDS = ["signup", "enroll", "start", "unstop", "yes"];

@@ -46,8 +46,6 @@ router.post("/update-contact", async (req, res) => {
     throw Error();
   }
 
-  console.log(requests);
-
   const data = await downloadFile(request_id);
 
   const file: FileWithMetadata = {
@@ -72,7 +70,7 @@ router.post("/update-contact", async (req, res) => {
     await updateHomeChefStatus(contact, { agreement: true });
   }
 
-  res.sendStatus(200);
+  res.sendStatus(201);
 });
 
 export default router;

@@ -51,20 +51,9 @@ it("correctly updates an existing contact and makes a user when the interest for
     lastName: "Test",
     phoneNumber: "510-677-6867",
     instagramHandle: "@joejoe",
-    commit: true,
-    foodHandler: false,
-    daysAvailable: {
-      Monday: true,
-      Tuesday: false,
-      Wednesday: true,
-      Thursday: false,
-    },
-    experience: "Restaurant",
-    pickup: false,
-    pickupMaybe: true,
-    programs: { ckKitchen: false, ckHomeChefs: true },
     source: "Heard about it on the news",
     extraInfo: "I'm super psyched to help!",
+    corporate: false,
   };
 
   await request(app)
@@ -79,9 +68,3 @@ it("correctly updates an existing contact and makes a user when the interest for
 
   await updateContact(user.salesforceId, { Portal_Username__c: "" });
 });
-
-// it('migrates existing users into the portal', async () => {
-//   await migrate();
-//   const user = await User.findOne({ username: 'rsanchez' });
-//   expect(user?.username).toEqual('rsanchez');
-// });

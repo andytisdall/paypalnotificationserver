@@ -93,7 +93,6 @@ router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
 });
 
 export const checkAndUpdateDriverStatus = async (contactId: string) => {
-  console.log("check and update");
   const contact = await getContactById(contactId);
   if (
     contact.Driver_s_License_Expiration__c &&
