@@ -35,7 +35,7 @@ export interface Job {
   GW_Volunteers__Location_Street__c: string;
   GW_Volunteers__Location_City__c: string;
   GW_Volunteers__Location_Information__c: string;
-  Region__c?: "East Oakland" | "West Oakland";
+  Region__c?: "East Oakland" | "West Oakland" | "Berkeley";
   Fridge_Notes__c?: string;
 }
 
@@ -50,7 +50,7 @@ export interface FormattedJob {
   ongoing: boolean;
   description?: string;
   campaign: string;
-  region?: "East Oakland" | "West Oakland";
+  region?: "East Oakland" | "West Oakland" | "Berkeley";
   notes?: string;
 }
 
