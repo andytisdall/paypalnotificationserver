@@ -10,6 +10,7 @@ export interface Shift {
   Dropoff_Location__c?: string;
   Dropoff_Notes__c?: string;
   GW_Volunteers__Job_Location_Street__c?: string;
+  GW_Volunteers__Job_Location_City__c?: string;
 }
 
 export interface FormattedShift {

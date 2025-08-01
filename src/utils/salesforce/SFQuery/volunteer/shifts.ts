@@ -3,7 +3,7 @@ import moment from "moment";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { getDistance } from "../../googleApis/getDistance";
-import { Shift, FormattedShift, Job } from "./types";
+import { Shift, FormattedShift } from "./types";
 
 export const getShift = async (
   shiftId: string
@@ -22,11 +22,11 @@ export const getShift = async (
       open:
         data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === null ||
         data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
-      slots: data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c,
+      slots: data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c || 0,
       job: data.GW_Volunteers__Volunteer_Job__c,
       restaurantMeals: data.Restaurant_Meals__c,
       duration: data.GW_Volunteers__Duration__c,
-      totalSlots: data.GW_Volunteers__Desired_Number_of_Volunteers__c,
+      totalSlots: data.GW_Volunteers__Desired_Number_of_Volunteers__c || 0,
     };
   }
 };
@@ -56,6 +56,7 @@ export const getShifts = async (
             | "Dropoff_Location__c"
             | "Dropoff_Notes__c"
             | "GW_Volunteers__Job_Location_Street__c"
+            | "GW_Volunteers__Job_Location_City__c"
           >[]
         | undefined;
     };
@@ -68,8 +69,8 @@ export const getShifts = async (
     let distance;
     if (js.Dropoff_Location__c) {
       distance = await getDistance(
-        `${js.GW_Volunteers__Job_Location_Street__c} Oakland CA`,
-        `${js.Dropoff_Location__c} Oakland CA`
+        `${js.GW_Volunteers__Job_Location_Street__c} ${js.GW_Volunteers__Job_Location_City__c} CA`,
+        `${js.Dropoff_Location__c}`
       );
     }
 
