@@ -46,7 +46,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     storedText,
   }: {
     message: string;
-    region: Region | "both" | "East Oakland" | "West Oakland";
+    region: Region | "all" | "East Oakland" | "West Oakland" | "Berkeley";
     feedbackId?: string;
     number?: string;
     photo?: string;
@@ -73,26 +73,20 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     throw Error("You are not authorized to send text alerts");
   }
 
-  let formattedRegion = region;
-
-  if (formattedRegion === "East Oakland") {
-    formattedRegion = "EAST_OAKLAND";
-  } else if (formattedRegion === "West Oakland") {
-    formattedRegion = "WEST_OAKLAND";
-  }
+  let formattedRegion = region.toUpperCase() as Region | "ALL";
 
   let formattedNumbers: string[] = [];
   const responsePhoneNumber =
-    formattedRegion === "both" || number
+    formattedRegion === "ALL" || number
       ? REGIONS.WEST_OAKLAND
       : REGIONS[formattedRegion];
 
   if (!number) {
     const allPhoneNumbers =
-      region === "both"
+      region === "all"
         ? await Phone.find({
             region: {
-              $in: ["EAST_OAKLAND", "WEST_OAKLAND"],
+              $in: ["EAST_OAKLAND", "WEST_OAKLAND", "BERKELEY"],
             },
           })
         : await Phone.find({ region: formattedRegion });
