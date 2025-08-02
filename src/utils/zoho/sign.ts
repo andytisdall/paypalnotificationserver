@@ -66,9 +66,13 @@ export const createRequest = async ({
   const { action_id } = data.requests.actions[0];
 
   let redirectUrl = "https://portal.ckoakland.org" + doc.url;
+  let failUrl = doc.failUrl
+    ? "https://portal.ckoakland.org" + doc.failUrl
+    : null;
 
   if (hoursId) {
     redirectUrl = redirectUrl + `/${contact.id}/${hoursId}`;
+    failUrl = failUrl + "/" + hoursId;
   }
 
   await fetcher.post("/requests/" + request_id + "/submit", {
@@ -77,8 +81,8 @@ export const createRequest = async ({
       redirect_pages: {
         sign_success: redirectUrl,
         sign_completed: redirectUrl,
-        sign_declined: redirectUrl,
-        sign_later: redirectUrl,
+        sign_declined: failUrl || redirectUrl,
+        sign_later: failUrl || redirectUrl,
       },
     },
   });

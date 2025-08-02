@@ -11,6 +11,7 @@ export interface DocInformation {
   template: string;
   type: DocType;
   name: string;
+  failUrl?: string;
 }
 
 export const docInfo: Record<string, DocInformation> = {
@@ -25,6 +26,7 @@ export const docInfo: Record<string, DocInformation> = {
     url: "/volunteer-check-in/confirm",
     template: "489948000000063075",
     name: "CK Kitchen Volunteer Agreement",
+    failUrl: "/volunteer-check-in/list",
   },
   CKK: {
     type: "CKK",
