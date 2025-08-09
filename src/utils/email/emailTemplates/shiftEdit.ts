@@ -22,7 +22,7 @@ const createShiftEditEmail = (shift: {
         <li>Date: ${moment(shift.date).format("dddd M/D/YY")}</li>
         <li>Fridge: ${shift.fridge}</li>
         <li>Number of Meals: ${shift.mealCount}</li>
-                <li>Type of Meal: ${shift.mealType}</li>
+        ${!!shift.mealType && "<li>Type of Meal: ${shift.mealType}</li>"}
 
       </ul>
       <p>To sign up for another shift, visit the <a href="https://portal.ckoakland.org/home-chef">Home Chef portal.</a></p>
@@ -48,7 +48,7 @@ export const sendShiftEditEmail = async (
 
   const msg = {
     to: email,
-    from: "kenai@ckoakland.org",
+    from: "volunteers@ckoakland.org",
     subject: `You have ${action} a home chef shift`,
     html,
   };

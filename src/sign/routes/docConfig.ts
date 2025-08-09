@@ -40,4 +40,10 @@ export const docInfo: Record<string, DocInformation> = {
     template: "489948000000063075",
     name: "CK Kitchen Volunteer Agreement",
   },
+  MMT: {
+    type: "CKK",
+    url: "/volunteers/mobile-meal-team/sign/success",
+    template: "489948000000063075",
+    name: "CK Kitchen Volunteer Agreement",
+  },
 };

@@ -22,7 +22,7 @@ router.get("/jobs/:campaignId", async (req, res) => {
 });
 
 const getJobShifts = async (jobId: string) => {
-  let daysInAdvance = 42;
+  let daysInAdvance = 52;
 
   if (jobId === urls.ckKitchenMealPrepJobId) {
     return (await getShifts(jobId, 90)).filter((sh) => {

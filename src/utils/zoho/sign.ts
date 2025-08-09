@@ -72,7 +72,9 @@ export const createRequest = async ({
 
   if (hoursId) {
     redirectUrl = redirectUrl + `/${contact.id}/${hoursId}`;
-    failUrl = failUrl + "/" + hoursId;
+    if (failUrl) {
+      failUrl = failUrl + "/" + hoursId;
+    }
   }
 
   await fetcher.post("/requests/" + request_id + "/submit", {

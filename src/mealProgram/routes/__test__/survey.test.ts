@@ -1,6 +1,5 @@
 import app from "../../../../index";
 import request from "supertest";
-import mongoose from "mongoose";
 import { MealSurveyArgs } from "../survey";
 
 it.skip("submits a report", async () => {
