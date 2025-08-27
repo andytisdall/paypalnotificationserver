@@ -36,11 +36,6 @@ router.post("/signin", async (req, res) => {
     throw new Error("Credentials Invalid");
   }
 
-  if (!existingUser.active) {
-    existingUser.active = true;
-    await existingUser.save();
-  }
-
   const token = jwt.sign(
     {
       id: existingUser.id,

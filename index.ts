@@ -9,7 +9,6 @@ import { connectDb } from "./src/setupDb";
 
 // register models
 import "./src/auth/models/user";
-import "./src/mealProgram/models/restaurant";
 import "./src/homeChef/models/recipe";
 import "./src/text/models/phone";
 import "./src/text/models/outgoingTextRecord";
@@ -23,6 +22,7 @@ import "./src/d4j/models/cocktailVote";
 import "./src/d4j/models/event";
 import "./src/mealProgram/models/client";
 import "./src/mealProgram/models/clientMeal";
+import "./src/homeChef/models/supplyOrder";
 
 // routes
 

@@ -2,9 +2,14 @@ import express from "express";
 import passwordGenerator from "generate-password";
 
 import {
+  getUniqueUsernameAndPassword,
+  createPortalUser,
+} from "../../auth/routes/user/createUser";
+import {
   addContact,
   updateContact,
   getContactByLastNameAndEmail,
+  getContactById,
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
@@ -26,40 +31,6 @@ export interface VolunteerInterestFormArgs {
   corporate?: string;
 }
 
-const createPortalUser = async ({
-  username,
-  password,
-  salesforceId,
-}: {
-  username: string;
-  password: string;
-  salesforceId: string;
-}) => {
-  const newUser = new User({
-    username,
-    password,
-    salesforceId,
-  });
-  await newUser.save();
-};
-
-const createUniqueUsername = async (firstName: string, lastName: string) => {
-  const username = (
-    firstName.charAt(0).toLowerCase() + lastName.toLowerCase()
-  ).replace(" ", "");
-
-  let uniqueUsername = username;
-  let existingUser = await User.findOne({ username });
-  let i = 1;
-  while (existingUser) {
-    uniqueUsername = username + i;
-    existingUser = await User.findOne({ username: uniqueUsername });
-    i++;
-  }
-
-  return uniqueUsername;
-};
-
 router.post("/signup", async (req, res) => {
   const {
     email,
@@ -72,11 +43,6 @@ router.post("/signup", async (req, res) => {
     extraInfo,
   }: VolunteerInterestFormArgs = req.body;
 
-  const temporaryPassword = passwordGenerator.generate({
-    length: 10,
-    numbers: true,
-  });
-
   const contactInfo: Partial<UnformattedContact> = {
     FirstName: firstName,
     LastName: lastName,
@@ -87,13 +53,10 @@ router.post("/signup", async (req, res) => {
     Instagram_Handle__c: instagramHandle,
     How_did_they_hear_about_CK__c: source,
     GW_Volunteers__Volunteer_Status__c: "Prospective",
-    Portal_Temporary_Password__c: temporaryPassword,
     Home_Chef_Status__c: "Prospective",
     CK_Kitchen_Volunteer_Status__c: "Prospective",
     Interest_in_volunteering_group__c: corporate,
   };
-
-  const uniqueUsername = await createUniqueUsername(firstName, lastName);
 
   // find salesforce contact
 
@@ -102,23 +65,38 @@ router.post("/signup", async (req, res) => {
   // if not:
   // create salesforce contact
   if (!existingContact) {
-    existingContact = await addContact({ LastName: lastName, Email: email });
+    existingContact = await addContact({
+      FirstName: firstName,
+      LastName: lastName,
+      Email: email,
+    });
   }
 
+  if (!existingContact) {
+    throw Error("Unable to create contact");
+  }
+
+  const { username, password } = await getUniqueUsernameAndPassword({
+    firstName: existingContact.firstName,
+    lastName: existingContact.lastName,
+  });
+
+  const existingUser = await User.findOne({ salesforceId: existingContact.id });
+
   // create username and password
-  if (!existingContact.portalUsername) {
-    contactInfo.Portal_Username__c = uniqueUsername;
-    await createPortalUser({
-      username: uniqueUsername,
-      password: temporaryPassword,
-      salesforceId: existingContact.id,
-    });
+  if (!existingUser) {
+    contactInfo.Portal_Username__c = username;
+    (contactInfo.Portal_Temporary_Password__c = password),
+      await createPortalUser({
+        username,
+        password,
+        salesforceId: existingContact.id,
+      });
   } else {
     // update user password to new temp password
-    await User.updateOne(
-      { username: existingContact.portalUsername },
-      { password: temporaryPassword, active: false }
-    );
+    existingUser.password = password;
+    existingUser.active = false;
+    await existingUser.save();
   }
 
   if (corporate) {
@@ -128,6 +106,15 @@ router.post("/signup", async (req, res) => {
       Status: "Confirmed",
     };
     await insertCampaignMember(campaignMember);
+  }
+
+  // don't overwrite active vol status
+  const unformattedContact = await getContactById(existingContact.id);
+  if (unformattedContact.CK_Kitchen_Volunteer_Status__c === "Active") {
+    contactInfo.CK_Kitchen_Volunteer_Status__c = "Active";
+  }
+  if (unformattedContact.Home_Chef_Status__c === "Active") {
+    contactInfo.Home_Chef_Status__c = "Active";
   }
 
   await updateContact(existingContact.id, contactInfo);

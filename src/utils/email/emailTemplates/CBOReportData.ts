@@ -1,7 +1,7 @@
 import { lastDayOfMonth, format } from "date-fns";
 
 import urls from "../../urls";
-import { CBOReportParams, ZipCode } from "../../../mealProgram/routes/forms";
+import { CBOReportParams, ZipCode } from "../../salesforce/SFQuery/cboReport";
 import { getPeriodCBOReports } from "../../salesforce/SFQuery/cboReport";
 import { sendEmail } from "../email";
 

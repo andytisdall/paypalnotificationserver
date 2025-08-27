@@ -9,6 +9,7 @@ import notificationsRouter from "./notifications";
 import quizRouter from "./quiz";
 import eventsRouter from "./events";
 import onboardingRouter from "./onboarding";
+import orderingRouter from "./ordering";
 
 const homeChefRouter = express.Router({ mergeParams: true });
 
@@ -21,5 +22,6 @@ homeChefRouter.use(notificationsRouter);
 homeChefRouter.use(quizRouter);
 homeChefRouter.use(eventsRouter);
 homeChefRouter.use(onboardingRouter);
+homeChefRouter.use(orderingRouter);
 
 export default homeChefRouter;

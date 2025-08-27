@@ -3,13 +3,23 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
+import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
-import { utcToZonedTime } from "date-fns-tz";
+import { formatISO, addDays } from "date-fns";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 const Client = mongoose.model("Client");
 const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
+
+router.get("/doorfront/salesforce", requireSalesforceAuth, async (req, res) => {
+  const todaysMeals = await ClientMeal.find({ date: new Date() });
+
+  const totalMeals = todaysMeals.reduce((prev, cur) => prev + cur.amount, 0);
+
+  res.send({ totalMeals });
+});
 
 router.get(
   "/doorfront/client/lookup-by-client-number/:cCode",
@@ -32,6 +42,8 @@ router.get(
     }
 
     const clientMeals = await ClientMeal.find({ client: client.id });
+
+    // console.log(clientMeals);
 
     res.send({ clientMeals, client });
   }
@@ -77,11 +89,13 @@ router.post(
     }: { meals: number; clientId: string; cCode?: string; barcode?: string } =
       req.body;
 
+    const now = formatISO(new Date());
+
     if (meals > 0) {
       const newClientMeals = new ClientMeal({
         client: clientId,
         amount: meals,
-        date: new Date().toLocaleDateString(),
+        date: now,
       });
       await newClientMeals.save();
     }
@@ -109,10 +123,13 @@ router.get(
 
     const [startDate, endDate] = date.split("&");
 
+    const startTime = zonedTimeToUtc(startDate, "America/Los_Angeles");
+    const endTime = addDays(zonedTimeToUtc(endDate, "America/Los_Angeles"), 1);
+
     const clientMeals = await ClientMeal.find({
       date: {
-        $gte: utcToZonedTime(startDate, "America/Los_Angeles").setHours(0),
-        $lte: utcToZonedTime(endDate, "America/Los_Angeles").setHours(24),
+        $gte: startTime,
+        $lte: endTime,
       },
     }).populate("client");
 
@@ -127,11 +144,12 @@ router.patch(
   requireAdmin,
   async (req, res) => {
     const { clientId } = req.params;
-    const { cCode, barcode } = req.body;
+    const { cCode, barcode, cCodeIncorrect } = req.body;
 
     const client = await Client.findById(clientId);
     client.cCode = cCode;
     client.barcode = barcode;
+    client.cCodeIncorrect = cCodeIncorrect;
     await client.save();
 
     res.send(null);
@@ -139,17 +157,19 @@ router.patch(
 );
 
 router.patch(
-  "/doorfront/meal/:id",
+  "/doorfront/meals",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { id } = req.params;
-    const { amount } = req.body;
+    const { mealIds }: { mealIds: string[] } = req.body;
 
-    const meal = await ClientMeal.findById(id);
-    meal.amount = amount;
-    await meal.save();
+    const meals = await ClientMeal.find({ _id: { $in: mealIds } });
+    const promises = meals.map(async (meal) => {
+      meal.logged = true;
+      await meal.save();
+    });
+    await Promise.all(promises);
 
     res.send(null);
   }

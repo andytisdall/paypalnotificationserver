@@ -2,7 +2,7 @@ import app from "../../../../index";
 import request from "supertest";
 import { MealSurveyArgs } from "../survey";
 
-it.skip("submits a report", async () => {
+it("submits a report", async () => {
   const formValues: MealSurveyArgs = {
     language: "English",
     microwave: true,
@@ -13,5 +13,5 @@ it.skip("submits a report", async () => {
   await request(app)
     .post("/api/meal-program/survey")
     .send(formValues)
-    .expect(201);
+    .expect(204);
 });

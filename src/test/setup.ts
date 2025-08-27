@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 
 import "../auth/models/user";
-import "../mealProgram/models/restaurant";
 import getSecrets from "../utils/getSecrets";
 const storeFileGoogle = require("../__mocks__/storeFileGoogle");
 
@@ -32,13 +31,6 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
     throw new Error("No JWT key found");
   }
   global.userId = newUser.id;
-  const Restaurant = mongoose.model("Restaurant");
-  const newRestaurant = new Restaurant({
-    name: "Vesuvio",
-    salesforceId: "0018Z00002lLOweQAG",
-    user: newUser.id,
-  });
-  await newRestaurant.save();
   return jwt.sign(
     {
       id: newUser.id,
@@ -72,9 +64,7 @@ beforeAll(() => {
 
 afterEach(async () => {
   const User = mongoose.model("User");
-  const Restaurant = mongoose.model("Restaurant");
   await User.deleteMany();
-  await Restaurant.deleteMany();
 });
 
 afterAll(async () => {

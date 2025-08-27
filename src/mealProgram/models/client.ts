@@ -4,6 +4,7 @@ const clientSchema = new mongoose.Schema(
   {
     cCode: { type: String },
     barcode: { type: String },
+    cCodeIncorrect: { type: Boolean, default: false },
   },
   {
     toJSON: {

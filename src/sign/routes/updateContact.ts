@@ -13,7 +13,7 @@ import { docInfo } from "./docConfig";
 
 const router = express.Router();
 
-interface WebhookBody {
+export interface WebhookBody {
   requests: {
     request_status: string;
     actions: { recipient_email: string }[];
