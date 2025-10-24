@@ -4,8 +4,12 @@ import mongoose from "mongoose";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
-import { sendEmail } from "../../utils/email/email";
 import { requireAdmin } from "../../middlewares/require-admin";
+import {
+  sendOrderReadyEmail,
+  sendManagerSupplyOrder,
+  sendOrderConfirmation,
+} from "../../utils/email/emailTemplates/homeChefSupplyOrder";
 
 const router = express.Router();
 
@@ -24,9 +28,24 @@ interface ManualSupplyOrder extends SupplyOrder {
 }
 
 router.post("/ordering", currentUser, requireAuth, async (req, res) => {
-  const { containers, labels, soup, sandwich }: SupplyOrder = req.body;
+  const order: SupplyOrder = req.body;
+  const { containers, labels, soup, sandwich } = order;
 
   const contact = await getContactById(req.currentUser!.salesforceId);
+
+  if (process.env.NODE_ENV === "production") {
+    // email to ck staff
+    await sendManagerSupplyOrder({
+      contact,
+      order,
+    });
+  }
+
+  // email to volunteer
+  await sendOrderConfirmation({
+    contact,
+    order,
+  });
 
   const newOrder = new SupplyOrder({
     items: { containers, labels, soup, sandwich },
@@ -38,36 +57,6 @@ router.post("/ordering", currentUser, requireAuth, async (req, res) => {
   });
 
   await newOrder.save();
-
-  // email to ck staff
-  await sendEmail({
-    to: "volunteers@ckoakland.org",
-    from: "volunteers@ckoakland.org",
-    html: `<p>${contact.FirstName} ${contact.LastName} has made a home chef supply order:</p>
-    <p>Containers: ${containers}<br />
-    Labels: ${labels}<br />
-    Soup Containers: ${soup}<br />
-    Sandwich Boxes: ${labels}</p>`,
-    subject: "New Home Chef supply order",
-  });
-
-  if (contact.Email) {
-    // email to volunteer
-    await sendEmail({
-      to: contact.Email,
-      from: "volunteers@ckoakland.org",
-      html: `<p>Hi ${contact.FirstName},</p>
-      <p>You have made a home chef supply order:</p>
-      <p><strong>Containers:</strong> ${containers}<br />
-      <strong>Labels:</strong> ${labels}<br />
-      <strong>Soup Containers:</strong> ${soup}<br />
-      <strong>Sandwich Boxes:</strong> ${labels}</p>
-      <p>We will contact you by email when this order is ready to pick up from the CK Kitchen.</p>
-      <p>Thanks!</p>
-      <p>Community Kitchens</p>`,
-      subject: "You made a Home Chef supply order",
-    });
-  }
 
   res.send(null);
 });
@@ -126,18 +115,7 @@ router.patch(
     const ordersToUpdate = await SupplyOrder.find({ _id: { $in: orders } });
     const promises = ordersToUpdate.map(async (o) => {
       if (o.contact.email) {
-        await sendEmail({
-          to: o.contact.email,
-          from: "volunteers@ckoakland.org",
-          html: `<p>Hi ${o.contact.firstName},</p>
-          <p>Your Home Chef supplies are ready to be picked up at the CK Kitchen.
-          Please come any time during our open hours to pick up your order.</p>
-            <p<strong>Pick up from the CK Kitchen</strong - 2270 Telegraph Ave, Oakland CA</p>
-            <p><strong>Open Hours<strong> - Sunday - Thursday, 10am - 4pm</p>
-            <p>See you soon!</p>
-            <p>Community Kitchens</p>`,
-          subject: "Your Home Chef supplies are ready!",
-        });
+        await sendOrderReadyEmail(o.contact);
       }
       o.fulfilled = true;
       await o.save();

@@ -8,7 +8,6 @@ import {
 } from "../../../utils/salesforce/SFQuery/volunteer/hours";
 import { getCampaignFromHours } from "../../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
 import { sendShiftCancelEmail } from "../../../utils/email/emailTemplates/kitchenShiftCancel";
-import { sendEventShiftCancelEmail } from "../../../utils/email/emailTemplates/eventShiftCancel";
 import { getJobFromHours } from "../../../utils/salesforce/SFQuery/volunteer/jobs";
 
 const router = express.Router();
@@ -43,20 +42,12 @@ router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
     const job = await getJobFromHours(hour.job);
 
     if (Email) {
-      if (!campaign.startDate) {
-        await sendShiftCancelEmail(Email, {
-          date: hour.time,
-          name: FirstName,
-          campaign: campaign.name,
-          job: job.Name,
-        });
-      } else {
-        await sendEventShiftCancelEmail(Email, {
-          date: hour.time,
-          name: FirstName,
-          event: campaign.name,
-        });
-      }
+      await sendShiftCancelEmail(Email, {
+        date: hour.time,
+        name: FirstName,
+        campaign: campaign.name,
+        job: job.Name,
+      });
     }
     res.sendStatus(204);
   } else {

@@ -11,6 +11,7 @@ export interface Shift {
   Dropoff_Notes__c?: string;
   GW_Volunteers__Job_Location_Street__c?: string;
   GW_Volunteers__Job_Location_City__c?: string;
+  End_Time__c?: string;
 }
 
 export interface FormattedShift {
@@ -25,6 +26,7 @@ export interface FormattedShift {
   carSizeRequired?: string;
   destination?: string;
   distance?: string;
+  endTime?: string;
 }
 
 export interface Job {

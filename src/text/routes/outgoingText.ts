@@ -73,7 +73,13 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     throw Error("You are not authorized to send text alerts");
   }
 
-  let formattedRegion = region.toUpperCase() as Region | "ALL";
+  let formattedRegion = region.toUpperCase().replace(" ", "_") as
+    | Region
+    | "ALL";
+
+  if (![...Object.keys(REGIONS), "ALL"].includes(formattedRegion) && !number) {
+    throw Error("Invalid region specified: " + region);
+  }
 
   let formattedNumbers: string[] = [];
   const responsePhoneNumber =
@@ -102,7 +108,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   }
 
   if (process.env.NODE_ENV !== "production") {
-    formattedNumbers = ["+14158190251"];
+    formattedNumbers = formattedNumbers.filter((num) => num === "+14158190251");
   }
 
   const outgoingText: OutgoingText = {
@@ -158,7 +164,13 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     await newOutgoingTextRecord.save();
   }
 
-  res.send({ message, region, photoUrl: mediaUrl, number, storedText });
+  res.send({
+    message,
+    region: formattedRegion,
+    photoUrl: mediaUrl,
+    number,
+    storedText,
+  });
 });
 
 smsRouter.post(

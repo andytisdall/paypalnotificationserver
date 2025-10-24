@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import urls from "../../urls";
-import getSecrets from "../../getSecrets";
+import urls from "../urls";
+import getSecrets from "../getSecrets";
 
 interface UnformattedPlaceDetails {
   websiteUri: string;

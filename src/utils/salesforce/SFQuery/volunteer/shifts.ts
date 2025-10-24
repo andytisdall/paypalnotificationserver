@@ -2,7 +2,7 @@ import moment from "moment";
 
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-import { getDistance } from "../../googleApis/getDistance";
+import { getDistance } from "../../../googleApis/getDistance";
 import { Shift, FormattedShift } from "./types";
 
 export const getShift = async (
@@ -40,7 +40,7 @@ export const getShifts = async (
 
   const now = moment().format();
 
-  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c, GW_Volunteers__Duration__c, GW_Volunteers__Desired_Number_of_Volunteers__c, Car_Size_Required__c, Dropoff_Location__c, Dropoff_Notes__c, GW_Volunteers__Job_Location_Street__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${jobId}' AND GW_Volunteers__Start_Date_time__c >= ${now} AND  GW_Volunteers__Start_Date_time__c <= ${formattedDaysInAdvance}`;
+  const query = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Number_of_Volunteers_Still_Needed__c, Restaurant_Meals__c, GW_Volunteers__Duration__c, GW_Volunteers__Desired_Number_of_Volunteers__c, Car_Size_Required__c, Dropoff_Location__c, Dropoff_Notes__c, GW_Volunteers__Job_Location_Street__c, End_Time__c from GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${jobId}' AND GW_Volunteers__Start_Date_time__c >= ${now} AND  GW_Volunteers__Start_Date_time__c <= ${formattedDaysInAdvance}`;
 
   const shiftQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -60,6 +60,7 @@ export const getShifts = async (
             | "Dropoff_Notes__c"
             | "GW_Volunteers__Job_Location_Street__c"
             | "GW_Volunteers__Job_Location_City__c"
+            | "End_Time__c"
           >[]
         | undefined;
     };

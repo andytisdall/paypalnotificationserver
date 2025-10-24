@@ -2,14 +2,9 @@ import app from "../../../../index";
 import request from "supertest";
 import mongoose from "mongoose";
 import passwordGenerator from "generate-password";
-import {
-  getContactByEmail,
-  updateContact,
-} from "../../../utils/salesforce/SFQuery/contact/contact";
+import { updateContact } from "../../../utils/salesforce/SFQuery/contact/contact";
 
 const User = mongoose.model("User");
-
-jest.mock("@sendgrid/mail");
 
 afterEach(async () => {
   await User.deleteOne({ username: "rsanchez" });

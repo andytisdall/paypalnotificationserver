@@ -20,6 +20,7 @@ const phoneSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    fails: [{ type: Date }],
   },
   {
     toJSON: {

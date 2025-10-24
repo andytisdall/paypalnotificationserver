@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const d4jUserSchema = new mongoose.Schema(
   {
@@ -19,4 +19,4 @@ const d4jUserSchema = new mongoose.Schema(
   }
 );
 
-export const D4JUser = mongoose.model('D4JUser', d4jUserSchema);
+export const D4JUser = mongoose.model("D4JUser", d4jUserSchema);

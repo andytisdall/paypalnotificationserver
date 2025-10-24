@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getPlaceDetails } from "../../utils/salesforce/googleApis/getPlaceDetails";
+import { getPlaceDetails } from "../../utils/googleApis/getPlaceDetails";
 import {
   getBars,
   getD4jRestaurants,

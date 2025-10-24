@@ -101,18 +101,18 @@ router.post("/contact", async (req, res) => {
   // send email to contact with code in url
   // front end queries db for code and confirms that user
 
-  const code = generate({
-    length: 5,
-    numbers: true,
-    lowercase: false,
-    uppercase: false,
-  });
+  // const code = generate({
+  //   length: 5,
+  //   numbers: true,
+  //   lowercase: false,
+  //   uppercase: false,
+  // });
 
-  user.secretCode = code;
-  await user.save();
+  // user.secretCode = code;
+  // await user.save();
 
-  // @ts-ignore
-  await sendConfirmD4JUserEmail(contact, code);
+  // // @ts-ignore
+  // await sendConfirmD4JUserEmail(contact, code);
 
   res.send({ contact: user, token: jwtToken });
 });

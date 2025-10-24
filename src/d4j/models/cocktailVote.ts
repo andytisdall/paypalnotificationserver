@@ -1,15 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const cocktailVoteSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'D4JUser',
+      ref: "D4JUser",
       required: true,
       unique: true,
     },
     bar: {
-      type: String, // salesforce ID of bar or restaurant
+      type: String, // restaurant name
       required: true,
     },
   },
@@ -24,4 +24,4 @@ const cocktailVoteSchema = new mongoose.Schema(
   }
 );
 
-export const CocktailVote = mongoose.model('CocktailVote', cocktailVoteSchema);
+export const CocktailVote = mongoose.model("CocktailVote", cocktailVoteSchema);

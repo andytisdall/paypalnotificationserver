@@ -3,7 +3,7 @@ import node_geocoder from "node-geocoder";
 import getSecrets from "../../../getSecrets";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
-import { getPlaceDetails } from "../../googleApis/getPlaceDetails";
+import { getPlaceDetails } from "../../../googleApis/getPlaceDetails";
 import { FormattedD4JRestaurant, UnformattedD4JRestaurant } from "./types";
 
 const getCoords = (latitude?: number, longitude?: number) => {

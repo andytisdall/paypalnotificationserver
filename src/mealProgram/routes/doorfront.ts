@@ -1,17 +1,68 @@
 import express from "express";
 import mongoose from "mongoose";
+import {
+  formatISO,
+  addDays,
+  getDate,
+  subMonths,
+  addMonths,
+  format,
+} from "date-fns";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
-import { formatISO, addDays } from "date-fns";
-import { zonedTimeToUtc } from "date-fns-tz";
 
 const Client = mongoose.model("Client");
 const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
+
+router.get("/doorfront/monthly", async (req, res) => {
+  let startDate: Date;
+  let endDate: Date;
+
+  const today = new Date();
+  const todaysDate = getDate(today);
+  if (todaysDate < 15) {
+    const lastMonth = subMonths(today, 1);
+    lastMonth.setDate(15);
+    lastMonth.setHours(0);
+    startDate = lastMonth;
+    today.setDate(14);
+    today.setHours(23);
+    endDate = today;
+  } else {
+    const nextMonth = addMonths(today, 1);
+    nextMonth.setDate(14);
+    nextMonth.setHours(23);
+    endDate = nextMonth;
+    today.setDate(15);
+    today.setHours(0);
+    startDate = today;
+  }
+
+  const thisMonthsMeals = await ClientMeal.find({
+    date: {
+      $gte: startDate,
+      $lte: endDate,
+    },
+  });
+
+  const count: Record<string, number> = {};
+
+  thisMonthsMeals.forEach((meal) => {
+    if (count[meal.client]) {
+      count[meal.client] += meal.amount;
+    } else {
+      count[meal.client] = meal.amount;
+    }
+  });
+
+  res.send(count);
+});
 
 router.get("/doorfront/salesforce", requireSalesforceAuth, async (req, res) => {
   const todaysMeals = await ClientMeal.find({ date: new Date() });

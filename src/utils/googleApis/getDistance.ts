@@ -1,5 +1,5 @@
 import axios from "axios";
-import getSecrets from "../../getSecrets";
+import getSecrets from "../getSecrets";
 
 export const getDistance = async (
   origin: string,

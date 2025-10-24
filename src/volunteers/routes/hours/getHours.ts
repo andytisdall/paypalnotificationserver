@@ -4,7 +4,6 @@ import {
   getHours,
   getHour,
 } from "../../../utils/salesforce/SFQuery/volunteer/hours";
-// import { getRecurringHours } from '../../utils/salesforce/SFQuery/volunteer/ckKitchen';
 
 const router = express.Router();
 
@@ -18,11 +17,6 @@ router.get("/hours/:campaignId/:contactId?", async (req, res) => {
   const hours = await getHours(shortenedCampaignId, contactId);
   res.send(hours);
 });
-
-// router.get('/recurring-hours', async (req, res) => {
-//   const days = await getRecurringHours();
-//   res.send(days);
-// });
 
 router.get("/hour/:hoursId", async (req, res) => {
   const { hoursId } = req.params;

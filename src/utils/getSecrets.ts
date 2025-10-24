@@ -35,7 +35,7 @@ const getSecrets: (nameList: Secret[]) => Promise<Partial<Secrets>> = async (
   nameList
 ) => {
   if (process.env.NODE_ENV !== "production") {
-    const keys: any = await import("../../keys");
+    const keys: any = require("../../keys");
     return keys as Secrets;
   }
   const secrets: Partial<Secrets> = {};

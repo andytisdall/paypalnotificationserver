@@ -19,10 +19,16 @@ const createShiftEditEmail = (shift: {
     <p>Hi Home Chef!</p>
     <p>This is Community Kitchens. ${intro}</p>
       <ul>
-        <li>Date: ${moment(shift.date).format("dddd M/D/YY")}</li>
-        <li>Fridge: ${shift.fridge}</li>
-        <li>Number of Meals: ${shift.mealCount}</li>
-        ${!!shift.mealType && "<li>Type of Meal: ${shift.mealType}</li>"}
+        <li><strong>Date:</strong> ${moment(shift.date).format(
+          "dddd M/D/YY"
+        )}</li>
+        <li><strong>Fridge:</strong> ${shift.fridge}</li>
+        <li><strong>Number of Meals:</strong> ${shift.mealCount}</li>
+        ${
+          shift.mealType
+            ? `<li><strong>Type of Meal:</strong> ${shift.mealType}</li>`
+            : ""
+        }
 
       </ul>
       <p>To sign up for another shift, visit the <a href="https://portal.ckoakland.org/home-chef">Home Chef portal.</a></p>

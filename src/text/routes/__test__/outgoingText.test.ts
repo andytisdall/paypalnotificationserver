@@ -24,7 +24,7 @@ it("sends an outgoing text with image url", async () => {
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
     .field("message", "There is food available")
-    .field("region", "WEST_OAKLAND")
+    .field("region", "west oakland")
     .field("photo", "https://m.media-amazon.com/images/I/918YNa3bAaL.jpg")
     .expect(200);
 
