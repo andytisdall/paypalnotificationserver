@@ -29,17 +29,7 @@ router.post("/email", async (req, res) => {
 
 router.get("/all", currentUser, requireAuth, requireAdmin, async (req, res) => {
   const allUsers = await User.find();
-  // const usersWithBadPasswords = allUsers.filter(
-  //   (u) => !u.password.includes(".")
-  // );
-  // console.log(usersWithBadPasswords);
-  // usersWithBadPasswords.forEach(async (u) => {
-  //   const p = u.password;
-  //   u.password = "kjhg";
-  //   await u.save();
-  //   u.password = p;
-  //   await u.save();
-  // });
+
   res.send(allUsers);
 });
 

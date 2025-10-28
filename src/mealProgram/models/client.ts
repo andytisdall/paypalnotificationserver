@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const clientSchema = new mongoose.Schema(
   {
     cCode: { type: String },
-    barcode: { type: String },
+    barcode: { type: [String], default: [] },
     cCodeIncorrect: { type: Boolean, default: false },
   },
   {

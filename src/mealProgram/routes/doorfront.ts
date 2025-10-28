@@ -20,29 +20,16 @@ const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
 
-router.get("/doorfront/monthly", async (req, res) => {
-  let startDate: Date;
-  let endDate: Date;
+router.get("/doorfront/monthly/:month", async (req, res) => {
+  const [month, year] = req.params.month.split("&");
 
-  const today = new Date();
-  const todaysDate = getDate(today);
-  if (todaysDate < 15) {
-    const lastMonth = subMonths(today, 1);
-    lastMonth.setDate(15);
-    lastMonth.setHours(0);
-    startDate = lastMonth;
-    today.setDate(14);
-    today.setHours(23);
-    endDate = today;
-  } else {
-    const nextMonth = addMonths(today, 1);
-    nextMonth.setDate(14);
-    nextMonth.setHours(23);
-    endDate = nextMonth;
-    today.setDate(15);
-    today.setHours(0);
-    startDate = today;
-  }
+  const startDate = new Date(
+    month === "1" ? parseInt(year) - 1 : parseInt(year),
+    month === "1" ? 11 : parseInt(month) - 2,
+    15
+  );
+
+  const endDate = new Date(parseInt(year), parseInt(month) - 1, 14);
 
   const thisMonthsMeals = await ClientMeal.find({
     date: {
@@ -52,14 +39,24 @@ router.get("/doorfront/monthly", async (req, res) => {
   });
 
   const count: Record<string, number> = {};
+  let lowestDate = addMonths(startDate, 1);
+  let highestDate = subMonths(endDate, 1);
 
   thisMonthsMeals.forEach((meal) => {
+    if (meal.date < lowestDate) lowestDate = meal.date;
+    if (meal.date > highestDate) highestDate = meal.date;
     if (count[meal.client]) {
       count[meal.client] += meal.amount;
     } else {
       count[meal.client] = meal.amount;
     }
   });
+
+  console.log(
+    !thisMonthsMeals.length
+      ? "0"
+      : format(lowestDate, "M/dd/yy") + "-" + format(highestDate, "M/dd/yy")
+  );
 
   res.send(count);
 });
@@ -198,9 +195,15 @@ router.patch(
     const { cCode, barcode, cCodeIncorrect } = req.body;
 
     const client = await Client.findById(clientId);
+    if (cCode !== client.cCode) {
+      const duplicateClient = await Client.findOne({ cCode });
+      if (duplicateClient) {
+        throw Error("Client ID already exists");
+      }
+    }
     client.cCode = cCode;
     client.barcode = barcode;
-    client.cCodeIncorrect = cCodeIncorrect;
+    client.cCodeIncorrect = cCodeIncorrect || false;
     await client.save();
 
     res.send(null);
