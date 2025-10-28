@@ -20,6 +20,17 @@ const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
 
+router.post(
+  "/doorfront/combine",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const allBarcodes = await Client.find();
+    allBarcodes.forEach();
+  }
+);
+
 router.get("/doorfront/monthly/:month", async (req, res) => {
   const [month, year] = req.params.month.split("&");
 
@@ -51,12 +62,6 @@ router.get("/doorfront/monthly/:month", async (req, res) => {
       count[meal.client] = meal.amount;
     }
   });
-
-  console.log(
-    !thisMonthsMeals.length
-      ? "0"
-      : format(lowestDate, "M/dd/yy") + "-" + format(highestDate, "M/dd/yy")
-  );
 
   res.send(count);
 });
@@ -109,11 +114,11 @@ router.get(
       throw Error("No barcode provided");
     }
 
-    let client = await Client.findOne({ barcode: scanValue });
+    let client = await Client.findOne({ barcodes: scanValue });
 
     if (!client) {
       // create new client
-      client = new Client({ barcode: scanValue });
+      client = new Client({ barcodes: [scanValue] });
       await client.save();
     }
 
@@ -153,7 +158,7 @@ router.post(
       client.cCode = cCode;
     }
     if (barcode) {
-      client.barcode = barcode;
+      client.barcodes = [...client.barcodes, barcode];
     }
     await client.save();
 
@@ -192,7 +197,7 @@ router.patch(
   requireAdmin,
   async (req, res) => {
     const { clientId } = req.params;
-    const { cCode, barcode, cCodeIncorrect } = req.body;
+    const { cCode, barcodes, cCodeIncorrect } = req.body;
 
     const client = await Client.findById(clientId);
     if (cCode !== client.cCode) {
@@ -202,7 +207,7 @@ router.patch(
       }
     }
     client.cCode = cCode;
-    client.barcode = barcode;
+    client.barcodes = barcodes;
     client.cCodeIncorrect = cCodeIncorrect || false;
     await client.save();
 
