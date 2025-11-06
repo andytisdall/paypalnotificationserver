@@ -43,6 +43,18 @@ router.patch("/", currentUser, requireAuth, async (req, res) => {
     u.salesforceId = salesforceId;
     await updateContact(u.salesforceId, { Portal_Username__c: u.username });
   }
+
+  if (password) {
+    if (u.salesforceId) {
+      await updateContact(u.salesforceId, {
+        Portal_Temporary_Password__c: "",
+      });
+    }
+    if (!u.active && u.id === req.currentUser!.id) {
+      u.active = true;
+    }
+  }
+
   u.busDriver = busDriver;
 
   await u.save();

@@ -73,10 +73,7 @@ router.patch(
     const { clientId } = req.params;
     const { cCode, barcode, cCodeIncorrect } = req.body;
 
-    console.log(req.body);
-
     const client = await Client.findById(clientId);
-    client.barcode = [];
 
     if (cCode) {
       const duplicateClient = await Client.findOne({
@@ -84,10 +81,13 @@ router.patch(
         _id: { $ne: clientId },
       });
       if (duplicateClient) {
-        client.barcode = [...barcode, ...duplicateClient.barcode];
+        client.barcode = [
+          ...barcode.filter((bc: string) => bc),
+          ...duplicateClient.barcode,
+        ];
         await mergeClientMeals(client.id, duplicateClient.id);
       } else {
-        client.barcode = barcode;
+        client.barcode = barcode.filter((bc: string) => bc);
       }
     }
     client.cCode = cCode;
@@ -97,12 +97,6 @@ router.patch(
     res.send(null);
   }
 );
-
-interface ClientInfo {
-  barcode: string[];
-  cCode?: string;
-  id: string;
-}
 
 // for clients with the same C code
 const mergeClientMeals = async (client1ID: string, client2ID: string) => {

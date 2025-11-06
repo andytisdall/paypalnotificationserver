@@ -1,6 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { addMinutes } from "date-fns";
 
 import { sendForgotPasswordEmail } from "../../../utils/email/emailTemplates/forgotPassword";
 import getSecrets from "../../../utils/getSecrets";
@@ -31,7 +32,8 @@ router.post("/forgot-password", async (req, res) => {
   }
 
   const expirationDate = new Date();
-  expirationDate.setHours(expirationDate.getHours() + 1);
+  // expirationDate.setHours(expirationDate.getHours() + 1);
+  addMinutes(expirationDate, 1);
   const payload = {
     id: user.id,
     expiresAt: expirationDate,

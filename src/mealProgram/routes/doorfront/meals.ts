@@ -28,7 +28,11 @@ router.get("/doorfront/monthly/:month", async (req, res) => {
     15
   );
 
-  const endDate = new Date(parseInt(year), parseInt(month) - 1, 14);
+  const endDate = new Date(parseInt(year), parseInt(month) - 1, 15);
+
+  // for queries on specific ranges
+  // const startDate = new Date(2025, 9, 8);
+  // const endDate = new Date(2025, 9, 29);
 
   const thisMonthsMeals = await ClientMeal.find({
     date: {
@@ -37,21 +41,26 @@ router.get("/doorfront/monthly/:month", async (req, res) => {
     },
   });
 
-  const count: Record<string, number> = {};
+  const clients: Record<string, { meals: number; visits: number }> = {};
   let lowestDate = addMonths(startDate, 1);
   let highestDate = subMonths(endDate, 1);
 
   thisMonthsMeals.forEach((meal) => {
     if (meal.date < lowestDate) lowestDate = meal.date;
     if (meal.date > highestDate) highestDate = meal.date;
-    if (count[meal.client]) {
-      count[meal.client] += meal.amount;
+    if (clients[meal.client]) {
+      clients[meal.client].meals += meal.amount;
+      clients[meal.client].visits += 1;
     } else {
-      count[meal.client] = meal.amount;
+      clients[meal.client] = { meals: meal.amount, visits: 1 };
     }
   });
 
-  res.send(count);
+  if (thisMonthsMeals.length) {
+    console.log(`Date Range: ${lowestDate} - ${highestDate}`);
+  }
+
+  res.send(clients);
 });
 
 router.get("/doorfront/salesforce", requireSalesforceAuth, async (req, res) => {

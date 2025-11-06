@@ -21,6 +21,7 @@ const baseUrls = {
   bikeCampaignId: "701UP00000Oyq4NYAR",
   zoho: "https://sign.zoho.com/api/v1",
   zohoToken: "https://accounts.zoho.com/oauth/v2/token",
+  thanksgiving: "701UP00000UszJlYAJ",
 };
 
 const prodUrls = {

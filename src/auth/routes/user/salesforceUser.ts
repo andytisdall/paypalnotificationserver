@@ -60,6 +60,7 @@ router.post("/salesforce", requireSalesforceAuth, async (req, res) => {
 
   if (existingUser) {
     existingUser.password = password;
+    existingUser.active = false;
     await existingUser.save();
     return res.send({
       username: existingUser.username,
