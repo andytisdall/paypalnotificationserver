@@ -51,6 +51,8 @@ import d4jRouter from "./src/d4j/routes";
 
 import signRouter from "./src/sign/routes";
 
+import emailRouter from "./src/email/email";
+
 import { errorHandler } from "./src/middlewares/error-handler";
 
 const PORT = process.env.PORT || 3001;
@@ -83,6 +85,7 @@ apiRouter.use("/home-chef", homeChefRouter);
 apiRouter.use("/volunteers", volunteersRouter);
 apiRouter.use("/d4j", d4jRouter);
 apiRouter.use("/sign", signRouter);
+apiRouter.use(emailRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get("/*", (req, res) => {

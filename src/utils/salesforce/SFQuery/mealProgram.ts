@@ -4,7 +4,10 @@ import fetcher from "../../fetcher";
 import urls from "../../urls";
 // import { getAccountById } from "./account/account";
 // import { UnformattedRestaurant } from "./account/types";
-import { MealSurveyArgs } from "../../../mealProgram/routes/survey";
+import {
+  MealSurveyArgs,
+  SNAPSurveyArgs,
+} from "../../../mealProgram/routes/survey";
 
 export interface NewMobileOasisDelivery {
   fridge: string;
@@ -246,4 +249,22 @@ export const deleteSurveyData = async () => {
       )
     );
   await Promise.all(promises);
+};
+
+export const submitSNAPSurveyData = async ({
+  receiveSNAP,
+  november,
+  whatDay,
+  howMuch,
+  reduce,
+}: SNAPSurveyArgs) => {
+  await fetcher.setService("salesforce");
+  const url = urls.SFOperationPrefix + "/SNAP_Survey__c";
+  await fetcher.post(url, {
+    Did_you_get_your_November_benefits__c: november,
+    Do_You_Receive_Snap_Benefits__c: receiveSNAP,
+    How_much_did_you_receive__c: howMuch,
+    Is_your_benefit_less_than_October_s__c: reduce,
+    What_day_did_you_get_your_benefits__c: whatDay,
+  });
 };

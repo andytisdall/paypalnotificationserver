@@ -13,12 +13,20 @@ export const sendOrderReadyEmail = async ({
     to: email,
     from: "volunteers@ckoakland.org",
     html: `<p>Hi ${firstName},</p>
-          <p>Your Home Chef supplies are ready to be picked up at the CK Kitchen.
-          Please come any time during our open hours to pick up your order.<br />
-            <p<strong>CK Kitchen - 2270 Telegraph Ave, Oakland CA<br />
-            Sunday - Thursday, 10am - 4pm</strong></p>
-            <p>See you soon!<br />
-            Community Kitchens</p>`,
+          <p>Your Home Chef supplies are ready for pick up at CK's central kitchen. The address is 2270 Telegraph Avenue in Oakland.
+          You are welcome to stop by Sunday through Thursday from 9 AM to 5 PM or Friday from 9 AM to 2 PM.</p>
+          <p>When you walk in the front door,
+          there are two brown bookshelves ahead of you to the left (behind the insulated meal containers) - there, you will find one <strong>or more</strong>
+          cubbies with your name on it and on these shelves are your supplies!</p>
+<p>If the door is locked, knock and someone should answer.
+If you have any questions, please contact Kenai - <a href="mailto:kenai@ckoakland.org">kenai@ckoakland.org</a>.</p>
+<p>
+Kenai Rodrigue<br />
+Program & Volunteer Manager<br />
+Community Kitchens<br />
+(510) 707-0075<br />
+<a href="https://portal.ckoakland.org/volunteers">www.ckoakland.org/volunteer</a><br />
+</p>`,
     subject: "Your Home Chef supplies are ready!",
   });
 };

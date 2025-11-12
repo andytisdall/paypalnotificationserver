@@ -8,6 +8,7 @@ export interface EmailMessage {
   subject: string;
   mediaUrl?: string[];
   text?: string;
+  bcc?: string;
   html: string;
 }
 
@@ -25,5 +26,6 @@ export const sendEmail = async (msg: EmailMessage) => {
     Subject: msg.subject,
     HtmlBody: msg.html,
     TextBody: msg.text,
+    Bcc: msg.bcc,
   });
 };

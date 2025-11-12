@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { addMinutes } from "date-fns";
+import { addHours } from "date-fns";
 
 import { sendForgotPasswordEmail } from "../../../utils/email/emailTemplates/forgotPassword";
 import getSecrets from "../../../utils/getSecrets";
@@ -32,11 +32,10 @@ router.post("/forgot-password", async (req, res) => {
   }
 
   const expirationDate = new Date();
-  // expirationDate.setHours(expirationDate.getHours() + 1);
-  addMinutes(expirationDate, 1);
+  const oneHourInTheFuture = addHours(expirationDate, 1);
   const payload = {
     id: user.id,
-    expiresAt: expirationDate,
+    expiresAt: oneHourInTheFuture,
   };
   const token = jwt.sign(payload, JWT_KEY);
   const url = urls.client + "/reset-password/" + token;
@@ -58,6 +57,9 @@ router.post("/reset-password", async (req, res) => {
     id: string;
     expiresAt: string;
   };
+
+  console.log(new Date(expiresAt));
+  console.log(new Date());
 
   const user = await User.findById(id);
   if (!user) {
