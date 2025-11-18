@@ -1,4 +1,5 @@
 import moment from "moment";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
@@ -109,15 +110,27 @@ export const addSlotToShift = async (shift: FormattedShift) => {
   });
 };
 
-export const createShift = async (jobId: string) => {
+export const createShift = async ({
+  jobId,
+  restaurantMeals,
+  date,
+}: {
+  jobId: string;
+  date: string;
+  restaurantMeals?: boolean;
+}) => {
   await fetcher.setService("salesforce");
   const url = urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c";
 
   const newShift: Partial<Shift> = {
     GW_Volunteers__Volunteer_Job__c: jobId,
-    Restaurant_Meals__c: true,
+    Restaurant_Meals__c: restaurantMeals,
     GW_Volunteers__Duration__c: 1,
-    GW_Volunteers__Start_Date_Time__c: new Date().toISOString(),
+    GW_Volunteers__Start_Date_Time__c: zonedTimeToUtc(
+      date,
+      "America/Los_Angeles"
+    ).toUTCString(),
+    GW_Volunteers__Desired_Number_of_Volunteers__c: 1,
   };
   const { data } = await fetcher.post(url, newShift);
 

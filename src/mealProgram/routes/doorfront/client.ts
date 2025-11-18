@@ -89,6 +89,8 @@ router.patch(
       } else {
         client.barcode = barcode.filter((bc: string) => bc);
       }
+    } else {
+      client.barcode = barcode.filter((bc: string) => bc);
     }
     client.cCode = cCode;
     client.cCodeIncorrect = cCodeIncorrect || false;

@@ -17,7 +17,11 @@ router.post("/", currentUser, requireTextPermission, async (req, res) => {
 
   // create home chef restaurant meals delivery
 
-  const shiftId = await createShift(body.fridge);
+  const shiftId = await createShift({
+    jobId: body.fridge,
+    date: new Date().toISOString(),
+    restaurantMeals: true,
+  });
   const newHours = {
     contactId: req.currentUser?.salesforceId!,
     shiftId: shiftId,

@@ -47,9 +47,10 @@ router.post(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { hoursId }: { hoursId: string } = req.body;
+    const { hoursId, duration }: { hoursId: string; duration: number } =
+      req.body;
 
-    await checkInVolunteer(hoursId);
+    await checkInVolunteer({ hoursId, duration });
 
     res.sendStatus(204);
   }

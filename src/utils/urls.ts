@@ -21,7 +21,7 @@ const baseUrls = {
   bikeCampaignId: "701UP00000Oyq4NYAR",
   zoho: "https://sign.zoho.com/api/v1",
   zohoToken: "https://accounts.zoho.com/oauth/v2/token",
-  thanksgiving: "701UP00000UszJlYAJ",
+  barlettTownFridgeId: "a0w8Z00000YU0nHQAT",
 };
 
 const prodUrls = {
@@ -33,6 +33,7 @@ const prodUrls = {
   server: "https://portal.ckoakland.org",
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
   ckDoorCampaignId: "701UP00000JyWOgYAN",
+  deliverToKitchenJobId: "a0wUP0000034Ep3YAE",
 };
 
 const testUrls = {
@@ -47,6 +48,7 @@ const testUrls = {
   appleReviewerId: "64e69853db4b5043abcd55b6",
   ckDoorCampaignId: "701U800000KMZoQIAX",
   ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
+  deliverToKitchenJobId: "a0wTH000000qcyrYAA",
 };
 
 export default process.env.NODE_ENV === "production" ? prodUrls : testUrls;

@@ -10,17 +10,21 @@ import urls from "../../utils/urls";
 
 const router = express.Router();
 
-router.post("/events/home-chef-orientation", async (req, res) => {
+//generic event signup route
+
+router.post("/events", async (req, res) => {
   const {
     firstName,
     lastName,
     phone,
     email,
+    campaignId,
   }: {
     email: string;
     firstName: string;
     lastName: string;
-    phone: string;
+    phone?: string;
+    campaignId: string;
   } = req.body;
 
   let contact = await getContactByEmail(email);
@@ -41,46 +45,7 @@ router.post("/events/home-chef-orientation", async (req, res) => {
   }
 
   await insertCampaignMember({
-    CampaignId: urls.homeChefInPersonCampaignId,
-    ContactId: contact.id,
-    Status: "Responded",
-  });
-
-  res.sendStatus(204);
-});
-
-router.post("/events/thanksgiving-2025", async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    phone,
-    email,
-  }: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-  } = req.body;
-
-  let contact = await getContactByEmail(email);
-  if (!contact) {
-    contact = await addContact({
-      FirstName: firstName,
-      LastName: lastName,
-      HomePhone: phone,
-      Email: email,
-    });
-  } else {
-    await updateContact(contact.id, {
-      FirstName: firstName,
-      LastName: lastName,
-      HomePhone: phone,
-      Email: email,
-    });
-  }
-
-  await insertCampaignMember({
-    CampaignId: urls.thanksgiving,
+    CampaignId: campaignId,
     ContactId: contact.id,
     Status: "Responded",
   });

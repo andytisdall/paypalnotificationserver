@@ -1,7 +1,7 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { UnformattedContact } from "../contact/types";
-import { UnformattedHours, Job, Shift } from "./types";
+import { UnformattedHours, Job, Shift, FormattedShift } from "./types";
 
 interface UnformatterVolunteerRecurrenceSchedule {
   GW_Volunteers__Volunteer_Job__c: string;
@@ -28,14 +28,22 @@ export const getTodaysVolunteerShifts = async () => {
   const { data }: { data: { records: Pick<Job, "Id" | "Name">[] } } =
     await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(jobQuery));
 
-  const jobs: Record<string, { id: string }[]> = {};
+  const jobs: Record<
+    string,
+    Pick<FormattedShift, "id" | "job" | "startTime" | "duration">[]
+  > = {};
 
   const shiftPromises = data.records.map(async (job) => {
-    const shiftQuery = `SELECT Id, GW_Volunteers__Start_Date_Time__c FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${job.Id}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
+    const shiftQuery = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Duration__c FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${job.Id}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
 
     const response: {
       data: {
-        records: { Id: string; GW_Volunteers__Start_Date_Time__c: string }[];
+        records: Pick<
+          Shift,
+          | "Id"
+          | "GW_Volunteers__Start_Date_Time__c"
+          | "GW_Volunteers__Duration__c"
+        >[];
       };
     } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(shiftQuery));
 
@@ -46,6 +54,7 @@ export const getTodaysVolunteerShifts = async () => {
         id: shift.Id,
         job: job.Name,
         startTime: shift.GW_Volunteers__Start_Date_Time__c,
+        duration: shift.GW_Volunteers__Duration__c,
       }));
     }
   });
@@ -117,7 +126,13 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
   return contacts;
 };
 
-export const checkInVolunteer = async (hoursId: string) => {
+export const checkInVolunteer = async ({
+  hoursId,
+  duration,
+}: {
+  hoursId: string;
+  duration: number;
+}) => {
   await fetcher.setService("salesforce");
 
   const updateUri =
@@ -125,7 +140,7 @@ export const checkInVolunteer = async (hoursId: string) => {
 
   const updatedHours: Partial<UnformattedHours> = {
     GW_Volunteers__Status__c: "Completed",
-    GW_Volunteers__Hours_Worked__c: 3,
+    GW_Volunteers__Hours_Worked__c: duration,
   };
 
   await fetcher.patch(updateUri, updatedHours);
