@@ -19,16 +19,16 @@ const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
 
-router.get("/doorfront/monthly/:month", async (req, res) => {
-  const [month, year] = req.params.month.split("&");
+router.get("/doorfront/monthly/:dateRange", async (req, res) => {
+  const [start, end] = req.params.dateRange.split("&");
 
-  const startDate = new Date(
-    month === "1" ? parseInt(year) - 1 : parseInt(year),
-    month === "1" ? 11 : parseInt(month) - 2,
-    15
-  );
+  if (!start || !end) {
+    return res.send(null);
+  }
 
-  const endDate = new Date(parseInt(year), parseInt(month) - 1, 15);
+  const startDate = zonedTimeToUtc(start, "America/Los_Angeles");
+
+  const endDate = addDays(zonedTimeToUtc(end, "America/Los_Angeles"), 1);
 
   // for queries on specific ranges
   // const startDate = new Date(2025, 9, 8);
@@ -57,7 +57,12 @@ router.get("/doorfront/monthly/:month", async (req, res) => {
   });
 
   if (thisMonthsMeals.length) {
-    console.log(`Date Range: ${lowestDate} - ${highestDate}`);
+    console.log(
+      `Date Range: ${format(new Date(lowestDate), "MM/dd/yy")} - ${format(
+        new Date(highestDate),
+        "MM/dd/yy"
+      )}`
+    );
   }
 
   res.send(clients);

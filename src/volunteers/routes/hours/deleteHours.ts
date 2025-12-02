@@ -3,7 +3,7 @@ import express from "express";
 import { currentUser } from "../../../middlewares/current-user";
 import { getContactById } from "../../../utils/salesforce/SFQuery/contact/contact";
 import {
-  getHours,
+  getHour,
   deleteVolunteerHours,
 } from "../../../utils/salesforce/SFQuery/volunteer/hours";
 import { getCampaignFromHours } from "../../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
@@ -27,32 +27,32 @@ router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
     throw Error("Could not find contact");
   }
 
-  const campaign = await getCampaignFromHours(id);
+  await deleteVolunteerHours(id);
+  sendVolunteerShiftCancelEmail({ contactId, hoursId: id });
 
-  if (!campaign) {
-    throw Error("Could not get campaign info");
-  }
-
-  const hours = await getHours(campaign.id, contactId);
-  const hour = hours.find((h) => h.id === id);
-
-  if (hour) {
-    await deleteVolunteerHours(id);
-    const { Email, FirstName } = await getContactById(contactId);
-    const job = await getJobFromHours(hour.job);
-
-    if (Email) {
-      await sendShiftCancelEmail(Email, {
-        date: hour.time,
-        name: FirstName,
-        campaign: campaign.name,
-        job: job.Name,
-      });
-    }
-    res.sendStatus(204);
-  } else {
-    throw Error("Volunteer hours do not belong to this contact");
-  }
+  res.sendStatus(204);
 });
+
+export const sendVolunteerShiftCancelEmail = async ({
+  contactId,
+  hoursId,
+}: {
+  contactId: string;
+  hoursId: string;
+}) => {
+  const campaign = await getCampaignFromHours(hoursId);
+  const hour = await getHour(hoursId);
+  const { Email, FirstName } = await getContactById(contactId);
+  const job = await getJobFromHours(hour.job);
+
+  if (Email && campaign) {
+    await sendShiftCancelEmail(Email, {
+      date: hour.time,
+      name: FirstName,
+      campaign: campaign.name,
+      job: job.Name,
+    });
+  }
+};
 
 export default router;

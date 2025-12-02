@@ -62,7 +62,7 @@ const getImages = (body: any) => {
 // send general info if you're not on the list
 // feedback if you are on the list
 
-interface IncomingText {
+export interface IncomingText {
   Body: string;
   From: string;
   To: string;

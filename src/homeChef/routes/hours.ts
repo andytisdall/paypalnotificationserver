@@ -10,7 +10,7 @@ import {
   editHours,
 } from "../../utils/salesforce/SFQuery/volunteer/hours";
 import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
-import { sendShiftEditEmail } from "../../utils/email/emailTemplates/shiftEdit";
+import { sendHomeChefShiftEditEmail } from "../../utils/email/emailTemplates/homeChefShiftEdit";
 
 const router = express.Router();
 
@@ -63,7 +63,12 @@ router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
     mealType: "Entree" | "Soup";
   } = req.body;
 
-  await editHours({ mealCount, cancel, id, mealType });
+  await editHours({
+    mealCount,
+    status: cancel ? "Canceled" : undefined,
+    id,
+    mealType,
+  });
   // opp is updated by a salesforce flow
 
   // email user confirmation
@@ -71,7 +76,7 @@ router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
   const { Email } = await getContactById(req.currentUser!.salesforceId);
   // email user confirmation
   if (Email) {
-    await sendShiftEditEmail(Email, {
+    await sendHomeChefShiftEditEmail(Email, {
       date: emailData.date,
       fridge: emailData.fridge,
       cancel,

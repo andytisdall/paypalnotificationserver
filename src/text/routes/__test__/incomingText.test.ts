@@ -9,7 +9,7 @@ const Feedback = mongoose.model("Feedback");
 
 jest.mock("twilio");
 
-const from = "+14158190251";
+const from = "PHONE_NUMBER";
 
 it("gets general info", async () => {
   const incomingText = {

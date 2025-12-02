@@ -7,6 +7,7 @@ import feedbackRouter from "./feedback";
 import scheduledTextRouter from "./scheduledText";
 import textRecordRouter from "./textRecords";
 import statusCallbackRouter from "./statusCallback";
+import volunteerRreminderRouter from "./volunteerReminder";
 
 const textRouter = express.Router({ mergeParams: true });
 
@@ -17,5 +18,6 @@ textRouter.use(feedbackRouter);
 textRouter.use(scheduledTextRouter);
 textRouter.use(textRecordRouter);
 textRouter.use(statusCallbackRouter);
+textRouter.use(volunteerRreminderRouter);
 
 export default textRouter;

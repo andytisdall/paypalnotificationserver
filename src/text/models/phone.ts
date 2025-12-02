@@ -6,6 +6,8 @@ export const REGIONS: Record<Region, string> = {
   BERKELEY: "+15106944697",
 };
 
+export const VOLUNTEER_REMINDER_NUMBER = "+15102886563";
+
 export type Region = "EAST_OAKLAND" | "WEST_OAKLAND" | "BERKELEY";
 
 const phoneSchema = new mongoose.Schema(

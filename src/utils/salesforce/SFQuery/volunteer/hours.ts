@@ -76,6 +76,20 @@ export const createHours = async ({
   };
 };
 
+export const getTextReminderHours = async (contactId: string) => {
+  await fetcher.setService("salesforce");
+
+  const query = `SELECT Id from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${contactId}' AND Text_Reminder_Status__c = 'Sent'`;
+  const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
+
+  if (!response.data?.records[0]) {
+    return null;
+  }
+  return response.data.records[0].Id;
+};
+
 export const getHour = async (hoursId: string) => {
   await fetcher.setService("salesforce");
 
@@ -126,30 +140,30 @@ export const getHours = async (campaignId: string, contactId: string) => {
 
 export const editHours = async ({
   mealCount,
-  cancel,
   id,
   mealType,
+  status,
+  respondedToReminder,
 }: {
-  mealCount: number;
-  cancel: boolean;
+  mealCount?: number;
   id: string;
-  mealType: "Entree" | "Soup";
+  mealType?: "Entree" | "Soup";
+  status?: string;
+  respondedToReminder?: boolean;
 }) => {
   await fetcher.setService("salesforce");
 
-  interface updateHours {
-    Number_of_Meals__c: number;
-    Type_of_Meal__c: string;
-    GW_Volunteers__Status__c?: string;
-  }
-
-  const hoursToUpdate: updateHours = {
+  const hoursToUpdate: Partial<UnformattedHours> = {
     Number_of_Meals__c: mealCount,
     Type_of_Meal__c: mealType,
   };
 
-  if (cancel) {
-    hoursToUpdate.GW_Volunteers__Status__c = "Canceled";
+  if (status) {
+    hoursToUpdate.GW_Volunteers__Status__c = status;
+  }
+
+  if (respondedToReminder) {
+    hoursToUpdate.Text_Reminder_Status__c = "Responded";
   }
 
   const hoursUpdateUri =

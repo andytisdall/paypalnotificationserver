@@ -2,7 +2,7 @@ import moment from "moment";
 
 import { sendEmail } from "../email";
 
-const createShiftEditEmail = (shift: {
+const createHomeChefShiftEditEmail = (shift: {
   date: string;
   fridge: string;
   cancel: boolean;
@@ -38,7 +38,7 @@ const createShiftEditEmail = (shift: {
   `;
 };
 
-export const sendShiftEditEmail = async (
+export const sendHomeChefShiftEditEmail = async (
   email: string,
   shift: {
     date: string;
@@ -48,7 +48,7 @@ export const sendShiftEditEmail = async (
     mealType: "Entree" | "Soup";
   }
 ) => {
-  const html = createShiftEditEmail(shift);
+  const html = createHomeChefShiftEditEmail(shift);
 
   const action = shift.cancel ? "canceled" : "edited";
 

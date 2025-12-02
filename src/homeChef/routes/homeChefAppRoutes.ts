@@ -14,7 +14,14 @@ router.get("/fridges", currentUser, requireAuth, async (req, res) => {
   await fetcher.setService("salesforce");
 
   const jobs = await getJobs(urls.townFridgeCampaignId);
-  res.send(jobs.filter((j) => j.active && j.id !== urls.barlettTownFridgeId));
+  res.send(
+    jobs.filter(
+      (j) =>
+        j.active &&
+        j.id !== urls.barlettTownFridgeId &&
+        j.region !== "CK Kitchen"
+    )
+  );
 });
 
 export default router;

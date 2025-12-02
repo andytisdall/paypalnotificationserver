@@ -53,7 +53,7 @@ export interface FormattedJob {
   ongoing: boolean;
   description?: string;
   campaign: string;
-  region?: "East Oakland" | "West Oakland" | "Berkeley";
+  region?: "East Oakland" | "West Oakland" | "Berkeley" | "CK Kitchen";
   notes?: string;
 }
 
@@ -95,6 +95,7 @@ export interface UnformattedHours {
   Restaurant_Meals__c?: boolean;
   GW_Volunteers__Volunteer_Campaign_Name__c: string;
   GW_Volunteers__Start_Date_Time__c: string;
+  Text_Reminder_Status__c?: "Sent" | "Responded";
 }
 
 export interface HoursQueryResponse {

@@ -248,3 +248,26 @@ export const deleteContact = async (id: string) => {
   await fetcher.setService("salesforce");
   await fetcher.delete(urls.SFOperationPrefix + "/Contact/" + id);
 };
+
+export const getContactByPhoneNumber = async (
+  phoneNumber: string
+): Promise<string | null> => {
+  await fetcher.setService("salesforce");
+
+  const query = `SELECT  Id from Contact WHERE Phone = '${phoneNumber}'`;
+  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+
+  const contactQueryResponse: {
+    data:
+      | {
+          records: Pick<UnformattedContact, "Id">[];
+        }
+      | undefined;
+  } = await fetcher.get(contactQueryUri);
+
+  if (!contactQueryResponse.data?.records[0]) {
+    return null;
+  }
+  const contact = contactQueryResponse.data?.records[0];
+  return contact.Id;
+};
