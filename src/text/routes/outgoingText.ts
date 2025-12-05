@@ -2,6 +2,7 @@ import express from "express";
 import twilio from "twilio";
 import moment from "moment";
 import mongoose from "mongoose";
+import fileUpload from "express-fileupload";
 
 import { REGIONS, Region } from "../models/phone";
 import { currentUser } from "../../middlewares/current-user";
@@ -15,7 +16,7 @@ const Feedback = mongoose.model("Feedback");
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
 export interface NewOutgoingTextRecord {
-  message: string;
+  message?: string;
   sender: string;
   region: string;
   image?: string;
@@ -26,7 +27,7 @@ const smsRouter = express.Router();
 
 export type OutgoingText = {
   from: string;
-  body: string;
+  body?: string;
   mediaUrl?: string[];
   sendAt?: Date;
   messagingServiceSid: string;
@@ -45,7 +46,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     photo,
     storedText,
   }: {
-    message: string;
+    message?: string;
     region: Region | "all" | "East Oakland" | "West Oakland" | "Berkeley";
     feedbackId?: string;
     number?: string;
@@ -53,15 +54,17 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     storedText?: string;
   } = req.body;
 
+  const attachedPhoto = req.files?.photo;
+
   const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
 
   if (!MESSAGING_SERVICE_SID) {
     throw Error("Could not find messaging service ID");
   }
 
-  if (!message) {
+  if (!message && !photo && !attachedPhoto) {
     res.status(422);
-    throw new Error("No message to send");
+    throw new Error("No message or photo to send");
   }
 
   if (!region && !number) {
@@ -111,26 +114,39 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     formattedNumbers = formattedNumbers.filter((num) => num === "+14158190251");
   }
 
+  // photo
+
   const outgoingText: OutgoingText = {
     body: message,
     from: responsePhoneNumber,
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
-  let mediaUrl = photo;
+  if (attachedPhoto) {
+    let photoArray: fileUpload.UploadedFile[] = [];
+    if (Array.isArray(attachedPhoto)) {
+      photoArray = attachedPhoto;
+    } else {
+      photoArray = [attachedPhoto];
+    }
 
-  if (req.files?.photo && !Array.isArray(req.files.photo)) {
-    const fileName = "outgoing-text-" + moment().format("YYYY-MM-DD-hh-ss-a");
+    const photoUrlPromises = photoArray.map(async (photoFile, i) => {
+      const fileName =
+        "outgoing-text-" + moment().format(`YYYY-MM-DD-hh-ss-a-${i}`);
 
-    mediaUrl = await storeFile({
-      file: req.files.photo,
-      name: fileName,
+      return await storeFile({
+        file: photoFile,
+        name: fileName,
+      });
     });
 
-    outgoingText.mediaUrl = [mediaUrl];
+    outgoingText.mediaUrl = await Promise.all(photoUrlPromises);
   } else if (photo) {
     outgoingText.mediaUrl = [photo];
   }
+  const mediaUrl = outgoingText.mediaUrl ? outgoingText.mediaUrl[0] : undefined;
+
+  //
 
   const createOutgoingText = async (phone: string) => {
     return await twilioClient.messages.create({ ...outgoingText, to: phone });

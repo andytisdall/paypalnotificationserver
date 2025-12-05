@@ -14,7 +14,10 @@ export const getContact = async (
   firstName: string
 ): Promise<ContactData | null> => {
   await fetcher.setService("salesforce");
-  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${lastName}' AND FirstName = '${firstName}'`;
+  const escapedFirstName = firstName.replace(/'/g, "\\'");
+  const escapedLastName = lastName.replace(/'/g, "\\'");
+
+  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${escapedLastName}" AND FirstName = '${escapedFirstName}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 
@@ -49,7 +52,9 @@ export const getContactByLastNameAndEmail = async (
   email: string
 ): Promise<ContactData | null> => {
   await fetcher.setService("salesforce");
-  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${lastName}' AND Email = '${email}'`;
+
+  const escapedLastName = lastName.replace(/'/g, "\\'");
+  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${escapedLastName}' AND Email = '${email}'`;
 
   const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

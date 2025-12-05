@@ -19,7 +19,7 @@ export const storeFile = async ({
   try {
     const buffer = await sharp(file.data)
       .withMetadata()
-      .jpeg({ quality: 30 })
+      .jpeg({ quality: 20 })
       .toBuffer();
 
     const storedFile = bucket.file(name + ".jpg");
