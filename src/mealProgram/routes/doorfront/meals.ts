@@ -1,13 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import {
-  formatISO,
-  addDays,
-  getDate,
-  subMonths,
-  addMonths,
-  format,
-} from "date-fns";
+import { formatISO, addDays, subMonths, addMonths, format } from "date-fns";
 import { zonedTimeToUtc } from "date-fns-tz";
 
 import { currentUser } from "../../../middlewares/current-user";
@@ -18,6 +11,8 @@ import { requireAdmin } from "../../../middlewares/require-admin";
 const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
+
+const GENERIC_CLIENT_ID = "6923657407184f97adb47b74";
 
 router.get("/doorfront/monthly/:dateRange", async (req, res) => {
   const [start, end] = req.params.dateRange.split("&");
@@ -39,7 +34,7 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
       $gte: startDate,
       $lte: endDate,
     },
-  });
+  }).populate("client");
 
   const clients: Record<string, { meals: number; visits: number }> = {};
   let lowestDate = addMonths(startDate, 1);
@@ -48,11 +43,17 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
   thisMonthsMeals.forEach((meal) => {
     if (meal.date < lowestDate) lowestDate = meal.date;
     if (meal.date > highestDate) highestDate = meal.date;
-    if (clients[meal.client]) {
-      clients[meal.client].meals += meal.amount;
-      clients[meal.client].visits += 1;
+
+    const clientId =
+      meal.client && meal.client._id.toString() !== GENERIC_CLIENT_ID
+        ? meal.client._id
+        : "unknown";
+
+    if (clients[clientId]) {
+      clients[clientId].meals += meal.amount;
+      clients[clientId].visits += 1;
     } else {
-      clients[meal.client] = { meals: meal.amount, visits: 1 };
+      clients[clientId] = { meals: meal.amount, visits: 1 };
     }
   });
 

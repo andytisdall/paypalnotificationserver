@@ -18,7 +18,7 @@ it("correctly makes the portal user and salesforce contact when the interest for
 
   const formValues = {
     email: "hello@gmail.com",
-    firstName: "Maybe",
+    firstName: "May'be",
     lastName,
     phoneNumber: "415-819-0251",
     instagramHandle: "@instagream",

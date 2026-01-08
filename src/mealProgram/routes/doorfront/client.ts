@@ -32,8 +32,6 @@ router.get(
 
     const clientMeals = await ClientMeal.find({ client: client.id });
 
-    // console.log(clientMeals);
-
     res.send({ clientMeals, client });
   }
 );

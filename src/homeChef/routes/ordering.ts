@@ -62,12 +62,24 @@ router.post("/ordering", currentUser, requireAuth, async (req, res) => {
 });
 
 router.get(
-  "/ordering",
+  "/ordering/unfulfilled",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const orders = await SupplyOrder.find();
+    const orders = await SupplyOrder.find({ fulfilled: false });
+
+    res.send(orders);
+  }
+);
+
+router.get(
+  "/ordering/fulfilled",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const orders = await SupplyOrder.find({ fulfilled: true });
 
     res.send(orders);
   }

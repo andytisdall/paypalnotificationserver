@@ -13,7 +13,6 @@ import {
 } from "../../utils/salesforce/SFQuery/volunteer/hours";
 import { sendVolunteerShiftCancelEmail } from "../../volunteers/routes/hours/deleteHours";
 import { IncomingText } from "./incomingText";
-import { sendEmail } from "../../utils/email/email";
 
 const MessagingResponse = twiml.MessagingResponse;
 
@@ -47,12 +46,6 @@ router.post(
             respondedToReminder: true,
           });
           responseText = `You have ${action.toLowerCase()} your volunteer shift. Thank you!`;
-          sendEmail({
-            to: "andy@ckoakland.org",
-            from: "andy@ckoakland.org",
-            subject: `Volunteer Shift ${action}`,
-            html: `Contact ID: ${contactId} has ${action.toLowerCase()} their volunteer shift (Hours ID: ${hoursId}).`,
-          });
         } else {
           responseText =
             'Please reply with "Y" to confirm your volunteer shift or "N" to cancel it.';

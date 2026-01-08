@@ -75,37 +75,66 @@ router.post(
 );
 
 router.get("/notifications", currentUser, requireAuth, async (req, res) => {
-  const notifications = await Notification.find({
+  const query = {
     app: "homechef",
     date: { $gt: subDays(new Date(), 14) },
-  }).sort([["date", -1]]);
-  // const notifications = [
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  //   {
-  //     date: new Date(),
-  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-  //   },
-  // ];
+  };
+
+  const notifications = await Notification.find(query).sort([["date", -1]]);
+
   res.send(notifications);
 });
+
+router.get(
+  "/notifications/:days",
+  currentUser,
+  requireAuth,
+  async (req, res) => {
+    const { days } = req.params;
+    // const daysInt = parseInt(days);
+    const daysInt = 14;
+    let query;
+
+    if (!isNaN(daysInt)) {
+      query = {
+        app: "homechef",
+        date: { $gt: subDays(new Date(), daysInt) },
+      };
+    } else {
+      query = {
+        app: "homechef",
+      };
+    }
+
+    const notifications = await Notification.find(query).sort([["date", -1]]);
+    // const notifications = [
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    //   {
+    //     date: new Date(),
+    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+    //   },
+    // ];
+    res.send(notifications);
+  }
+);
 
 export default router;
