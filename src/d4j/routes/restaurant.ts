@@ -2,7 +2,6 @@ import express from "express";
 
 import { getPlaceDetails } from "../../utils/googleApis/getPlaceDetails";
 import {
-  getBars,
   getD4jRestaurants,
   updateDetails,
 } from "../../utils/salesforce/SFQuery/account/d4j";
@@ -12,18 +11,8 @@ const router = express.Router();
 
 router.get("/restaurants", async (req, res) => {
   const restaurants = await getD4jRestaurants();
-  const bars = await getBars();
-  const ids: string[] = [];
 
-  // filter out duplicates
-  const uniqueRestaurants = [...restaurants, ...bars].filter((account) => {
-    if (ids.includes(account.id)) {
-      return false;
-    }
-    ids.push(account.id);
-    return true;
-  });
-  res.send(uniqueRestaurants);
+  res.send(restaurants);
 });
 
 router.get("/restaurants/style-week", async (req, res) => {

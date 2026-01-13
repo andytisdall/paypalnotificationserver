@@ -1,12 +1,8 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
+import createQuery, { FilterGroup } from "../queryCreator";
 import { InsertSuccessResponse } from "./../reusableTypes";
-import {
-  CreateHoursParams,
-  FormattedHours,
-  UnformattedHours,
-  HoursQueryResponse,
-} from "./types";
+import { CreateHoursParams, FormattedHours, UnformattedHours } from "./types";
 
 export const createHours = async ({
   contactId,
@@ -77,17 +73,21 @@ export const createHours = async ({
 };
 
 export const getTextReminderHours = async (contactId: string) => {
-  await fetcher.setService("salesforce");
+  const fields = ["Id"] as const;
+  const obj = "GW_Volunteers__Volunteer_Hours__c";
+  const filters: FilterGroup<UnformattedHours> = {
+    AND: [
+      { field: "GW_Volunteers__Contact__c", value: contactId },
+      { field: "Text_Reminder_Status__c", value: "Sent" },
+    ],
+  };
 
-  const query = `SELECT Id from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Contact__c = '${contactId}' AND Text_Reminder_Status__c = 'Sent'`;
-  const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
-
-  const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
-
-  if (!response.data?.records[0]) {
-    return null;
-  }
-  return response.data.records[0].Id;
+  const hours = await createQuery<UnformattedHours, (typeof fields)[number]>({
+    fields,
+    obj,
+    filters,
+  });
+  return hours[0].Id;
 };
 
 export const getHour = async (hoursId: string) => {
@@ -109,17 +109,33 @@ export const getHour = async (hoursId: string) => {
 };
 
 export const getHours = async (campaignId: string, contactId: string) => {
-  await fetcher.setService("salesforce");
+  const fields = [
+    "Id",
+    "GW_Volunteers__Status__c",
+    "Number_of_Meals__c",
+    "GW_Volunteers__Shift_Start_Date_Time__c",
+    "GW_Volunteers__Volunteer_Job__c",
+    "GW_Volunteers__Volunteer_Shift__c",
+    "Type_of_Meal__c",
+  ] as const;
+  const obj = "GW_Volunteers__Volunteer_Hours__c";
+  const filters: FilterGroup<UnformattedHours> = {
+    AND: [
+      { field: "GW_Volunteers__Volunteer_Campaign__c", value: campaignId },
+      { field: "GW_Volunteers__Contact__c", value: contactId },
+    ],
+  };
 
-  const query = `SELECT Id, GW_Volunteers__Status__c, Number_of_Meals__c, GW_Volunteers__Shift_Start_Date_Time__c, GW_Volunteers__Volunteer_Job__c, GW_Volunteers__Volunteer_Shift__c, Type_of_Meal__c from GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Volunteer_Campaign__c = '${campaignId}' AND GW_Volunteers__Contact__c = '${contactId}'`;
+  const unformattedHours = await createQuery<
+    UnformattedHours,
+    (typeof fields)[number]
+  >({
+    fields,
+    obj,
+    filters,
+  });
 
-  const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
-
-  const response: HoursQueryResponse = await fetcher.get(hoursQueryUri);
-  if (!response.data?.records) {
-    throw Error("Could not query volunteer hours");
-  }
-  const hours: FormattedHours[] = response.data.records.map((h) => {
+  const hours: FormattedHours[] = unformattedHours.map((h) => {
     let mealCount = h.Number_of_Meals__c;
     if (!mealCount) {
       mealCount = 0;

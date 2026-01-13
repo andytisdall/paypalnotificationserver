@@ -1,8 +1,11 @@
 import { decode } from "html-entities";
 
+import { FilterGroup, QueryFilter } from "../queryCreator";
+import createQuery from "../queryCreator";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { Job, FormattedJob } from "./types";
+import { getDistance } from "../../../googleApis/getDistance";
 
 const decodeString = (string: string) => {
   return decode(
@@ -11,36 +14,45 @@ const decodeString = (string: string) => {
 };
 
 export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
-  await fetcher.setService("salesforce");
+  const fields = [
+    "Id",
+    "Name",
+    "Car_Size_Required__c",
+    "Dropoff_Notes__c",
+    "Dropoff_Location__c",
+    "GW_Volunteers__Inactive__c",
+    "GW_Volunteers__Location_Street__c",
+    "GW_Volunteers__Description__c",
+    "GW_Volunteers__Ongoing__c",
+    "Region__c",
+    "Fridge_Notes__c",
+    "GW_Volunteers__Location_Information__c",
+    "GW_Volunteers__Location_City__c",
+  ] as const;
 
-  const query = `SELECT Id, Name, GW_Volunteers__Inactive__c, GW_Volunteers__Location_Street__c, GW_Volunteers__Description__c, GW_Volunteers__Ongoing__c, Region__c, Fridge_Notes__c, GW_Volunteers__Location_Information__c, GW_Volunteers__Location_City__c from GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c = '${campaignId}' AND GW_Volunteers__Display_on_Website__c = TRUE`;
+  const obj = "GW_Volunteers__Volunteer_Job__c";
 
-  const jobQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const filters: FilterGroup<Job> = {
+    AND: [
+      { field: "GW_Volunteers__Campaign__c", value: campaignId },
+      { field: "GW_Volunteers__Display_on_Website__c", value: true },
+    ],
+  };
 
-  const res: {
-    data: {
-      records:
-        | Pick<
-            Job,
-            | "Id"
-            | "Name"
-            | "GW_Volunteers__Inactive__c"
-            | "GW_Volunteers__Location_Street__c"
-            | "GW_Volunteers__Description__c"
-            | "GW_Volunteers__Ongoing__c"
-            | "Region__c"
-            | "Fridge_Notes__c"
-            | "GW_Volunteers__Location_Information__c"
-            | "GW_Volunteers__Location_City__c"
-          >[]
-        | undefined;
-    };
-  } = await fetcher.get(jobQueryUri);
-  if (!res.data.records) {
-    throw Error("failed querying volunteer Jobs");
-  }
+  const jobs = await createQuery<Job, (typeof fields)[number]>({
+    fields,
+    filters,
+    obj,
+  });
 
-  const promises = res.data.records.map(async (j: Job) => {
+  const promises = jobs.map(async (j) => {
+    let distance;
+    if (j.Dropoff_Location__c) {
+      distance = await getDistance(
+        `${j.GW_Volunteers__Location_Street__c} ${j.GW_Volunteers__Location_City__c} CA`,
+        `${j.Dropoff_Location__c}`
+      );
+    }
     // rename attributes to something sane
     return {
       id: j.Id,

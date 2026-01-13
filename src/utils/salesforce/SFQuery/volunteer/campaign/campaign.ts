@@ -1,5 +1,6 @@
 import fetcher from "../../../../fetcher";
 import urls from "../../../../urls";
+import createQuery, { FilterGroup } from "../../queryCreator";
 import { UnformattedHours } from "../types";
 import {
   FormattedVolunteerCampaign,
@@ -11,19 +12,34 @@ import {
 export const getVolunteerCampaigns: () => Promise<
   FormattedVolunteerCampaign[]
 > = async () => {
-  await fetcher.setService("salesforce");
-  const query =
-    "SELECT Name, Id, Description, StartDate, EndDate FROM Campaign WHERE Portal_Signups_Enabled__c = True AND (StartDate > TODAY OR StartDate = NULL)";
-  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const fields = ["Name", "Id", "Description", "StartDate", "EndDate"] as const;
+  const obj = "Campaign";
+  const filters: FilterGroup<UnformattedVolunteerCampaign> = {
+    AND: [
+      { field: "Portal_Signups_Enabled__c", value: true },
+      {
+        OR: [
+          {
+            field: "StartDate",
+            operator: ">",
+            value: { date: new Date(), type: "date" },
+          },
+          { field: "StartDate", value: null },
+        ],
+      },
+    ],
+  };
 
-  const { data }: { data: { records?: UnformattedVolunteerCampaign[] } } =
-    await fetcher.get(queryUri);
+  const campaigns = await createQuery<
+    UnformattedVolunteerCampaign,
+    (typeof fields)[number]
+  >({
+    fields,
+    obj,
+    filters,
+  });
 
-  if (!data.records) {
-    throw Error("Could not query");
-  }
-
-  return data.records.map((cam) => {
+  return campaigns.map((cam) => {
     return {
       name: cam.Name,
       startDate: cam.StartDate,

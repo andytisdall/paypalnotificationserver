@@ -47,7 +47,6 @@ router.post("/events", async (req, res) => {
   await insertCampaignMember({
     CampaignId: campaignId,
     ContactId: contact.id,
-    Status: "Responded",
   });
 
   res.sendStatus(204);

@@ -1,56 +1,73 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { UnformattedContact } from "../contact/types";
+import createQuery, { FilterGroup } from "../queryCreator";
 import { UnformattedHours, Job, Shift, FormattedShift } from "./types";
-
-interface UnformatterVolunteerRecurrenceSchedule {
-  GW_Volunteers__Volunteer_Job__c: string;
-  GW_Volunteers__Contact__c: string;
-  GW_Volunteers__Schedule_Start_Date_Time__c: string;
-  GW_Volunteers__Days_of_Week__c: string;
-  GW_Volunteers__Weekly_Occurrence__c: string;
-  GW_Volunteers__Duration__c: number;
-}
+import { UnformattedVolunteerCampaign } from "./campaign/types";
 
 export const getTodaysVolunteerShifts = async () => {
-  await fetcher.setService("salesforce");
+  const campaignFields = ["Id"] as const;
+  const campaigObj = "Campaign";
+  const campaignFilters: FilterGroup<UnformattedVolunteerCampaign> = {
+    AND: [{ field: "Portal_Signups_Enabled__c", value: true }],
+  };
+  const campaigns = await createQuery<
+    UnformattedVolunteerCampaign,
+    (typeof campaignFields)[number]
+  >({ fields: campaignFields, obj: campaigObj, filters: campaignFilters });
 
-  const campaignQuery = `SELECT Id FROM Campaign WHERE Portal_Signups_Enabled__c = True`;
-  const campaignResponse: { data: { records: { Id: string }[] } } =
-    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(campaignQuery));
-
-  const idList = [...campaignResponse.data.records.map(({ Id }) => Id)];
+  const idList = [...campaigns.map(({ Id }) => Id)];
 
   let idListString = `('${idList.join("','")}')`;
 
-  const jobQuery = `SELECT Id, Name FROM GW_Volunteers__Volunteer_Job__c WHERE GW_Volunteers__Campaign__c IN ${idListString}`;
+  const jobFields = ["Id", "Name"] as const;
+  const jobObj = "GW_Volunteers__Volunteer_Job__c";
+  const jobFilters: FilterGroup<Job> = {
+    AND: [
+      {
+        field: "GW_Volunteers__Campaign__c",
+        operator: "IN",
+        value: idListString,
+      },
+    ],
+  };
 
-  const { data }: { data: { records: Pick<Job, "Id" | "Name">[] } } =
-    await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(jobQuery));
+  const jobs = await createQuery<Job, (typeof jobFields)[number]>({
+    fields: jobFields,
+    filters: jobFilters,
+    obj: jobObj,
+  });
 
-  const jobs: Record<
+  const jobsWithShifts: Record<
     string,
     Pick<FormattedShift, "id" | "job" | "startTime" | "duration">[]
   > = {};
 
-  const shiftPromises = data.records.map(async (job) => {
-    const shiftQuery = `SELECT Id, GW_Volunteers__Start_Date_Time__c, GW_Volunteers__Duration__c FROM GW_Volunteers__Volunteer_Shift__c WHERE GW_Volunteers__Volunteer_Job__c = '${job.Id}' AND GW_Volunteers__Start_Date_Time__c = TODAY`;
+  const shiftPromises = jobs.map(async (job) => {
+    const fields = [
+      "Id",
+      "GW_Volunteers__Start_Date_Time__c",
+      "GW_Volunteers__Duration__c",
+    ] as const;
+    const obj = "GW_Volunteers__Volunteer_Shift__c";
+    const filters: FilterGroup<Shift> = {
+      AND: [
+        { field: "GW_Volunteers__Volunteer_Job__c", value: job.Id },
+        {
+          field: "GW_Volunteers__Start_Date_Time__c",
+          value: { date: new Date(), type: "date" },
+        },
+      ],
+    };
 
-    const response: {
-      data: {
-        records: Pick<
-          Shift,
-          | "Id"
-          | "GW_Volunteers__Start_Date_Time__c"
-          | "GW_Volunteers__Duration__c"
-        >[];
-      };
-    } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(shiftQuery));
-
-    const shifts = response.data.records;
+    const shifts = await createQuery<Shift, (typeof fields)[number]>({
+      fields,
+      obj,
+      filters,
+    });
 
     if (shifts.length) {
-      jobs[job.Id] = shifts?.map((shift) => ({
+      jobsWithShifts[job.Id] = shifts?.map((shift) => ({
         id: shift.Id,
         job: job.Name,
         startTime: shift.GW_Volunteers__Start_Date_Time__c,
@@ -67,46 +84,54 @@ export const getTodaysVolunteerShifts = async () => {
 export const getVolunteersForCheckIn = async (shiftId: string) => {
   await fetcher.setService("salesforce");
 
-  const hoursQuery = `SELECT Id, GW_Volunteers__Contact__c, GW_Volunteers__Status__c FROM GW_Volunteers__Volunteer_Hours__c WHERE GW_Volunteers__Status__c != 'Canceled' AND GW_Volunteers__Volunteer_Shift__c = '${shiftId}'`;
+  const fields = [
+    "Id",
+    "GW_Volunteers__Contact__c",
+    "GW_Volunteers__Status__c",
+  ] as const;
+  const obj = "GW_Volunteers__Volunteer_Hours__c";
+  const filters: FilterGroup<UnformattedHours> = {
+    AND: [
+      { field: "GW_Volunteers__Status__c", operator: "!=", value: "Canceled" },
+      { field: "GW_Volunteers__Volunteer_Shift__c", value: shiftId },
+    ],
+  };
 
-  const hoursQueryUri = urls.SFQueryPrefix + encodeURIComponent(hoursQuery);
-
-  const response: {
-    data: {
-      records: Pick<
-        UnformattedHours,
-        "GW_Volunteers__Contact__c" | "GW_Volunteers__Status__c" | "Id"
-      >[];
-    };
-  } = await fetcher.get(hoursQueryUri);
-
-  const hours = response.data.records;
-
-  if (!hours) {
-    throw Error("Could not query volunteer hours");
-  }
+  const hours = await createQuery<UnformattedHours, (typeof fields)[number]>({
+    fields,
+    obj,
+    filters,
+  });
 
   const idList = hours.map(
     ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c
   );
   const idString = "('" + idList.join("','") + "')";
 
-  const contactQuery = `SELECT Id, FirstName, LastName, Email, CK_Kitchen_Agreement__c FROM Contact WHERE Id IN ${idString}`;
+  const contactFields = [
+    "Id",
+    "FirstName",
+    "LastName",
+    "Email",
+    "CK_Kitchen_Agreement__c",
+  ] as const;
+  const contactObj = "Contact";
+  const contactFilters: FilterGroup<UnformattedContact> = {
+    AND: [{ field: "Id", operator: "IN", value: idString }],
+  };
 
-  const {
-    data,
-  }: {
-    data: {
-      records: Pick<
-        UnformattedContact,
-        "Id" | "FirstName" | "LastName" | "Email" | "CK_Kitchen_Agreement__c"
-      >[];
-    };
-  } = await fetcher.get(urls.SFQueryPrefix + contactQuery);
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof contactFields)[number]
+  >({
+    fields: contactFields,
+    obj: contactObj,
+    filters: contactFilters,
+  });
 
-  const contacts = hours.map(
+  return hours.map(
     ({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
-      const contact = data.records.find(
+      const contact = contacts.find(
         ({ Id }) => Id === GW_Volunteers__Contact__c
       );
       if (contact) {
@@ -122,8 +147,6 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
       }
     }
   );
-
-  return contacts;
 };
 
 export const checkInVolunteer = async ({

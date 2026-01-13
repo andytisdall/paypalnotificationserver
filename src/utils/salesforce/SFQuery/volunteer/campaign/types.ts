@@ -1,4 +1,5 @@
 export interface CampaignMemberObject {
+  Id: string;
   CampaignId: string;
   ContactId: string;
   Status: string;
@@ -10,6 +11,7 @@ export interface UnformattedVolunteerCampaign {
   EndDate?: string;
   Description?: string;
   Id: string;
+  Portal_Signups_Enabled__c?: boolean;
 }
 
 export interface FormattedVolunteerCampaign {

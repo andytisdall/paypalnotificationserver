@@ -1,5 +1,6 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
+import createQuery, { FilterGroup } from "../queryCreator";
 import { InsertSuccessResponse } from "../reusableTypes";
 
 import {
@@ -13,27 +14,38 @@ export const getContact = async (
   lastName: string,
   firstName: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService("salesforce");
   const escapedFirstName = firstName.replace(/'/g, "\\'");
   const escapedLastName = lastName.replace(/'/g, "\\'");
 
-  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${escapedLastName}" AND FirstName = '${escapedFirstName}'`;
+  const fields = [
+    "Name",
+    "npsp__HHId__c",
+    "Id",
+    "Portal_Username__c",
+    "Email",
+    "FirstName",
+    "LastName",
+    "CK_Kitchen_Agreement__c",
+  ] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [
+      { field: "LastName", value: escapedLastName },
+      { field: "FirstName", value: escapedFirstName },
+    ],
+  };
 
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({
+    fields,
+    obj,
+    filters,
+  });
 
-  const contactQueryResponse: {
-    data: {
-      records: ContactRawData[] | undefined;
-      totalSize: number;
-    };
-  } = await fetcher.get(contactQueryUri);
-  if (
-    !contactQueryResponse.data.records ||
-    contactQueryResponse.data.records.length === 0
-  ) {
-    return null;
-  } else {
-    const contact = contactQueryResponse.data.records[0];
+  const contact = contacts[0];
+  if (contact) {
     return {
       id: contact.Id,
       name: contact.Name,
@@ -44,6 +56,8 @@ export const getContact = async (
       lastName: contact.LastName,
       volunteerAgreement: contact.CK_Kitchen_Agreement__c,
     };
+  } else {
+    return null;
   }
 };
 
@@ -51,26 +65,36 @@ export const getContactByLastNameAndEmail = async (
   lastName: string,
   email: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService("salesforce");
-
   const escapedLastName = lastName.replace(/'/g, "\\'");
-  const query = `SELECT Name, npsp__HHId__c, Id, Portal_Username__c, Email, FirstName, LastName, CK_Kitchen_Agreement__c from Contact WHERE LastName = '${escapedLastName}' AND Email = '${email}'`;
+  const fields = [
+    "Name",
+    "npsp__HHId__c",
+    "Id",
+    "Portal_Username__c",
+    "Email",
+    "FirstName",
+    "LastName",
+    "CK_Kitchen_Agreement__c",
+  ] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [
+      { field: "LastName", value: escapedLastName },
+      { field: "Email", value: email },
+    ],
+  };
 
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({
+    fields,
+    filters,
+    obj,
+  });
 
-  const contactQueryResponse: {
-    data: {
-      records: ContactRawData[] | undefined;
-      totalSize: number;
-    };
-  } = await fetcher.get(contactQueryUri);
-  if (
-    !contactQueryResponse.data.records ||
-    contactQueryResponse.data.records.length === 0
-  ) {
-    return null;
-  } else {
-    const contact = contactQueryResponse.data.records[0];
+  const contact = contacts[0];
+  if (contact) {
     return {
       id: contact.Id,
       name: contact.Name,
@@ -81,6 +105,8 @@ export const getContactByLastNameAndEmail = async (
       lastName: contact.LastName,
       volunteerAgreement: contact.CK_Kitchen_Agreement__c,
     };
+  } else {
+    return null;
   }
 };
 
@@ -176,32 +202,41 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
 export const getContactByEmail = async (
   email: string
 ): Promise<ContactData | null> => {
-  await fetcher.setService("salesforce");
+  const fields = [
+    "Name",
+    "FirstName",
+    "LastName",
+    "Email",
+    "npsp__HHId__c",
+    "Id",
+    "Portal_Username__c",
+    "CK_Kitchen_Agreement__c",
+  ] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [{ field: "Email", value: email }],
+  };
 
-  const query = `SELECT Name, FirstName, LastName, Email, npsp__HHId__c, Id, Portal_Username__c, CK_Kitchen_Agreement__c from Contact WHERE Email = '${email}'`;
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({ fields, filters, obj });
 
-  const contactQueryResponse: {
-    data:
-      | {
-          records: ContactRawData[];
-        }
-      | undefined;
-  } = await fetcher.get(contactQueryUri);
-  if (!contactQueryResponse.data?.records[0]) {
+  const contact = contacts[0];
+  if (contact) {
+    return {
+      id: contact.Id,
+      householdId: contact.npsp__HHId__c,
+      portalUsername: contact.Portal_Username__c,
+      firstName: contact.FirstName,
+      name: contact.Name,
+      lastName: contact.LastName,
+      volunteerAgreement: contact.CK_Kitchen_Agreement__c,
+      email: contact.Email,
+    };
+  } else {
     return null;
   }
-  const contact = contactQueryResponse.data?.records[0];
-  return {
-    id: contact.Id,
-    householdId: contact.npsp__HHId__c,
-    portalUsername: contact.Portal_Username__c,
-    firstName: contact.FirstName,
-    name: contact.Name,
-    lastName: contact.LastName,
-    volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-    email: contact.Email,
-  };
 };
 
 export const getUnformattedContactByEmail = async (

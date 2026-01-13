@@ -5,6 +5,7 @@ import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { getPlaceDetails } from "../../../googleApis/getPlaceDetails";
 import { FormattedD4JRestaurant, UnformattedD4JRestaurant } from "./types";
+import createQuery, { FilterGroup } from "../queryCreator";
 
 const getCoords = (latitude?: number, longitude?: number) => {
   if (latitude && longitude) {
@@ -88,87 +89,35 @@ const formatAccount = (
 export const getD4jRestaurants = async (): Promise<
   FormattedD4JRestaurant[]
 > => {
-  await fetcher.setService("salesforce");
+  const fields = [
+    "Id",
+    "Name",
+    "BillingAddress",
+    "Google_ID__c",
+    "Minority_Owned__c",
+    "Type_of_Food__c",
+    "Restaurant_Vegan__c",
+    "Female_Owned__c",
+    "Geolocation__c",
+    "Open_Hours__c",
+    "Photo_URL__c",
+    "D4J_Status__c",
+    "Closed__c",
+    "Website",
+  ] as const;
+  const obj = "Account";
+  const filters: FilterGroup<UnformattedD4JRestaurant> = {
+    OR: [
+      { field: "D4J_Status__c", value: "Active" },
+      { field: "D4J_Status__c", value: "Former" },
+      { field: "D4J_Status__c", value: "Paused" },
+    ],
+  };
 
-  const query = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, D4J_Status__c, Closed__c, Website FROM Account WHERE D4J_Status__c = 'Active' OR D4J_Status__c = 'Former' OR D4J_Status__c = 'Paused'`;
+  const accounts = await createQuery<
+    UnformattedD4JRestaurant,
+    (typeof fields)[number]
+  >({ fields, obj, filters });
 
-  const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
-
-  const {
-    data,
-  }: {
-    data: {
-      records?: Pick<
-        UnformattedD4JRestaurant,
-        | "Id"
-        | "Name"
-        | "BillingAddress"
-        | "Google_ID__c"
-        | "Minority_Owned__c"
-        | "Type_of_Food__c"
-        | "Restaurant_Vegan__c"
-        | "Female_Owned__c"
-        | "Geolocation__c"
-        | "Open_Hours__c"
-        | "Photo_URL__c"
-        | "D4J_Status__c"
-        | "Closed__c"
-        | "Website"
-      >[];
-    };
-  } = await fetcher.get(queryUri);
-
-  if (!data.records) {
-    throw Error("Could not get restaurants");
-  }
-
-  return data.records.map((account) => formatAccount(account));
-};
-
-export const getBars = async () => {
-  await fetcher.setService("salesforce");
-
-  const campaignMemberQuery = `SELECT AccountId from CampaignMember WHERE CampaignId = '${urls.cocktailsCampaignId}' AND HasResponded = True`;
-
-  const { data } = await fetcher.get(
-    urls.SFQueryPrefix + encodeURIComponent(campaignMemberQuery)
-  );
-
-  if (!data?.records) {
-    throw Error("Could not get campaign members");
-  }
-  const arrayOfBarIds = data.records.map(
-    (rec: { AccountId: string }) => rec.AccountId
-  );
-  const stringOfBarIds = "('" + arrayOfBarIds.join("','") + "')";
-
-  const accountQuery = `SELECT Id, Name, BillingAddress, Google_ID__c, Minority_Owned__c, Restaurant_Underserved_Neighborhood__c, Type_of_Food__c, Restaurant_Vegan__c, Female_Owned__c, Geolocation__c, Open_Hours__c, Photo_URL__c, Cocktail_Name__c, Cocktail_Description__c, Cocktail_2_Name__c, Website, Cocktail_2_Description__c, Closed__c FROM Account WHERE Id IN ${stringOfBarIds}`;
-
-  const res: {
-    data?: {
-      records?: Pick<
-        UnformattedD4JRestaurant,
-        | "Id"
-        | "Name"
-        | "BillingAddress"
-        | "Google_ID__c"
-        | "Minority_Owned__c"
-        | "Type_of_Food__c"
-        | "Restaurant_Vegan__c"
-        | "Female_Owned__c"
-        | "Geolocation__c"
-        | "Open_Hours__c"
-        | "Photo_URL__c"
-        | "D4J_Status__c"
-        | "Closed__c"
-        | "Website"
-      >[];
-    };
-  } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(accountQuery));
-
-  if (!res.data?.records) {
-    throw Error("Could not get account info");
-  }
-
-  return res.data.records.map((account) => formatAccount(account, false));
+  return accounts.map((account) => formatAccount(account));
 };

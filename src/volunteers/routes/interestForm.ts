@@ -100,10 +100,9 @@ router.post("/signup", async (req, res) => {
   }
 
   if (corporate) {
-    const campaignMember: CampaignMemberObject = {
+    const campaignMember = {
       CampaignId: urls.corporateVolunteersCampaignId,
       ContactId: existingContact.id,
-      Status: "Confirmed",
     };
     await insertCampaignMember(campaignMember);
   }

@@ -5,3 +5,4 @@ node_modules
 built
 client
 .DS_Store
+firebase-project-service-account-key.json

@@ -91,8 +91,7 @@ router.get(
   requireAuth,
   async (req, res) => {
     const { days } = req.params;
-    // const daysInt = parseInt(days);
-    const daysInt = 14;
+    const daysInt = parseInt(days);
     let query;
 
     if (!isNaN(daysInt)) {

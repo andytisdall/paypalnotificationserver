@@ -39,14 +39,12 @@ router.post("/home-chef-registration", async (req, res) => {
     await insertCampaignMember({
       CampaignId: urls.townFridgeCampaignId,
       ContactId: contact.id!,
-      Status: "Confirmed",
     });
   }
 
   await insertCampaignMember({
     ContactId: contact.id!,
     CampaignId: urls.homeChefInPersonCampaignId,
-    Status: "Confirmed",
   });
 
   res.sendStatus(204);

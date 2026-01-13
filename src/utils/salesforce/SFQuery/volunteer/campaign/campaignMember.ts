@@ -3,17 +3,29 @@ import urls from "../../../../urls";
 import { InsertSuccessResponse } from "../../reusableTypes";
 import { getContactByEmail } from "../../contact/contact";
 import { CampaignMemberObject } from "./types";
+import createQuery, { FilterGroup } from "../../queryCreator";
 
 export const insertCampaignMember = async (
-  campaignMember: CampaignMemberObject
+  campaignMember: Pick<CampaignMemberObject, "ContactId" | "CampaignId">
 ) => {
-  await fetcher.setService("salesforce");
-  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${campaignMember.ContactId}' AND CampaignId = '${campaignMember.CampaignId}'`;
-  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
-  const existingCampaignMember: {
-    data: { records: { Id: string }[] } | undefined;
-  } = await fetcher.get(getUrl);
-  if (existingCampaignMember.data?.records[0]) {
+  const fields = ["Id"] as const;
+  const obj = "CampaignMember";
+  const filters: FilterGroup<CampaignMemberObject> = {
+    AND: [
+      { field: "ContactId", value: campaignMember.ContactId },
+      { field: "CampaignId", value: campaignMember.CampaignId },
+    ],
+  };
+
+  const existingCampaignMembers = await createQuery<
+    CampaignMemberObject,
+    (typeof fields)[number]
+  >({
+    fields,
+    filters,
+    obj,
+  });
+  if (existingCampaignMembers[0]) {
     return;
   }
   const url = urls.SFOperationPrefix + "/CampaignMember";
@@ -43,11 +55,20 @@ export const updateCampaignMember = async ({
     throw Error("Could not find a contact with that email");
   }
 
-  const query = `SELECT Id FROM CampaignMember WHERE ContactId = '${contact.id}' AND CampaignId = '${campaignId}'`;
-  const getUrl = urls.SFQueryPrefix + encodeURIComponent(query);
-  const { data } = await fetcher.get(getUrl);
+  const fields = ["Id"] as const;
+  const obj = "CampaignMember";
+  const filters: FilterGroup<CampaignMemberObject> = {
+    AND: [
+      { field: "ContactId", value: contact.id },
+      { field: "CampaignId", value: campaignId },
+    ],
+  };
+  const campaignMembers = await createQuery<
+    CampaignMemberObject,
+    (typeof fields)[number]
+  >({ fields, obj, filters });
 
-  const campaignMember = data.records[0];
+  const campaignMember = campaignMembers[0];
 
   if (!campaignMember) {
     throw Error("Contact is not on guest list");

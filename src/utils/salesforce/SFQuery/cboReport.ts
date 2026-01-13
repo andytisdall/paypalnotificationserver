@@ -2,6 +2,7 @@ import fetcher from "../../fetcher";
 import urls from "../../urls";
 
 import { format } from "date-fns";
+import createQuery, { FilterGroup } from "./queryCreator";
 
 export type ZipCode =
   | "94501"
@@ -123,6 +124,7 @@ export interface CBOReportParams {
 }
 
 export interface CBOReportObject {
+  Id: string;
   Age_0_17__c: number;
   Age_18_26__c: number;
   Age_27_49__c: number;
@@ -382,19 +384,33 @@ export const getPeriodCBOReports = async ({
   startDate: Date;
   endDate: Date;
 }): Promise<CBOReportParams[]> => {
-  await fetcher.setService("salesforce");
+  const fields = ["Id"] as const;
+  const obj = "CBO_Report_Data__c";
+  const filters: FilterGroup<CBOReportObject> = {
+    AND: [
+      {
+        field: "Date__c",
+        operator: ">=",
+        value: { date: startDate, type: "date" },
+      },
+      {
+        field: "Date__c",
+        operator: "<=",
+        value: { date: endDate, type: "date" },
+      },
+    ],
+  };
 
-  const query = `SELECT Id FROM CBO_Report_Data__c WHERE Date__c >= ${format(
-    startDate,
-    "yyyy-MM-dd"
-  )} AND Date__c <= ${format(endDate, "yyyy-MM-dd")}`;
+  const cboReports = await createQuery<
+    CBOReportObject,
+    (typeof fields)[number]
+  >({
+    fields,
+    obj,
+    filters,
+  });
 
-  const getUri = urls.SFQueryPrefix + encodeURIComponent(query);
-  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
-    getUri
-  );
-
-  const promises = data.records.map(async ({ Id }) => {
+  const promises = cboReports.map(async ({ Id }) => {
     const { data: report }: { data: CBOReportObject } = await fetcher.get(
       `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`
     );
