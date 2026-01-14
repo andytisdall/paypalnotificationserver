@@ -1,6 +1,6 @@
 import { decode } from "html-entities";
 
-import { FilterGroup, QueryFilter } from "../queryCreator";
+import { FilterGroup } from "../queryCreator";
 import createQuery from "../queryCreator";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
@@ -67,6 +67,10 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       campaign: campaignId,
       region: j.Region__c,
       notes: j.Fridge_Notes__c,
+      carSizeRequired: j.Car_Size_Required__c,
+      destination: j.Dropoff_Location__c,
+      distance: distance,
+      dropoffNotes: j.Dropoff_Notes__c,
     };
   });
 

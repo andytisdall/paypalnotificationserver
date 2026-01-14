@@ -10,7 +10,9 @@ export type QueryFilter<T> = {
     | string
     | boolean
     | { date: Date; type: "date" | "datetime" }
-    | null;
+    | null
+    | string[];
+
   operator?: string;
 };
 
@@ -19,19 +21,45 @@ export type FilterGroup<T> = {
   OR?: (QueryFilter<T> | FilterGroup<T>)[];
 };
 
+const renderValue = (
+  value:
+    | number
+    | string
+    | boolean
+    | { date: Date; type: "date" | "datetime" }
+    | null
+    | string[]
+) => {
+  switch (typeof value) {
+    case "string":
+      return `'${value}'`;
+    case "boolean":
+      return `${value}`.toUpperCase();
+    case "undefined":
+      return `${value}`.toUpperCase();
+    case "object":
+      if (Array.isArray(value)) {
+        return `('${value.join("','")}')`;
+      }
+      if (value?.date) {
+        if (value.type === "datetime") {
+          return formatISO(value.date);
+        } else {
+          return format(value.date, "yyyy-MM-dd");
+        }
+      }
+    case "number":
+      return value;
+    default:
+      return value;
+  }
+};
+
 function renderFilter<T>({ field, value, operator }: QueryFilter<T>) {
   return (
     field.toString() +
     (!operator ? " = " : ` ${operator} `) +
-    (typeof value === "string"
-      ? `'${value}'`
-      : typeof value === "boolean" || value === null
-      ? `${value}`.toUpperCase()
-      : typeof value === "object"
-      ? value.type === "datetime"
-        ? formatISO(value.date)
-        : format(value.date, "yyyy-MM-dd")
-      : value)
+    renderValue(value)
   );
 }
 

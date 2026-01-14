@@ -18,8 +18,6 @@ export const getTodaysVolunteerShifts = async () => {
 
   const idList = [...campaigns.map(({ Id }) => Id)];
 
-  let idListString = `('${idList.join("','")}')`;
-
   const jobFields = ["Id", "Name"] as const;
   const jobObj = "GW_Volunteers__Volunteer_Job__c";
   const jobFilters: FilterGroup<Job> = {
@@ -27,7 +25,7 @@ export const getTodaysVolunteerShifts = async () => {
       {
         field: "GW_Volunteers__Campaign__c",
         operator: "IN",
-        value: idListString,
+        value: idList,
       },
     ],
   };
@@ -55,7 +53,7 @@ export const getTodaysVolunteerShifts = async () => {
         { field: "GW_Volunteers__Volunteer_Job__c", value: job.Id },
         {
           field: "GW_Volunteers__Start_Date_Time__c",
-          value: { date: new Date(), type: "date" },
+          value: { date: new Date(), type: "datetime" },
         },
       ],
     };
@@ -78,7 +76,7 @@ export const getTodaysVolunteerShifts = async () => {
 
   await Promise.all(shiftPromises);
 
-  return jobs;
+  return jobsWithShifts;
 };
 
 export const getVolunteersForCheckIn = async (shiftId: string) => {
@@ -103,10 +101,9 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
     filters,
   });
 
-  const idList = hours.map(
-    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c
+  const idList: string[] = hours.map(
+    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c!
   );
-  const idString = "('" + idList.join("','") + "')";
 
   const contactFields = [
     "Id",
@@ -117,7 +114,7 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
   ] as const;
   const contactObj = "Contact";
   const contactFilters: FilterGroup<UnformattedContact> = {
-    AND: [{ field: "Id", operator: "IN", value: idString }],
+    AND: [{ field: "Id", operator: "IN", value: idList }],
   };
 
   const contacts = await createQuery<
