@@ -2,7 +2,13 @@ import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { UnformattedContact } from "../contact/types";
 import createQuery, { FilterGroup } from "../queryCreator";
-import { UnformattedHours, Job, Shift, FormattedShift } from "./types";
+import {
+  UnformattedHours,
+  Job,
+  Shift,
+  FormattedShift,
+  CheckInVolunteer,
+} from "./types";
 import { UnformattedVolunteerCampaign } from "./campaign/types";
 
 export const getTodaysVolunteerShifts = async () => {
@@ -53,7 +59,7 @@ export const getTodaysVolunteerShifts = async () => {
         { field: "GW_Volunteers__Volunteer_Job__c", value: job.Id },
         {
           field: "GW_Volunteers__Start_Date_Time__c",
-          value: { date: new Date(), type: "datetime" },
+          value: { date: "TODAY", type: "datestring" },
         },
       ],
     };
@@ -79,7 +85,9 @@ export const getTodaysVolunteerShifts = async () => {
   return jobsWithShifts;
 };
 
-export const getVolunteersForCheckIn = async (shiftId: string) => {
+export const getVolunteersForCheckIn = async (
+  shiftId: string
+): Promise<CheckInVolunteer[]> => {
   await fetcher.setService("salesforce");
 
   const fields = [
@@ -102,7 +110,7 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
   });
 
   const idList: string[] = hours.map(
-    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c!
+    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c
   );
 
   const contactFields = [
@@ -126,8 +134,8 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
     filters: contactFilters,
   });
 
-  return hours.map(
-    ({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
+  return hours
+    .map(({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
       const contact = contacts.find(
         ({ Id }) => Id === GW_Volunteers__Contact__c
       );
@@ -142,8 +150,8 @@ export const getVolunteersForCheckIn = async (shiftId: string) => {
           status: GW_Volunteers__Status__c,
         };
       }
-    }
-  );
+    })
+    .filter((h) => h) as CheckInVolunteer[];
 };
 
 export const checkInVolunteer = async ({

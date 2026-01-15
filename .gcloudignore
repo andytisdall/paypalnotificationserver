@@ -30,4 +30,3 @@
 node_modules/
 client/
 keys.js
-built/keys.js

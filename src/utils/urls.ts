@@ -8,20 +8,16 @@ const baseUrls = {
   adminEmail: "communitykitchens@ckoakland.org",
   ckKitchenAccountId: "0018Z0000362TqLQAU",
   townFridgeAccountId: "0018Z000037fa6cQAA",
-  styleWeekCampaignId: "701UP00000ACmHeYAL",
   homeChefInPersonCampaignId: "701UP000008zJFdYAM",
   d4jCampaignId: "7018Z000003KpqIQAS",
-  cocktailsCampaignId: "7018Z000003KptzQAC",
   corporateVolunteersCampaignId: "701UP000005bM5AYAU",
   townFridgeCampaignId: "7018Z000003C3Mx",
-  acrobat: "https://api.na3.adobesign.com/api/rest/v6",
-  docMadeEasy: "https://api.docmadeeasy.com/rest",
-  ninja: "https://public.opendatasoft.com/api/explore/v2.1",
   ckKitchenCampaignId: "7018Z000002jtq0QAA",
   bikeCampaignId: "701UP00000Oyq4NYAR",
   zoho: "https://sign.zoho.com/api/v1",
   zohoToken: "https://accounts.zoho.com/oauth/v2/token",
   barlettTownFridgeId: "a0w8Z00000YU0nHQAT",
+  ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
 };
 
 const prodUrls = {
@@ -31,9 +27,6 @@ const prodUrls = {
   docusign: "https://na4.docusign.net/restapi",
   client: "https://portal.ckoakland.org",
   server: "https://portal.ckoakland.org",
-  ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
-  ckDoorCampaignId: "701UP00000JyWOgYAN",
-  deliverToKitchenJobId: "a0wUP0000034Ep3YAE",
 };
 
 const testUrls = {
@@ -46,9 +39,6 @@ const testUrls = {
   client: "http://127.0.0.1:3000",
   server: "http://127.0.0.1:3001",
   appleReviewerId: "64e69853db4b5043abcd55b6",
-  ckDoorCampaignId: "701U800000KMZoQIAX",
-  ckKitchenMealPrepJobId: "a0yUP000002aK6WYAU",
-  deliverToKitchenJobId: "a0wTH000000qcyrYAA",
 };
 
 export default process.env.NODE_ENV === "production" ? prodUrls : testUrls;

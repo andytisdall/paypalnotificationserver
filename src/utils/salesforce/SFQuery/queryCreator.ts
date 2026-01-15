@@ -3,16 +3,18 @@ import { formatISO, format } from "date-fns";
 import fetcher from "../../fetcher";
 import urls from "../../urls";
 
+type ValueType =
+  | number
+  | string
+  | boolean
+  | { date: Date; type: "date" | "datetime" }
+  | { date: string; type: "datestring" }
+  | null
+  | string[];
+
 export type QueryFilter<T> = {
   field: keyof T;
-  value:
-    | number
-    | string
-    | boolean
-    | { date: Date; type: "date" | "datetime" }
-    | null
-    | string[];
-
+  value: ValueType;
   operator?: string;
 };
 
@@ -21,15 +23,7 @@ export type FilterGroup<T> = {
   OR?: (QueryFilter<T> | FilterGroup<T>)[];
 };
 
-const renderValue = (
-  value:
-    | number
-    | string
-    | boolean
-    | { date: Date; type: "date" | "datetime" }
-    | null
-    | string[]
-) => {
+const renderValue = (value: ValueType): string => {
   switch (typeof value) {
     case "string":
       return `'${value}'`;
@@ -44,12 +38,14 @@ const renderValue = (
       if (value?.date) {
         if (value.type === "datetime") {
           return formatISO(value.date);
-        } else {
+        } else if (value.type === "date") {
           return format(value.date, "yyyy-MM-dd");
+        } else if (value.type === "datestring") {
+          return value.date;
         }
       }
     case "number":
-      return value;
+      return `${value}`;
     default:
       return value;
   }

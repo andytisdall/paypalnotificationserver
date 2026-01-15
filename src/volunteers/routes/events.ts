@@ -6,7 +6,6 @@ import {
   getContactByEmail,
   updateContact,
 } from "../../utils/salesforce/SFQuery/contact/contact";
-import urls from "../../utils/urls";
 
 const router = express.Router();
 

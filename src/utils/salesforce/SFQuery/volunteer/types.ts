@@ -92,7 +92,7 @@ export interface UnformattedHours {
   GW_Volunteers__Shift_Start_Date_Time__c?: string;
   GW_Volunteers__Volunteer_Campaign__c: string;
   Type_of_Meal__c?: "Soup" | "Entree";
-  GW_Volunteers__Contact__c?: string;
+  GW_Volunteers__Contact__c: string;
   GW_Volunteers__Number_of_Volunteers__c?: number;
   GW_Volunteers__Hours_Worked__c?: number;
   Restaurant_Meals__c?: boolean;
@@ -107,4 +107,14 @@ export interface HoursQueryResponse {
         records: UnformattedHours[];
       }
     | undefined;
+}
+
+export interface CheckInVolunteer {
+  hoursId: string;
+  contactId: string;
+  firstName: string | undefined;
+  lastName: string;
+  email: string | undefined;
+  volunteerAgreement: boolean | undefined;
+  status: string;
 }

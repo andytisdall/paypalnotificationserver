@@ -108,7 +108,7 @@ export const createShift = async ({
   jobId: string;
   date: string;
   restaurantMeals?: boolean;
-}) => {
+}): Promise<string> => {
   await fetcher.setService("salesforce");
   const url = urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c";
 
@@ -122,7 +122,7 @@ export const createShift = async ({
     ).toUTCString(),
     GW_Volunteers__Desired_Number_of_Volunteers__c: 1,
   };
-  const { data } = await fetcher.post(url, newShift);
 
-  return data.id;
+  const response = await fetcher.post(url, newShift);
+  return response.data.id;
 };
