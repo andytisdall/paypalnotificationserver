@@ -1,8 +1,9 @@
 import express from "express";
 import twilio from "twilio";
-import moment from "moment";
+import { format } from "date-fns";
 import mongoose from "mongoose";
 import fileUpload from "express-fileupload";
+import { createHash } from "crypto";
 
 import { REGIONS, Region } from "../models/phone";
 import { currentUser } from "../../middlewares/current-user";
@@ -131,8 +132,14 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     }
 
     const photoUrlPromises = photoArray.map(async (photoFile, i) => {
+      const hash = createHash("md5")
+        .update(req.currentUser!.username)
+        .digest("hex");
+
       const fileName =
-        "outgoing-text-" + moment().format(`YYYY-MM-DD-hh-ss-a-${i}`);
+        "outgoing-text-" +
+        format(new Date(), "yyyy-MM-dd-hh-mm-ss-a") +
+        `-${hash}-${i}`;
 
       return await storeFile({
         file: photoFile,
@@ -158,7 +165,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   if (feedbackId) {
     const feedback = await Feedback.findById(feedbackId);
     if (feedback) {
-      const response = { message, date: moment().format() };
+      const response = { message, date: format(new Date(), "yyyy-MM-dd") };
       if (feedback.response) {
         feedback.response.push(response);
       } else {
@@ -175,7 +182,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
         region: number || region,
         message,
         image: mediaUrl,
-      }
+      },
     );
     await newOutgoingTextRecord.save();
   }
@@ -195,7 +202,7 @@ smsRouter.post(
     req.url = "/outgoing";
     next();
   },
-  smsRouter
+  smsRouter,
 );
 
 export const getTwilioClient = async () => {
