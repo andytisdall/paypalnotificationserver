@@ -70,7 +70,7 @@ router.get(
     const orders = await SupplyOrder.find({ fulfilled: false });
 
     res.send(orders);
-  }
+  },
 );
 
 router.get(
@@ -82,7 +82,7 @@ router.get(
     const orders = await SupplyOrder.find({ fulfilled: true });
 
     res.send(orders);
-  }
+  },
 );
 
 router.post(
@@ -113,7 +113,7 @@ router.post(
     await newOrder.save();
 
     res.send(null);
-  }
+  },
 );
 
 router.patch(
@@ -136,7 +136,19 @@ router.patch(
     await Promise.all(promises);
 
     res.send(null);
-  }
+  },
+);
+
+router.delete(
+  "/ordering/:id",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { id } = req.params;
+    await SupplyOrder.deleteOne({ _id: id });
+    res.sendStatus(204);
+  },
 );
 
 export default router;

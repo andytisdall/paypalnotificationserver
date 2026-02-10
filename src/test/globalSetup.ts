@@ -1,6 +1,6 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import config from './config';
+import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
+import config from "./config";
 
 declare global {
   var __MONGOINSTANCE: any;
@@ -13,13 +13,13 @@ export default async () => {
     const instance = await MongoMemoryServer.create();
     const uri = instance.getUri();
     global.__MONGOINSTANCE = instance;
-    process.env.MONGO_URI = uri.slice(0, uri.lastIndexOf('/'));
+    process.env.MONGO_URI = uri.slice(0, uri.lastIndexOf("/"));
   } else {
     process.env.MONGO_URI = `mongodb://${config.IP}:${config.Port}`;
   }
 
   // The following is to make sure the database is clean before a test starts
   await mongoose.connect(`${process.env.MONGO_URI}/${config.Database}`);
-  await mongoose.connection.db.dropDatabase();
+  await mongoose.connection.db?.dropDatabase();
   await mongoose.disconnect();
 };

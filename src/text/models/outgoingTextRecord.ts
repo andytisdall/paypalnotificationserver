@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 const outgoingTextRecordSchema = new Schema(
   {
@@ -10,15 +10,15 @@ const outgoingTextRecordSchema = new Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
 export const OutgoingTextRecord = model(
-  'OutgoingTextRecord',
-  outgoingTextRecordSchema
+  "OutgoingTextRecord",
+  outgoingTextRecordSchema,
 );

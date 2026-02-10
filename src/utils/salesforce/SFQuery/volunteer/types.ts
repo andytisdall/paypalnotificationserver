@@ -89,7 +89,7 @@ export interface UnformattedHours {
   GW_Volunteers__Start_Date__c: string;
   Id: string;
   Number_of_Meals__c?: number;
-  GW_Volunteers__Shift_Start_Date_Time__c?: string;
+  GW_Volunteers__Shift_Start_Date_Time__c: string;
   GW_Volunteers__Volunteer_Campaign__c: string;
   Type_of_Meal__c?: "Soup" | "Entree";
   GW_Volunteers__Contact__c: string;
@@ -117,4 +117,21 @@ export interface CheckInVolunteer {
   email: string | undefined;
   volunteerAgreement: boolean | undefined;
   status: string;
+}
+
+export interface HomeChefSurvey {
+  Contact__c: string;
+  Id: string;
+}
+
+export interface HomeChefSurveyOption {
+  Id: string;
+  Name: string;
+}
+
+export interface HomeChefSurveyOptionLink {
+  Id: string;
+  Home_Chef_Survey_Option__c: string;
+  Home_Chef_Survey__c: string;
+  Details__c?: string;
 }

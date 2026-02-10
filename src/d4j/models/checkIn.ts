@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const checkInSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'D4JUser',
+      ref: "D4JUser",
       required: true,
     },
     restaurant: {
@@ -17,12 +17,12 @@ const checkInSchema = new mongoose.Schema(
 
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const CheckIn = mongoose.model('CheckIn', checkInSchema);
+export const CheckIn = mongoose.model("CheckIn", checkInSchema);

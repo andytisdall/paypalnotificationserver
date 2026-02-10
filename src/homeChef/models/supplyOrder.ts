@@ -22,12 +22,12 @@ const supplyOrder = new mongoose.Schema(
 
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
 export const SupplyOrder = mongoose.model("SupplyOrder", supplyOrder);

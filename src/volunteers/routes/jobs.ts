@@ -1,5 +1,5 @@
 import express from "express";
-import { getDay, addDays } from "date-fns";
+import { getDay, addDays, getHours } from "date-fns";
 import utcToZonedTime from "date-fns-tz/utcToZonedTime";
 
 import urls from "../../utils/urls";
@@ -22,22 +22,27 @@ router.get("/jobs/:campaignId", async (req, res) => {
 });
 
 const getJobShifts = async (jobId: string) => {
-  let daysInAdvance = 52;
+  const isMealPrep = jobId === urls.ckKitchenMealPrepJobId;
 
-  if (jobId === urls.ckKitchenMealPrepJobId) {
-    return (await getShifts(jobId, 90)).filter((sh) => {
-      const day = getDay(utcToZonedTime(sh.startTime, "America/Los_Angeles"));
-      if (![0, 5].includes(day)) {
-        return (
-          utcToZonedTime(sh.startTime, "America/Los_Angeles") <
-          addDays(new Date(), 30)
-        );
+  let daysInAdvance = isMealPrep ? 90 : 52;
+  let shifts = await getShifts(jobId, daysInAdvance);
+
+  if (isMealPrep) {
+    shifts = shifts.filter((sh) => {
+      const shiftDateTime = utcToZonedTime(sh.startTime, "America/Los_Angeles");
+      const day = getDay(shiftDateTime);
+      const hour = getHours(shiftDateTime);
+
+      const holdDateForGroups = hour < 17 && ![0, 4, 5].includes(day);
+
+      if (holdDateForGroups) {
+        return shiftDateTime < addDays(new Date(), 30);
       }
       return true;
     });
-  } else {
-    return await getShifts(jobId, daysInAdvance);
   }
+
+  return shifts;
 };
 
 export default router;

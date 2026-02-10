@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export type RecipeCategory =
-  | 'mains'
-  | 'sides'
-  | 'veggies'
-  | 'soups'
-  | 'desserts';
+  | "mains"
+  | "sides"
+  | "veggies"
+  | "soups"
+  | "desserts";
 
 const recipeSchema = new mongoose.Schema(
   {
@@ -20,12 +20,12 @@ const recipeSchema = new mongoose.Schema(
 
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const Recipe = mongoose.model('Recipe', recipeSchema);
+export const Recipe = mongoose.model("Recipe", recipeSchema);

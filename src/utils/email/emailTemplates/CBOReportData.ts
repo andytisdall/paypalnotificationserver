@@ -3,7 +3,7 @@ import { lastDayOfMonth, format } from "date-fns";
 import urls from "../../urls";
 import { CBOReportParams, ZipCode } from "../../salesforce/SFQuery/cboReport";
 import { getPeriodCBOReports } from "../../salesforce/SFQuery/cboReport";
-import { sendEmail } from "../email";
+import { EmailMessage, sendBatchEmail } from "../email";
 
 function sumField<T>(reportList: T[], field: keyof T) {
   return reportList.reduce((prev, cur) => prev + (cur[field] as number), 0);
@@ -11,7 +11,7 @@ function sumField<T>(reportList: T[], field: keyof T) {
 
 function averageField<T>(
   reportList: CBOReportParams[],
-  field: keyof CBOReportParams["performanceMeasures"]
+  field: keyof CBOReportParams["performanceMeasures"],
 ) {
   const numberOfPeople = sumField(reportList, "individuals");
   if (numberOfPeople) {
@@ -21,10 +21,10 @@ function averageField<T>(
           prev +
           ((cur["performanceMeasures"][field] as number) / 100) *
             cur.individuals,
-        0
+        0,
       ) /
         numberOfPeople) *
-        100
+        100,
     );
   }
   return 0;
@@ -66,21 +66,21 @@ const getPerformanceMeasures = (reports: CBOReportParams[]) => {
   return {
     "Percent without Access to Kitchen": averageField(
       reports,
-      "percentWOAccess"
+      "percentWOAccess",
     ),
     "Meals Provided": sumField(performanceMeasures, "mealsProvided"),
     "Unusable Meals": sumField(performanceMeasures, "unusable"),
     "Number of Calfresh postcards given out": sumField(
       performanceMeasures,
-      "postcards"
+      "postcards",
     ),
     "Number of Calfresh applications assisted": sumField(
       performanceMeasures,
-      "calfreshApps"
+      "calfreshApps",
     ),
     "Number of Calfresh applications sent to SSA": sumField(
       performanceMeasures,
-      "SSA"
+      "SSA",
     ),
   };
 };
@@ -152,14 +152,21 @@ export const sendCBOReportDataEmail = async () => {
   yearToDateStartDate.setDate(1);
   yearToDateStartDate.setMonth(0);
   const yearToDateReports = await getPeriodCBOReports({
-    startDate: yearToDateStartDate,
+    startDate: new Date(2026, 0, 1),
     endDate: new Date(),
   });
+
+  // const yearlyStartDate = new Date(2025, 0, 1);
+  // const yearlyEndDate = new Date(2025, 11, 31);
+  // const yearlyReports = await getPeriodCBOReports({
+  //   startDate: yearlyStartDate,
+  //   endDate: yearlyEndDate,
+  // });
 
   const html =
     `<h1>CBO Report Data</h1><h2 style="textAlign: center">Last Month: ${format(
       lastMonthStartDate,
-      "M/d/yy"
+      "M/d/yy",
     )} - ${format(lastMonthEndDate, "M/d/yy")}</h2><h3>${
       lastMonthReports.length
     } Reports</h3>` +
@@ -167,18 +174,18 @@ export const sendCBOReportDataEmail = async () => {
     "<br /><br />" +
     `<h2 style="textAlign: center">Year to Date: ${format(
       yearToDateStartDate,
-      "M/d/yy"
+      "M/d/yy",
     )} - ${format(new Date(), "M/d/yy")}</h2><h3>${
       yearToDateReports.length
     } Reports</h3>` +
     createCBOReportDataEmail(yearToDateReports);
 
-  const msg = {
-    to: "maria@ckoakland.org",
+  const msg: EmailMessage = {
+    to: ["maria@ckoakland.org", "andy@ckoakland.org"],
     from: urls.adminEmail,
-    subject: "CBO Report Data for last month",
+    subject: "Monthly CBO Report Data",
     html,
   };
 
-  await sendEmail(msg);
+  await sendBatchEmail(msg);
 };

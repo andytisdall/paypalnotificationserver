@@ -5,11 +5,10 @@ import createQuery from "../queryCreator";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { Job, FormattedJob } from "./types";
-import { getDistance } from "../../../googleApis/getDistance";
 
 const decodeString = (string: string) => {
   return decode(
-    string?.replace(/\<\/p\>\<p\>/g, "\n").replace(/\<[^<>]*\>/g, "")
+    string?.replace(/\<\/p\>\<p\>/g, "\n").replace(/\<[^<>]*\>/g, ""),
   );
 };
 
@@ -46,13 +45,13 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
   });
 
   const promises = jobs.map(async (j) => {
-    let distance;
-    if (j.Dropoff_Location__c) {
-      distance = await getDistance(
-        `${j.GW_Volunteers__Location_Street__c} ${j.GW_Volunteers__Location_City__c} CA`,
-        `${j.Dropoff_Location__c}`
-      );
-    }
+    // let distance;
+    // if (j.Dropoff_Location__c) {
+    //   distance = await getDistance(
+    //     `${j.GW_Volunteers__Location_Street__c} ${j.GW_Volunteers__Location_City__c} CA`,
+    //     `${j.Dropoff_Location__c}`
+    //   );
+    // }
     // rename attributes to something sane
     return {
       id: j.Id,
@@ -69,7 +68,7 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       notes: j.Fridge_Notes__c,
       carSizeRequired: j.Car_Size_Required__c,
       destination: j.Dropoff_Location__c,
-      distance: distance,
+      // distance: distance,
       dropoffNotes: j.Dropoff_Notes__c,
     };
   });
@@ -81,7 +80,7 @@ export const getJobFromHours = async (jobId: string) => {
   await fetcher.setService("salesforce");
 
   const { data: job }: { data: Job } = await fetcher.get(
-    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Job__c/" + jobId
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Job__c/" + jobId,
   );
 
   return job;

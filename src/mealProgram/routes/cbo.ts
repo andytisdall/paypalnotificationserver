@@ -12,6 +12,7 @@ import { requireAdmin } from "../../middlewares/require-admin";
 import { sendCBOReportDataEmail } from "../../utils/email/emailTemplates/CBOReportData";
 import fetcher from "../../utils/fetcher";
 import urls from "../../utils/urls";
+import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
 
 const router = express.Router();
 
@@ -23,19 +24,13 @@ router.get(
   async (req, res) => {
     const reports = await getCBOReports();
     res.send(reports);
-  }
+  },
 );
 
-router.post(
-  "/cbo/email",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    await sendCBOReportDataEmail();
-    res.send(null);
-  }
-);
+router.post("/cbo/email", requireSalesforceAuth, async (req, res) => {
+  await sendCBOReportDataEmail();
+  res.send({ success: true });
+});
 
 router.post("/cbo", async (req, res) => {
   const {
@@ -180,7 +175,7 @@ router.post("/cbo", async (req, res) => {
 
   const summaryQuery = `SELECT Id from CBO_Report_Summary__c WHERE Date__c = ${format(
     lastDay,
-    "yyyy-MM-dd"
+    "yyyy-MM-dd",
   )}`;
 
   const getSummaryUri = urls.SFQueryPrefix + encodeURIComponent(summaryQuery);
@@ -220,7 +215,7 @@ router.post("/cbo", async (req, res) => {
 
   const { data }: { data?: { success: boolean } } = await fetcher.post(
     insertUri,
-    CBOReportObject
+    CBOReportObject,
   );
   if (!data?.success) {
     throw Error("Unable to add data");

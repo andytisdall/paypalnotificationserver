@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import { join } from "path";
-import "express-async-errors";
 import mongoose from "mongoose";
 
 import { connectDb } from "./src/setupDb";
@@ -64,7 +63,7 @@ const app = express();
 app.use("/static", express.static(join("public", "static")));
 app.use("/images", express.static(join("public", "images")));
 app.get("/manifest.json", (req, res) =>
-  res.sendFile(join("public", "manifest.json"), { root: __dirname })
+  res.sendFile(join("public", "manifest.json"), { root: __dirname }),
 );
 
 app.use(express.urlencoded({ extended: true }));
@@ -88,7 +87,7 @@ apiRouter.use("/sign", signRouter);
 apiRouter.use(emailRouter);
 
 apiRouter.use(errorHandler);
-apiRouter.get("/*", (req, res) => {
+apiRouter.get("/{*path}", (req, res) => {
   res.sendStatus(404);
 });
 
@@ -98,7 +97,7 @@ app.get("/_ah/warmup", (req, res) => {
   res.sendStatus(204);
 });
 
-app.get("/*", (req, res) => {
+app.get("/{*path}", (req, res) => {
   res.sendFile(join("public", "index.html"), {
     root: __dirname,
     lastModified: false,

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const paypalTxnSchema = new mongoose.Schema(
   {
@@ -6,12 +6,12 @@ const paypalTxnSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const PaypalTxn = mongoose.model('PaypalTxn', paypalTxnSchema);
+export const PaypalTxn = mongoose.model("PaypalTxn", paypalTxnSchema);

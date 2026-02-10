@@ -10,7 +10,7 @@ import { createRequest } from "../../utils/zoho/sign";
 const router = express.Router();
 
 router.get(
-  "/:docType?/:contactId?/:hoursId?",
+  "/{:docType}/{:contactId}/{:hoursId}",
   currentUser,
   async (req, res) => {
     const { docType, contactId, hoursId } = req.params as {
@@ -43,7 +43,7 @@ router.get(
     }
     if (!contact.Email) {
       throw Error(
-        "Contact has no email, which is required for document signing"
+        "Contact has no email, which is required for document signing",
       );
     }
 
@@ -66,7 +66,7 @@ router.get(
     });
     // create
     res.send({ signingUrl });
-  }
+  },
 );
 
 export default router;

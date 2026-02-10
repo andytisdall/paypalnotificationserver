@@ -58,7 +58,7 @@ router.post(
     }
 
     res.send(null);
-  }
+  },
 );
 
 router.post("/outgoing/volunteer", requireSalesforceAuth, async (req, res) => {
@@ -70,11 +70,15 @@ router.post("/outgoing/volunteer", requireSalesforceAuth, async (req, res) => {
     number: string;
   } = req.body;
 
+  if (number.length !== 10 || number[0] === "1") {
+    return res.status(201).send({ success: false });
+  }
+
   const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
 
   if (!MESSAGING_SERVICE_SID) {
     throw Error(
-      "No Messaging Service ID found, which is required to send a text message."
+      "No Messaging Service ID found, which is required to send a text message.",
     );
   }
 

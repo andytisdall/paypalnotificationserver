@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 const feedbackSchema = new Schema(
   {
@@ -12,12 +12,12 @@ const feedbackSchema = new Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const Feedback = model('Feedback', feedbackSchema);
+export const Feedback = model("Feedback", feedbackSchema);

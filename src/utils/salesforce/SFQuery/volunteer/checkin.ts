@@ -2,25 +2,22 @@ import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { UnformattedContact } from "../contact/types";
 import createQuery, { FilterGroup } from "../queryCreator";
-import {
-  UnformattedHours,
-  Job,
-  Shift,
-  FormattedShift,
-  CheckInVolunteer,
-} from "./types";
+import { UnformattedHours, Job, Shift, CheckInVolunteer } from "./types";
 import { UnformattedVolunteerCampaign } from "./campaign/types";
 
 export const getTodaysVolunteerShifts = async () => {
   const campaignFields = ["Id"] as const;
-  const campaigObj = "Campaign";
+  const campaignObj = "Campaign";
   const campaignFilters: FilterGroup<UnformattedVolunteerCampaign> = {
-    AND: [{ field: "Portal_Signups_Enabled__c", value: true }],
+    AND: [
+      { field: "Portal_Signups_Enabled__c", value: true },
+      { field: "Name", operator: "!=", value: "Delivery Drivers" },
+    ],
   };
   const campaigns = await createQuery<
     UnformattedVolunteerCampaign,
     (typeof campaignFields)[number]
-  >({ fields: campaignFields, obj: campaigObj, filters: campaignFilters });
+  >({ fields: campaignFields, obj: campaignObj, filters: campaignFilters });
 
   const idList = [...campaigns.map(({ Id }) => Id)];
 
@@ -42,10 +39,13 @@ export const getTodaysVolunteerShifts = async () => {
     obj: jobObj,
   });
 
-  const jobsWithShifts: Record<
-    string,
-    Pick<FormattedShift, "id" | "job" | "startTime" | "duration">[]
-  > = {};
+  const jobShifts: {
+    jobs: Record<string, { id: string; name: string; shifts: string[] }>;
+    shifts: Record<
+      string,
+      { id: string; jobName: string; startTime: string; duration: number }
+    >;
+  } = { jobs: {}, shifts: {} };
 
   const shiftPromises = jobs.map(async (job) => {
     const fields = [
@@ -71,22 +71,30 @@ export const getTodaysVolunteerShifts = async () => {
     });
 
     if (shifts.length) {
-      jobsWithShifts[job.Id] = shifts?.map((shift) => ({
-        id: shift.Id,
-        job: job.Name,
-        startTime: shift.GW_Volunteers__Start_Date_Time__c,
-        duration: shift.GW_Volunteers__Duration__c,
-      }));
+      shifts?.forEach((shift) => {
+        jobShifts.shifts[shift.Id] = {
+          id: shift.Id,
+          jobName: job.Name,
+          startTime: shift.GW_Volunteers__Start_Date_Time__c,
+          duration: shift.GW_Volunteers__Duration__c,
+        };
+      });
+
+      jobShifts.jobs[job.Id] = {
+        id: job.Id,
+        name: job.Name,
+        shifts: shifts.map(({ Id }) => Id),
+      };
     }
   });
 
   await Promise.all(shiftPromises);
 
-  return jobsWithShifts;
+  return jobShifts;
 };
 
 export const getVolunteersForCheckIn = async (
-  shiftId: string
+  shiftId: string,
 ): Promise<CheckInVolunteer[]> => {
   await fetcher.setService("salesforce");
 
@@ -110,7 +118,7 @@ export const getVolunteersForCheckIn = async (
   });
 
   const idList: string[] = hours.map(
-    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c
+    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c,
   );
 
   const contactFields = [
@@ -137,7 +145,7 @@ export const getVolunteersForCheckIn = async (
   return hours
     .map(({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
       const contact = contacts.find(
-        ({ Id }) => Id === GW_Volunteers__Contact__c
+        ({ Id }) => Id === GW_Volunteers__Contact__c,
       );
       if (contact) {
         return {
@@ -173,50 +181,3 @@ export const checkInVolunteer = async ({
 
   await fetcher.patch(updateUri, updatedHours);
 };
-
-// export const createRecurringHours = async ({
-//   contactId,
-//   dayOfWeek,
-// }: {
-//   contactId: string;
-//   dayOfWeek: string;
-// }) => {
-//   await fetcher.setService('salesforce');
-
-//   const url =
-//     urls.SFOperationPrefix + '/GW_Volunteers__Volunteer_Recurrence_Schedule__c';
-
-//   const newVolunteerRecurrenceSchedule: UnformatterVolunteerRecurrenceSchedule =
-//     {
-//       GW_Volunteers__Volunteer_Job__c: urls.frontDoorJobId,
-//       GW_Volunteers__Contact__c: contactId,
-//       GW_Volunteers__Schedule_Start_Date_Time__c: new Date().toString(),
-//       GW_Volunteers__Days_of_Week__c: dayOfWeek,
-//       GW_Volunteers__Weekly_Occurrence__c: 'Every',
-//       GW_Volunteers__Duration__c: 2,
-//     };
-
-//   await fetcher.post(url, newVolunteerRecurrenceSchedule);
-// };
-
-// export const getRecurringHours = async () => {
-//   await fetcher.setService('salesforce');
-
-//   const query = `SELECT GW_Volunteers__Days_of_Week__c, GW_Volunteers__Contact__c FROM GW_Volunteers__Volunteer_Recurrence_Schedule__c WHERE GW_Volunteers__Volunteer_Job__c = '${urls.frontDoorJobId}'`;
-
-//   const {
-//     data,
-//   }: {
-//     data: {
-//       records: Pick<
-//         UnformatterVolunteerRecurrenceSchedule,
-//         'GW_Volunteers__Days_of_Week__c' | 'GW_Volunteers__Contact__c'
-//       >[];
-//     };
-//   } = await fetcher.get(urls.SFQueryPrefix + encodeURIComponent(query));
-
-//   return data.records.map((sched) => ({
-//     dayOfWeek: sched.GW_Volunteers__Days_of_Week__c,
-//     contactId: sched.GW_Volunteers__Contact__c,
-//   }));
-// };

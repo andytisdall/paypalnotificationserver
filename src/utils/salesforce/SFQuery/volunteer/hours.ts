@@ -16,7 +16,7 @@ export const createHours = async ({
 }: CreateHoursParams): Promise<FormattedHours> => {
   await fetcher.setService("salesforce");
   const { data } = await fetcher.get(
-    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shiftId
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shiftId,
   );
   // getting this error
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
@@ -48,7 +48,7 @@ export const createHours = async ({
     urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c";
   const insertRes: { data: InsertSuccessResponse } = await fetcher.post(
     hoursInsertUri,
-    hoursToAdd
+    hoursToAdd,
   );
 
   if (!insertRes.data?.success) {
@@ -57,17 +57,17 @@ export const createHours = async ({
   const res: { data: UnformattedHours | undefined } = await fetcher.get(
     urls.SFOperationPrefix +
       "/GW_Volunteers__Volunteer_Hours__c/" +
-      insertRes.data.id
+      insertRes.data.id,
   );
   if (!res.data) {
     throw Error("Could not get newly created volunteer hours");
   }
   return {
-    id: res.data.Id!,
+    id: res.data.Id,
     mealCount: res.data.Number_of_Meals__c?.toString() || "0",
     shift: res.data.GW_Volunteers__Volunteer_Shift__c,
     job: res.data.GW_Volunteers__Volunteer_Job__c,
-    time: res.data.GW_Volunteers__Shift_Start_Date_Time__c!,
+    time: res.data.GW_Volunteers__Shift_Start_Date_Time__c,
     status: res.data.GW_Volunteers__Status__c,
   };
 };
@@ -87,14 +87,16 @@ export const getTextReminderHours = async (contactId: string) => {
     obj,
     filters,
   });
-  return hours[0].Id;
+  if (hours[0]) {
+    return hours[0].Id;
+  }
 };
 
 export const getHour = async (hoursId: string) => {
   await fetcher.setService("salesforce");
 
   const { data }: { data: UnformattedHours } = await fetcher.get(
-    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c/" + hoursId
+    urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Hours__c/" + hoursId,
   );
 
   return {

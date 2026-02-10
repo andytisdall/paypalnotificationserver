@@ -30,6 +30,7 @@ router.get("/userInfo", currentUser, async (req, res) => {
     | "homeChefStatus"
     | "volunteerAgreement"
     | "ckKitchenStatus"
+    | "homeChefSurveyCompleted"
   > = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
@@ -39,6 +40,7 @@ router.get("/userInfo", currentUser, async (req, res) => {
     homeChefStatus: contact.Home_Chef_Status__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+    homeChefSurveyCompleted: contact.Home_Chef_Survey_Completed__c,
   };
   res.send(contactInfo);
 });

@@ -12,7 +12,7 @@ import { getJobFromHours } from "../../../utils/salesforce/SFQuery/volunteer/job
 
 const router = express.Router();
 
-router.delete("/hours/:id/:salesforceId?", currentUser, async (req, res) => {
+router.delete("/hours/:id/{:salesforceId}", currentUser, async (req, res) => {
   const id = req.params.id;
   const salesforceId = req.params.salesforceId;
 

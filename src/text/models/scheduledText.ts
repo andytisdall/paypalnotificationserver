@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 const scheduledTextSchema = new Schema(
   {
@@ -10,12 +10,12 @@ const scheduledTextSchema = new Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const ScheduledText = model('ScheduledText', scheduledTextSchema);
+export const ScheduledText = model("ScheduledText", scheduledTextSchema);

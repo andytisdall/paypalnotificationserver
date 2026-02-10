@@ -65,7 +65,7 @@ function parseFilter<T>(filterGroup: FilterGroup<T>) {
     filterGroup.AND?.map((child) =>
       // @ts-expect-error
 
-      child.hasOwnProperty("field") ? renderFilter(child) : parseFilter(child)
+      child.hasOwnProperty("field") ? renderFilter(child) : parseFilter(child),
     ).join(" AND ") +
     ")";
 
@@ -74,7 +74,7 @@ function parseFilter<T>(filterGroup: FilterGroup<T>) {
     filterGroup.OR?.map((child) =>
       // @ts-expect-error
 
-      child.hasOwnProperty("field") ? renderFilter(child) : parseFilter(child)
+      child.hasOwnProperty("field") ? renderFilter(child) : parseFilter(child),
     ).join(" OR ") +
     ")";
 
@@ -88,17 +88,15 @@ async function createQuery<T, K extends keyof T>({
 }: {
   obj: string;
   fields: ReadonlyArray<K>;
-  filters: FilterGroup<T>;
+  filters?: FilterGroup<T>;
 }) {
   await fetcher.setService("salesforce");
 
-  const query =
-    "SELECT " +
-    fields.join(", ") +
-    " FROM " +
-    obj +
-    " WHERE " +
-    parseFilter(filters);
+  let query = "SELECT " + fields.join(", ") + " FROM " + obj;
+
+  if (filters) {
+    query += " WHERE " + parseFilter(filters);
+  }
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
 

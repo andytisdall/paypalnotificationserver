@@ -11,13 +11,13 @@ import {
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email/email";
-import { CheckIn } from "../models/checkIn";
 import { deleteAllUserCheckIns } from "../../utils/salesforce/SFQuery/d4j";
 // import { sendConfirmD4JUserEmail } from "../../utils/email/email";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
 
+const CheckIn = mongoose.model("CheckIn");
 const D4JUser = mongoose.model("D4JUser");
 
 const router = express.Router();
@@ -51,7 +51,7 @@ router.post("/contact/signin", async (req, res) => {
     {
       id: user.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   res.send({ contact: user, token: jwtToken });
@@ -85,7 +85,7 @@ router.post("/contact", async (req, res) => {
     {
       id: user.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   const contact = await addContact({
@@ -217,7 +217,7 @@ router.get(
 
     await D4JUser.deleteOne({ email });
     res.sendStatus(204);
-  }
+  },
 );
 
 export default router;

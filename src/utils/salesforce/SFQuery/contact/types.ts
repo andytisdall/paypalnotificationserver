@@ -26,6 +26,7 @@ export interface UnformattedContact {
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   Home_Chef_Quiz_Passed__c?: boolean;
+  Home_Chef_Survey_Completed__c?: boolean;
 
   //ck kitchen
   CK_Kitchen_Agreement__c?: boolean;
@@ -56,6 +57,7 @@ export interface FormattedContact {
   homeChefAgreement?: boolean;
   homeChefStatus?: string;
   homeChefQuizPassed?: boolean;
+  homeChefSurveyCompleted?: boolean;
 
   ckKitchenStatus?: string;
 

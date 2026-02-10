@@ -49,7 +49,7 @@ export const sendOrderConfirmation = async ({
           <strong>Soup Containers:</strong> ${order.soup}<br />
           <strong>Sandwich Boxes:</strong> ${order.sandwich}</p>
           <p>We will contact you by email when this order is ready to pick up from the CK Kitchen.</p>
-          <p>Thanks for your request. We'll take care of your order as soon as possible. Please note that the CK Kitchen will be closed December 24-27 and January 1-3. Thank you, and we wish you a happy holiday season1</p>
+          <p>Thanks for your request. We'll take care of your order as soon as possible.</p>
           <p>Thanks!<br />
           Community Kitchens</p>`,
       subject: "You made a Home Chef supply order",

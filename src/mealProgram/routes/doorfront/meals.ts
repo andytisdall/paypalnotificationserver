@@ -29,18 +29,22 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
   // const startDate = new Date(2025, 9, 8);
   // const endDate = new Date(2025, 9, 29);
 
-  const thisMonthsMeals = await ClientMeal.find({
+  const periodMeals = await ClientMeal.find({
     date: {
       $gte: startDate,
       $lte: endDate,
     },
   }).populate("client");
 
+  // const sundayMondayMeals = thisMonthsMeals.filter((meal) =>
+  //   [0, 1].includes(meal.date.getDay()),
+  // );
+
   const clients: Record<string, { meals: number; visits: number }> = {};
   let lowestDate = addMonths(startDate, 1);
   let highestDate = subMonths(endDate, 1);
 
-  thisMonthsMeals.forEach((meal) => {
+  periodMeals.forEach((meal) => {
     if (meal.date < lowestDate) lowestDate = meal.date;
     if (meal.date > highestDate) highestDate = meal.date;
 
@@ -57,14 +61,16 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
     }
   });
 
-  if (thisMonthsMeals.length) {
+  if (periodMeals.length) {
     console.log(
       `Date Range: ${format(new Date(lowestDate), "MM/dd/yy")} - ${format(
         new Date(highestDate),
-        "MM/dd/yy"
-      )}`
+        "MM/dd/yy",
+      )}`,
     );
   }
+
+  console.log(new Set(periodMeals.map(({ date }) => format(date, "M/d/yy"))));
 
   res.send(clients);
 });
@@ -97,7 +103,7 @@ router.post(
     }
 
     res.send(null);
-  }
+  },
 );
 
 router.get(
@@ -121,7 +127,7 @@ router.get(
     }).populate("client");
 
     res.send(clientMeals);
-  }
+  },
 );
 
 router.patch(
@@ -140,7 +146,7 @@ router.patch(
     await Promise.all(promises);
 
     res.send(null);
-  }
+  },
 );
 
 router.delete(
@@ -152,7 +158,7 @@ router.delete(
     const { id } = req.params;
     await ClientMeal.deleteOne({ _id: id });
     res.send(null);
-  }
+  },
 );
 
 export default router;

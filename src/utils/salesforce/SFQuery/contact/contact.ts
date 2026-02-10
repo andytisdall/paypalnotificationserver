@@ -3,16 +3,11 @@ import urls from "../../../urls";
 import createQuery, { FilterGroup } from "../queryCreator";
 import { InsertSuccessResponse } from "../reusableTypes";
 
-import {
-  ContactData,
-  ContactRawData,
-  UnformattedContact,
-  D4JContact,
-} from "./types";
+import { ContactData, UnformattedContact, D4JContact } from "./types";
 
 export const getContact = async (
   lastName: string,
-  firstName: string
+  firstName: string,
 ): Promise<ContactData | null> => {
   const escapedFirstName = firstName.replace(/'/g, "\\'");
   const escapedLastName = lastName.replace(/'/g, "\\'");
@@ -63,7 +58,7 @@ export const getContact = async (
 
 export const getContactByLastNameAndEmail = async (
   lastName: string,
-  email: string
+  email: string,
 ): Promise<ContactData | null> => {
   const escapedLastName = lastName.replace(/'/g, "\\'");
   const fields = [
@@ -111,7 +106,7 @@ export const getContactByLastNameAndEmail = async (
 };
 
 export const addContact = async (
-  contactToAdd: Partial<UnformattedContact>
+  contactToAdd: Partial<UnformattedContact>,
 ): Promise<ContactData> => {
   await fetcher.setService("salesforce");
   const contactInsertUri = urls.SFOperationPrefix + "/Contact";
@@ -169,7 +164,7 @@ export const addContact = async (
 
 export const updateContact = async (
   id: string,
-  contactToUpdate: Partial<UnformattedContact>
+  contactToUpdate: Partial<UnformattedContact>,
 ) => {
   await fetcher.setService("salesforce");
   const contactUpdateUri = urls.SFOperationPrefix + "/Contact/" + id;
@@ -179,7 +174,7 @@ export const updateContact = async (
 export const getContactById = async (id: string) => {
   await fetcher.setService("salesforce");
   const res: { data: UnformattedContact | undefined } = await fetcher.get(
-    urls.SFOperationPrefix + "/Contact/" + id
+    urls.SFOperationPrefix + "/Contact/" + id,
   );
   if (!res.data?.LastName) {
     throw Error("Contact not found");
@@ -200,7 +195,7 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
 // email addresses don't always match up on paypal
 
 export const getContactByEmail = async (
-  email: string
+  email: string,
 ): Promise<ContactData | null> => {
   const fields = [
     "Name",
@@ -240,7 +235,7 @@ export const getContactByEmail = async (
 };
 
 export const getUnformattedContactByEmail = async (
-  email: string
+  email: string,
 ): Promise<UnformattedContact | undefined> => {
   await fetcher.setService("salesforce");
 
@@ -290,7 +285,7 @@ export const deleteContact = async (id: string) => {
 };
 
 export const getContactByPhoneNumber = async (
-  phoneNumber: string
+  phoneNumber: string,
 ): Promise<string | null> => {
   await fetcher.setService("salesforce");
 

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
@@ -9,12 +9,12 @@ const notificationSchema = new mongoose.Schema(
 
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },
     },
-  }
+  },
 );
 
-export const Notifications = mongoose.model('Notification', notificationSchema);
+export const Notifications = mongoose.model("Notification", notificationSchema);

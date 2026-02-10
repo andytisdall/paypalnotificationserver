@@ -23,8 +23,8 @@ it("creates a new shift and gets a list of shifts for volunteer checkin", async 
     .get("/api/volunteers/check-in/shifts")
     .set("Authorization", token);
 
-  const shiftList = response.body[urls.ckKitchenMealPrepJobId];
-  expect(shiftList.map(({ id }: { id: string }) => id)).toContain(shiftId);
+  const shiftList = Object.keys(response.body.shifts);
+  expect(shiftList).toContain(shiftId);
 });
 
 it("gets a list of contacts for volunteer checkin", async () => {
@@ -41,12 +41,12 @@ it("gets the volunteer info, creates new volunteer hours for the shift", async (
   const token = await global.getToken({ admin: true });
 
   const response = await request(app).get(
-    "/api/volunteers/" + "andy@ckoakland.org"
+    "/api/volunteers/" + "andy@ckoakland.org",
   );
 
   const contact = response.body;
 
-  expect(contact.firstName).toEqual("Andy");
+  expect(contact.firstName).toEqual("Andrew");
 
   const { body } = await request(app)
     .post("/api/volunteers/check-in/hours")
@@ -69,7 +69,7 @@ it("gets an updated list of contacts for volunteer checkin and finds the hours t
     .set("Authorization", token);
 
   const hours = response.body.find(
-    (hours: CheckInVolunteer) => hours.contactId === contactId
+    (hours: CheckInVolunteer) => hours.contactId === contactId,
   );
 
   expect(response.body).toHaveLength(1);
@@ -90,7 +90,7 @@ it("checks in", async () => {
     .set("Authorization", token);
 
   const hours: CheckInVolunteer = response.body.find(
-    (hours: CheckInVolunteer) => hours.contactId === contactId
+    (hours: CheckInVolunteer) => hours.contactId === contactId,
   );
 
   expect(hours.status).toEqual("Completed");

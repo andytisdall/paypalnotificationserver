@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-router.get("/hours/:campaignId/:contactId?", async (req, res) => {
+router.get("/hours/:campaignId/:contactId", async (req, res) => {
   const campaignId = req.params.campaignId;
   const contactId = req.params.contactId;
   if (!contactId) {
