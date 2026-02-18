@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format } from "date-fns";
 
 import { sendEmail } from "../email";
 
@@ -19,9 +19,7 @@ const createHomeChefShiftEditEmail = (shift: {
     <p>Hi Home Chef!</p>
     <p>This is Community Kitchens. ${intro}</p>
       <ul>
-        <li><strong>Date:</strong> ${moment(shift.date).format(
-          "dddd M/D/YY"
-        )}</li>
+        <li><strong>Date:</strong> ${format(shift.date, "eeee M/d/yy")}</li>
         <li><strong>Fridge:</strong> ${shift.fridge}</li>
         <li><strong>Number of Meals:</strong> ${shift.mealCount}</li>
         ${
@@ -46,7 +44,7 @@ export const sendHomeChefShiftEditEmail = async (
     mealCount: number;
     fridge: string;
     mealType: "Entree" | "Soup";
-  }
+  },
 ) => {
   const html = createHomeChefShiftEditEmail(shift);
 

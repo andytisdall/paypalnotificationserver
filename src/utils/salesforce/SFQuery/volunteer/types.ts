@@ -39,6 +39,8 @@ export interface Job {
   Dropoff_Notes__c?: string;
   GW_Volunteers__Campaign__c: string;
   GW_Volunteers__Display_on_Website__c: string;
+  Distance__c?: number;
+  Time_Required__c?: number;
 }
 
 export interface FormattedJob {
@@ -56,8 +58,9 @@ export interface FormattedJob {
   notes?: string;
   carSizeRequired?: string;
   destination?: string;
-  distance?: string;
+  distance?: number;
   dropoffNotes?: string;
+  timeRequired?: number;
 }
 
 export interface CreateHoursParams {

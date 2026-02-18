@@ -1,14 +1,9 @@
 import express from "express";
 
 import {
-  deleteSurveyData,
-  getOldSurveyData,
   submitMealSurveyData,
   submitSNAPSurveyData,
 } from "../../utils/salesforce/SFQuery/mealProgram";
-import { requireAdmin } from "../../middlewares/require-admin";
-import { requireAuth } from "../../middlewares/require-auth";
-import { currentUser } from "../../middlewares/current-user";
 
 export interface MealSurveyArgs {
   language: "English" | "Spanish";

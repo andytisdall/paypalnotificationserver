@@ -1,4 +1,4 @@
-import moment from "moment";
+import { format } from "date-fns";
 
 import { sendEmail } from "../email";
 
@@ -16,9 +16,7 @@ const createShiftCancelEmail = (shift: {
       <ul>
         <li><strong>Volunteer program:</strong> ${shift.campaign}
         <li><strong>Job:</strong> ${shift.job}
-        <li><strong>Date:</strong> ${moment(shift.date).format(
-          "dddd M/D/yy"
-        )}</li>
+        <li><strong>Date:</strong> ${format(shift.date, "eeee M/d/yy")}</li>
       </ul>
       <p>To sign up for a different time, please sign into the <a href="https://portal.ckoakland.org/volunteers">CK Volunteer Portal</a>. Thank you for your commitment to providing all Oaklanders meals made with love and dignity.<p>
 
@@ -33,7 +31,7 @@ const createShiftCancelEmail = (shift: {
 
 export const sendShiftCancelEmail = async (
   email: string,
-  shiftData: { date: string; name?: string; job: string; campaign: string }
+  shiftData: { date: string; name?: string; job: string; campaign: string },
 ) => {
   const html = createShiftCancelEmail(shiftData);
 

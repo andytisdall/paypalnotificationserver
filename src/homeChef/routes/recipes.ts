@@ -1,13 +1,13 @@
-import express from 'express';
-import mongoose from 'mongoose';
+import express from "express";
+import mongoose from "mongoose";
 
-import { currentUser } from '../../middlewares/current-user';
-import { requireAuth } from '../../middlewares/require-auth';
-import { requireAdmin } from '../../middlewares/require-admin';
-import { storeFile, deleteFile } from '../../files/google/storeFileGoogle';
-import { RecipeCategory } from '../models/recipe';
+import { currentUser } from "../../middlewares/current-user";
+import { requireAuth } from "../../middlewares/require-auth";
+import { requireAdmin } from "../../middlewares/require-admin";
+import { storeFile, deleteFile } from "../../files/google/storeFileGoogle";
+import { RecipeCategory } from "../models/recipe";
 
-const Recipe = mongoose.model('Recipe');
+const Recipe = mongoose.model("Recipe");
 
 const router = express.Router();
 
@@ -24,18 +24,18 @@ const router = express.Router();
 //   res.send(recipes);
 // });
 
-router.get('/recipes', async (req, res) => {
+router.get("/recipes", async (req, res) => {
   const recipes = await Recipe.find();
   res.send(recipes);
 });
 
-router.get('/recipe/:recipeId', async (req, res) => {
+router.get("/recipe/:recipeId", async (req, res) => {
   const { recipeId } = req.params;
 
   const recipe = await Recipe.findById(recipeId);
   if (!recipe) {
     res.status(404);
-    throw new Error('Recipe not found');
+    throw new Error("Recipe not found");
   }
 
   res.send(recipe);
@@ -57,12 +57,12 @@ const formatSections = (field: string) =>
   JSON.parse(field).map((item: SectionField) => {
     return {
       header: item.header,
-      text: item.text.replace('\r', '').split('\n'),
+      text: item.text.replace("\r", "").split("\n"),
     };
   });
 
 router.post(
-  '/recipe',
+  "/recipe",
   currentUser,
   requireAuth,
   requireAdmin,
@@ -76,10 +76,10 @@ router.post(
       author,
     }: RecipeFields = req.body;
 
-    let image = '';
+    let image = "";
 
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
-      const fileName = 'recipes-' + name;
+      const fileName = "recipes-" + name;
       image = await storeFile({
         file: req.files.photo,
         name: fileName,
@@ -90,23 +90,23 @@ router.post(
       name,
       ingredients: formatSections(ingredients),
       instructions: formatSections(instructions),
-      description: description?.replace('\r', '').split('\n'),
+      description: description?.replace("\r", "").split("\n"),
       category,
       image,
       author,
     });
     await newRecipe.save();
     res.status(201).send(newRecipe);
-  }
+  },
 );
 
 router.patch(
-  '/recipe/:id',
+  "/recipe/:id",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const recipeId: string = req.params.id;
+    const recipeId = req.params.id;
     const {
       name,
       ingredients,
@@ -118,7 +118,7 @@ router.patch(
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) {
       res.status(404);
-      throw new Error('Recipe not found');
+      throw new Error("Recipe not found");
     }
     if (name) {
       recipe.name = name;
@@ -131,12 +131,12 @@ router.patch(
     }
     recipe.author = author;
     recipe.category = category;
-    recipe.description = description?.split('\n');
+    recipe.description = description?.split("\n");
     if (req.files?.photo && !Array.isArray(req.files.photo)) {
       if (recipe.image) {
-        await deleteFile(recipe.image.split('/').slice(-1));
+        await deleteFile(recipe.image.split("/").slice(-1));
       }
-      const fileName = 'recipes-' + name;
+      const fileName = "recipes-" + name;
       recipe.image = await storeFile({
         file: req.files.photo,
         name: fileName,
@@ -145,19 +145,19 @@ router.patch(
 
     await recipe.save();
     res.send(recipe);
-  }
+  },
 );
 
 router.delete(
-  '/recipe/:id',
+  "/recipe/:id",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const id: string = req.params.id;
+    const id = req.params.id;
     await Recipe.deleteOne({ _id: id });
     res.sendStatus(204);
-  }
+  },
 );
 
 export default router;

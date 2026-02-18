@@ -10,7 +10,7 @@ import { createRequest } from "../../utils/zoho/sign";
 const router = express.Router();
 
 router.get(
-  "/{:docType}/{:contactId}/{:hoursId}",
+  "/{:docType}{/:contactId}{/:hoursId}",
   currentUser,
   async (req, res) => {
     const { docType, contactId, hoursId } = req.params as {

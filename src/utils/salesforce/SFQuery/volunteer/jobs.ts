@@ -27,6 +27,8 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
     "Fridge_Notes__c",
     "GW_Volunteers__Location_Information__c",
     "GW_Volunteers__Location_City__c",
+    "Distance__c",
+    "Time_Required__c",
   ] as const;
 
   const obj = "GW_Volunteers__Volunteer_Job__c";
@@ -45,14 +47,6 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
   });
 
   const promises = jobs.map(async (j) => {
-    // let distance;
-    // if (j.Dropoff_Location__c) {
-    //   distance = await getDistance(
-    //     `${j.GW_Volunteers__Location_Street__c} ${j.GW_Volunteers__Location_City__c} CA`,
-    //     `${j.Dropoff_Location__c}`
-    //   );
-    // }
-    // rename attributes to something sane
     return {
       id: j.Id,
       name: j.Name,
@@ -68,8 +62,9 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       notes: j.Fridge_Notes__c,
       carSizeRequired: j.Car_Size_Required__c,
       destination: j.Dropoff_Location__c,
-      // distance: distance,
       dropoffNotes: j.Dropoff_Notes__c,
+      timeRequired: j.Time_Required__c,
+      distance: j.Distance__c,
     };
   });
 

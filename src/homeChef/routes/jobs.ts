@@ -1,5 +1,5 @@
 import express from "express";
-import moment from "moment";
+import { format } from "date-fns";
 
 import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
 import urls from "../../utils/urls";
@@ -11,8 +11,6 @@ import fetcher from "../../utils/fetcher";
 const router = express.Router();
 
 router.get("/job-listing", currentUser, requireAuth, async (req, res) => {
-  await fetcher.setService("salesforce");
-
   const jobs = await getJobs(urls.townFridgeCampaignId);
   const shiftPromises = jobs.map(async (j) => {
     const jobShifts = await getShifts(j.id);
@@ -21,9 +19,7 @@ router.get("/job-listing", currentUser, requireAuth, async (req, res) => {
       .map((js) => {
         return {
           ...js,
-          startTime: moment(js.startTime, "YYYY-MM-DDTHH:mm:ssZ").format(
-            "YYYY-MM-DD"
-          ),
+          startTime: format(js.startTime, "yyyy-MM-dd"),
         };
       });
     j.shifts = jobShiftsExcludingRestaurantMeals;

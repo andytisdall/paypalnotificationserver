@@ -32,7 +32,7 @@ router.post("/email", requireSalesforceAuth, async (req, res) => {
       to: emailAddress,
       from: fromEmail,
       subject,
-      bcc: "kenai@ckoakland.org",
+      // bcc: "kenai@ckoakland.org",
     });
   }
 

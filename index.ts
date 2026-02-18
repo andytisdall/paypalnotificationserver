@@ -3,6 +3,7 @@ import cors from "cors";
 import fileUpload from "express-fileupload";
 import { join } from "path";
 import mongoose from "mongoose";
+import nocache from "nocache";
 
 import { connectDb } from "./src/setupDb";
 
@@ -70,6 +71,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 app.use(fileUpload());
+app.use(nocache());
 
 // add /api to all routers so we don't get our urls mixed up with frontend
 
@@ -100,10 +102,10 @@ app.get("/_ah/warmup", (req, res) => {
 app.get("/{*path}", (req, res) => {
   res.sendFile(join("public", "index.html"), {
     root: __dirname,
-    lastModified: false,
-    etag: false,
   });
 });
+
+app.set("etag", false);
 
 if (process.env.NODE_ENV !== "test") {
   connectDb();

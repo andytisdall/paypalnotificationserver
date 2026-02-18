@@ -26,7 +26,7 @@ router.get(
   async (req, res) => {
     const shifts = await getTodaysVolunteerShifts();
     res.send(shifts);
-  }
+  },
 );
 
 router.get(
@@ -35,10 +35,10 @@ router.get(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { shiftId } = req.params;
+    const shiftId = req.params.shiftId as string;
     const contacts = await getVolunteersForCheckIn(shiftId);
     res.send(contacts);
-  }
+  },
 );
 
 router.post(
@@ -53,7 +53,7 @@ router.post(
     await checkInVolunteer({ hoursId, duration });
 
     res.sendStatus(204);
-  }
+  },
 );
 
 router.post(
@@ -83,7 +83,7 @@ router.post(
     });
 
     res.send(hours);
-  }
+  },
 );
 
 export default router;

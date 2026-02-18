@@ -12,6 +12,7 @@ export interface UnformattedVolunteerCampaign {
   Description?: string;
   Id: string;
   Portal_Signups_Enabled__c?: boolean;
+  Short_Description__c?: string;
 }
 
 export interface FormattedVolunteerCampaign {
@@ -19,6 +20,7 @@ export interface FormattedVolunteerCampaign {
   startDate?: string;
   endDate?: string;
   description?: string;
+  shortDescription?: string;
   id: string;
 }
 

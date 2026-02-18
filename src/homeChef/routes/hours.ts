@@ -50,7 +50,7 @@ router.post("/hours", currentUser, requireAuth, async (req, res) => {
 });
 
 router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const {
     mealCount,
     cancel,

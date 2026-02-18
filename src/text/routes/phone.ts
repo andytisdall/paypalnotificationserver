@@ -22,15 +22,15 @@ router.get(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const phoneNumber = req.params.number.replace(/[^\d]/g, "");
+    const phoneNumber = (req.params.number as string).replace(/[^\d]/g, "");
     const phone = await Phone.findOne({ number: "+1" + phoneNumber });
     if (!phone) {
       throw Error(
-        "Phone number does not exist on the list of text subscribers"
+        "Phone number does not exist on the list of text subscribers",
       );
     }
     res.send(phone);
-  }
+  },
 );
 
 router.post(
@@ -85,7 +85,7 @@ router.post(
     await newPhone!.save();
     await addTextSubscriber(newPhone!.number, newPhone!.region);
     res.send(newPhone);
-  }
+  },
 );
 
 router.delete(
@@ -102,7 +102,7 @@ router.delete(
     await removeTextSubscriber(numberToDelete.number);
     await Phone.deleteOne({ _id: id });
     res.sendStatus(204);
-  }
+  },
 );
 
 export default router;

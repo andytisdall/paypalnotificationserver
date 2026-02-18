@@ -12,7 +12,14 @@ import {
 export const getVolunteerCampaigns: () => Promise<
   FormattedVolunteerCampaign[]
 > = async () => {
-  const fields = ["Name", "Id", "Description", "StartDate", "EndDate"] as const;
+  const fields = [
+    "Name",
+    "Id",
+    "Description",
+    "StartDate",
+    "EndDate",
+    "Short_Description__c",
+  ] as const;
   const obj = "Campaign";
   const filters: FilterGroup<UnformattedVolunteerCampaign> = {
     AND: [
@@ -44,6 +51,7 @@ export const getVolunteerCampaigns: () => Promise<
       name: cam.Name,
       startDate: cam.StartDate,
       description: cam.Description,
+      shortDescription: cam.Short_Description__c,
       id: cam.Id,
     };
   });
@@ -96,7 +104,7 @@ export const getHomeChefCampaign = async () => {
   await fetcher.setService("salesforce");
   const { data }: { data: { Total_Meals_Donated__c: number } | undefined } =
     await fetcher.get(
-      urls.SFOperationPrefix + "/Campaign/" + urls.townFridgeCampaignId
+      urls.SFOperationPrefix + "/Campaign/" + urls.townFridgeCampaignId,
     );
   if (!data?.Total_Meals_Donated__c && data?.Total_Meals_Donated__c !== 0) {
     throw Error("Could not get campaign info");

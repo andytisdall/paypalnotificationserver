@@ -1,4 +1,4 @@
-import { format, utcToZonedTime } from "date-fns-tz";
+import { format, toZonedTime } from "date-fns-tz";
 
 import fetcher from "../../fetcher";
 import urls from "../../urls";
@@ -72,7 +72,7 @@ interface FormattedMealDelivery {
 }
 
 const formatMealDelivery = (
-  unformattedDelivery: UnformattedMealDelivery
+  unformattedDelivery: UnformattedMealDelivery,
 ): FormattedMealDelivery => {
   return {
     date: unformattedDelivery.Date__c,
@@ -157,7 +157,7 @@ const formatMealDelivery = (
 // };
 
 export const createScheduledDelivery = async (
-  delivery: NewMobileOasisDelivery
+  delivery: NewMobileOasisDelivery,
 ) => {
   await fetcher.setService("salesforce");
   const insertUri = urls.SFOperationPrefix + "/Meal_Program_Delivery__c";
@@ -167,8 +167,8 @@ export const createScheduledDelivery = async (
     CBO__c: urls.townFridgeAccountId,
     Restaurant__c: urls.ckKitchenAccountId,
     TextTime__c: format(
-      utcToZonedTime(new Date(), "America/Los_Angeles"),
-      "HH:mm:ss.SSS"
+      toZonedTime(new Date(), "America/Los_Angeles"),
+      "HH:mm:ss.SSS",
     ),
     Delivery_Method__c: "CK Pickup",
     Number_of_Meals_Meat__c: delivery.numberOfMealsMeat,
@@ -239,14 +239,14 @@ export const deleteSurveyData = async () => {
   const query =
     "SELECT Id FROM Meal_Survey_Data_2__c WHERE CreatedDate = TODAY";
   const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
-    urls.SFQueryPrefix + encodeURIComponent(query)
+    urls.SFQueryPrefix + encodeURIComponent(query),
   );
   const promises = data.records
     .filter((rec) => rec.Id !== "a10UP00000AZvwwYAD")
     .map((rec) =>
       fetcher.delete(
-        urls.SFOperationPrefix + "/Meal_Survey_Data_2__c/" + rec.Id
-      )
+        urls.SFOperationPrefix + "/Meal_Survey_Data_2__c/" + rec.Id,
+      ),
     );
   await Promise.all(promises);
 };

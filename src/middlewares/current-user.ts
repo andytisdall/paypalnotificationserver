@@ -1,10 +1,10 @@
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 
-import getSecrets from '../utils/getSecrets';
+import getSecrets from "../utils/getSecrets";
 
-const User = mongoose.model('User');
+const User = mongoose.model("User");
 
 export interface UserPayload {
   id: string;
@@ -34,7 +34,7 @@ declare global {
 export const currentUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { authorization } = req.headers;
 
@@ -42,12 +42,19 @@ export const currentUser = async (
     return next();
   }
 
-  const { JWT_KEY } = await getSecrets(['JWT_KEY']);
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {
-    throw Error('No JWT Key found');
+    throw Error("No JWT Key found");
   }
 
-  const payload = jwt.verify(authorization, JWT_KEY) as unknown as UserPayload;
-  req.currentUser = (await User.findById(payload.id)) || undefined;
-  next();
+  try {
+    const payload = jwt.verify(
+      authorization,
+      JWT_KEY,
+    ) as unknown as UserPayload;
+    req.currentUser = (await User.findById(payload.id)) || undefined;
+    next();
+  } catch (err) {
+    next();
+  }
 };

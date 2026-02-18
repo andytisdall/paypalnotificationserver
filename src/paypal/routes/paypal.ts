@@ -1,6 +1,6 @@
 import express from "express";
-import moment from "moment";
 import mongoose from "mongoose";
+import { format, formatISO, addDays } from "date-fns";
 
 import { sendDonationAckEmail } from "../../utils/email/emailTemplates/donationAck";
 import {
@@ -140,8 +140,11 @@ paypalRouter.post("/", async (req, res) => {
 });
 
 const formatDate = (date: string) => {
-  const splitDate = date.split(" ").filter((el, i, a) => i !== a.length - 1);
-  return moment(splitDate, "HH:mm:ss MMM D, YYYY").format();
+  const splitDate = date
+    .split(" ")
+    .filter((el, i, a) => i !== a.length - 1)
+    .join(" ");
+  return format(new Date(splitDate), "HH:mm:ss MMM D, YYYY");
 };
 
 // const verifyPaypalMessage = async (paypalData: PaypalData) => {
@@ -171,10 +174,10 @@ const formatDate = (date: string) => {
 const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   const formattedDate = formatDate(paypalData.time_created);
 
-  let dayOfMonth = moment(formattedDate).format("D");
+  let dayOfMonth = format(formattedDate, "d");
   if (
     parseInt(dayOfMonth) === 31 ||
-    (moment(formattedDate).format("M") === "2" && parseInt(dayOfMonth) >= 28)
+    (format(formattedDate, "M") === "2" && parseInt(dayOfMonth) >= 28)
   ) {
     dayOfMonth = "Last_Day";
   }
@@ -186,7 +189,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
     npsp__RecurringType__c: "Open",
     npsp__Day_of_Month__c: dayOfMonth,
     npe03__Installment_Period__c: paypalData.payment_cycle!,
-    npsp__StartDate__c: moment().format(),
+    npsp__StartDate__c: formatISO(new Date()),
   };
 
   if (paypalData.custom && activeCampaigns[paypalData.custom]) {
@@ -208,7 +211,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
 
 const cancelRecurring = async (
   paypalData: PaypalData,
-  contact: ContactData
+  contact: ContactData,
 ) => {
   const recurringQuery = [
     "SELECT",
@@ -233,7 +236,7 @@ const cancelRecurring = async (
     const recurringToUpdate = {
       npsp__Status__c: "Closed",
       npsp__ClosedReason__c: paypalData.txn_type.replace(/_/gi, " "),
-      npsp__EndDate__c: moment().add(1, "days"),
+      npsp__EndDate__c: addDays(new Date(), 1),
     };
 
     const recurringUpdateUri =
@@ -247,7 +250,7 @@ const cancelRecurring = async (
       name: `${paypalData.first_name} ${paypalData.last_name}`,
     };
     console.log(
-      "Recurring Donation Canceled: " + JSON.stringify(summaryMessage)
+      "Recurring Donation Canceled: " + JSON.stringify(summaryMessage),
     );
   } else {
     throw Error("Recurring donation not found");
@@ -257,7 +260,7 @@ const cancelRecurring = async (
 const updateRecurringOpp = async (
   paypalData: PaypalData,
   contact: ContactData,
-  status: "Closed Lost" | "Posted"
+  status: "Closed Lost" | "Posted",
 ) => {
   // query donations to get ID
   const oppQuery = [
@@ -316,9 +319,10 @@ const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
     npsp__Primary_Contact__c: contact.id!,
     StageName: "Posted",
     CloseDate: formattedDate,
-    Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${moment(
-      formattedDate
-    ).format("M/D/YYYY")}`,
+    Name: `${paypalData.first_name} ${paypalData.last_name} Donation ${format(
+      formattedDate,
+      "M/d/yyyy",
+    )}`,
     RecordTypeId: "0128Z000001BIZJQA4",
     Processing_Fee__c: paypalData.payment_fee,
   };
@@ -331,7 +335,7 @@ const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
   // @ts-ignore
   const response: { data: SFInsertResponse | undefined } = await fetcher.post(
     oppInsertUri,
-    oppToAdd
+    oppToAdd,
   );
   const summaryMessage = {
     success: response.data?.success,

@@ -1,4 +1,4 @@
-import { zonedTimeToUtc } from "date-fns-tz";
+import { fromZonedTime } from "date-fns-tz";
 
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
@@ -7,7 +7,7 @@ import createQuery, { FilterGroup, QueryFilter } from "../queryCreator";
 import { addDays } from "date-fns";
 
 export const getShift = async (
-  shiftId: string
+  shiftId: string,
 ): Promise<FormattedShift | undefined> => {
   await fetcher.setService("salesforce");
 
@@ -34,7 +34,7 @@ export const getShift = async (
 
 export const getShifts = async (
   jobId: string,
-  daysInAdvance: number = 60
+  daysInAdvance: number = 60,
 ): Promise<FormattedShift[]> => {
   const formattedDaysInAdvance = addDays(new Date(), daysInAdvance);
 
@@ -116,9 +116,9 @@ export const createShift = async ({
     GW_Volunteers__Volunteer_Job__c: jobId,
     Restaurant_Meals__c: restaurantMeals,
     GW_Volunteers__Duration__c: 1,
-    GW_Volunteers__Start_Date_Time__c: zonedTimeToUtc(
+    GW_Volunteers__Start_Date_Time__c: fromZonedTime(
       date,
-      "America/Los_Angeles"
+      "America/Los_Angeles",
     ).toUTCString(),
     GW_Volunteers__Desired_Number_of_Volunteers__c: 1,
   };

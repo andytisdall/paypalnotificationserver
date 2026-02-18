@@ -1,5 +1,5 @@
 import express from "express";
-import { zonedTimeToUtc } from "date-fns-tz";
+import { fromZonedTime } from "date-fns-tz";
 import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 
 import { getTwilioClient } from "./outgoingText";
@@ -29,7 +29,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
 
   if (!MESSAGING_SERVICE_SID) {
     throw Error(
-      "No Messaging Service ID found, which is required for a scheduled message."
+      "No Messaging Service ID found, which is required for a scheduled message.",
     );
   }
 
@@ -80,7 +80,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   dateTime.setMinutes(0);
 
   // const formattedTime = formatISO(dateTime);
-  const zonedTime = zonedTimeToUtc(dateTime, "America/Los_Angeles");
+  const zonedTime = fromZonedTime(dateTime, "America/Los_Angeles");
 
   const mediaUrl = photo ? [photo] : undefined;
 
@@ -145,7 +145,7 @@ router.get(
     await scheduledText.save();
 
     res.send({ success: true });
-  }
+  },
 );
 
 router.post(
@@ -170,7 +170,7 @@ router.post(
     await scheduledText.save();
 
     res.send({ success: true });
-  }
+  },
 );
 
 router.get(
@@ -186,7 +186,7 @@ router.get(
     };
     const messages = await twilioClient.messages.list(options);
     res.send(messages.filter((txt) => txt.status === "scheduled"));
-  }
+  },
 );
 
 router.post(
@@ -205,7 +205,7 @@ router.post(
     const updatedMessages = await Promise.all(promises);
 
     res.send(updatedMessages);
-  }
+  },
 );
 
 export default router;

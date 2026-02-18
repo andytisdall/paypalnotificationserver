@@ -71,7 +71,7 @@ router.post(
 
     await notificationsService.send(userTokens, payload);
     res.sendStatus(204);
-  }
+  },
 );
 
 router.get("/notifications", currentUser, requireAuth, async (req, res) => {
@@ -90,7 +90,7 @@ router.get(
   currentUser,
   requireAuth,
   async (req, res) => {
-    const { days } = req.params;
+    const days = req.params.days as string;
     const daysInt = parseInt(days);
     let query;
 
@@ -133,7 +133,7 @@ router.get(
     //   },
     // ];
     res.send(notifications);
-  }
+  },
 );
 
 export default router;

@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { addDays } from "date-fns";
-import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import mongoose from "mongoose";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
@@ -68,11 +68,11 @@ router.post("/rewards/check-in", currentD4JUser, async (req, res) => {
     return res.send(result);
   }
 
-  const midnightToday = utcToZonedTime(new Date(date), "America/Los_Angeles");
+  const midnightToday = toZonedTime(new Date(date), "America/Los_Angeles");
 
   midnightToday.setHours(0);
   midnightToday.setMinutes(0);
-  const lowerBound = zonedTimeToUtc(midnightToday, "America/Los_Angeles");
+  const lowerBound = fromZonedTime(midnightToday, "America/Los_Angeles");
   const upperBound = addDays(lowerBound, 1);
 
   const existingCheckIn = await CheckIn.findOne({
@@ -135,7 +135,7 @@ router.post(
 
     const allowedCheckIns = checkIns.filter(
       (checkIn) =>
-        !Object.values(DISALLOWED_CONTACTS).includes(checkIn.Contact__c)
+        !Object.values(DISALLOWED_CONTACTS).includes(checkIn.Contact__c),
     );
 
     const numberOfCheckIns = allowedCheckIns.length;
@@ -169,11 +169,11 @@ router.post(
       },
       numberOfCheckIns,
     });
-  }
+  },
 );
 
 const drawWinner = async (
-  checkIns: D4JCheckIn[]
+  checkIns: D4JCheckIn[],
 ): Promise<UnformattedContact> => {
   // get random number between 0 and list length - 1
   const randomIndex = Math.floor(Math.random() * (checkIns.length - 1));

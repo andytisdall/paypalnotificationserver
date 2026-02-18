@@ -1,6 +1,6 @@
 import express from "express";
 import { getDay, addDays, getHours } from "date-fns";
-import utcToZonedTime from "date-fns-tz/utcToZonedTime";
+import { toZonedTime } from "date-fns-tz";
 
 import urls from "../../utils/urls";
 import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
@@ -29,14 +29,14 @@ const getJobShifts = async (jobId: string) => {
 
   if (isMealPrep) {
     shifts = shifts.filter((sh) => {
-      const shiftDateTime = utcToZonedTime(sh.startTime, "America/Los_Angeles");
+      const shiftDateTime = toZonedTime(sh.startTime, "America/Los_Angeles");
       const day = getDay(shiftDateTime);
       const hour = getHours(shiftDateTime);
 
       const holdDateForGroups = hour < 17 && ![0, 4, 5].includes(day);
 
       if (holdDateForGroups) {
-        return shiftDateTime < addDays(new Date(), 30);
+        return shiftDateTime < addDays(new Date(), 60);
       }
       return true;
     });

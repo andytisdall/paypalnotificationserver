@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import { formatISO, addDays, subMonths, addMonths, format } from "date-fns";
-import { zonedTimeToUtc } from "date-fns-tz";
+import { fromZonedTime } from "date-fns-tz";
 
 import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
@@ -21,9 +21,9 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
     return res.send(null);
   }
 
-  const startDate = zonedTimeToUtc(start, "America/Los_Angeles");
+  const startDate = fromZonedTime(start, "America/Los_Angeles");
 
-  const endDate = addDays(zonedTimeToUtc(end, "America/Los_Angeles"), 1);
+  const endDate = addDays(fromZonedTime(end, "America/Los_Angeles"), 1);
 
   // for queries on specific ranges
   // const startDate = new Date(2025, 9, 8);
@@ -112,12 +112,12 @@ router.get(
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const { date } = req.params;
+    const date = req.params.date as string;
 
     const [startDate, endDate] = date.split("&");
 
-    const startTime = zonedTimeToUtc(startDate, "America/Los_Angeles");
-    const endTime = addDays(zonedTimeToUtc(endDate, "America/Los_Angeles"), 1);
+    const startTime = fromZonedTime(startDate, "America/Los_Angeles");
+    const endTime = addDays(fromZonedTime(endDate, "America/Los_Angeles"), 1);
 
     const clientMeals = await ClientMeal.find({
       date: {
