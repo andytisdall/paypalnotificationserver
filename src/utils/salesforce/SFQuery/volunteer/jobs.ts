@@ -8,7 +8,10 @@ import { Job, FormattedJob } from "./types";
 
 const decodeString = (string: string) => {
   return decode(
-    string?.replace(/\<\/p\>\<p\>/g, "\n").replace(/\<[^<>]*\>/g, ""),
+    string
+      ?.replace(/\<\/p\>\<p\>/g, "\n")
+      .replace(/<br>/g, "\n")
+      .replace(/\<[^<>]*\>/g, ""),
   );
 };
 

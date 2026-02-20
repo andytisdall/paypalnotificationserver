@@ -32,11 +32,8 @@ export const getShift = async (
   }
 };
 
-export const getShifts = async (
-  jobId: string,
-  daysInAdvance: number = 60,
-): Promise<FormattedShift[]> => {
-  const formattedDaysInAdvance = addDays(new Date(), daysInAdvance);
+export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
+  const formattedDaysInAdvance = addDays(new Date(), 60);
 
   const fields = [
     "Id",
