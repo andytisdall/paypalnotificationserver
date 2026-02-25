@@ -16,13 +16,11 @@ interface Secrets {
   D4J_FCM_API_KEY: string;
   HC_FCM_API_KEY: string;
   GOOGLE_MAPS_API_KEY: string;
-  DOCMADEEASY_KEY: string;
   CK_API_KEY: string;
   APPLE_TEAM_ID: string;
   APPLE_KID: string;
   APPLE_AUTH_KEY: string;
   POSTMARK_API_KEY: string;
-  SENDGRID_KEY: string;
   ZOHO_SANDBOX_TOKEN: string;
   ZOHO_CLIENT_SECRET: string;
   ZOHO_CLIENT_ID: string;
@@ -32,7 +30,7 @@ interface Secrets {
 type Secret = keyof Secrets;
 
 const getSecrets: (nameList: Secret[]) => Promise<Partial<Secrets>> = async (
-  nameList
+  nameList,
 ) => {
   if (process.env.NODE_ENV !== "production") {
     const keys: any = require("../../keys");

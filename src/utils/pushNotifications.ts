@@ -65,7 +65,7 @@ const createNotificationsService = async (app: "d4j" | "homechef") => {
   const NotificationService = new PushNotifications(config);
   const sendNotification = function (
     tokens: string[],
-    data: { title: string; body: string }
+    data: { title: string; body: string },
   ) {
     const payload: PushNotifications.Data = {
       topic: bundleId,

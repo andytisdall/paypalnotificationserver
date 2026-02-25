@@ -4,11 +4,12 @@ export const REGIONS: Record<Region, string> = {
   WEST_OAKLAND: "+15105297288",
   EAST_OAKLAND: "+15109301159",
   BERKELEY: "+15106944697",
+  RESOURCES: "+15108673402",
 };
 
 export const VOLUNTEER_REMINDER_NUMBER = "+15102886563";
 
-export type Region = "EAST_OAKLAND" | "WEST_OAKLAND" | "BERKELEY";
+export type Region = "EAST_OAKLAND" | "WEST_OAKLAND" | "BERKELEY" | "RESOURCES";
 
 const phoneSchema = new mongoose.Schema(
   {
@@ -23,6 +24,7 @@ const phoneSchema = new mongoose.Schema(
       },
     ],
     fails: [{ type: Date }],
+    noImg: Boolean,
   },
   {
     toJSON: {

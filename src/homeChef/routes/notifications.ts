@@ -67,6 +67,8 @@ router.post(
       });
     }
 
+    console.log(users);
+
     const userTokens = users.map((u: any) => u.homeChefNotificationToken);
 
     await notificationsService.send(userTokens, payload);

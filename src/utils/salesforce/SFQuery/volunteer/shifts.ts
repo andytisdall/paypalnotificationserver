@@ -53,7 +53,7 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
       {
         field: "GW_Volunteers__Start_Date_Time__c",
         operator: ">=",
-        value: { date: new Date(), type: "datetime" },
+        value: { date: "TODAY", type: "datestring" },
       },
       {
         field: "GW_Volunteers__Start_Date_Time__c",

@@ -86,6 +86,8 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   }
 
   let formattedNumbers: string[] = [];
+  let noImgNumbers: string[] = [];
+
   const responsePhoneNumber =
     formattedRegion === "ALL" || number
       ? REGIONS.WEST_OAKLAND
@@ -100,7 +102,11 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
             },
           })
         : await Phone.find({ region: formattedRegion });
-    formattedNumbers = allPhoneNumbers.map((p) => p.number);
+    formattedNumbers = allPhoneNumbers
+      .filter((p) => !p.noImg)
+      .map((p) => p.number);
+
+    noImgNumbers = allPhoneNumbers.filter((p) => p.noImg).map((p) => p.number);
   } else {
     const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
@@ -113,6 +119,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
 
   if (process.env.NODE_ENV !== "production") {
     formattedNumbers = formattedNumbers.filter((num) => num === "+14158190251");
+    noImgNumbers = [];
   }
 
   // photo
@@ -122,6 +129,8 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     from: responsePhoneNumber,
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
+
+  let mediaUrl: string[] = [];
 
   if (attachedPhoto) {
     let photoArray: fileUpload.UploadedFile[] = [];
@@ -147,19 +156,29 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
       });
     });
 
-    outgoingText.mediaUrl = await Promise.all(photoUrlPromises);
+    mediaUrl = await Promise.all(photoUrlPromises);
   } else if (photo) {
-    outgoingText.mediaUrl = [photo];
+    mediaUrl = [photo];
   }
-  const mediaUrl = outgoingText.mediaUrl ? outgoingText.mediaUrl[0] : undefined;
 
   //
 
-  const createOutgoingText = async (phone: string) => {
-    return await twilioClient.messages.create({ ...outgoingText, to: phone });
-  };
+  const textPromises = [
+    ...formattedNumbers.map(async (phone) => {
+      return await twilioClient.messages.create({
+        ...outgoingText,
+        to: phone,
+        mediaUrl,
+      });
+    }),
+    ...noImgNumbers.map(async (phone) => {
+      return await twilioClient.messages.create({
+        ...outgoingText,
+        to: phone,
+      });
+    }),
+  ];
 
-  const textPromises = formattedNumbers.map(createOutgoingText);
   await Promise.all(textPromises);
 
   if (feedbackId) {
@@ -181,7 +200,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
         sender: req.currentUser!.id,
         region: number || region,
         message,
-        image: mediaUrl,
+        image: mediaUrl[0],
       },
     );
     await newOutgoingTextRecord.save();
@@ -190,7 +209,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   res.send({
     message,
     region: formattedRegion,
-    photoUrl: mediaUrl,
+    photoUrl: mediaUrl[0],
     number,
     storedText,
   });

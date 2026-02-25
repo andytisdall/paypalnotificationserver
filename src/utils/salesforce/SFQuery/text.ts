@@ -1,6 +1,7 @@
-import { regionKey } from '../../../text/textResponses';
-import fetcher from '../../fetcher';
-import urls from '../../urls';
+import { Region } from "../../../text/models/phone";
+import { regionKey } from "../../../text/textResponses";
+import fetcher from "../../fetcher";
+import urls from "../../urls";
 
 interface TextSubscriber {
   Name?: string;
@@ -8,21 +9,21 @@ interface TextSubscriber {
 }
 
 const regionToString = (regions: string[]) => {
-  return regions.length ? regions.map((r) => regionKey[r]).join(';') + ';' : '';
+  return regions.length ? regions.map((r) => regionKey[r]).join(";") + ";" : "";
 };
 
-export const editTextSubscriber = async (number: string, regions: string[]) => {
-  await fetcher.setService('salesforce');
+export const editTextSubscriber = async (number: string, regions: Region[]) => {
+  await fetcher.setService("salesforce");
 
   const query = `SELECT Id from Text_Service_Subscriber__c WHERE Name = '${number}'`;
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
   const res = await fetcher.get(queryUri);
   if (!res.data?.records?.length) {
-    throw Error('Text subscriber not found in salesforce');
+    throw Error("Text subscriber not found in salesforce");
   }
   const { Id } = res.data.records[0];
   const regionsString = regionToString(regions);
-  const patchUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c/' + Id;
+  const patchUri = urls.SFOperationPrefix + "/Text_Service_Subscriber__c/" + Id;
   const patchData: TextSubscriber = {
     Regions__c: regionsString,
   };
@@ -30,8 +31,8 @@ export const editTextSubscriber = async (number: string, regions: string[]) => {
 };
 
 export const addTextSubscriber = async (number: string, regions: string[]) => {
-  await fetcher.setService('salesforce');
-  const insertUri = urls.SFOperationPrefix + '/Text_Service_Subscriber__c';
+  await fetcher.setService("salesforce");
+  const insertUri = urls.SFOperationPrefix + "/Text_Service_Subscriber__c";
   const regionsString = regionToString(regions);
   const insertData: TextSubscriber = {
     Name: number,
@@ -39,25 +40,25 @@ export const addTextSubscriber = async (number: string, regions: string[]) => {
   };
   const { data }: { data: { success?: boolean } } = await fetcher.post(
     insertUri,
-    insertData
+    insertData,
   );
   if (!data.success) {
-    throw Error('Unable to insert new text subscriber');
+    throw Error("Unable to insert new text subscriber");
   }
 };
 
 export const removeTextSubscriber = async (number: string) => {
-  await fetcher.setService('salesforce');
+  await fetcher.setService("salesforce");
 
   const query = `SELECT Id from Text_Service_Subscriber__c WHERE Name = '${number}'`;
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);
   const res = await fetcher.get(queryUri);
   if (!res.data?.records?.length) {
-    throw Error('Text subscriber not found in salesforce');
+    throw Error("Text subscriber not found in salesforce");
   }
 
   const { Id } = res.data.records[0];
   const deleteUri =
-    urls.SFOperationPrefix + '/Text_Service_Subscriber__c/' + Id;
+    urls.SFOperationPrefix + "/Text_Service_Subscriber__c/" + Id;
   await fetcher.delete(deleteUri);
 };

@@ -20,6 +20,7 @@ const ERROR_CODES = {
   UNSUBSCRIBED: "21610",
   NO_MMS: "30011",
   UNKNOWN: "30005",
+  UNREACHABLE: "30003",
 };
 
 const FAIL_LIMIT = 8;
@@ -35,7 +36,7 @@ router.post("/message-status", async (req, res) => {
     const phoneNumber = await Phone.findOne({ number: msg.to });
     if (!phoneNumber) {
       console.log(
-        "Text status callback error received but could not find phone number in db"
+        "Text status callback error received but could not find phone number in db",
       );
       return res.sendStatus(200);
     }
@@ -43,13 +44,16 @@ router.post("/message-status", async (req, res) => {
     if (ERROR_CODES.UNSUBSCRIBED === ErrorCode) {
       await Phone.deleteOne({ _id: phoneNumber.id });
       await removeTextSubscriber(phoneNumber.number);
-    } else if (ERROR_CODES.UNKNOWN === ErrorCode) {
+    } else if (
+      ERROR_CODES.UNKNOWN === ErrorCode ||
+      ERROR_CODES.UNREACHABLE === ErrorCode
+    ) {
       if (!phoneNumber.fails) {
         phoneNumber.fails = [];
       }
 
       const failsWithinPeriod = phoneNumber.fails.filter(
-        (date: Date) => date > subMonths(new Date(), 1)
+        (date: Date) => date > subMonths(new Date(), 1),
       ).length;
 
       if (failsWithinPeriod < FAIL_LIMIT) {

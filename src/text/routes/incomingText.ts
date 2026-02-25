@@ -25,7 +25,7 @@ export type PhoneNumber =
       }
     > & {
       number: string;
-      region: string[];
+      region: Region[];
     } & {
       _id: mongoose.Types.ObjectId;
     })
@@ -48,7 +48,7 @@ router.post(
 
     res.set("Content-Type", "text/xml");
     return res.send(response.toString());
-  }
+  },
 );
 
 const getImages = (body: any) => {
@@ -70,7 +70,7 @@ export interface IncomingText {
 
 const routeTextToResponse = async (
   { Body, From, To }: IncomingText,
-  images: string[]
+  images: string[],
 ) => {
   const regions = Object.keys(REGIONS) as Region[];
   const region = regions.find((reg) => REGIONS[reg] === To);
@@ -88,14 +88,14 @@ const routeTextToResponse = async (
     if (existingNumber && existingNumber.region.includes(region)) {
       return textResponses.duplicateResponse(region);
     }
-    return await addPhoneNumber(existingNumber, From, region);
+    await addPhoneNumber(existingNumber, From, region);
+    return textResponses.signUpResponse(region);
   }
 
   // built in unsubscribe words for twilio. outgoing messages will be blocked until 'START' is texted
 
   if (textResponses.CANCEL_WORDS.includes(keyword)) {
     await removePhoneNumber(existingNumber, region);
-
     return null;
   }
 
@@ -110,13 +110,14 @@ const routeTextToResponse = async (
 
   // if it's an existing user with text that has not been matched, it's treated as feedback
 
-  return await receiveFeedback({ message: Body, sender: From, region, images });
+  await receiveFeedback({ message: Body, sender: From, region, images });
+  return textResponses.feedbackResponse();
 };
 
-const addPhoneNumber = async (
+export const addPhoneNumber = async (
   user: PhoneNumber,
   number: string,
-  region: Region
+  region: Region,
 ) => {
   if (user) {
     user.region.push(region);
@@ -127,10 +128,9 @@ const addPhoneNumber = async (
     await newPhone.save();
     await addTextSubscriber(newPhone.number, newPhone.region);
   }
-  return textResponses.signUpResponse(region);
 };
 
-const removePhoneNumber = async (user: PhoneNumber, region: Region) => {
+export const removePhoneNumber = async (user: PhoneNumber, region: Region) => {
   if (!user) {
     return;
   }
@@ -146,11 +146,10 @@ interface Feedback {
   images: string[];
 }
 
-const receiveFeedback = async (feedbackArgs: Feedback) => {
+export const receiveFeedback = async (feedbackArgs: Feedback) => {
   const newFeedback = new Feedback(feedbackArgs);
   await newFeedback.save();
   await sendFBNotification(feedbackArgs);
-  return textResponses.feedbackResponse();
 };
 
 const sendFBNotification = async (feedbackArgs: Feedback) => {

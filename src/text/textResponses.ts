@@ -14,6 +14,7 @@ export const regionKey: Regions = {
   EAST_OAKLAND: "East Oakland",
   WEST_OAKLAND: "West Oakland",
   BERKELEY: "Berkeley",
+  RESOUCES: "Resources",
 };
 
 const SIGN_UP_WORDS = ["signup", "enroll", "start", "unstop", "yes"];

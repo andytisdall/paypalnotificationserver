@@ -6,7 +6,6 @@ import urls from "../../utils/urls";
 import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import fetcher from "../../utils/fetcher";
 
 const router = express.Router();
 

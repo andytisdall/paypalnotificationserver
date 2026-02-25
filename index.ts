@@ -86,7 +86,7 @@ apiRouter.use("/home-chef", homeChefRouter);
 apiRouter.use("/volunteers", volunteersRouter);
 apiRouter.use("/d4j", d4jRouter);
 apiRouter.use("/sign", signRouter);
-apiRouter.use(emailRouter);
+apiRouter.use("/email", emailRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get("/{*path}", (req, res) => {

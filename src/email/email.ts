@@ -5,7 +5,7 @@ import { sendBatchEmail, sendEmail } from "../utils/email/email";
 
 const router = express.Router();
 
-router.post("/email", requireSalesforceAuth, async (req, res) => {
+router.post("/", requireSalesforceAuth, async (req, res) => {
   const {
     emailText,
     emailAddress,
