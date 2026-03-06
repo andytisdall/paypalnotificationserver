@@ -1,5 +1,6 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
+import { getContactById } from "../contact/contact";
 import createQuery, { FilterGroup } from "../queryCreator";
 import { InsertSuccessResponse } from "./../reusableTypes";
 import { CreateHoursParams, FormattedHours, UnformattedHours } from "./types";
@@ -15,13 +16,17 @@ export const createHours = async ({
   restaurantMeals,
 }: CreateHoursParams): Promise<FormattedHours> => {
   await fetcher.setService("salesforce");
+
+  const contact = await getContactById(contactId);
+  if (contact.Banned_from_Volunteering__c) {
+    throw Error("This contact is banned from signing up to volunteer");
+  }
+
   const { data } = await fetcher.get(
     urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shiftId,
   );
-  // getting this error
+
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
-    console.log(data);
-    console.log("Contact trying to book is " + contactId);
     throw new Error("This shift has no available slots");
   }
 

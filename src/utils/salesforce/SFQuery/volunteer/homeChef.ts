@@ -178,7 +178,7 @@ export const createHomeChefSurvey = async ({
 
   // update contact
 
-  await updateContact(contactId, { Home_Chef_Survey_Completed__c: true });
+  // await updateContact(contactId, { Home_Chef_Survey_Completed__c: true });
 
   await Promise.all([...dayPromises, ...itemPromises]);
 };

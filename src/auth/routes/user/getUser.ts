@@ -17,16 +17,6 @@ router.get("/", currentUser, async (req, res) => {
   res.send(req.currentUser);
 });
 
-router.post("/email", async (req, res) => {
-  await sendEmail({
-    to: "andy@ckoakland.org",
-    from: "andy@ckoakland.org",
-    html: "<p>You got an <strong>email!</strong></p>",
-    subject: "Email Test from You",
-  });
-  res.send(null);
-});
-
 router.get("/all", currentUser, requireAuth, requireAdmin, async (req, res) => {
   const allUsers = await User.find();
 

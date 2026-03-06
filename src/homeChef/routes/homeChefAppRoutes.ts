@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/fridges", currentUser, requireAuth, async (req, res) => {
   // this router gets the fridges for text app purposes
-  // fridges without a region are excluded
+  // no texts for bartlett or ck kitchen
   await fetcher.setService("salesforce");
 
   const jobs = await getJobs(urls.townFridgeCampaignId);
@@ -19,8 +19,8 @@ router.get("/fridges", currentUser, requireAuth, async (req, res) => {
       (j) =>
         j.active &&
         j.id !== urls.barlettTownFridgeId &&
-        j.region !== "CK Kitchen"
-    )
+        j.region !== "CK Kitchen",
+    ),
   );
 });
 

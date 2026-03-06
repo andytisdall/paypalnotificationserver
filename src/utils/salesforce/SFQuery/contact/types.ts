@@ -26,11 +26,13 @@ export interface UnformattedContact {
   Home_Chef_Volunteeer_Agreement__c?: boolean;
   Home_Chef_Food_Handler_Certification__c?: boolean;
   Home_Chef_Quiz_Passed__c?: boolean;
-  Home_Chef_Survey_Completed__c?: boolean;
 
   //ck kitchen
   CK_Kitchen_Agreement__c?: boolean;
   CK_Kitchen_Volunteer_Status__c?: string;
+
+  // BANNED
+  Banned_from_Volunteering__c?: boolean;
 
   // driver
   Car_Size__c?: "Bike" | "Small" | "Medium" | "Large";
@@ -71,6 +73,8 @@ export interface FormattedContact {
   };
   insuranceExpiration?: string;
   licenseExpiration?: string;
+
+  banned?: boolean;
 }
 
 export interface D4JContact {

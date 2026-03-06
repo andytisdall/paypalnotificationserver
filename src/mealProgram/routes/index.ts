@@ -6,7 +6,7 @@ import createMealsRouter from "./createMeals";
 import surveyRouter from "./survey";
 import doorfrontMealsRouter from "./doorfront/meals";
 import doorfrontClientRouter from "./doorfront/client";
-
+import mealsPlusRouter from "./mealsPlus";
 import workforceRouter from "./workforce";
 
 const router = express.Router({ mergeParams: true });
@@ -18,5 +18,6 @@ router.use(surveyRouter);
 router.use(doorfrontMealsRouter);
 router.use(doorfrontClientRouter);
 router.use(workforceRouter);
+router.use(mealsPlusRouter);
 
 export default router;

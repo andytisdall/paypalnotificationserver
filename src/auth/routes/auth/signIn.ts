@@ -20,7 +20,9 @@ router.post("/signin", async (req, res) => {
 
   const { username, password } = req.body;
 
-  const existingUser = await User.findOne({ username });
+  const existingUser = await User.findOne({
+    username,
+  });
   if (!existingUser) {
     res.status(401);
     throw new Error("Credentials Invalid");
@@ -28,7 +30,7 @@ router.post("/signin", async (req, res) => {
 
   const passwordsMatch = await Password.compare(
     existingUser.password,
-    password
+    password,
   );
 
   if (!passwordsMatch) {
@@ -40,7 +42,7 @@ router.post("/signin", async (req, res) => {
     {
       id: existingUser.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   res.send({ user: existingUser, token });
@@ -73,11 +75,11 @@ router.post(
       {
         id: user.id,
       },
-      JWT_KEY
+      JWT_KEY,
     );
 
     res.send({ user, token });
-  }
+  },
 );
 
 export default router;

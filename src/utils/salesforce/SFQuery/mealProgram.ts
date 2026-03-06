@@ -2,8 +2,6 @@ import { format, toZonedTime } from "date-fns-tz";
 
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-// import { getAccountById } from "./account/account";
-// import { UnformattedRestaurant } from "./account/types";
 import {
   MealSurveyArgs,
   SNAPSurveyArgs,
@@ -55,106 +53,6 @@ interface UnformattedMealDelivery {
   Is_Next_Week__c?: boolean;
   Funding_Source__c?: string;
 }
-
-interface FormattedMealDelivery {
-  date: string;
-  cbo: string;
-  restaurant: string;
-  id?: string;
-  time: string;
-  deliveryMethod: string;
-  numberOfMealsMeat: number;
-  numberOfMealsVeg: number;
-  notes: string;
-  price?: number;
-  isThisWeek?: boolean;
-  isNextWeek?: boolean;
-}
-
-const formatMealDelivery = (
-  unformattedDelivery: UnformattedMealDelivery,
-): FormattedMealDelivery => {
-  return {
-    date: unformattedDelivery.Date__c,
-    cbo: unformattedDelivery.CBO__c,
-    restaurant: unformattedDelivery.Restaurant__c,
-    id: unformattedDelivery.Id,
-    time: unformattedDelivery.Time__c!,
-    deliveryMethod: unformattedDelivery.Delivery_Method__c,
-    numberOfMealsMeat: unformattedDelivery.Number_of_Meals_Meat__c,
-    numberOfMealsVeg: unformattedDelivery.Number_of_Meals_Veg__c,
-    notes: unformattedDelivery.Delivery_Notes__c,
-    price: unformattedDelivery.Price_Per_Meal__c,
-    isThisWeek: unformattedDelivery.Is_This_Week__c,
-    isNextWeek: unformattedDelivery.Is_Next_Week__c,
-  };
-};
-
-// export const getMealProgramSchedule = async () => {
-//   await fetcher.setService("salesforce");
-
-//   const deliveryQuery = `SELECT Date__c, CBO__c, Restaurant__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c FROM Meal_Program_Delivery__c WHERE Is_This_Week__c = true OR Is_Next_Week__c = true`;
-//   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
-//   const deliveryResponse = await fetcher.get(deliveryyUri);
-//   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
-
-//   const accountQuery = `SELECT Id, Name FROM Account WHERE Meal_Program_Status__c = 'Active' OR Type = 'Community Group' OR Type = 'Town Fridge'`;
-//   const accountUri = urls.SFQueryPrefix + encodeURIComponent(accountQuery);
-//   const accountResponse = await fetcher.get(accountUri);
-//   const accounts: UnformattedRestaurant[] = accountResponse.data.records;
-
-//   const missingCBOPromises = deliveries
-//     .filter((del) => {
-//       return !accounts.find((acc) => del.CBO__c === acc.Id);
-//     })
-//     .map(async (delivery: UnformattedMealDelivery) => {
-//       return getAccountById(delivery.CBO__c);
-//     });
-
-//   const missingRestaurantPromises = deliveries
-//     .filter((del) => {
-//       return !accounts.find((acc) => del.Restaurant__c === acc.Id);
-//     })
-//     .map(async (delivery: UnformattedMealDelivery) => {
-//       return getAccountById(delivery.Restaurant__c);
-//     });
-
-//   const remainingAccounts = await Promise.all([
-//     ...missingCBOPromises,
-//     ...missingRestaurantPromises,
-//   ]);
-
-//   return {
-//     accounts: [...accounts, ...remainingAccounts].map((a) => {
-//       return { id: a.Id, name: a.Name, address: a.Billing_Address };
-//     }),
-//     deliveries: deliveries.map(formatMealDelivery),
-//   };
-// };
-
-// export const getRestaurantMealProgramSchedule = async (accountId: string) => {
-//   await fetcher.setService("salesforce");
-
-//   const deliveryQuery = `SELECT Date__c, CBO__c, Id, Time__c, Delivery_Method__c, Number_of_Meals_Meat__c, Number_of_Meals_Veg__c, Delivery_Notes__c, Price_Per_Meal__c, Is_This_Week__c, Is_Next_Week__c FROM Meal_Program_Delivery__c WHERE Restaurant__c = '${accountId}' AND Is_This_Week__c = true OR Is_Next_Week__c = true`;
-//   const deliveryyUri = urls.SFQueryPrefix + encodeURIComponent(deliveryQuery);
-//   const deliveryResponse = await fetcher.get(deliveryyUri);
-//   const deliveries: UnformattedMealDelivery[] = deliveryResponse.data.records;
-
-//   const accountPromises = deliveries.map(
-//     async (delivery: UnformattedMealDelivery) => {
-//       return getAccountById(delivery.CBO__c);
-//     }
-//   );
-
-//   const accounts = await Promise.all(accountPromises);
-
-//   return {
-//     accounts: accounts.map((a) => {
-//       return { id: a.Id, name: a.Name };
-//     }),
-//     deliveries: deliveries.map(formatMealDelivery),
-//   };
-// };
 
 export const createScheduledDelivery = async (
   delivery: NewMobileOasisDelivery,
@@ -267,4 +165,50 @@ export const submitSNAPSurveyData = async ({
     Is_your_benefit_less_than_October_s__c: reduce,
     What_day_did_you_get_your_benefits__c: whatDay,
   });
+};
+
+interface MealsPlusServiceSubmission {
+  Name: string;
+  CBO_Name__c: string;
+  Location__c: string;
+  Time__c: string;
+  Instructions__c?: string;
+  Description__c?: string;
+  Contact__c: string;
+}
+
+interface MealsPlusSubmissionArgs {
+  name: string;
+  cbo: string;
+  location: string;
+  time: string;
+  instructions?: string;
+  description?: string;
+  contactId: string;
+}
+
+export const submitMealsPlusData = async ({
+  name,
+  cbo,
+  location,
+  time,
+  instructions,
+  description,
+  contactId,
+}: MealsPlusSubmissionArgs) => {
+  await fetcher.setService("salesforce");
+
+  const url = urls.SFOperationPrefix + "/Meals_Plus_Service_Submission__c";
+
+  const newSubmission: MealsPlusServiceSubmission = {
+    Name: name,
+    Description__c: description,
+    CBO_Name__c: cbo,
+    Location__c: location,
+    Time__c: time,
+    Instructions__c: instructions,
+    Contact__c: contactId,
+  };
+
+  await fetcher.post(url, newSubmission);
 };

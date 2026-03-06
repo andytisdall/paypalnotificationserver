@@ -161,25 +161,32 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     mediaUrl = [photo];
   }
 
-  //
+  // give app users a sensible error message if twilio doesn't work for any reason
 
-  const textPromises = [
-    ...formattedNumbers.map(async (phone) => {
-      return await twilioClient.messages.create({
-        ...outgoingText,
-        to: phone,
-        mediaUrl,
-      });
-    }),
-    ...noImgNumbers.map(async (phone) => {
-      return await twilioClient.messages.create({
-        ...outgoingText,
-        to: phone,
-      });
-    }),
-  ];
+  try {
+    const textPromises = [
+      ...formattedNumbers.map(async (phone) => {
+        return await twilioClient.messages.create({
+          ...outgoingText,
+          to: phone,
+          mediaUrl,
+        });
+      }),
+      ...noImgNumbers.map(async (phone) => {
+        return await twilioClient.messages.create({
+          ...outgoingText,
+          to: phone,
+        });
+      }),
+    ];
 
-  await Promise.all(textPromises);
+    await Promise.all(textPromises);
+  } catch (err) {
+    console.log(err);
+    throw Error(
+      "The CK Text Service is currently out of service. Please check back later.",
+    );
+  }
 
   if (feedbackId) {
     const feedback = await Feedback.findById(feedbackId);

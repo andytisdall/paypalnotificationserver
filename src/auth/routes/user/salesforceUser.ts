@@ -11,6 +11,8 @@ const User = mongoose.model("User");
 
 const router = express.Router();
 
+// this is where we get contact info for volunteer purposes
+
 router.get("/userInfo", currentUser, async (req, res) => {
   // fail silently so users don't get an error on volunteer page
   if (!req.currentUser) {
@@ -20,18 +22,7 @@ router.get("/userInfo", currentUser, async (req, res) => {
     throw Error("User does not have a salesforce ID");
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
-  const contactInfo: Pick<
-    FormattedContact,
-    | "firstName"
-    | "lastName"
-    | "homeChefAgreement"
-    | "foodHandler"
-    | "homeChefQuizPassed"
-    | "homeChefStatus"
-    | "volunteerAgreement"
-    | "ckKitchenStatus"
-    | "homeChefSurveyCompleted"
-  > = {
+  const contactInfo: Partial<FormattedContact> = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
     homeChefAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
@@ -40,8 +31,8 @@ router.get("/userInfo", currentUser, async (req, res) => {
     homeChefStatus: contact.Home_Chef_Status__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
-    homeChefSurveyCompleted: contact.Home_Chef_Survey_Completed__c,
   };
+
   res.send(contactInfo);
 });
 

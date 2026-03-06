@@ -24,6 +24,7 @@ const phoneSchema = new mongoose.Schema(
       },
     ],
     fails: [{ type: Date }],
+    imgFail: Date,
     noImg: Boolean,
   },
   {
