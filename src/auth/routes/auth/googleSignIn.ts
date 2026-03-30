@@ -7,7 +7,10 @@ import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
   getContactByEmail,
+  updateContact,
 } from "../../../utils/salesforce/SFQuery/contact/contact";
+import { getUniqueUsernameAndPassword } from "../user/createUser";
+import { createPortalUser } from "../user/createUser";
 
 const User = mongoose.model("User");
 
@@ -48,7 +51,7 @@ router.post("/google-signin/mobile", async (req, res) => {
       existingUser = await User.findOne({ username: contact.portalUsername });
       if (!existingUser) {
         throw Error(
-          "Your information could not be found. Please contact the administrator at andy@ckoakland.org"
+          "Your information could not be found. Please contact the administrator at andy@ckoakland.org",
         );
       }
       existingUser.googleId = googleId;
@@ -56,7 +59,7 @@ router.post("/google-signin/mobile", async (req, res) => {
     } else {
       // create user?
       throw Error(
-        "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!"
+        "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/volunteer to sign up!",
       );
     }
   }
@@ -65,7 +68,7 @@ router.post("/google-signin/mobile", async (req, res) => {
     {
       id: existingUser.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   res.send({ user: existingUser, token: JWT });
@@ -105,25 +108,48 @@ router.post("/google-signin", async (req, res) => {
     //   // query sf for name
     let contact = await getContact(
       googleProfile.family_name,
-      googleProfile.given_name
+      googleProfile.given_name,
     );
     if (!contact) {
       contact = await getContactByEmail(googleProfile.email);
     }
     if (contact) {
+      const { username, password } = await getUniqueUsernameAndPassword({
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+      });
       if (contact.portalUsername) {
         // check if they have username already?
         // assign existing user a google id
         existingUser = await User.findOne({ username: contact.portalUsername });
         if (!existingUser) {
           // create user
+
+          existingUser = await User.findOne({ salesforceId: contact.id });
+
+          // create username and password
+          if (!existingUser) {
+            existingUser = await createPortalUser({
+              username,
+              password,
+              salesforceId: contact.id,
+            });
+          }
         }
-        existingUser.googleId = googleProfile.sub;
-        await existingUser.save();
       } else {
         // create user?
-        throw Error("Contact does not have portal username");
+        existingUser = await createPortalUser({
+          username,
+          password,
+          salesforceId: contact.id,
+        });
       }
+      existingUser.googleId = googleProfile.sub;
+      await existingUser.save();
+      await updateContact(contact.id, {
+        Portal_Username__c: username,
+        Portal_Temporary_Password__c: password,
+      });
     } else {
       //   // if contact not in sf
       //   // their google name and salesforce name don't match
@@ -131,7 +157,7 @@ router.post("/google-signin", async (req, res) => {
       //   // and email us i guess
       //   // so we can manually add the google id to the portal user
       throw Error(
-        "We could not find a person in our database based on your google profile"
+        "We could not find a person in our database based on your google profile",
       );
     }
   }
@@ -140,7 +166,7 @@ router.post("/google-signin", async (req, res) => {
     {
       id: existingUser.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   res.send({ user: existingUser, token: JWT });

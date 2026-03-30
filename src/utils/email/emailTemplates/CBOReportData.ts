@@ -2,7 +2,7 @@ import { lastDayOfMonth, format } from "date-fns";
 
 import urls from "../../urls";
 import { CBOReportParams, ZipCode } from "../../salesforce/SFQuery/cboReport";
-import { getPeriodCBOReports } from "../../salesforce/SFQuery/cboReport";
+import { getCBOReports } from "../../salesforce/SFQuery/cboReport";
 import { EmailMessage, sendBatchEmail } from "../email";
 
 function sumField<T>(reportList: T[], field: keyof T) {
@@ -138,12 +138,14 @@ export const createCBOReportDataEmail = (reports: CBOReportParams[]) => {
   `;
 };
 
-export const sendCBOReportDataEmail = async () => {
+export const sendCBOReportDataEmail = async (
+  receipient: string[] = ["maria@ckoakland.org", "andy@ckoakland.org"],
+) => {
   const lastMonthStartDate = new Date();
   lastMonthStartDate.setDate(1);
   lastMonthStartDate.setMonth(lastMonthStartDate.getMonth() - 1);
   const lastMonthEndDate = lastDayOfMonth(lastMonthStartDate);
-  const lastMonthReports = await getPeriodCBOReports({
+  const lastMonthReports = await getCBOReports({
     startDate: lastMonthStartDate,
     endDate: lastMonthEndDate,
   });
@@ -151,7 +153,7 @@ export const sendCBOReportDataEmail = async () => {
   const yearToDateStartDate = new Date();
   yearToDateStartDate.setDate(1);
   yearToDateStartDate.setMonth(0);
-  const yearToDateReports = await getPeriodCBOReports({
+  const yearToDateReports = await getCBOReports({
     startDate: new Date(2026, 0, 1),
     endDate: new Date(),
   });
@@ -181,7 +183,7 @@ export const sendCBOReportDataEmail = async () => {
     createCBOReportDataEmail(yearToDateReports);
 
   const msg: EmailMessage = {
-    to: ["maria@ckoakland.org", "andy@ckoakland.org"],
+    to: receipient,
     from: urls.adminEmail,
     subject: "Monthly CBO Report Data",
     html,

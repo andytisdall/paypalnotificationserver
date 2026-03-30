@@ -25,11 +25,11 @@ declare global {
 
 const D4JUser = mongoose.model("D4JUser");
 
-export const currentD4JUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export async function currentD4JUser<T>(
+  req: Request<T>,
+  _res: Response,
+  next: NextFunction,
+) {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -43,9 +43,9 @@ export const currentD4JUser = async (
 
   const payload = jwt.verify(
     authorization,
-    JWT_KEY
+    JWT_KEY,
   ) as unknown as D4JUserPayload;
 
   req.currentD4JUser = await D4JUser.findById(payload.id);
   next();
-};
+}

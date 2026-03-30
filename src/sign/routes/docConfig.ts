@@ -14,6 +14,12 @@ export interface DocInformation {
   failUrl?: string;
 }
 
+const volunterWaiverInfo: Pick<DocInformation, "template" | "type" | "name"> = {
+  template: "489948000000063075",
+  name: "CK Kitchen Volunteer Agreement",
+  type: "CKK",
+};
+
 export const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
@@ -22,28 +28,20 @@ export const docInfo: Record<string, DocInformation> = {
     name: "CK Home Chef Volunteer Agreement",
   },
   CI: {
-    type: "CKK",
     url: "/volunteer-check-in/confirm",
-    template: "489948000000063075",
-    name: "CK Kitchen Volunteer Agreement",
     failUrl: "/volunteer-check-in/list",
+    ...volunterWaiverInfo,
   },
   CKK: {
-    type: "CKK",
     url: "/volunteers/sign/success",
-    template: "489948000000063075",
-    name: "CK Kitchen Volunteer Agreement",
+    ...volunterWaiverInfo,
   },
   DRV: {
-    type: "CKK",
     url: "/volunteers/driver-onboarding/sign/success",
-    template: "489948000000063075",
-    name: "CK Kitchen Volunteer Agreement",
+    ...volunterWaiverInfo,
   },
   MMT: {
-    type: "CKK",
     url: "/volunteers/mobile-meal-team/sign/success",
-    template: "489948000000063075",
-    name: "CK Kitchen Volunteer Agreement",
+    ...volunterWaiverInfo,
   },
 };

@@ -4,7 +4,7 @@ import phoneRouter from "./phone";
 import incomingTextRouter from "./incomingText";
 import outgoingTextRouter from "./outgoingText";
 import feedbackRouter from "./feedback";
-import resourcesRouter from "./resources";
+import resourcesRouter from "./mealsPlus";
 import textRecordRouter from "./textRecords";
 import statusCallbackRouter from "./statusCallback";
 import volunteerRreminderRouter from "./volunteerReminder";

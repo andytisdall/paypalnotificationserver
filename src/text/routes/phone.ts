@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { requireTextPermission } from "../../middlewares/require-text-permission";
 import { Region } from "../models/phone";
 import {
   addTextSubscriber,
@@ -37,7 +36,7 @@ router.post(
   "/phone",
   currentUser,
   requireAuth,
-  requireTextPermission,
+  requireAdmin,
   async (req, res) => {
     const { phone, region }: { phone: string; region: Region } = req.body;
 

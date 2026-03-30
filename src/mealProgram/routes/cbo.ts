@@ -17,13 +17,30 @@ import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth
 const router = express.Router();
 
 router.get(
-  "/cbo/reports",
+  "/cbo/reports/:dateRange",
   currentUser,
   requireAuth,
   requireAdmin,
   async (req, res) => {
-    const reports = await getCBOReports();
+    const [start, end] = req.params.dateRange.split("&");
+
+    const reports = await getCBOReports({
+      startDate: new Date(start),
+      endDate: new Date(end),
+    });
+
     res.send(reports);
+  },
+);
+
+router.post(
+  "/cbo/email/mollye",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    await sendCBOReportDataEmail(["mollye@ckoakland.org"]);
+    res.send(null);
   },
 );
 
@@ -36,7 +53,7 @@ router.post("/cbo", async (req, res) => {
   const {
     month,
     name,
-    CBOName,
+    cboName,
     performanceMeasures,
     age,
     race,
@@ -71,14 +88,14 @@ router.post("/cbo", async (req, res) => {
     Assisted_with_Calfresh_Applications__c: performanceMeasures.calfreshApps,
     Calfresh_Applications_Sent_to_SSA__c: performanceMeasures.SSA,
     Calfresh_Postcards__c: performanceMeasures.postcards,
-    CBO_Name__c: CBOName,
+    CBO_Name__c: cboName,
     Feedback__c: feedback,
     Individuals_Provided_Food__c: individuals,
     Households_Provided_Food__c: households,
     Meals_Provided__c: performanceMeasures.mealsProvided,
     Month__c: format(lastDay, "LLLL"),
     Contact_Name__c: name,
-    Name: `${CBOName} - ${format(lastDay, "LLLL")} ${year}`,
+    Name: `${cboName} - ${format(lastDay, "LLLL")} ${year}`,
     Percent_without__c: performanceMeasures.percentWOAccess,
     Race_African__c: race.raceAfrican,
     Race_Asian__c: race.raceAsian,

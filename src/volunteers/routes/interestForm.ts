@@ -1,5 +1,4 @@
 import express from "express";
-import passwordGenerator from "generate-password";
 
 import {
   getUniqueUsernameAndPassword,
@@ -13,7 +12,6 @@ import {
 } from "../../utils/salesforce/SFQuery/contact/contact";
 import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
 import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
-import { CampaignMemberObject } from "../../utils/salesforce/SFQuery/volunteer/campaign/types";
 import mongoose from "mongoose";
 import urls from "../../utils/urls";
 
@@ -86,12 +84,12 @@ router.post("/signup", async (req, res) => {
   // create username and password
   if (!existingUser) {
     contactInfo.Portal_Username__c = username;
-    (contactInfo.Portal_Temporary_Password__c = password),
+    ((contactInfo.Portal_Temporary_Password__c = password),
       await createPortalUser({
         username,
         password,
         salesforceId: existingContact.id,
-      });
+      }));
   } else {
     // update user password to new temp password
     existingUser.password = password;

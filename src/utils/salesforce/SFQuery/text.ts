@@ -8,7 +8,7 @@ interface TextSubscriber {
   Regions__c: string;
 }
 
-const regionToString = (regions: string[]) => {
+const regionToString = (regions: Region[]) => {
   return regions.length ? regions.map((r) => regionKey[r]).join(";") + ";" : "";
 };
 
@@ -30,7 +30,7 @@ export const editTextSubscriber = async (number: string, regions: Region[]) => {
   await fetcher.patch(patchUri, patchData);
 };
 
-export const addTextSubscriber = async (number: string, regions: string[]) => {
+export const addTextSubscriber = async (number: string, regions: Region[]) => {
   await fetcher.setService("salesforce");
   const insertUri = urls.SFOperationPrefix + "/Text_Service_Subscriber__c";
   const regionsString = regionToString(regions);

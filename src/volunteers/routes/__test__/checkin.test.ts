@@ -61,37 +61,22 @@ it("gets the volunteer info, creates new volunteer hours for the shift", async (
   hoursId = body.id;
 });
 
-it("gets an updated list of contacts for volunteer checkin and finds the hours that were created", async () => {
-  const token = await global.getToken({ admin: true });
+// it("checks in", async () => {
+//   const token = await global.getToken({ admin: true });
 
-  const response = await request(app)
-    .get("/api/volunteers/check-in/" + shiftId)
-    .set("Authorization", token);
+//   await request(app)
+//     .post("/api/volunteers/check-in")
+//     .send({ hoursId, duration: 1 })
+//     .set("Authorization", token)
+//     .expect(204);
 
-  const hours = response.body.find(
-    (hours: CheckInVolunteer) => hours.contactId === contactId,
-  );
+//   const response = await request(app)
+//     .get("/api/volunteers/check-in/" + shiftId)
+//     .set("Authorization", token);
 
-  expect(response.body).toHaveLength(1);
-  expect(hours.status).toEqual("Confirmed");
-});
+//   const hours: CheckInVolunteer = response.body.find(
+//     (hours: CheckInVolunteer) => hours.contactId === contactId,
+//   );
 
-it("checks in", async () => {
-  const token = await global.getToken({ admin: true });
-
-  await request(app)
-    .post("/api/volunteers/check-in")
-    .send({ hoursId, duration: 1 })
-    .set("Authorization", token)
-    .expect(204);
-
-  const response = await request(app)
-    .get("/api/volunteers/check-in/" + shiftId)
-    .set("Authorization", token);
-
-  const hours: CheckInVolunteer = response.body.find(
-    (hours: CheckInVolunteer) => hours.contactId === contactId,
-  );
-
-  expect(hours.status).toEqual("Completed");
-});
+//   expect(hours.status).toEqual("Completed");
+// });

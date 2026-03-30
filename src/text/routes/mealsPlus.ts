@@ -121,12 +121,12 @@ router.post(
 
     // if it's an existing user with text that has not been matched, it's treated as feedback
     else {
-      // await receiveFeedback({
-      //   message: Body,
-      //   sender: From,
-      //   region,
-      //   images: [],
-      // });
+      await receiveFeedback({
+        message: Body,
+        sender: From,
+        region,
+        images: [],
+      });
       responseText = "Feedback received";
     }
 

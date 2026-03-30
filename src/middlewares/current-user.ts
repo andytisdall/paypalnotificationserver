@@ -31,11 +31,11 @@ declare global {
   }
 }
 
-export const currentUser = async (
-  req: Request,
-  res: Response,
+export async function currentUser<T>(
+  req: Request<T>,
+  _res: Response,
   next: NextFunction,
-) => {
+) {
   const { authorization } = req.headers;
 
   if (!authorization) {
@@ -57,4 +57,4 @@ export const currentUser = async (
   } catch (err) {
     next();
   }
-};
+}

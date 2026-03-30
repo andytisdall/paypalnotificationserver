@@ -5,6 +5,7 @@ import {
   addContact,
   getContactByLastNameAndEmail,
 } from "../../utils/salesforce/SFQuery/contact/contact";
+import sendMealsPlusFormSubmissionEmail from "../../utils/email/emailTemplates/mealsPlusFormSubmission";
 
 const router = express.Router();
 
@@ -55,6 +56,7 @@ router.post("/meals-plus", async (req, res) => {
   );
 
   await Promise.all(promises);
+  await sendMealsPlusFormSubmissionEmail({ name: firstName, email });
 
   res.send(201);
 });

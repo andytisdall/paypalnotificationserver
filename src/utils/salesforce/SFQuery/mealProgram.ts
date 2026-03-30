@@ -212,3 +212,14 @@ export const submitMealsPlusData = async ({
 
   await fetcher.post(url, newSubmission);
 };
+
+export interface MealsPlusResource {
+  Account__c?: string;
+  Active__c?: boolean;
+  Category__c?: string;
+  Location__c?: string;
+  Name: string;
+  Phone__c?: string;
+  Time__c?: string;
+  URL__c?: string;
+}

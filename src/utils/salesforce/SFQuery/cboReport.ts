@@ -77,7 +77,7 @@ export interface CBOReportParams {
   month: string;
   year: string;
   name: string;
-  CBOName: string;
+  cboName: string;
   performanceMeasures: {
     percentWOAccess: number;
     mealsProvided: number;
@@ -236,35 +236,15 @@ export interface CBOReportObject {
   CBO__c: string;
 }
 
-export const getCBOReports = async (): Promise<CBOReportParams[]> => {
-  await fetcher.setService("salesforce");
-
-  const query = `SELECT Id FROM CBO_Report_Data__c`;
-
-  const getUri = urls.SFQueryPrefix + encodeURIComponent(query);
-  const { data }: { data: { records: { Id: string }[] } } = await fetcher.get(
-    getUri
-  );
-
-  const promises = data.records.map(async ({ Id }) => {
-    const { data: report }: { data: CBOReportObject } = await fetcher.get(
-      `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`
-    );
-    return convertCBODataFromSalesforce(report);
-  });
-  const reports = await Promise.all(promises);
-  return reports;
-};
-
 const convertCBODataFromSalesforce = (
-  report: CBOReportObject
+  report: CBOReportObject,
 ): CBOReportParams => {
   return {
     month: report.Month__c,
     year: format(new Date(report.Date__c), "yyyy"),
     name: report.Name,
     cboId: report.CBO__c,
-    CBOName: report.CBO_Name__c,
+    cboName: report.CBO_Name__c,
     performanceMeasures: {
       percentWOAccess: report.Percent_without__c,
       mealsProvided: report.Meals_Provided__c,
@@ -377,7 +357,7 @@ const convertCBODataFromSalesforce = (
   };
 };
 
-export const getPeriodCBOReports = async ({
+export const getCBOReports = async ({
   startDate,
   endDate,
 }: {
@@ -412,10 +392,11 @@ export const getPeriodCBOReports = async ({
 
   const promises = cboReports.map(async ({ Id }) => {
     const { data: report }: { data: CBOReportObject } = await fetcher.get(
-      `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`
+      `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`,
     );
     return convertCBODataFromSalesforce(report);
   });
   const reports = await Promise.all(promises);
+
   return reports;
 };

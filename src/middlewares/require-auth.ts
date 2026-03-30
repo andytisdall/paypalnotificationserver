@@ -1,23 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
+import { Request, Response, NextFunction } from "express";
 
-const User = mongoose.model('User');
+import { UserModel } from "./current-user";
 
-export const requireAuth = async (
-  req: Request,
+export async function requireAuth<T>(
+  req: Request<T>,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+) {
   if (!req.currentUser) {
     res.status(401);
-    throw new Error('You must be signed in to do that');
-  }
-
-  const thisUser = await User.findById(req.currentUser.id);
-  if (!thisUser) {
-    res.status(404);
-    throw new Error('User Not Found');
+    throw new Error("You must be signed in to do that");
   }
 
   next();
-};
+}

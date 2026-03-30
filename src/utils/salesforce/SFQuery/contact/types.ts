@@ -7,6 +7,7 @@ export interface UnformattedContact {
   Id: string;
   npsp__HHId__c: string;
   MailingStreet?: string;
+  Phone?: string;
 
   // general volunteer
 

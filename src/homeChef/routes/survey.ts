@@ -2,7 +2,11 @@ import express from "express";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { createHomeChefSurvey } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+import { HomeChefPollBody } from "../../utils/salesforce/SFQuery/volunteer/types";
+import {
+  createHomeChefPollResults,
+  createHomeChefSurvey,
+} from "../../utils/salesforce/SFQuery/volunteer/homeChef";
 
 const router = express.Router();
 
@@ -50,6 +54,14 @@ router.post("/survey", currentUser, requireAuth, async (req, res) => {
     otherTime,
     otherItem,
   });
+
+  res.send(null);
+});
+
+router.post("/poll", async (req, res) => {
+  const { city, miles, active, support }: HomeChefPollBody = req.body;
+
+  await createHomeChefPollResults({ city, miles, active, support });
 
   res.send(null);
 });

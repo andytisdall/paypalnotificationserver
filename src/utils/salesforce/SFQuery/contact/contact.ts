@@ -239,45 +239,24 @@ export const getUnformattedContactByEmail = async (
 ): Promise<UnformattedContact | undefined> => {
   await fetcher.setService("salesforce");
 
-  const query = `SELECT Id from Contact WHERE Email = '${email}'`;
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const fields = ["Id"] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [{ field: "Email", value: email }],
+  };
 
-  const contactQueryResponse: {
-    data: { records: UnformattedContact[] } | undefined;
-  } = await fetcher.get(contactQueryUri);
-  if (!contactQueryResponse.data?.records[0]) {
-    return undefined;
-  }
-  const contact = contactQueryResponse.data?.records[0];
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({ fields, obj, filters });
 
-  if (contact.Id) {
+  const contact = contacts[0];
+
+  if (contact?.Id) {
     const unformattedContact = await getContactById(contact.Id);
     return unformattedContact;
   }
 };
-
-// const formatContact = (
-//   contact: UnformattedContact
-// ): Pick<
-//   FormattedContact,
-//   | 'id'
-//   | 'householdId'
-//   | 'portalUsername'
-//   | 'firstName'
-//   | 'name'
-//   | 'lastName'
-//   | 'ckKitchenStatus'
-// > => {
-//   return {
-//     id: contact.Id,
-//     householdId: contact.npsp__HHId__c,
-//     portalUsername: contact.Portal_Username__c,
-//     firstName: contact.FirstName,
-//     name: contact.Name,
-//     lastName: contact.LastName,
-//     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
-//   };
-// };
 
 export const deleteContact = async (id: string) => {
   await fetcher.setService("salesforce");
@@ -289,20 +268,33 @@ export const getContactByPhoneNumber = async (
 ): Promise<string | null> => {
   await fetcher.setService("salesforce");
 
-  const query = `SELECT  Id from Contact WHERE Phone = '${phoneNumber}'`;
-  const contactQueryUri = urls.SFQueryPrefix + encodeURIComponent(query);
+  const fields = ["Id"] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [{ field: "Phone", value: phoneNumber }],
+  };
 
-  const contactQueryResponse: {
-    data:
-      | {
-          records: Pick<UnformattedContact, "Id">[];
-        }
-      | undefined;
-  } = await fetcher.get(contactQueryUri);
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({ fields, obj, filters });
 
-  if (!contactQueryResponse.data?.records[0]) {
-    return null;
-  }
-  const contact = contactQueryResponse.data?.records[0];
-  return contact.Id;
+  const contact = contacts[0];
+
+  return contact?.Id;
+};
+
+export const getContactsWhoSignedWaivers = async () => {
+  const fields = ["Id"] as const;
+  const obj = "Contact";
+  const filters: FilterGroup<UnformattedContact> = {
+    AND: [{ field: "CK_Kitchen_Agreement__c", value: true }],
+  };
+
+  const contacts = await createQuery<
+    UnformattedContact,
+    (typeof fields)[number]
+  >({ fields, obj, filters });
+
+  return contacts;
 };

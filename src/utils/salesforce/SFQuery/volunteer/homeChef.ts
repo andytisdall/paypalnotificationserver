@@ -8,7 +8,12 @@ import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { updateContact } from "../contact/contact";
 import { UnformattedContact } from "../contact/types";
-import { HomeChefSurvey, HomeChefSurveyOptionLink } from "./types";
+import {
+  HomeChefPoll,
+  HomeChefPollBody,
+  HomeChefSurvey,
+  HomeChefSurveyOptionLink,
+} from "./types";
 
 export const updateHomeChefStatus = async (
   contact: UnformattedContact,
@@ -181,4 +186,22 @@ export const createHomeChefSurvey = async ({
   // await updateContact(contactId, { Home_Chef_Survey_Completed__c: true });
 
   await Promise.all([...dayPromises, ...itemPromises]);
+};
+
+export const createHomeChefPollResults = async ({
+  city,
+  miles,
+  active,
+  support,
+}: HomeChefPollBody) => {
+  await fetcher.setService("salesforce");
+
+  const postBody: HomeChefPoll = {
+    City__c: city,
+    Miles__c: miles,
+    Active__c: active,
+    Support__c: support,
+  };
+
+  await fetcher.post(urls.SFOperationPrefix + "/Home_Chef_Poll__c", postBody);
 };

@@ -164,23 +164,19 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   // give app users a sensible error message if twilio doesn't work for any reason
 
   try {
-    const textPromises = [
-      ...formattedNumbers.map(async (phone) => {
-        return await twilioClient.messages.create({
-          ...outgoingText,
-          to: phone,
-          mediaUrl,
-        });
-      }),
-      ...noImgNumbers.map(async (phone) => {
-        return await twilioClient.messages.create({
-          ...outgoingText,
-          to: phone,
-        });
-      }),
-    ];
-
-    await Promise.all(textPromises);
+    formattedNumbers.forEach(async (phone) => {
+      await twilioClient.messages.create({
+        ...outgoingText,
+        to: phone,
+        mediaUrl,
+      });
+    });
+    noImgNumbers.forEach(async (phone) => {
+      await twilioClient.messages.create({
+        ...outgoingText,
+        to: phone,
+      });
+    });
   } catch (err) {
     console.log(err);
     throw Error(

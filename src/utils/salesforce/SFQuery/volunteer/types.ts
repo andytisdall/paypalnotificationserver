@@ -138,3 +138,17 @@ export interface HomeChefSurveyOptionLink {
   Home_Chef_Survey__c: string;
   Details__c?: string;
 }
+
+export interface HomeChefPoll {
+  City__c: string;
+  Miles__c: string;
+  Active__c: boolean;
+  Support__c?: string;
+}
+
+export interface HomeChefPollBody {
+  city: string;
+  miles: string;
+  active: boolean;
+  support?: string;
+}

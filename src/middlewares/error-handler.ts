@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let message = err.message;
   console.log(err);
