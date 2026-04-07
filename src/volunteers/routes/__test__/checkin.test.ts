@@ -61,22 +61,22 @@ it("gets the volunteer info, creates new volunteer hours for the shift", async (
   hoursId = body.id;
 });
 
-// it("checks in", async () => {
-//   const token = await global.getToken({ admin: true });
+it("checks in", async () => {
+  const token = await global.getToken({ admin: true });
 
-//   await request(app)
-//     .post("/api/volunteers/check-in")
-//     .send({ hoursId, duration: 1 })
-//     .set("Authorization", token)
-//     .expect(204);
+  await request(app)
+    .post("/api/volunteers/check-in")
+    .send({ hoursId, duration: 1 })
+    .set("Authorization", token)
+    .expect(204);
 
-//   const response = await request(app)
-//     .get("/api/volunteers/check-in/" + shiftId)
-//     .set("Authorization", token);
+  const response = await request(app)
+    .get("/api/volunteers/check-in/" + shiftId)
+    .set("Authorization", token);
 
-//   const hours: CheckInVolunteer = response.body.find(
-//     (hours: CheckInVolunteer) => hours.contactId === contactId,
-//   );
+  const hours: CheckInVolunteer = response.body.find(
+    (hours: CheckInVolunteer) => hours.contactId === contactId,
+  );
 
-//   expect(hours.status).toEqual("Completed");
-// });
+  expect(hours.status).toEqual("Completed");
+});

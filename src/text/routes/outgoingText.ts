@@ -36,6 +36,14 @@ export type OutgoingText = {
   validityPeriod?: number;
 };
 
+interface PhoneObject {
+  number: string;
+  region: Region[];
+  fails?: Date[];
+  imgFail?: Date;
+  noImg?: boolean;
+}
+
 smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   const twilioClient = await getTwilioClient();
 
@@ -85,7 +93,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     throw Error("Invalid region specified: " + region);
   }
 
-  let formattedNumbers: string[] = [];
+  let imgNumbers: string[] = [];
   let noImgNumbers: string[] = [];
 
   const responsePhoneNumber =
@@ -93,20 +101,25 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
       ? REGIONS.WEST_OAKLAND
       : REGIONS[formattedRegion];
 
-  if (!number) {
-    const allPhoneNumbers =
-      region === "all"
-        ? await Phone.find({
-            region: {
-              $in: ["EAST_OAKLAND", "WEST_OAKLAND", "BERKELEY"],
-            },
-          })
-        : await Phone.find({ region: formattedRegion });
-    formattedNumbers = allPhoneNumbers
-      .filter((p) => !p.noImg)
-      .map((p) => p.number);
+  const query =
+    region === "all"
+      ? {
+          region: {
+            $in: ["EAST_OAKLAND", "WEST_OAKLAND", "BERKELEY"],
+          },
+        }
+      : { region: formattedRegion };
 
-    noImgNumbers = allPhoneNumbers.filter((p) => p.noImg).map((p) => p.number);
+  if (!number) {
+    imgNumbers = (
+      await Phone.find({
+        ...query,
+        $or: [{ noImg: false }, { noImg: undefined }, { noImg: null }],
+      })
+    ).map((p) => p.number);
+    noImgNumbers = (await Phone.find({ ...query, noImg: true })).map(
+      (p) => p.number,
+    );
   } else {
     const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
@@ -114,11 +127,11 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
       throw new Error("Phone number must have 10 digits");
     }
 
-    formattedNumbers = ["+1" + phoneNumber];
+    imgNumbers = ["+1" + phoneNumber];
   }
 
   if (process.env.NODE_ENV !== "production") {
-    formattedNumbers = formattedNumbers.filter((num) => num === "+14158190251");
+    imgNumbers = imgNumbers.filter((num) => num === "+14158190251");
     noImgNumbers = [];
   }
 
@@ -153,6 +166,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
       return await storeFile({
         file: photoFile,
         name: fileName,
+        jpg: photoFile.mimetype === "image/jpeg",
       });
     });
 
@@ -164,7 +178,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
   // give app users a sensible error message if twilio doesn't work for any reason
 
   try {
-    formattedNumbers.forEach(async (phone) => {
+    imgNumbers.forEach(async (phone) => {
       await twilioClient.messages.create({
         ...outgoingText,
         to: phone,
@@ -220,7 +234,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
 
 smsRouter.post(
   "/outgoing/mobile",
-  async (req, res, next) => {
+  async (req, _res, next) => {
     req.url = "/outgoing";
     next();
   },

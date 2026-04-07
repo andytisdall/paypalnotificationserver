@@ -1,10 +1,7 @@
 import request from "supertest";
-import mongoose from "mongoose";
 
 import app from "../../..";
 import { WebhookBody } from "../routes/updateContact";
-
-const User = mongoose.model("User");
 
 it("uploads a signed document from zoho sign to salesforce", async () => {
   const body: WebhookBody = {

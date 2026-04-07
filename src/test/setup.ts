@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 
 import "../auth/models/user";
 import getSecrets from "../utils/getSecrets";
-const storeFileGoogle = require("../__mocks__/storeFileGoogle");
 
 declare global {
   function getToken({ admin }: { admin: boolean }): Promise<string>;
@@ -13,8 +12,14 @@ declare global {
 
 jest.mock("postmark");
 jest.mock("twilio");
-//@ts-ignore
-jest.mock("../files/google/storeFileGoogle", storeFileGoogle);
+jest.mock("../files/google/storeFileGoogle", () => ({
+  deleteFile: jest.fn(async (name) => {
+    await Promise.resolve();
+  }),
+  storeFile: jest.fn(async ({ file, name, jpg }) => {
+    return await new Promise((resolve) => resolve("url"));
+  }),
+}));
 
 global.getToken = async ({ admin }: { admin: boolean }) => {
   const User = mongoose.model("User");
@@ -35,7 +40,7 @@ global.getToken = async ({ admin }: { admin: boolean }) => {
     {
       id: newUser.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 };
 
@@ -50,7 +55,7 @@ global.signIn = async (username: string) => {
     {
       id: user.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 };
 

@@ -1,4 +1,5 @@
 import express from "express";
+import { toZonedTime } from "date-fns-tz";
 
 import {
   NewMobileOasisDelivery,
@@ -26,18 +27,13 @@ router.post("/", currentUser, requireTextPermission, async (req, res) => {
     contactId: req.currentUser?.salesforceId!,
     shiftId: shiftId,
     jobId: body.fridge,
-    date: new Date().toISOString(),
+    date: toZonedTime(new Date(), "America/Los_Angeles").toISOString(),
     mealCount: body.numberOfMealsMeat + body.numberOfMealsVeg,
     restaurantMeals: true,
   };
   await createHours(newHours);
 
   res.sendStatus(204);
-});
-
-router.get("/font", async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.sendFile("acid_bold.otf", { root: __dirname });
 });
 
 export default router;

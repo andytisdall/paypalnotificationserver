@@ -12,10 +12,11 @@ const ClientMeal = mongoose.model("ClientMeal");
 
 const router = express.Router();
 
-const GENERIC_CLIENT_ID = "6923657407184f97adb47b74";
+const GENERIC_CLIENT_ID = "69a0a4e498b60de3537d43d9";
 
-router.get("/doorfront/monthly/:dateRange", async (req, res) => {
+router.get("/doorfront/monthly/:dateRange{/:sunMon}", async (req, res) => {
   const [start, end] = req.params.dateRange.split("&");
+  const { sunMon } = req.params;
 
   if (!start || !end) {
     return res.send(null);
@@ -29,16 +30,20 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
   // const startDate = new Date(2025, 9, 8);
   // const endDate = new Date(2025, 9, 29);
 
-  const periodMeals = await ClientMeal.find({
+  let periodMeals = await ClientMeal.find({
     date: {
       $gte: startDate,
       $lte: endDate,
     },
   }).populate("client");
 
-  // const sundayMondayMeals = thisMonthsMeals.filter((meal) =>
-  //   [0, 1].includes(meal.date.getDay()),
-  // );
+  console.log(sunMon);
+
+  if (sunMon) {
+    periodMeals = periodMeals.filter((meal) =>
+      [0, 1].includes(meal.date.getDay()),
+    );
+  }
 
   const clients: Record<string, { meals: number; visits: number }> = {};
   let lowestDate = addMonths(startDate, 1);
@@ -60,17 +65,6 @@ router.get("/doorfront/monthly/:dateRange", async (req, res) => {
       clients[clientId] = { meals: meal.amount, visits: 1 };
     }
   });
-
-  if (periodMeals.length) {
-    console.log(
-      `Date Range: ${format(new Date(lowestDate), "MM/dd/yy")} - ${format(
-        new Date(highestDate),
-        "MM/dd/yy",
-      )}`,
-    );
-  }
-
-  console.log(new Set(periodMeals.map(({ date }) => format(date, "M/d/yy"))));
 
   res.send(clients);
 });

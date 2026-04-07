@@ -79,7 +79,8 @@ export interface CBOReportParams {
   name: string;
   cboName: string;
   performanceMeasures: {
-    percentWOAccess: number;
+    withoutAccess: number;
+    lowIncome: number;
     mealsProvided: number;
     unusable: number;
     postcards: number;
@@ -142,7 +143,8 @@ export interface CBOReportObject {
   Month__c: string;
   Contact_Name__c: string;
   Name: string;
-  Percent_without__c: number;
+  Individuals_without_access_to_kitchen__c: number;
+  Low_Income_Households__c: number;
   Race_African__c: number;
   Race_Asian__c: number;
   Race_Decline_to_Answer__c: number;
@@ -246,7 +248,8 @@ const convertCBODataFromSalesforce = (
     cboId: report.CBO__c,
     cboName: report.CBO_Name__c,
     performanceMeasures: {
-      percentWOAccess: report.Percent_without__c,
+      withoutAccess: report.Individuals_without_access_to_kitchen__c,
+      lowIncome: report.Low_Income_Households__c,
       mealsProvided: report.Meals_Provided__c,
       unusable: report.Unusable_Meals__c,
       postcards: report.Calfresh_Postcards__c,

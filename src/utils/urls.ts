@@ -17,6 +17,7 @@ const baseUrls = {
   zohoToken: "https://accounts.zoho.com/oauth/v2/token",
   barlettTownFridgeId: "a0w8Z00000YU0nHQAT",
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
+  homeChefTrainingCampaignId: "701UP000008zJFdYAM",
 };
 
 const prodUrls = {

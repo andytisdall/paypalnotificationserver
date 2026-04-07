@@ -13,7 +13,7 @@ it("sends an outgoing text with attached photo", async () => {
     .expect(200);
 
   expect(res.body.message).toEqual("There is food available");
-  // expect(res.body.photoUrl).toBeDefined();
+  expect(res.body.photoUrl).toBeDefined();
   expect(res.body.region).toEqual("EAST_OAKLAND");
 });
 
@@ -30,7 +30,40 @@ it("sends an outgoing text with image url", async () => {
 
   expect(res.body.message).toEqual("There is food available");
   expect(res.body.photoUrl).toEqual(
-    "https://m.media-amazon.com/images/I/918YNa3bAaL.jpg"
+    "https://m.media-amazon.com/images/I/918YNa3bAaL.jpg",
   );
   expect(res.body.region).toEqual("WEST_OAKLAND");
+});
+
+it("sends an outgoing text to all subscribers", async () => {
+  const token = await global.getToken({ admin: false });
+  const res = await request(app)
+    .post("/api/text/outgoing")
+    .set("Authorization", token)
+    .set("Content-Type", "multipart/form-data")
+    .field("message", "There is food available")
+    .field("region", "all")
+    // .field("photo", "src/text/routes/__test__/photo.jpeg")
+    .expect(200);
+
+  expect(res.body.message).toEqual("There is food available");
+  expect(res.body.photoUrl).not.toBeDefined();
+  expect(res.body.region).toEqual("ALL");
+});
+
+it("sends an outgoing text to one phone number", async () => {
+  const token = await global.getToken({ admin: false });
+  const res = await request(app)
+    .post("/api/text/outgoing")
+    .set("Authorization", token)
+    .set("Content-Type", "multipart/form-data")
+    .field("message", "There is food available")
+    .field("region", "berkeley")
+    .field("number", "4158190251")
+    .field("photo", "src/text/routes/__test__/photo.jpeg")
+    .expect(200);
+
+  expect(res.body.message).toEqual("There is food available");
+  expect(res.body.photoUrl).toBeDefined();
+  expect(res.body.number).toEqual("4158190251");
 });

@@ -64,9 +64,13 @@ const getHouseholds = (reports: CBOReportParams[]) => {
 const getPerformanceMeasures = (reports: CBOReportParams[]) => {
   const performanceMeasures = reports.map((r) => r.performanceMeasures);
   return {
-    "Percent without Access to Kitchen": averageField(
-      reports,
-      "percentWOAccess",
+    "Individuals without Access to Kitchen": sumField(
+      performanceMeasures,
+      "withoutAccess",
+    ),
+    "Households that receive benefits or identify as low-income": sumField(
+      performanceMeasures,
+      "lowIncome",
     ),
     "Meals Provided": sumField(performanceMeasures, "mealsProvided"),
     "Unusable Meals": sumField(performanceMeasures, "unusable"),

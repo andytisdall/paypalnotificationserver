@@ -13,6 +13,7 @@ import {
   uploadFileToSalesforce,
 } from "../../utils/salesforce/SFQuery/files/fileUpload";
 import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
+import urls from "../../utils/urls";
 
 const router = express.Router();
 
@@ -55,7 +56,10 @@ router.post("/orientation", async (req, res) => {
     });
   }
 
-  await insertCampaignMember({ ContactId: existingContact.id, CampaignId: "" });
+  await insertCampaignMember({
+    ContactId: existingContact.id,
+    CampaignId: urls.homeChefTrainingCampaignId,
+  });
 
   res.send(null);
 });

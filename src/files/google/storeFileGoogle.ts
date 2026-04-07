@@ -12,15 +12,16 @@ export const deleteFile = async (name: string) => {
 export const storeFile = async ({
   file,
   name,
+  jpg,
 }: {
   file: { data: Buffer; name: string };
   name: string;
+  jpg?: boolean;
 }): Promise<string> => {
   try {
-    const buffer = await sharp(file.data)
-      .withMetadata()
-      .jpeg({ quality: 20 })
-      .toBuffer();
+    const buffer = jpg
+      ? file.data
+      : await sharp(file.data).withMetadata().jpeg({ quality: 20 }).toBuffer();
 
     const storedFile = bucket.file(name + ".jpg");
 
