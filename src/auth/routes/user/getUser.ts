@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
 import { requireAdmin } from "../../../middlewares/require-admin";
-import { sendEmail } from "../../../utils/email/email";
 
 const User = mongoose.model("User");
 const router = express.Router();

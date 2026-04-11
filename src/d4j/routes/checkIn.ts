@@ -11,13 +11,13 @@ import {
   updateD4jCheckInsAsSpent,
   updateD4jCheckInAsWinner,
   D4JCheckIn,
-} from "../../utils/salesforce/SFQuery/d4j";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
+} from "../../utils/salesforce/d4j";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
 import getSecrets from "../../utils/getSecrets";
-import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
+import { UnformattedContact } from "../../utils/salesforce/contact/types";
 
 const CheckIn = mongoose.model("CheckIn");
 

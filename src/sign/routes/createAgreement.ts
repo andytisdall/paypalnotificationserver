@@ -1,8 +1,8 @@
 import express from "express";
 
 import { currentUser } from "../../middlewares/current-user";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
-import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
+import { UnformattedContact } from "../../utils/salesforce/contact/types";
 import { DocType, docInfo } from "./docConfig";
 
 import { createRequest } from "../../utils/zoho/sign";

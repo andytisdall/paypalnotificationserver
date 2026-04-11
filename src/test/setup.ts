@@ -12,7 +12,7 @@ declare global {
 
 jest.mock("postmark");
 jest.mock("twilio");
-jest.mock("../files/google/storeFileGoogle", () => ({
+jest.mock("../utils/googleApis/files/storeFile", () => ({
   deleteFile: jest.fn(async (name) => {
     await Promise.resolve();
   }),

@@ -2,8 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 
 import { currentUser } from "../../../middlewares/current-user";
-import { getContactById } from "../../../utils/salesforce/SFQuery/contact/contact";
-import { FormattedContact } from "../../../utils/salesforce/SFQuery/contact/types";
+import { getContactById } from "../../../utils/salesforce/contact/getContact";
+import { FormattedContact } from "../../../utils/salesforce/contact/types";
 import { requireSalesforceAuth } from "../../../middlewares/require-salesforce-auth";
 import { createPortalUser, getUniqueUsernameAndPassword } from "./createUser";
 

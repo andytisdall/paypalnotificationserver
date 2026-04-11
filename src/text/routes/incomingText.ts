@@ -8,7 +8,7 @@ import { sendEmail } from "../../utils/email/email";
 import {
   addTextSubscriber,
   editTextSubscriber,
-} from "../../utils/salesforce/SFQuery/text";
+} from "../../utils/salesforce/text";
 
 const Feedback = mongoose.model("Feedback");
 const Phone = mongoose.model("Phone");

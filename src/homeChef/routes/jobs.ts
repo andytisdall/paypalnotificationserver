@@ -1,9 +1,9 @@
 import express from "express";
 import { format } from "date-fns";
 
-import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
+import { getJobs } from "../../utils/salesforce/volunteer/jobs";
 import urls from "../../utils/urls";
-import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
+import { getShifts } from "../../utils/salesforce/volunteer/shifts";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 

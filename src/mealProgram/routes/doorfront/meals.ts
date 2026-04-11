@@ -26,18 +26,12 @@ router.get("/doorfront/monthly/:dateRange{/:sunMon}", async (req, res) => {
 
   const endDate = addDays(fromZonedTime(end, "America/Los_Angeles"), 1);
 
-  // for queries on specific ranges
-  // const startDate = new Date(2025, 9, 8);
-  // const endDate = new Date(2025, 9, 29);
-
   let periodMeals = await ClientMeal.find({
     date: {
       $gte: startDate,
       $lte: endDate,
     },
   }).populate("client");
-
-  console.log(sunMon);
 
   if (sunMon) {
     periodMeals = periodMeals.filter((meal) =>
@@ -65,6 +59,8 @@ router.get("/doorfront/monthly/:dateRange{/:sunMon}", async (req, res) => {
       clients[clientId] = { meals: meal.amount, visits: 1 };
     }
   });
+
+  // console.log(lowestDate, highestDate);
 
   res.send(clients);
 });

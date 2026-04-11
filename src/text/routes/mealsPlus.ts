@@ -4,7 +4,7 @@ import twilio, { twiml } from "twilio";
 
 import { getTwilioClient } from "./outgoingText";
 import getSecrets from "../../utils/getSecrets";
-import { REGIONS } from "../models/phone";
+import { Region, REGIONS } from "../models/phone";
 import { OutgoingText } from "./outgoingText";
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
 import { NewOutgoingTextRecord } from "./outgoingText";
@@ -32,7 +32,8 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     );
   }
 
-  const { message }: { message: string } = req.body;
+  const { message, region }: { message: string; region: string } = req.body;
+  const formattedRegion = region.replace(/ /g, "_").toUpperCase() as Region;
 
   const twilioClient = await getTwilioClient();
 
@@ -42,14 +43,14 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   }
 
   let formattedNumbers: string[] = [];
-  const responsePhoneNumber = REGIONS.RESOURCES;
+  const responsePhoneNumber = REGIONS[formattedRegion];
 
-  const allPhoneNumbers = await Phone.find({ region: "RESOURCES" });
+  const allPhoneNumbers = await Phone.find({ region: formattedRegion });
   formattedNumbers = allPhoneNumbers.map((p) => p.number);
 
-  if (process.env.NODE_ENV !== "production") {
-    formattedNumbers = ["+14158190251"];
-  }
+  // if (process.env.NODE_ENV !== "production") {
+  formattedNumbers = ["+14158190251"];
+  // }
 
   const outgoingText: OutgoingText = {
     body: message,
@@ -65,8 +66,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     return sid;
   };
 
-  const textPromises = formattedNumbers.map(createOutgoingText);
-  await Promise.all(textPromises);
+  formattedNumbers.forEach(createOutgoingText);
 
   if (process.env.NODE_ENV === "production") {
     const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(

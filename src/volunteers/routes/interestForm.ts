@@ -5,15 +5,15 @@ import {
   createPortalUser,
 } from "../../auth/routes/user/createUser";
 import {
-  addContact,
-  updateContact,
   getContactByLastNameAndEmail,
   getContactById,
-} from "../../utils/salesforce/SFQuery/contact/contact";
-import { UnformattedContact } from "../../utils/salesforce/SFQuery/contact/types";
-import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
+} from "../../utils/salesforce/contact/getContact";
+import { UnformattedContact } from "../../utils/salesforce/contact/types";
+import { insertCampaignMember } from "../../utils/salesforce/volunteer/campaign/campaignMember";
 import mongoose from "mongoose";
 import urls from "../../utils/urls";
+import { addContact } from "../../utils/salesforce/contact/addContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
 
 const User = mongoose.model("User");
 const router = express.Router();

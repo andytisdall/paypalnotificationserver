@@ -1,10 +1,8 @@
 import express from "express";
 
 import { getPlaceDetails } from "../../utils/googleApis/getPlaceDetails";
-import {
-  getD4jRestaurants,
-  updateDetails,
-} from "../../utils/salesforce/SFQuery/account/d4j";
+import { updateDetails } from "../../utils/salesforce/account/updateRestaurantDetails";
+import { getD4jRestaurants } from "../../utils/salesforce/account/getRestaurants";
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 
 const router = express.Router();

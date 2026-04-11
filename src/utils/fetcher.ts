@@ -33,9 +33,8 @@ class fetcher {
           "application/json";
 
         if (this.service === "salesforce") {
-          this.instance.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${token}`;
+          this.instance.defaults.headers.common["Authorization"] =
+            `Bearer ${token}`;
         }
         if (this.service === "zoho") {
           this.instance.defaults.headers.common["Authorization"] =
@@ -103,7 +102,7 @@ class fetcher {
   async post(
     url: string,
     body: Record<string, any> | FormData,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     const post = async () => {
       return await this.instance.post(url, body, options);
@@ -118,7 +117,7 @@ class fetcher {
   async patch(
     url: string,
     body: Record<string, any> | FormData,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     if (!this.service) {
       throw Error("Base url has not been set");
@@ -136,7 +135,7 @@ class fetcher {
   async put(
     url: string,
     body: Record<string, any> | FormData,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     if (!this.service) {
       throw Error("Base url has not been set");

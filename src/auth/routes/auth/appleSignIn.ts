@@ -8,7 +8,7 @@ import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
   getContactByEmail,
-} from "../../../utils/salesforce/SFQuery/contact/contact";
+} from "../../../utils/salesforce/contact/getContact";
 import urls from "../../../utils/urls";
 
 const User = mongoose.model("User");
@@ -94,7 +94,7 @@ router.post("/apple-signin", async (req, res) => {
         user = await User.findOne({ username: contact.portalUsername });
         if (!user) {
           throw Error(
-            "Your information could not be found. Please contact the administrator at andy@ckoakland.org"
+            "Your information could not be found. Please contact the administrator at andy@ckoakland.org",
           );
         }
         user.appleId = id;
@@ -102,7 +102,7 @@ router.post("/apple-signin", async (req, res) => {
       } else {
         // create user?
         throw Error(
-          "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!"
+          "You must begin the Home Chef onboarding process to access this information. Go to portal.ckoakland.org/forms/hc-interest-form to sign up!",
         );
       }
     }
@@ -123,7 +123,7 @@ router.post("/apple-signin", async (req, res) => {
     {
       id: user.id,
     },
-    JWT_KEY
+    JWT_KEY,
   );
 
   res.send({ user, token: JWT });

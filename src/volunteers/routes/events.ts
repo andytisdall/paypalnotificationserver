@@ -1,11 +1,9 @@
 import express from "express";
 
-import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
-import {
-  addContact,
-  getContactByEmail,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { insertCampaignMember } from "../../utils/salesforce/volunteer/campaign/campaignMember";
+import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
+import { addContact } from "../../utils/salesforce/contact/addContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
 
 const router = express.Router();
 

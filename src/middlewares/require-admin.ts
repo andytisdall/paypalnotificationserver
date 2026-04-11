@@ -1,15 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 
-import mongoose from "mongoose";
-
-const User = mongoose.model("User");
+import { UserModel, getCurrentUser } from "./current-user";
 
 export async function requireAdmin<T>(
   req: Request<T>,
   res: Response,
   next: NextFunction,
 ) {
-  if (!req.currentUser?.admin) {
+  const { authorization } = req.headers;
+
+  if (!authorization) {
+    return next();
+  }
+
+  const currentUser = await getCurrentUser(authorization);
+
+  if (!currentUser?.admin) {
     res.status(403);
     throw new Error("User must be admin");
   }

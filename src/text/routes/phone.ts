@@ -8,7 +8,7 @@ import {
   addTextSubscriber,
   editTextSubscriber,
   removeTextSubscriber,
-} from "../../utils/salesforce/SFQuery/text";
+} from "../../utils/salesforce/text";
 import { requireAdmin } from "../../middlewares/require-admin";
 import { PhoneNumber } from "./incomingText";
 

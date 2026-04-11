@@ -1,5 +1,5 @@
 import { SupplyOrder } from "../../../homeChef/routes/ordering";
-import { UnformattedContact } from "../../salesforce/SFQuery/contact/types";
+import { UnformattedContact } from "../../salesforce/contact/types";
 import { sendEmail } from "../email";
 
 export const sendOrderReadyEmail = async ({

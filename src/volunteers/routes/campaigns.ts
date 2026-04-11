@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getVolunteerCampaigns } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
+import { getVolunteerCampaigns } from "../../utils/salesforce/volunteer/campaign/campaign";
 
 const router = express.Router();
 

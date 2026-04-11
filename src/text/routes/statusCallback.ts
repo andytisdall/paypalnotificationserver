@@ -4,7 +4,7 @@ import { subMonths } from "date-fns";
 import twilio from "twilio";
 
 import { getTwilioClient } from "./outgoingText";
-import { removeTextSubscriber } from "../../utils/salesforce/SFQuery/text";
+import { removeTextSubscriber } from "../../utils/salesforce/text";
 
 const Phone = mongoose.model("Phone");
 

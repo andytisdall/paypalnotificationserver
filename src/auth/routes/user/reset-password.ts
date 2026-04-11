@@ -5,7 +5,7 @@ import { addHours } from "date-fns";
 
 import { sendForgotPasswordEmail } from "../../../utils/email/emailTemplates/forgotPassword";
 import getSecrets from "../../../utils/getSecrets";
-import { getContactByEmail } from "../../../utils/salesforce/SFQuery/contact/contact";
+import { getContactByEmail } from "../../../utils/salesforce/contact/getContact";
 import urls from "../../../utils/urls";
 
 const User = mongoose.model("User");

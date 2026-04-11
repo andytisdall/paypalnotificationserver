@@ -8,8 +8,8 @@ import {
   getHours,
   createHours,
   editHours,
-} from "../../utils/salesforce/SFQuery/volunteer/hours";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
+} from "../../utils/salesforce/volunteer/hours";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { sendHomeChefShiftEditEmail } from "../../utils/email/emailTemplates/homeChefShiftEdit";
 
 const router = express.Router();

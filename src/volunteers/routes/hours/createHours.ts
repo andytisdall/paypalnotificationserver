@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createHours } from "../../../utils/salesforce/SFQuery/volunteer/hours";
+import { createHours } from "../../../utils/salesforce/volunteer/hours";
 
 const router = express.Router();
 

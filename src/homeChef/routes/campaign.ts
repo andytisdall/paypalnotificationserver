@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getHomeChefCampaign } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
+import { getHomeChefCampaign } from "../../utils/salesforce/volunteer/campaign/campaign";
 
 const router = express.Router();
 

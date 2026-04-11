@@ -1,6 +1,6 @@
 import app from "../../../../index";
 import request from "supertest";
-import { MealSurveyArgs } from "../survey";
+import { MealSurveyArgs } from "../../../utils/salesforce/mealProgram/types";
 
 it("submits a report", async () => {
   const formValues: MealSurveyArgs = {

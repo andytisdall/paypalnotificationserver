@@ -4,17 +4,15 @@ import { formatISO } from "date-fns";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
-import {
-  checkInVolunteer,
-  getVolunteersForCheckIn,
-  getTodaysVolunteerShifts,
-} from "../../utils/salesforce/SFQuery/volunteer/checkin";
-import { createHours } from "../../utils/salesforce/SFQuery/volunteer/hours";
+import { getVolunteersForCheckIn } from "../../utils/salesforce/volunteer/checkin/getVolunteers";
+import { checkInVolunteer } from "../../utils/salesforce/volunteer/checkin/checkInVolunteer";
+import { getTodaysVolunteerShifts } from "../../utils/salesforce/volunteer/checkin/getShifts";
+import { createHours } from "../../utils/salesforce/volunteer/hours";
 
 import {
   addSlotToShift,
   getShift,
-} from "../../utils/salesforce/SFQuery/volunteer/shifts";
+} from "../../utils/salesforce/volunteer/shifts";
 
 const router = express.Router();
 

@@ -1,37 +1,14 @@
 import express from "express";
 
-import {
-  getContactByEmail,
-  addContact,
-  updateContact,
-  getContactsWhoSignedWaivers,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
+import { addContact } from "../../utils/salesforce/contact/addContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
 import {
   createPortalUser,
   getUniqueUsernameAndPassword,
 } from "../../auth/routes/user/createUser";
-import { currentUser } from "../../middlewares/current-user";
-import { requireAuth } from "../../middlewares/require-auth";
-import { requireAdmin } from "../../middlewares/require-admin";
 
 const router = express.Router();
-
-router.post(
-  "/reset-waivers",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const allContacts = await getContactsWhoSignedWaivers();
-    const promises = allContacts.map(async (contact) => {
-      await updateContact(contact.Id, { CK_Kitchen_Agreement__c: false });
-    });
-
-    await Promise.all(promises);
-
-    res.send({ number: allContacts.length });
-  },
-);
 
 router.post("/", async (req, res) => {
   const {

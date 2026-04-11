@@ -1,14 +1,14 @@
 import express from "express";
 
 import { currentUser } from "../../../middlewares/current-user";
-import { getContactById } from "../../../utils/salesforce/SFQuery/contact/contact";
+import { getContactById } from "../../../utils/salesforce/contact/getContact";
 import {
   getHour,
   deleteVolunteerHours,
-} from "../../../utils/salesforce/SFQuery/volunteer/hours";
-import { getCampaignFromHours } from "../../../utils/salesforce/SFQuery/volunteer/campaign/campaign";
+} from "../../../utils/salesforce/volunteer/hours";
+import { getCampaignFromHours } from "../../../utils/salesforce/volunteer/campaign/campaign";
 import { sendShiftCancelEmail } from "../../../utils/email/emailTemplates/kitchenShiftCancel";
-import { getJobFromHours } from "../../../utils/salesforce/SFQuery/volunteer/jobs";
+import { getJobFromHours } from "../../../utils/salesforce/volunteer/jobs";
 
 const router = express.Router();
 

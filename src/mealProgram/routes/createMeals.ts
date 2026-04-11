@@ -1,14 +1,12 @@
 import express from "express";
 import { toZonedTime } from "date-fns-tz";
 
-import {
-  NewMobileOasisDelivery,
-  createScheduledDelivery,
-} from "../../utils/salesforce/SFQuery/mealProgram";
+import { createScheduledDelivery } from "../../utils/salesforce/mealProgram/createDelivery";
+import { NewMobileOasisDelivery } from "../../utils/salesforce/mealProgram/types";
 import { currentUser } from "../../middlewares/current-user";
 import { requireTextPermission } from "../../middlewares/require-text-permission";
-import { createHours } from "../../utils/salesforce/SFQuery/volunteer/hours";
-import { createShift } from "../../utils/salesforce/SFQuery/volunteer/shifts";
+import { createHours } from "../../utils/salesforce/volunteer/hours";
+import { createShift } from "../../utils/salesforce/volunteer/shifts";
 
 const router = express.Router();
 

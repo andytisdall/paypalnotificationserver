@@ -31,6 +31,23 @@ declare global {
   }
 }
 
+export const getCurrentUser = async (authorization: string) => {
+  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
+  if (!JWT_KEY) {
+    throw Error("No JWT Key found");
+  }
+
+  try {
+    const payload = jwt.verify(
+      authorization,
+      JWT_KEY,
+    ) as unknown as UserPayload;
+    return (await User.findById(payload.id)) || undefined;
+  } catch (err) {
+    return undefined;
+  }
+};
+
 export async function currentUser<T>(
   req: Request<T>,
   _res: Response,
@@ -42,19 +59,6 @@ export async function currentUser<T>(
     return next();
   }
 
-  const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
-  if (!JWT_KEY) {
-    throw Error("No JWT Key found");
-  }
-
-  try {
-    const payload = jwt.verify(
-      authorization,
-      JWT_KEY,
-    ) as unknown as UserPayload;
-    req.currentUser = (await User.findById(payload.id)) || undefined;
-    next();
-  } catch (err) {
-    next();
-  }
+  req.currentUser = await getCurrentUser(authorization);
+  next();
 }

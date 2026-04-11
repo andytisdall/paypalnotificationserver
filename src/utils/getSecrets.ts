@@ -13,8 +13,6 @@ interface Secrets {
   APNS_P8: string;
   APNS_KEY_ID: string;
   APNS_TEAM_ID: string;
-  D4J_FCM_API_KEY: string;
-  HC_FCM_API_KEY: string;
   GOOGLE_MAPS_API_KEY: string;
   CK_API_KEY: string;
   APPLE_TEAM_ID: string;

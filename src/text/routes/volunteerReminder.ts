@@ -6,11 +6,11 @@ import { getTwilioClient } from "./outgoingText";
 import getSecrets from "../../utils/getSecrets";
 import { OutgoingText } from "./outgoingText";
 import { VOLUNTEER_REMINDER_NUMBER } from "../models/phone";
-import { getContactByPhoneNumber } from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactByPhoneNumber } from "../../utils/salesforce/contact/getContact";
 import {
   editHours,
   getTextReminderHours,
-} from "../../utils/salesforce/SFQuery/volunteer/hours";
+} from "../../utils/salesforce/volunteer/hours";
 import { sendVolunteerShiftCancelEmail } from "../../volunteers/routes/hours/deleteHours";
 import { IncomingText } from "./incomingText";
 

@@ -1,10 +1,8 @@
 import express from "express";
-import {
-  addContact,
-  getContactByLastNameAndEmail,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
-import { createProgramEngagement } from "../../utils/salesforce/SFQuery/workforce";
+import { getContactByLastNameAndEmail } from "../../utils/salesforce/contact/getContact";
+import { createProgramEngagement } from "../../utils/salesforce/workforce";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
+import { addContact } from "../../utils/salesforce/contact/addContact";
 
 const router = express.Router();
 

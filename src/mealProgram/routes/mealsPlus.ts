@@ -1,11 +1,9 @@
 import express from "express";
 
-import { submitMealsPlusData } from "../../utils/salesforce/SFQuery/mealProgram";
-import {
-  addContact,
-  getContactByLastNameAndEmail,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { submitMealsPlusData } from "../../utils/salesforce/mealProgram/mealsPlus";
+import { getContactByLastNameAndEmail } from "../../utils/salesforce/contact/getContact";
 import sendMealsPlusFormSubmissionEmail from "../../utils/email/emailTemplates/mealsPlusFormSubmission";
+import { addContact } from "../../utils/salesforce/contact/addContact";
 
 const router = express.Router();
 

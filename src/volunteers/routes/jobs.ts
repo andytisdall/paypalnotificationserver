@@ -1,7 +1,7 @@
 import express from "express";
 
-import { getShifts } from "../../utils/salesforce/SFQuery/volunteer/shifts";
-import { getJobs } from "../../utils/salesforce/SFQuery/volunteer/jobs";
+import { getShifts } from "../../utils/salesforce/volunteer/shifts";
+import { getJobs } from "../../utils/salesforce/volunteer/jobs";
 
 const router = express.Router();
 

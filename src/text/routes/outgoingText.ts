@@ -9,7 +9,7 @@ import { REGIONS, Region } from "../models/phone";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import urls from "../../utils/urls";
-import { storeFile } from "../../files/google/storeFileGoogle";
+import { storeFile } from "../../utils/googleApis/files/storeFile";
 import getSecrets from "../../utils/getSecrets";
 
 const Phone = mongoose.model("Phone");

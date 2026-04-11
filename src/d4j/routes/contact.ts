@@ -4,15 +4,12 @@ import mongoose from "mongoose";
 import { generate } from "generate-password";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
-import {
-  addContact,
-  getContactByEmail,
-  deleteContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
+import { addContact } from "../../utils/salesforce/contact/addContact";
+import { deleteContact } from "../../utils/salesforce/contact/updateContact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email/email";
-import { deleteAllUserCheckIns } from "../../utils/salesforce/SFQuery/d4j";
-// import { sendConfirmD4JUserEmail } from "../../utils/email/email";
+import { deleteAllUserCheckIns } from "../../utils/salesforce/d4j";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";

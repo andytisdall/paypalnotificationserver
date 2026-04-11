@@ -1,12 +1,12 @@
-import express from 'express';
+import express from "express";
 
-import { getMealProgramData } from '../../utils/salesforce/SFQuery/volunteer/campaign/campaign';
+import { getMealProgramData } from "../../utils/salesforce/volunteer/campaign/campaign";
 
 const router = express.Router();
 
 const PAST_YEARS_MEAL_TOTAL = 193131;
 
-router.get('/campaign', async (req, res) => {
+router.get("/campaign", async (req, res) => {
   const salesforceTotal = await getMealProgramData();
 
   res.send({

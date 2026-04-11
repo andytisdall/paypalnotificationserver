@@ -2,11 +2,11 @@ import express from "express";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { HomeChefPollBody } from "../../utils/salesforce/SFQuery/volunteer/types";
+import { HomeChefPollBody } from "../../utils/salesforce/volunteer/types";
 import {
   createHomeChefPollResults,
   createHomeChefSurvey,
-} from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+} from "../../utils/salesforce/volunteer/homeChef/survey";
 
 const router = express.Router();
 

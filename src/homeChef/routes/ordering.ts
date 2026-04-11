@@ -3,13 +3,14 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { requireAdmin } from "../../middlewares/require-admin";
 import {
   sendOrderReadyEmail,
   sendManagerSupplyOrder,
   sendOrderConfirmation,
 } from "../../utils/email/emailTemplates/homeChefSupplyOrder";
+import { sendEmail } from "../../utils/email/email";
 
 const router = express.Router();
 
@@ -111,6 +112,24 @@ router.post(
     });
 
     await newOrder.save();
+
+    res.send(null);
+  },
+);
+
+router.post(
+  "/ordering/reminder",
+  currentUser,
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    const { orderId }: { orderId: string } = req.body;
+
+    const order = await SupplyOrder.findById(orderId);
+    if (!order) {
+      throw Error("Order not found");
+    }
+    await sendOrderReadyEmail(order.contact);
 
     res.send(null);
   },

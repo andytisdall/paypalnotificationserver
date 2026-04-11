@@ -3,8 +3,8 @@ import request from "supertest";
 import { formatISO } from "date-fns";
 
 import urls from "../../../utils/urls";
-import { createShift } from "../../../utils/salesforce/SFQuery/volunteer/shifts";
-import { CheckInVolunteer } from "../../../utils/salesforce/SFQuery/volunteer/types";
+import { createShift } from "../../../utils/salesforce/volunteer/shifts";
+import { CheckInVolunteer } from "../../../utils/salesforce/volunteer/types";
 
 let shiftId = "";
 let contactId = "";

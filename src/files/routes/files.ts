@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 
-import { bucket } from "../google/bucket";
+import { bucket } from "../../utils/googleApis/files/bucket";
 
 const router = express.Router();
 
@@ -10,6 +10,8 @@ router.get("/images/:fileName", async (req, res) => {
 
   const file = bucket.file(fileName);
   const outputStream = file.createReadStream();
+
+  console.log("images route");
 
   res.type(path.extname(fileName));
   outputStream.pipe(res);

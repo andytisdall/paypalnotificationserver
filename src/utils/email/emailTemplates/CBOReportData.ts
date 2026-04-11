@@ -1,8 +1,8 @@
 import { lastDayOfMonth, format } from "date-fns";
 
 import urls from "../../urls";
-import { CBOReportParams, ZipCode } from "../../salesforce/SFQuery/cboReport";
-import { getCBOReports } from "../../salesforce/SFQuery/cboReport";
+import { CBOReportParams, ZipCode } from "../../salesforce/cbo/types";
+import { getCBOReports } from "../../salesforce/cbo/getReports";
 import { EmailMessage, sendBatchEmail } from "../email";
 
 function sumField<T>(reportList: T[], field: keyof T) {

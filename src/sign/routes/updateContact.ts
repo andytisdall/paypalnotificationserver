@@ -1,13 +1,11 @@
 import express from "express";
 
-import {
-  getUnformattedContactByEmail,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
-import { uploadFileToSalesforce } from "../../utils/salesforce/SFQuery/files/fileUpload";
-import { FileWithMetadata } from "../../utils/salesforce/SFQuery/files/metadata";
+import { getUnformattedContactByEmail } from "../../utils/salesforce/contact/getContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
+import { uploadFileToSalesforce } from "../../utils/salesforce/files/fileUpload";
+import { FileWithMetadata } from "../../utils/salesforce/files/metadata";
 import { downloadFile } from "../../utils/zoho/downloadFile";
-import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
 import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
 import { docInfo } from "./docConfig";
 
@@ -31,11 +29,11 @@ router.post("/update-contact", async (req, res) => {
   }
 
   const contact = await getUnformattedContactByEmail(
-    actions[0].recipient_email
+    actions[0].recipient_email,
   );
 
   const doc = Object.values(docInfo).find(
-    (d) => d.name === document_ids[0].document_name
+    (d) => d.name === document_ids[0].document_name,
   );
 
   if (!contact) {

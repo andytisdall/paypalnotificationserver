@@ -4,7 +4,7 @@ import request from "supertest";
 import {
   FormattedShift,
   FormattedHours,
-} from "../../../utils/salesforce/SFQuery/volunteer/types";
+} from "../../../utils/salesforce/volunteer/types";
 
 it("gets the list of shifts and signs up for a shift", async () => {
   const token = await global.getToken({ admin: false });

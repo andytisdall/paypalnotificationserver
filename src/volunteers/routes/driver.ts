@@ -3,15 +3,13 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import {
-  getContactById,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
 import {
   formatFilesFromFileArray,
   uploadFileToSalesforce,
-} from "../../utils/salesforce/SFQuery/files/fileUpload";
-import { FormattedContact } from "../../utils/salesforce/SFQuery/contact/types";
+} from "../../utils/salesforce/files/fileUpload";
+import { FormattedContact } from "../../utils/salesforce/contact/types";
 
 const User = mongoose.model("User");
 

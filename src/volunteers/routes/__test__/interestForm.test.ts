@@ -2,7 +2,7 @@ import app from "../../../../index";
 import request from "supertest";
 import mongoose from "mongoose";
 import passwordGenerator from "generate-password";
-import { updateContact } from "../../../utils/salesforce/SFQuery/contact/contact";
+import { updateContact } from "../../../utils/salesforce/contact/updateContact";
 
 const User = mongoose.model("User");
 

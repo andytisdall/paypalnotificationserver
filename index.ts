@@ -25,32 +25,15 @@ import "./src/mealProgram/models/clientMeal";
 import "./src/homeChef/models/supplyOrder";
 
 // routes
-
-// paypal
 import paypalRouter from "./src/paypal/routes/paypal";
-
-// text
 import textRouter from "./src/text/routes";
-
-// restaurant onboarding
 import mealProgramRouter from "./src/mealProgram/routes";
-
-//files
 import fileRouter from "./src/files/routes/files";
-
-// home chef
 import homeChefRouter from "./src/homeChef/routes";
-
-// auth
 import authRouter from "./src/auth/routes";
-
-//events
 import volunteersRouter from "./src/volunteers/routes";
-
 import d4jRouter from "./src/d4j/routes";
-
 import signRouter from "./src/sign/routes";
-
 import emailRouter from "./src/email/email";
 
 import { errorHandler } from "./src/middlewares/error-handler";
@@ -63,10 +46,6 @@ mongoose.set("strictQuery", false);
 const app = express();
 app.use("/static", express.static(join("public", "static")));
 app.use("/images", express.static(join("public", "images")));
-app.get("/manifest.json", (req, res) =>
-  res.sendFile(join("public", "manifest.json"), { root: __dirname }),
-);
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
@@ -89,17 +68,21 @@ apiRouter.use("/sign", signRouter);
 apiRouter.use("/email", emailRouter);
 
 apiRouter.use(errorHandler);
-apiRouter.get("/{*path}", (req, res) => {
+apiRouter.get("/{*path}", (_req, res) => {
   res.sendStatus(404);
 });
 
 app.use("/api", apiRouter);
 
-app.get("/_ah/warmup", (req, res) => {
+app.get("/_ah/warmup", (_req, res) => {
   res.sendStatus(204);
 });
 
-app.get("/{*path}", (req, res) => {
+app.get("/manifest.json", (_req, res) =>
+  res.sendFile(join("public", "manifest.json"), { root: __dirname }),
+);
+
+app.get("/{*path}", (_req, res) => {
   res.sendFile(join("public", "index.html"), {
     root: __dirname,
   });

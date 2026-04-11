@@ -2,18 +2,18 @@ import express from "express";
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import {
-  addContact,
   getContactByEmail,
   getContactById,
-  updateContact,
-} from "../../utils/salesforce/SFQuery/contact/contact";
-import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+} from "../../utils/salesforce/contact/getContact";
+import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
 import {
   formatFilesFromFileArray,
   uploadFileToSalesforce,
-} from "../../utils/salesforce/SFQuery/files/fileUpload";
-import { insertCampaignMember } from "../../utils/salesforce/SFQuery/volunteer/campaign/campaignMember";
+} from "../../utils/salesforce/files/fileUpload";
+import { insertCampaignMember } from "../../utils/salesforce/volunteer/campaign/campaignMember";
 import urls from "../../utils/urls";
+import { addContact } from "../../utils/salesforce/contact/addContact";
+import { updateContact } from "../../utils/salesforce/contact/updateContact";
 
 const router = express.Router();
 

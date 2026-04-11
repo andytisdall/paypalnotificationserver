@@ -3,14 +3,11 @@ import mongoose from "mongoose";
 import { format, formatISO, addDays } from "date-fns";
 
 import { sendDonationAckEmail } from "../../utils/email/emailTemplates/donationAck";
-import {
-  addContact,
-  getContactByEmail,
-} from "../../utils/salesforce/SFQuery/contact/contact";
-import { ContactData } from "../../utils/salesforce/SFQuery/contact/types";
+import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
+import { ContactData } from "../../utils/salesforce/contact/types";
 import urls from "../../utils/urls";
 import fetcher from "../../utils/fetcher";
-
+import { addContact } from "../../utils/salesforce/contact/addContact";
 import { activeCampaigns } from "../activeCampaigns";
 
 const PaypalTxn = mongoose.model("PaypalTxn");

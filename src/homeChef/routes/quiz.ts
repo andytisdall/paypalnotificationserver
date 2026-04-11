@@ -2,8 +2,8 @@ import express from "express";
 
 import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
-import { getContactById } from "../../utils/salesforce/SFQuery/contact/contact";
-import { updateHomeChefStatus } from "../../utils/salesforce/SFQuery/volunteer/homeChef";
+import { getContactById } from "../../utils/salesforce/contact/getContact";
+import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
 
 interface HomeChefQuizQuestion {
   question: string;
@@ -128,7 +128,7 @@ router.post("/quiz", currentUser, requireAuth, async (req, res) => {
   const passed = score >= MIN_SCORE;
 
   const rightAnswers = wrongAnswers.map(
-    (index) => questions[index].answers[correctAnswers[index]]
+    (index) => questions[index].answers[correctAnswers[index]],
   );
 
   const response: HomeChefQuizResponse = {

@@ -7,10 +7,10 @@ import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
   getContactByEmail,
-  updateContact,
-} from "../../../utils/salesforce/SFQuery/contact/contact";
+} from "../../../utils/salesforce/contact/getContact";
 import { getUniqueUsernameAndPassword } from "../user/createUser";
 import { createPortalUser } from "../user/createUser";
+import { updateContact } from "../../../utils/salesforce/contact/updateContact";
 
 const User = mongoose.model("User");
 
