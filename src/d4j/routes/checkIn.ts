@@ -122,55 +122,49 @@ router.get("/rewards/check-in", currentD4JUser, async (req, res) => {
   res.send(checkIns);
 });
 
-router.post(
-  "/rewards/prize-drawing",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    // get all check-ins that are valid
-    const checkIns = await getValidD4jCheckIns();
+router.post("/rewards/prize-drawing", requireAdmin, async (req, res) => {
+  // get all check-ins that are valid
+  const checkIns = await getValidD4jCheckIns();
 
-    // console.log(checkIns.length);
+  // console.log(checkIns.length);
 
-    const allowedCheckIns = checkIns.filter(
-      (checkIn) =>
-        !Object.values(DISALLOWED_CONTACTS).includes(checkIn.Contact__c),
-    );
+  const allowedCheckIns = checkIns.filter(
+    (checkIn) =>
+      !Object.values(DISALLOWED_CONTACTS).includes(checkIn.Contact__c),
+  );
 
-    const numberOfCheckIns = allowedCheckIns.length;
-    if (!allowedCheckIns || !numberOfCheckIns) {
-      throw Error("No valid check-ins found");
-    }
+  const numberOfCheckIns = allowedCheckIns.length;
+  if (!allowedCheckIns || !numberOfCheckIns) {
+    throw Error("No valid check-ins found");
+  }
 
-    // mark all fetched check-ins as spent & winner
-    await updateD4jCheckInsAsSpent(checkIns.map((c) => c.Id));
+  // mark all fetched check-ins as spent & winner
+  await updateD4jCheckInsAsSpent(checkIns.map((c) => c.Id));
 
-    const contact1 = await drawWinner(allowedCheckIns);
-    const contact2 = await drawWinner(allowedCheckIns);
-    const contact3 = await drawWinner(allowedCheckIns);
+  const contact1 = await drawWinner(allowedCheckIns);
+  const contact2 = await drawWinner(allowedCheckIns);
+  const contact3 = await drawWinner(allowedCheckIns);
 
-    // return name of contact
-    res.send({
-      firstPrize: {
-        id: contact1.Id,
-        firstName: contact1.FirstName,
-        lastName: contact1.LastName,
-      },
-      secondPrize: {
-        id: contact2.Id,
-        firstName: contact2.FirstName,
-        lastName: contact2.LastName,
-      },
-      thirdPrize: {
-        id: contact3.Id,
-        firstName: contact3.FirstName,
-        lastName: contact3.LastName,
-      },
-      numberOfCheckIns,
-    });
-  },
-);
+  // return name of contact
+  res.send({
+    firstPrize: {
+      id: contact1.Id,
+      firstName: contact1.FirstName,
+      lastName: contact1.LastName,
+    },
+    secondPrize: {
+      id: contact2.Id,
+      firstName: contact2.FirstName,
+      lastName: contact2.LastName,
+    },
+    thirdPrize: {
+      id: contact3.Id,
+      firstName: contact3.FirstName,
+      lastName: contact3.LastName,
+    },
+    numberOfCheckIns,
+  });
+});
 
 const drawWinner = async (
   checkIns: D4JCheckIn[],

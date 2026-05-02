@@ -15,7 +15,10 @@ const decodeString = (string: string) => {
   );
 };
 
-export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
+export const getJobs = async (
+  campaignId: string,
+  textAlertOnly: boolean = false,
+): Promise<FormattedJob[]> => {
   const fields = [
     "Id",
     "Name",
@@ -32,6 +35,7 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
     "GW_Volunteers__Location_City__c",
     "Distance__c",
     "Time_Required__c",
+    "No_Text_Alert__c",
   ] as const;
 
   const obj = "GW_Volunteers__Volunteer_Job__c";
@@ -42,6 +46,14 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       { field: "GW_Volunteers__Display_on_Website__c", value: true },
     ],
   };
+
+  if (textAlertOnly) {
+    filters.AND?.push({ field: "No_Text_Alert__c", value: false });
+    filters.AND?.push({
+      field: "GW_Volunteers__Inactive__c",
+      value: false,
+    });
+  }
 
   const jobs = await createQuery<Job, (typeof fields)[number]>({
     fields,
@@ -68,6 +80,7 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
       dropoffNotes: j.Dropoff_Notes__c,
       timeRequired: j.Time_Required__c,
       distance: j.Distance__c,
+      noTextAlert: j.No_Text_Alert__c,
     };
   });
 

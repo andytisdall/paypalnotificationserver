@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { subMonths } from "date-fns";
 import twilio from "twilio";
 
-import { getTwilioClient } from "./outgoingText";
+import { getTwilioClient } from "../createTwilioClient";
 import { removeTextSubscriber } from "../../utils/salesforce/text";
 
 const Phone = mongoose.model("Phone");

@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import { fromZonedTime } from "date-fns-tz";
 
-import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
 
@@ -10,23 +9,17 @@ const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
 const router = express.Router();
 
-router.get(
-  "/text-records/list/:startDate",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { startDate } = req.params;
+router.get("/text-records/list/:startDate", requireAdmin, async (req, res) => {
+  const { startDate } = req.params;
 
-    const textRecords = await OutgoingTextRecord.find({
-      date: { $gt: fromZonedTime(startDate as string, "America/Los_Angeles") },
-    }).sort({ date: -1 });
+  const textRecords = await OutgoingTextRecord.find({
+    date: { $gt: fromZonedTime(startDate as string, "America/Los_Angeles") },
+  }).sort({ date: -1 });
 
-    res.send(textRecords);
-  },
-);
+  res.send(textRecords);
+});
 
-router.get("/text-records/:id", currentUser, requireAuth, async (req, res) => {
+router.get("/text-records/:id", requireAuth, async (req, res) => {
   if (!req.currentUser!.busDriver && !req.currentUser!.admin) {
     res.sendStatus(403);
   }

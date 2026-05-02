@@ -5,24 +5,10 @@ import { join } from "path";
 import mongoose from "mongoose";
 import nocache from "nocache";
 
-import { connectDb } from "./src/setupDb";
+import { connectDb } from "./src/utils/db/setupDb";
 
 // register models
-import "./src/auth/models/user";
-import "./src/homeChef/models/recipe";
-import "./src/text/models/phone";
-import "./src/text/models/outgoingTextRecord";
-import "./src/text/models/feedback";
-import "./src/paypal/models/paypalTxn";
-import "./src/homeChef/models/notifications";
-import "./src/text/models/scheduledText";
-import "./src/d4j/models/checkIn";
-import "./src/d4j/models/d4jUser";
-import "./src/d4j/models/cocktailVote";
-import "./src/d4j/models/event";
-import "./src/mealProgram/models/client";
-import "./src/mealProgram/models/clientMeal";
-import "./src/homeChef/models/supplyOrder";
+import "./src/utils/db/registerModels";
 
 // routes
 import paypalRouter from "./src/paypal/routes/paypal";
@@ -35,6 +21,7 @@ import volunteersRouter from "./src/volunteers/routes";
 import d4jRouter from "./src/d4j/routes";
 import signRouter from "./src/sign/routes";
 import emailRouter from "./src/email/email";
+import eventsRouter from "./src/events/routes/rsvp";
 
 import { errorHandler } from "./src/middlewares/error-handler";
 
@@ -66,6 +53,7 @@ apiRouter.use("/volunteers", volunteersRouter);
 apiRouter.use("/d4j", d4jRouter);
 apiRouter.use("/sign", signRouter);
 apiRouter.use("/email", emailRouter);
+apiRouter.use("/events", eventsRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get("/{*path}", (_req, res) => {

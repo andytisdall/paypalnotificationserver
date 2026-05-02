@@ -10,7 +10,6 @@ import {
   sendManagerSupplyOrder,
   sendOrderConfirmation,
 } from "../../utils/email/emailTemplates/homeChefSupplyOrder";
-import { sendEmail } from "../../utils/email/email";
 
 const router = express.Router();
 
@@ -28,7 +27,7 @@ interface ManualSupplyOrder extends SupplyOrder {
   lastName?: string;
 }
 
-router.post("/ordering", currentUser, requireAuth, async (req, res) => {
+router.post("/ordering", requireAuth, async (req, res) => {
   const order: SupplyOrder = req.body;
   const { containers, labels, soup, sandwich } = order;
 
@@ -62,22 +61,15 @@ router.post("/ordering", currentUser, requireAuth, async (req, res) => {
   res.send(null);
 });
 
-router.get(
-  "/ordering/unfulfilled",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const orders = await SupplyOrder.find({ fulfilled: false });
+router.get("/ordering/unfulfilled", requireAdmin, async (req, res) => {
+  const orders = await SupplyOrder.find({ fulfilled: false });
 
-    res.send(orders);
-  },
-);
+  res.send(orders);
+});
 
 router.get(
   "/ordering/fulfilled",
-  currentUser,
-  requireAuth,
+
   requireAdmin,
   async (req, res) => {
     const orders = await SupplyOrder.find({ fulfilled: true });
@@ -88,8 +80,7 @@ router.get(
 
 router.post(
   "/ordering/manual",
-  currentUser,
-  requireAuth,
+
   requireAdmin,
   async (req, res) => {
     const {
@@ -117,57 +108,39 @@ router.post(
   },
 );
 
-router.post(
-  "/ordering/reminder",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { orderId }: { orderId: string } = req.body;
+router.post("/ordering/reminder", requireAdmin, async (req, res) => {
+  const { orderId }: { orderId: string } = req.body;
 
-    const order = await SupplyOrder.findById(orderId);
-    if (!order) {
-      throw Error("Order not found");
+  const order = await SupplyOrder.findById(orderId);
+  if (!order) {
+    throw Error("Order not found");
+  }
+  await sendOrderReadyEmail(order.contact);
+
+  res.send(null);
+});
+
+router.patch("/ordering", requireAdmin, async (req, res) => {
+  const { orders }: { orders: string[] } = req.body;
+
+  const ordersToUpdate = await SupplyOrder.find({ _id: { $in: orders } });
+  const promises = ordersToUpdate.map(async (o) => {
+    if (o.contact.email) {
+      await sendOrderReadyEmail(o.contact);
     }
-    await sendOrderReadyEmail(order.contact);
+    o.fulfilled = true;
+    await o.save();
+  });
 
-    res.send(null);
-  },
-);
+  await Promise.all(promises);
 
-router.patch(
-  "/ordering",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { orders }: { orders: string[] } = req.body;
+  res.send(null);
+});
 
-    const ordersToUpdate = await SupplyOrder.find({ _id: { $in: orders } });
-    const promises = ordersToUpdate.map(async (o) => {
-      if (o.contact.email) {
-        await sendOrderReadyEmail(o.contact);
-      }
-      o.fulfilled = true;
-      await o.save();
-    });
-
-    await Promise.all(promises);
-
-    res.send(null);
-  },
-);
-
-router.delete(
-  "/ordering/:id",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { id } = req.params;
-    await SupplyOrder.deleteOne({ _id: id });
-    res.sendStatus(204);
-  },
-);
+router.delete("/ordering/:id", requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  await SupplyOrder.deleteOne({ _id: id });
+  res.sendStatus(204);
+});
 
 export default router;

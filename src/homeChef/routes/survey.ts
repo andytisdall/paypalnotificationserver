@@ -41,7 +41,7 @@ export interface SurveyArgs {
   otherItem: string;
 }
 
-router.post("/survey", currentUser, requireAuth, async (req, res) => {
+router.post("/survey", requireAuth, async (req, res) => {
   const { times, more, items, otherItem, otherTime }: SurveyArgs = req.body;
 
   const contactId = req.currentUser!.salesforceId;

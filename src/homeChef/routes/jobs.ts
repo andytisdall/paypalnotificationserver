@@ -4,12 +4,11 @@ import { format } from "date-fns";
 import { getJobs } from "../../utils/salesforce/volunteer/jobs";
 import urls from "../../utils/urls";
 import { getShifts } from "../../utils/salesforce/volunteer/shifts";
-import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 
 const router = express.Router();
 
-router.get("/job-listing", currentUser, requireAuth, async (req, res) => {
+router.get("/job-listing", requireAuth, async (req, res) => {
   const jobs = await getJobs(urls.townFridgeCampaignId);
   const shiftPromises = jobs.map(async (j) => {
     const jobShifts = await getShifts(j.id);

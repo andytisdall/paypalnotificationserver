@@ -58,9 +58,6 @@ router.post("/reset-password", async (req, res) => {
     expiresAt: string;
   };
 
-  console.log(new Date(expiresAt));
-  console.log(new Date());
-
   const user = await User.findById(id);
   if (!user) {
     throw Error("Invalid reset token");

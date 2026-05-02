@@ -2,19 +2,19 @@ import express from "express";
 import twilio, { twiml } from "twilio";
 
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
-import { getTwilioClient } from "./outgoingText";
+import { getTwilioClient } from "../createTwilioClient";
 import getSecrets from "../../utils/getSecrets";
-import { OutgoingText } from "./outgoingText";
-import { VOLUNTEER_REMINDER_NUMBER } from "../models/phone";
+import {
+  OutgoingText,
+  VOLUNTEER_REMINDER_NUMBER,
+  IncomingText,
+} from "../types";
 import { getContactByPhoneNumber } from "../../utils/salesforce/contact/getContact";
 import {
   editHours,
   getTextReminderHours,
 } from "../../utils/salesforce/volunteer/hours";
 import { sendVolunteerShiftCancelEmail } from "../../volunteers/routes/hours/deleteHours";
-import { IncomingText } from "./incomingText";
-
-const MessagingResponse = twiml.MessagingResponse;
 
 const router = express.Router();
 
@@ -50,7 +50,7 @@ router.post(
           responseText =
             'Please reply with "Y" to confirm your volunteer shift or "N" to cancel it.';
         }
-        const response = new MessagingResponse();
+        const response = new twiml.MessagingResponse();
         response.message(responseText);
         res.set("Content-Type", "text/xml");
         return res.send(response.toString());
@@ -89,7 +89,7 @@ router.post("/outgoing/volunteer", requireSalesforceAuth, async (req, res) => {
     throw new Error("No message to send");
   }
 
-  const outgoingText: OutgoingText = {
+  const outgoingText: Partial<OutgoingText> = {
     body: message,
     from: VOLUNTEER_REMINDER_NUMBER,
     messagingServiceSid: MESSAGING_SERVICE_SID,

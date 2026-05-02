@@ -2,9 +2,10 @@ import app from "../../../../index";
 import request from "supertest";
 import mongoose from "mongoose";
 
-import textResponses from "../../textResponses";
-import { Phone, REGIONS } from "../../models/phone";
+import { responses } from "../../responses/responses";
+import { REGIONS } from "../../types";
 
+const Phone = mongoose.model("Phone");
 const Feedback = mongoose.model("Feedback");
 
 jest.mock("twilio");
@@ -21,7 +22,9 @@ it("gets general info", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.generalInfoResponse("WEST_OAKLAND"));
+  expect(res.text).toEqual(
+    responses.generalInfoResponse["ALERT"]("WEST_OAKLAND"),
+  );
 });
 
 it("signs up for west oakland", async () => {
@@ -34,7 +37,10 @@ it("signs up for west oakland", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse("WEST_OAKLAND"));
+  expect(res.text).toEqual(responses.signUpResponse["ALERT"]("WEST_OAKLAND"));
+
+  const subscribers = await Phone.find({ region: "WEST_OAKLAND" });
+  expect(subscribers.length).toEqual(1);
 });
 
 it("signs up for east oakland", async () => {
@@ -47,7 +53,10 @@ it("signs up for east oakland", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse("EAST_OAKLAND"));
+  expect(res.text).toEqual(responses.signUpResponse["ALERT"]("EAST_OAKLAND"));
+
+  const subscribers = await Phone.find({ region: "WEST_OAKLAND" });
+  expect(subscribers.length).toEqual(1);
 });
 
 it("gets a duplicate response", async () => {
@@ -60,7 +69,9 @@ it("gets a duplicate response", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.duplicateResponse("EAST_OAKLAND"));
+  expect(res.text).toEqual(
+    responses.duplicateResponse["ALERT"]("EAST_OAKLAND"),
+  );
 });
 
 it("texts feedback", async () => {
@@ -74,7 +85,7 @@ it("texts feedback", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.feedbackResponse());
+  expect(res.text).toEqual(responses.feedbackResponse["ALERT"]("WEST_OAKLAND"));
 
   // check for feedback record in db
   const fb = await Feedback.findOne({
@@ -108,5 +119,5 @@ it("un-unsubscribes", async () => {
     .post("/api/text/incoming")
     .send(incomingText)
     .expect(200);
-  expect(res.text).toEqual(textResponses.signUpResponse("EAST_OAKLAND"));
+  expect(res.text).toEqual(responses.signUpResponse["ALERT"]("EAST_OAKLAND"));
 });

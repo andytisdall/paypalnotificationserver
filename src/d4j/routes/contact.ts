@@ -201,20 +201,14 @@ router.post("/delete-account", async (req, res) => {
   res.sendStatus(204);
 });
 
-router.get(
-  "/delete-andy",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const email = "andrew.tisdall@gmail.com";
+router.get("/delete-andy", requireAdmin, async (req, res) => {
+  const email = "andrew.tisdall@gmail.com";
 
-    const contact = await getContactByEmail(email);
-    await deleteContact(contact!.id!);
+  const contact = await getContactByEmail(email);
+  await deleteContact(contact!.id!);
 
-    await D4JUser.deleteOne({ email });
-    res.sendStatus(204);
-  },
-);
+  await D4JUser.deleteOne({ email });
+  res.sendStatus(204);
+});
 
 export default router;

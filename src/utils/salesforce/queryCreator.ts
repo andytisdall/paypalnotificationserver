@@ -92,10 +92,18 @@ async function createQuery<T, K extends keyof T>({
 }) {
   await fetcher.setService("salesforce");
 
-  let query = "SELECT " + fields.join(", ") + " FROM " + obj;
+  let query =
+    "SELECT " +
+    (fields.length ? fields.join(", ") : "FIELDS(ALL)") +
+    " FROM " +
+    obj;
 
   if (filters) {
     query += " WHERE " + parseFilter(filters);
+  }
+
+  if (!fields.length) {
+    query += " LIMIT 200";
   }
 
   const queryUri = urls.SFQueryPrefix + encodeURIComponent(query);

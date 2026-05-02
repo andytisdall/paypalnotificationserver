@@ -27,6 +27,7 @@ export const createHours = async ({
   );
 
   if (data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === 0) {
+    console.log(data);
     throw new Error("This shift has no available slots");
   }
 

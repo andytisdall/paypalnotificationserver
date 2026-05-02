@@ -1,50 +1,23 @@
 import express from "express";
-import twilio from "twilio";
 import { format } from "date-fns";
 import mongoose from "mongoose";
-import fileUpload from "express-fileupload";
-import { createHash } from "crypto";
 
-import { REGIONS, Region } from "../models/phone";
-import { currentUser } from "../../middlewares/current-user";
+import { getTwilioClient } from "../createTwilioClient";
+import { Region, REGIONS } from "../types";
 import { requireAuth } from "../../middlewares/require-auth";
 import urls from "../../utils/urls";
-import { storeFile } from "../../utils/googleApis/files/storeFile";
 import getSecrets from "../../utils/getSecrets";
+import { getSubscribers } from "../getSubscribers";
+import { savePhoto } from "../savePhoto";
+import { OutgoingText, NewOutgoingTextRecord } from "../types";
 
-const Phone = mongoose.model("Phone");
 const Feedback = mongoose.model("Feedback");
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
-
-export interface NewOutgoingTextRecord {
-  message?: string;
-  sender: string;
-  region: string;
-  image?: string;
-  date?: Date;
-}
+const Phone = mongoose.model("Phone");
 
 const smsRouter = express.Router();
 
-export type OutgoingText = {
-  from: string;
-  body?: string;
-  mediaUrl?: string[];
-  sendAt?: Date;
-  messagingServiceSid: string;
-  scheduleType?: "fixed";
-  validityPeriod?: number;
-};
-
-interface PhoneObject {
-  number: string;
-  region: Region[];
-  fails?: Date[];
-  imgFail?: Date;
-  noImg?: boolean;
-}
-
-smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
+smsRouter.post("/outgoing", requireAuth, async (req, res) => {
   const twilioClient = await getTwilioClient();
 
   const {
@@ -85,7 +58,7 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     throw Error("You are not authorized to send text alerts");
   }
 
-  let formattedRegion = region.toUpperCase().replace(" ", "_") as
+  const formattedRegion = region.toUpperCase().replace(" ", "_") as
     | Region
     | "ALL";
 
@@ -93,109 +66,77 @@ smsRouter.post("/outgoing", currentUser, requireAuth, async (req, res) => {
     throw Error("Invalid region specified: " + region);
   }
 
-  let imgNumbers: string[] = [];
-  let noImgNumbers: string[] = [];
+  // photo
 
-  const responsePhoneNumber =
-    formattedRegion === "ALL" || number
-      ? REGIONS.WEST_OAKLAND
-      : REGIONS[formattedRegion];
+  let mediaUrl: string[] = [];
 
-  const query =
-    region === "all"
-      ? {
-          region: {
-            $in: ["EAST_OAKLAND", "WEST_OAKLAND", "BERKELEY"],
-          },
-        }
-      : { region: formattedRegion };
+  if (attachedPhoto) {
+    mediaUrl = await savePhoto(attachedPhoto, req.currentUser!.username);
+  } else if (photo) {
+    mediaUrl = [photo];
+  }
 
-  if (!number) {
-    imgNumbers = (
-      await Phone.find({
-        ...query,
-        $or: [{ noImg: false }, { noImg: undefined }, { noImg: null }],
-      })
-    ).map((p) => p.number);
-    noImgNumbers = (await Phone.find({ ...query, noImg: true })).map(
-      (p) => p.number,
-    );
-  } else {
+  const outgoingText: Partial<OutgoingText> = {
+    body: message,
+    messagingServiceSid: MESSAGING_SERVICE_SID,
+  };
+
+  // give app users a sensible error message if twilio doesn't work for any reason
+
+  if (number) {
     const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
       res.status(422);
       throw new Error("Phone number must have 10 digits");
     }
+    const phone = await Phone.findOne({ number: phoneNumber });
+    const from = phone?.region[0] || "WEST_OAKLAND";
+    await twilioClient.messages.create({
+      ...outgoingText,
+      from,
+      to: phoneNumber,
+      mediaUrl,
+    });
+  } else {
+    let { imgNumbersByRegion, noImgNumbersByRegion } =
+      await getSubscribers(formattedRegion);
 
-    imgNumbers = ["+1" + phoneNumber];
-  }
-
-  if (process.env.NODE_ENV !== "production") {
-    imgNumbers = imgNumbers.filter((num) => num === "+14158190251");
-    noImgNumbers = [];
-  }
-
-  // photo
-
-  const outgoingText: OutgoingText = {
-    body: message,
-    from: responsePhoneNumber,
-    messagingServiceSid: MESSAGING_SERVICE_SID,
-  };
-
-  let mediaUrl: string[] = [];
-
-  if (attachedPhoto) {
-    let photoArray: fileUpload.UploadedFile[] = [];
-    if (Array.isArray(attachedPhoto)) {
-      photoArray = attachedPhoto;
-    } else {
-      photoArray = [attachedPhoto];
+    if (process.env.NODE_ENV !== "production") {
+      imgNumbersByRegion = { WEST_OAKLAND: ["+14158190251"] };
+      noImgNumbersByRegion = {};
     }
 
-    const photoUrlPromises = photoArray.map(async (photoFile, i) => {
-      const hash = createHash("md5")
-        .update(req.currentUser!.username)
-        .digest("hex");
+    try {
+      for (let reg in imgNumbersByRegion) {
+        const regionNums = imgNumbersByRegion[reg as Region];
 
-      const fileName =
-        "outgoing-text-" +
-        format(new Date(), "yyyy-MM-dd-hh-mm-ss-a") +
-        `-${hash}-${i}`;
+        regionNums?.forEach(async (phone) => {
+          await twilioClient.messages.create({
+            ...outgoingText,
+            from: REGIONS[reg as Region],
+            to: phone,
+            mediaUrl,
+          });
+        });
+      }
 
-      return await storeFile({
-        file: photoFile,
-        name: fileName,
-        jpg: photoFile.mimetype === "image/jpeg",
-      });
-    });
+      for (let reg in noImgNumbersByRegion) {
+        const regionNums = noImgNumbersByRegion[reg as Region];
 
-    mediaUrl = await Promise.all(photoUrlPromises);
-  } else if (photo) {
-    mediaUrl = [photo];
-  }
-
-  // give app users a sensible error message if twilio doesn't work for any reason
-
-  try {
-    imgNumbers.forEach(async (phone) => {
-      await twilioClient.messages.create({
-        ...outgoingText,
-        to: phone,
-        mediaUrl,
-      });
-    });
-    noImgNumbers.forEach(async (phone) => {
-      await twilioClient.messages.create({
-        ...outgoingText,
-        to: phone,
-      });
-    });
-  } catch (err) {
-    console.log(err);
-    throw Error(
-      "The CK Text Service is currently out of service. Please check back later.",
-    );
+        regionNums?.forEach(async (phone) => {
+          await twilioClient.messages.create({
+            ...outgoingText,
+            from: REGIONS[reg as Region],
+            to: phone,
+          });
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      throw Error(
+        "The CK Text Service is currently out of service. Please check back later.",
+      );
+    }
   }
 
   if (feedbackId) {
@@ -240,16 +181,5 @@ smsRouter.post(
   },
   smsRouter,
 );
-
-export const getTwilioClient = async () => {
-  const { TWILIO_ID, TWILIO_AUTH_TOKEN } = await getSecrets([
-    "TWILIO_ID",
-    "TWILIO_AUTH_TOKEN",
-  ]);
-  if (!TWILIO_ID || !TWILIO_AUTH_TOKEN) {
-    throw Error("Could not find twilio credentials");
-  }
-  return new twilio.Twilio(TWILIO_ID, TWILIO_AUTH_TOKEN, { autoRetry: true });
-};
 
 export default smsRouter;

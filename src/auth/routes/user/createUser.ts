@@ -9,7 +9,7 @@ import { requireAdmin } from "../../../middlewares/require-admin";
 const User = mongoose.model("User");
 const router = express.Router();
 
-router.post("/", currentUser, requireAuth, requireAdmin, async (req, res) => {
+router.post("/", requireAdmin, async (req, res) => {
   const { username, password, salesforceId } = req.body;
 
   const existingUsername = await User.findOne({ username });

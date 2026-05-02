@@ -5,7 +5,7 @@ import { sendEmail, EmailMessage } from "../../utils/email/email";
 
 const router = express.Router();
 
-router.post("/invite", currentUser, requireAuth, async (req, res) => {
+router.post("/invite", requireAuth, async (req, res) => {
   const {
     recipients,
     message,

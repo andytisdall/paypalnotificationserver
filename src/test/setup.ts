@@ -12,6 +12,18 @@ declare global {
 
 jest.mock("postmark");
 jest.mock("twilio");
+const getTwilioClient = jest.fn(() => {
+  return {
+    messages: {
+      create: jest.fn(() => () => Promise.resolve()),
+    },
+  };
+});
+jest.mock(
+  "../text/createTwilioClient",
+  jest.fn(() => ({ getTwilioClient })),
+);
+
 jest.mock("../utils/googleApis/files/storeFile", () => ({
   deleteFile: jest.fn(async (name) => {
     await Promise.resolve();

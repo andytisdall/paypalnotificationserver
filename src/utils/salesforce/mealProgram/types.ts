@@ -52,6 +52,7 @@ export interface MealsPlusService {
   Instructions__c?: string;
   Description__c?: string;
   Contact__c: string;
+  Display_on_Site__c?: boolean;
 }
 
 export interface MealsPlusArgs {

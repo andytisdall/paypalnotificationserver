@@ -8,14 +8,14 @@ export async function requireAuth<T>(
   next: NextFunction,
 ) {
   const { authorization } = req.headers;
-
   if (!authorization) {
-    return next();
+    res.status(403);
+    throw new Error("You must be signed in to do that");
   }
 
-  const currentUser = await getCurrentUser(authorization);
-  if (!currentUser) {
-    res.status(401);
+  req.currentUser = await getCurrentUser(authorization);
+  if (!req.currentUser) {
+    res.status(403);
     throw new Error("You must be signed in to do that");
   }
 

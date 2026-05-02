@@ -12,8 +12,6 @@ const router = express.Router();
 
 router.get(
   "/doorfront/client/lookup-by-client-number/:cCode",
-  currentUser,
-  requireAuth,
   requireAdmin,
   async (req, res) => {
     const { cCode } = req.params;
@@ -33,70 +31,58 @@ router.get(
     const clientMeals = await ClientMeal.find({ client: client.id });
 
     res.send({ clientMeals, client });
-  }
+  },
 );
 
-router.get(
-  "/doorfront/scan/:scanValue",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { scanValue } = req.params;
+router.get("/doorfront/scan/:scanValue", requireAdmin, async (req, res) => {
+  const { scanValue } = req.params;
 
-    if (!scanValue) {
-      throw Error("No barcode provided");
-    }
-
-    let client = await Client.findOne({ barcode: scanValue });
-
-    if (!client) {
-      // create new client
-      client = new Client({ barcode: [scanValue] });
-      await client.save();
-    }
-
-    const clientMeals = await ClientMeal.find({ client: client.id });
-
-    res.send({ clientMeals, client });
+  if (!scanValue) {
+    throw Error("No barcode provided");
   }
-);
 
-router.patch(
-  "/doorfront/client/:clientId",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { clientId } = req.params;
-    const { cCode, barcode, cCodeIncorrect } = req.body;
+  let client = await Client.findOne({ barcode: scanValue });
 
-    const client = await Client.findById(clientId);
+  if (!client) {
+    // create new client
+    client = new Client({ barcode: [scanValue] });
+    await client.save();
+  }
 
-    if (cCode) {
-      const duplicateClient = await Client.findOne({
-        cCode,
-        _id: { $ne: clientId },
-      });
-      if (duplicateClient) {
-        client.barcode = [
-          ...barcode.filter((bc: string) => bc),
-          ...duplicateClient.barcode,
-        ];
-        await mergeClientMeals(client.id, duplicateClient.id);
-      } else {
-        client.barcode = barcode.filter((bc: string) => bc);
-      }
+  const clientMeals = await ClientMeal.find({ client: client.id });
+
+  res.send({ clientMeals, client });
+});
+
+router.patch("/doorfront/client/:clientId", requireAdmin, async (req, res) => {
+  const { clientId } = req.params;
+  const { cCode, barcode, cCodeIncorrect } = req.body;
+
+  const client = await Client.findById(clientId);
+
+  if (cCode) {
+    const duplicateClient = await Client.findOne({
+      cCode,
+      _id: { $ne: clientId },
+    });
+    if (duplicateClient) {
+      client.barcode = [
+        ...barcode.filter((bc: string) => bc),
+        ...duplicateClient.barcode,
+      ];
+      await mergeClientMeals(client.id, duplicateClient.id);
     } else {
       client.barcode = barcode.filter((bc: string) => bc);
     }
-    client.cCode = cCode;
-    client.cCodeIncorrect = cCodeIncorrect || false;
-    await client.save();
-
-    res.send(null);
+  } else {
+    client.barcode = barcode.filter((bc: string) => bc);
   }
-);
+  client.cCode = cCode;
+  client.cCodeIncorrect = cCodeIncorrect || false;
+  await client.save();
+
+  res.send(null);
+});
 
 // for clients with the same C code
 const mergeClientMeals = async (client1ID: string, client2ID: string) => {
@@ -109,46 +95,28 @@ const mergeClientMeals = async (client1ID: string, client2ID: string) => {
   await Client.deleteOne({ _id: client2ID });
 };
 
-router.get(
-  "/doorfront/clients",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const clients = await Client.find();
-    res.send(clients);
+router.get("/doorfront/clients", requireAdmin, async (req, res) => {
+  const clients = await Client.find();
+  res.send(clients);
+});
+
+router.get("/doorfront/client/:id", requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  const client = await Client.findById(id);
+  if (!client) {
+    return res.send(null);
   }
-);
+  const clientMeals = await ClientMeal.find({ client: client.id });
 
-router.get(
-  "/doorfront/client/:id",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { id } = req.params;
-    const client = await Client.findById(id);
-    if (!client) {
-      return res.send(null);
-    }
-    const clientMeals = await ClientMeal.find({ client: client.id });
+  res.send({ client, clientMeals });
+});
 
-    res.send({ client, clientMeals });
-  }
-);
+router.delete("/doorfront/client/:id", requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  await Client.deleteOne({ _id: id });
+  await ClientMeal.deleteMany({ client: id });
 
-router.delete(
-  "/doorfront/client/:id",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { id } = req.params;
-    await Client.deleteOne({ _id: id });
-    await ClientMeal.deleteMany({ client: id });
-
-    res.send(null);
-  }
-);
+  res.send(null);
+});
 
 export default router;

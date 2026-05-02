@@ -1,24 +1,5 @@
-import urls from "../utils/urls";
-import { Region } from "./models/phone";
-
-export const regionKey: Record<Region, string> = {
-  EAST_OAKLAND: "East Oakland",
-  WEST_OAKLAND: "West Oakland",
-  BERKELEY: "Berkeley",
-  RESOURCES: "Resources",
-};
-
-const SIGN_UP_WORDS = ["signup", "enroll", "start", "unstop", "yes"];
-const CANCEL_WORDS = [
-  "stop",
-  "stopall",
-  "unsubscribe",
-  "quit",
-  "cancel",
-  "end",
-];
-const INFO_WORD = "info";
-const MEAL_SURVEY_URL = urls.client + "/forms/meal-survey";
+import { MEAL_SURVEY_URL, CANCEL_WORDS, SIGN_UP_WORDS } from "./keywords";
+import { Region, regionKey } from "../types";
 
 const signUpResponse = (region: Region) => {
   return `Thank you for signing up for ${regionKey[region]} meal notifications! For help, reply "help". To opt-out, reply "stop". If you are able to complete our short survey, we won't share your data and it helps greatly with funding to provide free meals to the people: ${MEAL_SURVEY_URL}`;
@@ -36,16 +17,9 @@ const generalInfoResponse = (region: Region) => {
   return `This is the Community Kitchens text service for ${regionKey[region]} meal notifications. Send the word "${SIGN_UP_WORDS[0]}" to sign up for alerts. Send the word "${CANCEL_WORDS[0]}" to stop receiving texts from this number.`;
 };
 
-const dropOffResponse =
-  "Thank you for notifying CK staff of your meal drop off! We will send out an alert about this drop off to the people on our notification list.";
-
-export default {
-  SIGN_UP_WORDS,
-  CANCEL_WORDS,
-  INFO_WORD,
+export const mealAlertResponses = {
   signUpResponse,
   duplicateResponse,
   feedbackResponse,
   generalInfoResponse,
-  dropOffResponse,
 };

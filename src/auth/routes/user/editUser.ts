@@ -8,7 +8,7 @@ import { updateContact } from "../../../utils/salesforce/contact/updateContact";
 const User = mongoose.model("User");
 const router = express.Router();
 
-router.patch("/", currentUser, requireAuth, async (req, res) => {
+router.patch("/", requireAuth, async (req, res) => {
   const { userId, username, password, salesforceId, busDriver } = req.body;
 
   if (!username && !password) {

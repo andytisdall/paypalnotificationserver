@@ -1,6 +1,5 @@
 import express from "express";
 
-import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
@@ -114,7 +113,7 @@ router.get("/quiz", async (req, res) => {
   res.send(questions);
 });
 
-router.post("/quiz", currentUser, requireAuth, async (req, res) => {
+router.post("/quiz", requireAuth, async (req, res) => {
   const answers: HomeChefQuizAnswer[] = req.body;
   if (answers.length !== questions.length) {
     throw Error("Received incomplete set of answers");

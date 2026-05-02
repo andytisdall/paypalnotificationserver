@@ -8,20 +8,12 @@ import { getJobs } from "../../utils/salesforce/volunteer/jobs";
 
 const router = express.Router();
 
-router.get("/fridges", currentUser, requireAuth, async (req, res) => {
+router.get("/fridges", requireAuth, async (req, res) => {
   // this router gets the fridges for text app purposes
-  // no texts for bartlett or ck kitchen
-  await fetcher.setService("salesforce");
+  // no texts for some fridges
 
-  const jobs = await getJobs(urls.townFridgeCampaignId);
-  res.send(
-    jobs.filter(
-      (j) =>
-        j.active &&
-        j.id !== urls.barlettTownFridgeId &&
-        j.region !== "CK Kitchen",
-    ),
-  );
+  const jobs = await getJobs(urls.townFridgeCampaignId, true);
+  res.send(jobs);
 });
 
 export default router;

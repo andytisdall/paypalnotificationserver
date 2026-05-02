@@ -19,7 +19,7 @@ const router = express.Router();
 
 const LATEST_D4J_APP_VERSION = "2.5";
 
-router.get("/version", (req, res) => {
+router.get("/version", (_req, res) => {
   res.send({ currentVersion: LATEST_D4J_APP_VERSION });
 });
 
@@ -31,20 +31,14 @@ router.get("/style-week", currentD4JUser, async (req, res) => {
   res.send(styleWeekEvent);
 });
 
-router.post(
-  "/style-week",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const { contestActive, styleMonthActive }: EventConfig = req.body;
-    const event = await Event.findById(STYLE_WEEK_ID);
+router.post("/style-week", requireAdmin, async (req, res) => {
+  const { contestActive, styleMonthActive }: EventConfig = req.body;
+  const event = await Event.findById(STYLE_WEEK_ID);
 
-    event.contestActive = contestActive;
-    event.styleMonthActive = styleMonthActive;
-    await event.save();
-    res.sendStatus(204);
-  }
-);
+  event.contestActive = contestActive;
+  event.styleMonthActive = styleMonthActive;
+  await event.save();
+  res.sendStatus(204);
+});
 
 export default router;

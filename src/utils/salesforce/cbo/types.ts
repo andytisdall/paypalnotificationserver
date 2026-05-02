@@ -80,6 +80,7 @@ export interface CBOReportParams {
     postcards: number;
     calfreshApps: number;
     SSA: number;
+    percentWithoutAccess?: number;
   };
   age: {
     age17: number;
@@ -138,6 +139,7 @@ export interface CBOReportObject {
   Contact_Name__c: string;
   Name: string;
   Individuals_without_access_to_kitchen__c: number;
+  Percent_without__c: number;
   Low_Income_Households__c: number;
   Race_African__c: number;
   Race_Asian__c: number;
@@ -230,4 +232,5 @@ export interface CBOReportObject {
   Granola_Bars_Distributed__c?: number;
   Tortilla_Chip_Bags_Distributed__c?: number;
   CBO__c: string;
+  "FIELDS(ALL)": never;
 }

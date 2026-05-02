@@ -1,7 +1,5 @@
 import { format } from "date-fns";
 
-import fetcher from "../../fetcher";
-import urls from "../../urls";
 import { CBOReportObject, CBOReportParams } from "./types";
 import createQuery, { FilterGroup } from "../queryCreator";
 
@@ -22,6 +20,7 @@ const convertCBODataFromSalesforce = (
       postcards: report.Calfresh_Postcards__c,
       calfreshApps: report.Assisted_with_Calfresh_Applications__c,
       SSA: report.Calfresh_Applications_Sent_to_SSA__c,
+      percentWithoutAccess: report.Percent_without__c,
     },
     age: {
       age17: report.Age_0_17__c,
@@ -133,7 +132,7 @@ export const getCBOReports = async ({
   startDate: Date;
   endDate: Date;
 }): Promise<CBOReportParams[]> => {
-  const fields = ["Id"] as const;
+  const fields = [] as const;
   const obj = "CBO_Report_Data__c";
   const filters: FilterGroup<CBOReportObject> = {
     AND: [
@@ -159,13 +158,6 @@ export const getCBOReports = async ({
     filters,
   });
 
-  const promises = cboReports.map(async ({ Id }) => {
-    const { data: report }: { data: CBOReportObject } = await fetcher.get(
-      `${urls.SFOperationPrefix}/CBO_Report_Data__c/${Id}`,
-    );
-    return convertCBODataFromSalesforce(report);
-  });
-  const reports = await Promise.all(promises);
-
-  return reports;
+  // @ts-ignore
+  return cboReports.map(convertCBODataFromSalesforce);
 };

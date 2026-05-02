@@ -3,14 +3,13 @@ import { toZonedTime } from "date-fns-tz";
 
 import { createScheduledDelivery } from "../../utils/salesforce/mealProgram/createDelivery";
 import { NewMobileOasisDelivery } from "../../utils/salesforce/mealProgram/types";
-import { currentUser } from "../../middlewares/current-user";
 import { requireTextPermission } from "../../middlewares/require-text-permission";
 import { createHours } from "../../utils/salesforce/volunteer/hours";
 import { createShift } from "../../utils/salesforce/volunteer/shifts";
 
 const router = express.Router();
 
-router.post("/", currentUser, requireTextPermission, async (req, res) => {
+router.post("/", requireTextPermission, async (req, res) => {
   const body: NewMobileOasisDelivery = req.body;
   await createScheduledDelivery(body);
 

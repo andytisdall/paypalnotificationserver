@@ -1,12 +1,4 @@
 module.exports = {
-  Twilio: jest.fn(() => {
-    return {
-      messages: {
-        create: jest.fn(() => Promise.resolve()),
-      },
-    };
-  }),
-
   webhook: jest.fn(() => (req, res, next) => next()),
   twiml: {
     MessagingResponse: jest.fn(() => {

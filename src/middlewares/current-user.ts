@@ -54,7 +54,6 @@ export async function currentUser<T>(
   next: NextFunction,
 ) {
   const { authorization } = req.headers;
-
   if (!authorization) {
     return next();
   }

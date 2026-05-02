@@ -37,7 +37,7 @@ router.get("/driver", currentUser, async (req, res) => {
   res.send(formattedContact);
 });
 
-router.post("/driver/license", currentUser, requireAuth, async (req, res) => {
+router.post("/driver/license", requireAuth, async (req, res) => {
   const { expirationDate } = req.body;
   if (!req.files) {
     throw Error("No image attached");
@@ -55,7 +55,7 @@ router.post("/driver/license", currentUser, requireAuth, async (req, res) => {
   res.send(null);
 });
 
-router.post("/driver/insurance", currentUser, requireAuth, async (req, res) => {
+router.post("/driver/insurance", requireAuth, async (req, res) => {
   const { expirationDate } = req.body;
   if (!req.files) {
     throw Error("No image attached");
@@ -73,7 +73,7 @@ router.post("/driver/insurance", currentUser, requireAuth, async (req, res) => {
   res.send(null);
 });
 
-router.post("/driver/car", currentUser, requireAuth, async (req, res) => {
+router.post("/driver/car", requireAuth, async (req, res) => {
   const { size, make, model, year, color } = req.body;
 
   const contactId = req.currentUser!.salesforceId;

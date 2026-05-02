@@ -32,7 +32,7 @@ export interface Job {
   GW_Volunteers__Location_Street__c: string;
   GW_Volunteers__Location_City__c: string;
   GW_Volunteers__Location_Information__c: string;
-  Region__c?: "East Oakland" | "West Oakland" | "Berkeley";
+  Region__c?: "East Oakland" | "West Oakland" | "Berkeley" | "CK Kitchen";
   Fridge_Notes__c?: string;
   Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
   Dropoff_Location__c?: string;
@@ -41,6 +41,7 @@ export interface Job {
   GW_Volunteers__Display_on_Website__c: string;
   Distance__c?: number;
   Time_Required__c?: number;
+  No_Text_Alert__c?: boolean;
 }
 
 export interface FormattedJob {
@@ -61,6 +62,7 @@ export interface FormattedJob {
   distance?: number;
   dropoffNotes?: string;
   timeRequired?: number;
+  noTextAlert?: boolean;
 }
 
 export interface CreateHoursParams {

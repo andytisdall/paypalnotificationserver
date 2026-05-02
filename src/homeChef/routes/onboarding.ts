@@ -17,7 +17,7 @@ import { updateContact } from "../../utils/salesforce/contact/updateContact";
 
 const router = express.Router();
 
-router.post("/food-handler", currentUser, requireAuth, async (req, res) => {
+router.post("/food-handler", requireAuth, async (req, res) => {
   const contact = await getContactById(req.currentUser!.salesforceId);
   if (req.files) {
     const fileList = formatFilesFromFileArray(req.files);

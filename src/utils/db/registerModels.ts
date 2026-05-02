@@ -1,0 +1,16 @@
+import "../../auth/models/user";
+import "../../homeChef/models/recipe";
+import "../../text/models/phone";
+import "../../text/models/outgoingTextRecord";
+import "../../text/models/feedback";
+import "../../paypal/models/paypalTxn";
+import "../../homeChef/models/notifications";
+import "../../text/models/scheduledText";
+import "../../d4j/models/checkIn";
+import "../../d4j/models/d4jUser";
+import "../../d4j/models/cocktailVote";
+import "../../d4j/models/event";
+import "../../mealProgram/models/client";
+import "../../mealProgram/models/clientMeal";
+import "../../homeChef/models/supplyOrder";
+import "../../events/models/rsvp";

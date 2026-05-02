@@ -1,5 +1,4 @@
 import express from "express";
-import { lastDayOfMonth } from "date-fns";
 
 import { CBOReportParams } from "../../utils/salesforce/cbo/types";
 import { getCBOReports } from "../../utils/salesforce/cbo/getReports";
@@ -13,33 +12,21 @@ import { createCBOReport } from "../../utils/salesforce/cbo/createReport";
 
 const router = express.Router();
 
-router.get(
-  "/cbo/reports/:dateRange",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const [start, end] = req.params.dateRange.split("&");
+router.get("/cbo/reports/:dateRange", requireAdmin, async (req, res) => {
+  const [start, end] = req.params.dateRange.split("&");
 
-    const reports = await getCBOReports({
-      startDate: new Date(start),
-      endDate: new Date(end),
-    });
+  const reports = await getCBOReports({
+    startDate: new Date(start),
+    endDate: new Date(end),
+  });
 
-    res.send(reports);
-  },
-);
+  res.send(reports);
+});
 
-router.post(
-  "/cbo/email/mollye",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    await sendCBOReportDataEmail(["mollye@ckoakland.org"]);
-    res.send(null);
-  },
-);
+router.post("/cbo/email/mollye", requireAdmin, async (req, res) => {
+  await sendCBOReportDataEmail(["mollye@ckoakland.org"]);
+  res.send(null);
+});
 
 router.post("/cbo/email", requireSalesforceAuth, async (req, res) => {
   await sendCBOReportDataEmail();

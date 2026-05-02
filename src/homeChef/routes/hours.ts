@@ -14,7 +14,7 @@ import { sendHomeChefShiftEditEmail } from "../../utils/email/emailTemplates/hom
 
 const router = express.Router();
 
-router.get("/hours", currentUser, requireAuth, async (req, res) => {
+router.get("/hours", requireAuth, async (req, res) => {
   await fetcher.setService("salesforce");
   const id = req.currentUser!.salesforceId;
   const hours = await getHours(urls.townFridgeCampaignId, id);
@@ -29,7 +29,7 @@ interface HoursPostParams {
   soup: boolean;
 }
 
-router.post("/hours", currentUser, requireAuth, async (req, res) => {
+router.post("/hours", requireAuth, async (req, res) => {
   const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
 
   const salesforceId = req.currentUser!.salesforceId;
@@ -49,7 +49,7 @@ router.post("/hours", currentUser, requireAuth, async (req, res) => {
   res.send(hours);
 });
 
-router.patch("/hours/:id", currentUser, requireAuth, async (req, res) => {
+router.patch("/hours/:id", requireAuth, async (req, res) => {
   const id = req.params.id as string;
   const {
     mealCount,

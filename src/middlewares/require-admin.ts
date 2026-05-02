@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { UserModel, getCurrentUser } from "./current-user";
+import { getCurrentUser } from "./current-user";
 
 export async function requireAdmin<T>(
   req: Request<T>,
@@ -8,14 +8,13 @@ export async function requireAdmin<T>(
   next: NextFunction,
 ) {
   const { authorization } = req.headers;
-
   if (!authorization) {
-    return next();
+    res.status(403);
+    throw new Error("User must be admin");
   }
 
-  const currentUser = await getCurrentUser(authorization);
-
-  if (!currentUser?.admin) {
+  req.currentUser = await getCurrentUser(authorization);
+  if (!req.currentUser?.admin) {
     res.status(403);
     throw new Error("User must be admin");
   }

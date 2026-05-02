@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import { subDays } from "date-fns";
 
-import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
 import createNotificationsService from "../../utils/pushNotifications";
@@ -24,59 +23,53 @@ export interface NotificationPayload {
   custom?: NotificationData;
 }
 
-router.post(
-  "/notifications",
-  currentUser,
-  requireAuth,
-  requireAdmin,
-  async (req, res) => {
-    const {
-      title,
-      message,
-    }: {
-      title: string;
-      message: string;
-    } = req.body;
-    const notificationsService = await createNotificationsService("homechef");
+router.post("/notifications", requireAdmin, async (req, res) => {
+  const {
+    title,
+    message,
+  }: {
+    title: string;
+    message: string;
+  } = req.body;
+  const notificationsService = await createNotificationsService("homechef");
 
-    const payload: NotificationPayload = {
-      title,
-      body: message,
-    };
+  const payload: NotificationPayload = {
+    title,
+    body: message,
+  };
 
-    let users: any;
+  let users: any;
 
-    if (process.env.NODE_ENV === "production") {
-      users = await User.find({
-        homeChefNotificationToken: { $ne: undefined },
-      });
+  if (process.env.NODE_ENV === "production") {
+    users = await User.find({
+      homeChefNotificationToken: { $ne: undefined },
+    });
 
-      const newNotification = new Notification({
-        payload,
-        app: "homechef",
-      });
-      await newNotification.save();
-    } else {
-      users = await User.find({
-        $or: [
-          {
-            username: "Andy",
-          },
-          { username: "Testo" },
-        ],
-      });
-    }
+    const newNotification = new Notification({
+      payload,
+      app: "homechef",
+    });
+    await newNotification.save();
+  } else {
+    users = await User.find({
+      $or: [
+        {
+          username: "Andy",
+        },
+        { username: "Testo" },
+      ],
+    });
+  }
 
-    console.log(users);
+  console.log(users);
 
-    const userTokens = users.map((u: any) => u.homeChefNotificationToken);
+  const userTokens = users.map((u: any) => u.homeChefNotificationToken);
 
-    await notificationsService.send(userTokens, payload);
-    res.sendStatus(204);
-  },
-);
+  await notificationsService.send(userTokens, payload);
+  res.sendStatus(204);
+});
 
-router.get("/notifications", currentUser, requireAuth, async (req, res) => {
+router.get("/notifications", requireAuth, async (req, res) => {
   const query = {
     app: "homechef",
     date: { $gt: subDays(new Date(), 14) },
@@ -87,55 +80,50 @@ router.get("/notifications", currentUser, requireAuth, async (req, res) => {
   res.send(notifications);
 });
 
-router.get(
-  "/notifications/:days",
-  currentUser,
-  requireAuth,
-  async (req, res) => {
-    const days = req.params.days as string;
-    const daysInt = parseInt(days);
-    let query;
+router.get("/notifications/:days", requireAuth, async (req, res) => {
+  const days = req.params.days as string;
+  const daysInt = parseInt(days);
+  let query;
 
-    if (!isNaN(daysInt)) {
-      query = {
-        app: "homechef",
-        date: { $gt: subDays(new Date(), daysInt) },
-      };
-    } else {
-      query = {
-        app: "homechef",
-      };
-    }
+  if (!isNaN(daysInt)) {
+    query = {
+      app: "homechef",
+      date: { $gt: subDays(new Date(), daysInt) },
+    };
+  } else {
+    query = {
+      app: "homechef",
+    };
+  }
 
-    const notifications = await Notification.find(query).sort([["date", -1]]);
-    // const notifications = [
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    //   {
-    //     date: new Date(),
-    //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
-    //   },
-    // ];
-    res.send(notifications);
-  },
-);
+  const notifications = await Notification.find(query).sort([["date", -1]]);
+  // const notifications = [
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  //   {
+  //     date: new Date(),
+  //     payload: { title: 'Hi There', message: 'fwo84hrow4hfw4lij' },
+  //   },
+  // ];
+  res.send(notifications);
+});
 
 export default router;

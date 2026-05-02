@@ -1,22 +1,22 @@
-import express from 'express';
-import { OAuth2Client } from 'google-auth-library';
+import express from "express";
+import { OAuth2Client } from "google-auth-library";
 
-import { currentUser } from '../../../middlewares/current-user';
-import { requireAuth } from '../../../middlewares/require-auth';
-import getSecrets from '../../../utils/getSecrets';
+import { currentUser } from "../../../middlewares/current-user";
+import { requireAuth } from "../../../middlewares/require-auth";
+import getSecrets from "../../../utils/getSecrets";
 
 const router = express.Router();
 
-router.post('/connect-google', currentUser, requireAuth, async (req, res) => {
+router.post("/connect-google", requireAuth, async (req, res) => {
   const { JWT_KEY, GOOGLE_CLIENT_ID } = await getSecrets([
-    'JWT_KEY',
-    'GOOGLE_CLIENT_ID',
+    "JWT_KEY",
+    "GOOGLE_CLIENT_ID",
   ]);
   if (!JWT_KEY) {
-    throw Error('No JWT key found');
+    throw Error("No JWT key found");
   }
   if (!GOOGLE_CLIENT_ID) {
-    throw Error('No Google Client Id found');
+    throw Error("No Google Client Id found");
   }
 
   const { credential }: { credential: string } = req.body;
@@ -34,7 +34,7 @@ router.post('/connect-google', currentUser, requireAuth, async (req, res) => {
     !googleProfile.family_name ||
     !googleProfile.sub
   ) {
-    throw Error('Could not get google profile');
+    throw Error("Could not get google profile");
   }
 
   const user = req.currentUser!;

@@ -1,5 +1,4 @@
-import { Region } from "../../text/models/phone";
-import { regionKey } from "../../text/textResponses";
+import { Region, regionKey } from "../../text/types";
 import fetcher from "../fetcher";
 import urls from "../urls";
 
