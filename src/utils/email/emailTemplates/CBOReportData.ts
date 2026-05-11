@@ -103,10 +103,10 @@ const getZips = (reports: CBOReportParams[]) => {
   return obj;
 };
 
-const formatDataObj = (obj: Record<string, string | number>) => {
+export const formatDataObj = (obj: Record<string, string | number>) => {
   let output = "";
   Object.keys(obj).forEach((key) => {
-    output += `<li>${key}: ${obj[key]}</li>`;
+    output += `<li>${key}: ${obj[key] || 0}</li>`;
   });
   return output;
 };

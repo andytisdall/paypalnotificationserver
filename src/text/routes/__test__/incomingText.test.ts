@@ -8,8 +8,6 @@ import { REGIONS } from "../../types";
 const Phone = mongoose.model("Phone");
 const Feedback = mongoose.model("Feedback");
 
-jest.mock("twilio");
-
 const from = "PHONE_NUMBER";
 
 it("gets general info", async () => {
@@ -120,4 +118,22 @@ it("un-unsubscribes", async () => {
     .send(incomingText)
     .expect(200);
   expect(res.text).toEqual(responses.signUpResponse["ALERT"]("EAST_OAKLAND"));
+});
+
+it("signs up for resources", async () => {
+  const incomingText = {
+    Body: "enroll",
+    From: from,
+    To: REGIONS["RESOURCES"],
+  };
+  const res = await request(app)
+    .post("/api/text/incoming/resources")
+    .send(incomingText)
+    .expect(200);
+  expect(res.text).toEqual(responses.signUpResponse["PLUS"]());
+
+  const subscribers = await Phone.find({ region: "RESOURCES" });
+  expect(subscribers.length).toEqual(1);
+
+  await Phone.deleteMany();
 });

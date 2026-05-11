@@ -1,5 +1,4 @@
 import fetcher from "../../../fetcher";
-import { UnformattedContact } from "../../contact/types";
 import createQuery, { FilterGroup } from "../../queryCreator";
 import { UnformattedHours, CheckInVolunteer } from "../types";
 
@@ -25,49 +24,27 @@ export const getVolunteersForCheckIn = async (
     fields,
     obj,
     filters,
+    join: {
+      GW_Volunteers__Contact__r: [
+        "Id",
+        "FirstName",
+        "LastName",
+        "Email",
+        "CK_Kitchen_Agreement__c",
+      ],
+    },
   });
 
-  const idList: string[] = hours.map(
-    ({ GW_Volunteers__Contact__c }) => GW_Volunteers__Contact__c,
-  );
-
-  const contactFields = [
-    "Id",
-    "FirstName",
-    "LastName",
-    "Email",
-    "CK_Kitchen_Agreement__c",
-  ] as const;
-  const contactObj = "Contact";
-  const contactFilters: FilterGroup<UnformattedContact> = {
-    AND: [{ field: "Id", operator: "IN", value: idList }],
-  };
-
-  const contacts = await createQuery<
-    UnformattedContact,
-    (typeof contactFields)[number]
-  >({
-    fields: contactFields,
-    obj: contactObj,
-    filters: contactFilters,
+  return hours.map((hour) => {
+    return {
+      hoursId: hour.Id,
+      contactId: hour.GW_Volunteers__Contact__r!.Id,
+      firstName: hour.GW_Volunteers__Contact__r!.FirstName,
+      lastName: hour.GW_Volunteers__Contact__r!.LastName,
+      email: hour.GW_Volunteers__Contact__r!.Email,
+      volunteerAgreement:
+        hour.GW_Volunteers__Contact__r!.CK_Kitchen_Agreement__c,
+      status: hour.GW_Volunteers__Status__c,
+    };
   });
-
-  return hours
-    .map(({ GW_Volunteers__Contact__c, GW_Volunteers__Status__c, Id }) => {
-      const contact = contacts.find(
-        ({ Id }) => Id === GW_Volunteers__Contact__c,
-      );
-      if (contact) {
-        return {
-          hoursId: Id,
-          contactId: contact.Id,
-          firstName: contact.FirstName,
-          lastName: contact.LastName,
-          email: contact.Email,
-          volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-          status: GW_Volunteers__Status__c,
-        };
-      }
-    })
-    .filter((h) => h) as CheckInVolunteer[];
 };

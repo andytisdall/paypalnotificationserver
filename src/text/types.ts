@@ -6,6 +6,7 @@ export interface NewOutgoingTextRecord {
   region: string;
   image?: string;
   date?: Date;
+  sendCount?: number;
 }
 
 export type OutgoingText = {

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 import { addPhoneNumber, removePhoneNumber } from "../salesforce";
 import { IncomingText, Region, REGIONS } from "../types";
-import { SIGN_UP_WORDS, CANCEL_WORDS, INFO_WORD } from "./keywords";
+import { SIGN_UP_WORDS, CANCEL_WORDS, INFO_WORDS } from "./keywords";
 import { responses } from "./responses";
 import { receiveFeedback } from "../routes/feedback";
 
@@ -50,7 +50,10 @@ export const routeTextToResponse = async (
 
   // if we receive a message from someone not signed up, give general info
 
-  if (!existingNumber?.region.includes(region) || INFO_WORD === keyword) {
+  if (
+    !existingNumber?.region.includes(region) ||
+    INFO_WORDS.includes(keyword)
+  ) {
     return responses.generalInfoResponse[program](region);
   }
 

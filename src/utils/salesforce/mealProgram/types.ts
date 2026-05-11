@@ -53,6 +53,9 @@ export interface MealsPlusService {
   Description__c?: string;
   Contact__c: string;
   Display_on_Site__c?: boolean;
+  Category__c?: string;
+  Phone__c?: string;
+  URL__c?: string;
 }
 
 export interface MealsPlusArgs {
@@ -63,6 +66,15 @@ export interface MealsPlusArgs {
   instructions?: string;
   description?: string;
   contactId: string;
+}
+
+export interface FormattedMealsPlusService extends Omit<
+  MealsPlusArgs,
+  "contactId"
+> {
+  url?: string;
+  category?: string;
+  phone?: string;
 }
 
 export interface NewMobileOasisDelivery {

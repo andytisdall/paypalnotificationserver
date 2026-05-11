@@ -18,6 +18,7 @@ const baseUrls = {
   barlettTownFridgeId: "a0w8Z00000YU0nHQAT",
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
   homeChefTrainingCampaignId: "701UP000008zJFdYAM",
+  deliveryDriverCampaignId: "701UP00000KA6bhYAD",
 };
 
 const prodUrls = {

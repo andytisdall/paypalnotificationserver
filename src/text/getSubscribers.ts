@@ -15,15 +15,23 @@ export const getAllSubscribers = async (options?: {
   };
   let usedNumbers: string[] = [];
 
-  const regionOrder: Region[] = ["WEST_OAKLAND", "EAST_OAKLAND", "BERKELEY"];
-  regionOrder.forEach(async (region) => {
+  const regionOrder: Region[] = [
+    "WEST_OAKLAND",
+    "EAST_OAKLAND",
+    "BERKELEY",
+    "RESOURCES",
+  ];
+
+  for (let region of regionOrder) {
     const numbers = await getRegionSubscribers(region, options);
 
     if (numbers[region]) {
-      regions[region] = numbers[region];
+      regions[region] = numbers[region].filter(
+        (num) => !usedNumbers.includes(num),
+      );
       usedNumbers = usedNumbers.concat(regions[region]);
     }
-  });
+  }
 
   return regions;
 };

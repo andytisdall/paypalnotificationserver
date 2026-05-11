@@ -48,6 +48,8 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
+  let sendCount = 0;
+
   let { imgNumbersByRegion, noImgNumbersByRegion } =
     await getSubscribers(formattedRegion);
 
@@ -57,7 +59,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
   }
 
   let regions = Object.keys(imgNumbersByRegion) as Region[];
-  regions.forEach((reg) => {
+  for (let reg of regions) {
     const numbers = imgNumbersByRegion[reg]!;
     const createOutgoingText = async (phone: string) => {
       await twilioClient.messages.create({
@@ -66,14 +68,17 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
         mediaUrl: [photo],
         to: phone,
       });
+      sendCount++;
     };
 
-    numbers.forEach(createOutgoingText);
-  });
+    for (let number of numbers) {
+      createOutgoingText(number);
+    }
+  }
 
   if (message) {
     regions = Object.keys(noImgNumbersByRegion) as Region[];
-    regions.forEach((reg) => {
+    for (let reg of regions) {
       const numbers = noImgNumbersByRegion[reg]!;
       const createOutgoingText = async (phone: string) => {
         await twilioClient.messages.create({
@@ -83,8 +88,10 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
         });
       };
 
-      numbers.forEach(createOutgoingText);
-    });
+      for (let number of numbers) {
+        createOutgoingText(number);
+      }
+    }
   }
 
   if (process.env.NODE_ENV === "production") {
@@ -94,6 +101,7 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
         region,
         message,
         image: photo,
+        sendCount,
       },
     );
     await newOutgoingTextRecord.save();

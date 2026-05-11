@@ -144,7 +144,7 @@ export const getHours = async (campaignId: string, contactId: string) => {
   });
 
   const hours: FormattedHours[] = unformattedHours.map((h) => {
-    let mealCount = h.Number_of_Meals__c;
+    let mealCount = h.Number_of_Meals__c as number;
     if (!mealCount) {
       mealCount = 0;
     }

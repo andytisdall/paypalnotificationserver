@@ -1,3 +1,5 @@
+import { UnformattedContact } from "../contact/types";
+
 export interface Shift {
   Id: string;
   GW_Volunteers__Start_Date_Time__c: string;
@@ -9,6 +11,8 @@ export interface Shift {
   GW_Volunteers__Job_Location_Street__c?: string;
   GW_Volunteers__Job_Location_City__c?: string;
   End_Time__c?: string;
+  GW_Volunteers__Volunteer_Job__r: Job;
+  "GW_Volunteers__Volunteer_Job__r.GW_Volunteers__Campaign__c": string;
 }
 
 export interface FormattedShift {
@@ -42,6 +46,7 @@ export interface Job {
   Distance__c?: number;
   Time_Required__c?: number;
   No_Text_Alert__c?: boolean;
+  Photo__c?: string;
 }
 
 export interface FormattedJob {
@@ -63,6 +68,7 @@ export interface FormattedJob {
   dropoffNotes?: string;
   timeRequired?: number;
   noTextAlert?: boolean;
+  photo?: string;
 }
 
 export interface CreateHoursParams {
@@ -104,6 +110,12 @@ export interface UnformattedHours {
   GW_Volunteers__Volunteer_Campaign_Name__c: string;
   GW_Volunteers__Start_Date_Time__c: string;
   Text_Reminder_Status__c?: "Sent" | "Responded";
+  "GW_Volunteers__Contact__r.Id": string;
+  "GW_Volunteers__Contact__r.FirstName": string;
+  "GW_Volunteers__Contact__r.LastName": string;
+  "GW_Volunteers__Contact__r.Email": string;
+  "GW_Volunteers__Contact__r.CK_Kitchen_Agreement__c": boolean;
+  GW_Volunteers__Contact__r: UnformattedContact;
 }
 
 export interface HoursQueryResponse {

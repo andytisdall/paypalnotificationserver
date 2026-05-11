@@ -68,5 +68,7 @@ export const getD4jRestaurants = async (): Promise<
     (typeof fields)[number]
   >({ fields, obj, filters });
 
-  return accounts.map((account) => formatAccount(account));
+  return accounts.map((account) =>
+    formatAccount(account as UnformattedD4JRestaurant),
+  );
 };

@@ -85,16 +85,27 @@ async function createQuery<T, K extends keyof T>({
   fields,
   filters,
   obj,
+  join,
 }: {
   obj: string;
   fields: ReadonlyArray<K>;
   filters?: FilterGroup<T>;
+  join?: Partial<Record<keyof T, string[]>>;
 }) {
   await fetcher.setService("salesforce");
 
+  let formattedFields = fields.join(", ");
+  if (join) {
+    const joinObjs = Object.keys(join) as K[];
+    joinObjs.forEach((objName: keyof typeof join) => {
+      formattedFields +=
+        ", " + join[objName]!.map((f) => `${objName.toString()}.${f}`);
+    });
+  }
+
   let query =
     "SELECT " +
-    (fields.length ? fields.join(", ") : "FIELDS(ALL)") +
+    (fields.length ? formattedFields : "FIELDS(ALL)") +
     " FROM " +
     obj;
 
@@ -110,7 +121,10 @@ async function createQuery<T, K extends keyof T>({
 
   const res: {
     data: {
-      records: Pick<T, (typeof fields)[number]>[] | undefined;
+      records:
+        | (Pick<T, (typeof fields)[number]> &
+            Partial<Record<keyof T, Record<string, any>>>)[]
+        | undefined;
     };
   } = await fetcher.get(queryUri);
   if (!res.data.records) {

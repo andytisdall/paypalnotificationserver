@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+
 import { requireAdmin } from "../../middlewares/require-admin";
 
 const RSVP = mongoose.model("RSVP");
@@ -7,13 +8,7 @@ const RSVP = mongoose.model("RSVP");
 const router = express.Router();
 
 router.post("/rsvp", async (req, res) => {
-  const {
-    name,
-    email,
-    numberOfPeople,
-    numberOfAdditional,
-    additional,
-  }: {
+  const rsvp: {
     name: string;
     email: string;
     numberOfPeople: string;
@@ -21,15 +16,9 @@ router.post("/rsvp", async (req, res) => {
     numberOfAdditional: boolean;
   } = req.body;
 
-  const rsvp = new RSVP({
-    name,
-    email,
-    numberOfPeople,
-    additional,
-    numberOfAdditional,
-  });
+  const newRsvp = new RSVP(rsvp);
 
-  await rsvp.save();
+  await newRsvp.save();
 
   res.send(null);
 });
@@ -37,6 +26,22 @@ router.post("/rsvp", async (req, res) => {
 router.get("/rsvp", requireAdmin, async (req, res) => {
   const rsvps = await RSVP.find();
   res.send(rsvps);
+});
+
+router.patch("/rsvp", requireAdmin, async (req, res) => {
+  const rsvp = req.body;
+
+  await RSVP.updateOne({ _id: rsvp.id }, rsvp);
+
+  res.send(null);
+});
+
+router.delete("/rsvp/:id", requireAdmin, async (req, res) => {
+  const { id } = req.params;
+
+  await RSVP.deleteOne({ _id: id });
+
+  res.send(null);
 });
 
 export default router;

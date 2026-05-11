@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
 
 import { getCurrentUser } from "./current-user";
 
@@ -14,8 +13,8 @@ export async function requireTextPermission<T>(
     throw new Error("User must have permission to send alert texts");
   }
 
-  const currentUser = await getCurrentUser(authorization);
-  if (!currentUser?.admin && !currentUser?.busDriver) {
+  req.currentUser = await getCurrentUser(authorization);
+  if (!req.currentUser?.admin && !req.currentUser?.busDriver) {
     res.status(403);
     throw new Error("User must have permission to send alert texts");
   }

@@ -21,7 +21,7 @@ router.post("/", requireTextPermission, async (req, res) => {
     restaurantMeals: true,
   });
   const newHours = {
-    contactId: req.currentUser?.salesforceId!,
+    contactId: req.currentUser!.salesforceId,
     shiftId: shiftId,
     jobId: body.fridge,
     date: toZonedTime(new Date(), "America/Los_Angeles").toISOString(),

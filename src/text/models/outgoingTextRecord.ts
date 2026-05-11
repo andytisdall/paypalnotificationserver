@@ -7,6 +7,7 @@ const outgoingTextRecordSchema = new Schema(
     sender: String,
     region: String,
     image: String,
+    sendCount: Number,
   },
   {
     toJSON: {

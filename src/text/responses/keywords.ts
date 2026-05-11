@@ -10,5 +10,5 @@ export const CANCEL_WORDS = [
   "end",
 ];
 
-export const INFO_WORD = "info";
+export const INFO_WORDS = ["info", "help"];
 export const MEAL_SURVEY_URL = urls.client + "/forms/meal-survey";

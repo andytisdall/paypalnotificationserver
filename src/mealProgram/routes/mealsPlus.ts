@@ -1,6 +1,9 @@
 import express from "express";
 
-import { submitMealsPlusData } from "../../utils/salesforce/mealProgram/mealsPlus";
+import {
+  getMealsPlusData,
+  submitMealsPlusData,
+} from "../../utils/salesforce/mealProgram/mealsPlus";
 import { getContactByLastNameAndEmail } from "../../utils/salesforce/contact/getContact";
 import sendMealsPlusFormSubmissionEmail from "../../utils/email/emailTemplates/mealsPlusFormSubmission";
 import { addContact } from "../../utils/salesforce/contact/addContact";
@@ -57,6 +60,12 @@ router.post("/meals-plus", async (req, res) => {
   await sendMealsPlusFormSubmissionEmail({ name: firstName, email });
 
   res.send(201);
+});
+
+router.get("/meals-plus", async (req, res) => {
+  const services = await getMealsPlusData();
+
+  res.send(services);
 });
 
 export default router;

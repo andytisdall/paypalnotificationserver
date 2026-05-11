@@ -1,14 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
-import { formatISO, addDays, subMonths, addMonths, format } from "date-fns";
+import { formatISO, addDays } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 
-import { currentUser } from "../../../middlewares/current-user";
-import { requireAuth } from "../../../middlewares/require-auth";
-import { requireSalesforceAuth } from "../../../middlewares/require-salesforce-auth";
 import { requireAdmin } from "../../../middlewares/require-admin";
 
 const ClientMeal = mongoose.model("ClientMeal");
+const Client = mongoose.model("Client");
 
 const router = express.Router();
 
@@ -43,12 +41,12 @@ router.get(
     }
 
     const clients: Record<string, { meals: number; visits: number }> = {};
-    let lowestDate = addMonths(startDate, 1);
-    let highestDate = subMonths(endDate, 1);
+    // let lowestDate = addMonths(startDate, 1);
+    // let highestDate = subMonths(endDate, 1);
 
-    periodMeals.forEach((meal) => {
-      if (meal.date < lowestDate) lowestDate = meal.date;
-      if (meal.date > highestDate) highestDate = meal.date;
+    for (let meal of periodMeals) {
+      // if (meal.date < lowestDate) lowestDate = meal.date;
+      // if (meal.date > highestDate) highestDate = meal.date;
 
       const clientId =
         meal.client && meal.client._id.toString() !== GENERIC_CLIENT_ID
@@ -61,7 +59,7 @@ router.get(
       } else {
         clients[clientId] = { meals: meal.amount, visits: 1 };
       }
-    });
+    }
 
     // console.log(lowestDate, highestDate);
 
@@ -78,17 +76,37 @@ router.get(
 // });
 
 router.post("/doorfront/meals", requireAdmin, async (req, res) => {
-  const { meals, clientId }: { meals: number; clientId: string } = req.body;
+  const {
+    meals,
+    clientId,
+    findByCCode,
+    date,
+  }: { meals: number; clientId: string; findByCCode?: boolean; date?: string } =
+    req.body;
 
   const now = formatISO(new Date());
 
   if (meals > 0) {
-    const newClientMeals = new ClientMeal({
-      client: clientId,
-      amount: meals,
-      date: now,
-    });
-    await newClientMeals.save();
+    if (findByCCode) {
+      let client = await Client.findOne({ cCode: clientId });
+      if (!client) {
+        client = new Client({ cCode: clientId });
+        await client.save();
+      }
+      const newClientMeals = new ClientMeal({
+        client: client.id,
+        amount: meals,
+        date,
+      });
+      await newClientMeals.save();
+    } else {
+      const newClientMeals = new ClientMeal({
+        client: clientId,
+        amount: meals,
+        date: now,
+      });
+      await newClientMeals.save();
+    }
   }
 
   res.send(null);

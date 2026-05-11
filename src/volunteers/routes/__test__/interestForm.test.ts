@@ -2,13 +2,8 @@ import app from "../../../../index";
 import request from "supertest";
 import mongoose from "mongoose";
 import passwordGenerator from "generate-password";
-import { updateContact } from "../../../utils/salesforce/contact/updateContact";
 
 const User = mongoose.model("User");
-
-afterEach(async () => {
-  await User.deleteOne({ username: "rsanchez" });
-});
 
 it("correctly makes the portal user and salesforce contact when the interest form is submitted", async () => {
   const lastName = passwordGenerator.generate({
@@ -61,5 +56,5 @@ it("correctly updates an existing contact and makes a user when the interest for
   expect(user).not.toBeNull();
   expect(user?.salesforceId).toBeDefined();
 
-  await updateContact(user.salesforceId, { Portal_Username__c: "" });
+  // await updateContact(user.salesforceId, { Portal_Username__c: "" });
 });

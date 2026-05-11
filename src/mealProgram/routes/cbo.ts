@@ -2,13 +2,13 @@ import express from "express";
 
 import { CBOReportParams } from "../../utils/salesforce/cbo/types";
 import { getCBOReports } from "../../utils/salesforce/cbo/getReports";
-import { currentUser } from "../../middlewares/current-user";
-import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
 import { sendCBOReportDataEmail } from "../../utils/email/emailTemplates/CBOReportData";
 
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
 import { createCBOReport } from "../../utils/salesforce/cbo/createReport";
+import { sendEmail } from "../../utils/email/email";
+import { createCBOSingleReport } from "../../utils/email/emailTemplates/CBOReportSingle";
 
 const router = express.Router();
 
@@ -37,6 +37,14 @@ router.post("/cbo", async (req, res) => {
   const submission: CBOReportParams = req.body;
 
   await createCBOReport(submission);
+
+  const cboReport = createCBOSingleReport(submission);
+  await sendEmail({
+    to: submission.email,
+    from: "mollye@ckoakland.org",
+    html: cboReport,
+    subject: "Your data submission to Community Kitchens",
+  });
 
   res.sendStatus(204);
 });

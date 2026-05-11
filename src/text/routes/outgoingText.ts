@@ -81,7 +81,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
-  // give app users a sensible error message if twilio doesn't work for any reason
+  let sendCount = 0;
 
   if (number) {
     const phoneNumber = number.replace(/[^\d]/g, "");
@@ -90,48 +90,76 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
       throw new Error("Phone number must have 10 digits");
     }
     const phone = await Phone.findOne({ number: phoneNumber });
-    const from = phone?.region[0] || "WEST_OAKLAND";
+    const from = REGIONS[phone?.region[0] as Region] || REGIONS["WEST_OAKLAND"];
     await twilioClient.messages.create({
       ...outgoingText,
       from,
       to: phoneNumber,
       mediaUrl,
     });
+    sendCount++;
   } else {
     let { imgNumbersByRegion, noImgNumbersByRegion } =
       await getSubscribers(formattedRegion);
 
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.NODE_ENV === "development") {
       imgNumbersByRegion = { WEST_OAKLAND: ["+14158190251"] };
       noImgNumbersByRegion = {};
     }
+
+    const imgNumCount = Object.values(imgNumbersByRegion).reduce(
+      (prev, cur) => cur.length + prev,
+      0,
+    );
 
     try {
       for (let reg in imgNumbersByRegion) {
         const regionNums = imgNumbersByRegion[reg as Region];
 
-        regionNums?.forEach(async (phone) => {
-          await twilioClient.messages.create({
-            ...outgoingText,
-            from: REGIONS[reg as Region],
-            to: phone,
-            mediaUrl,
+        if (regionNums) {
+          regionNums.forEach(async (phone) => {
+            await twilioClient.messages.create({
+              ...outgoingText,
+              from: REGIONS[reg as Region],
+              to: phone,
+              mediaUrl,
+            });
+            sendCount++;
+            if (
+              sendCount === imgNumCount &&
+              process.env.NODE_ENV !== "development"
+            ) {
+              const newOutgoingTextRecord =
+                new OutgoingTextRecord<NewOutgoingTextRecord>({
+                  sender: req.currentUser!.id,
+                  region: number || region,
+                  message,
+                  image: mediaUrl[0],
+                  sendCount,
+                });
+              await newOutgoingTextRecord.save();
+            }
           });
-        });
+        }
       }
 
       for (let reg in noImgNumbersByRegion) {
         const regionNums = noImgNumbersByRegion[reg as Region];
 
-        regionNums?.forEach(async (phone) => {
-          await twilioClient.messages.create({
-            ...outgoingText,
-            from: REGIONS[reg as Region],
-            to: phone,
-          });
-        });
+        if (regionNums) {
+          for (let phone of regionNums) {
+            await twilioClient.messages.create({
+              ...outgoingText,
+              from: REGIONS[reg as Region],
+              to: phone,
+            });
+            sendCount++;
+          }
+        }
       }
     } catch (err) {
+      // give app users a sensible error message if twilio doesn't work for any reason
+
       console.log(err);
       throw Error(
         "The CK Text Service is currently out of service. Please check back later.",
@@ -150,18 +178,6 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
       }
       await feedback.save();
     }
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
-      {
-        sender: req.currentUser!.id,
-        region: number || region,
-        message,
-        image: mediaUrl[0],
-      },
-    );
-    await newOutgoingTextRecord.save();
   }
 
   res.send({

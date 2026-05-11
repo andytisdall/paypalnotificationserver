@@ -8,7 +8,7 @@ import {
 } from "../../../utils/salesforce/volunteer/hours";
 import { getCampaignFromHours } from "../../../utils/salesforce/volunteer/campaign/campaign";
 import { sendShiftCancelEmail } from "../../../utils/email/emailTemplates/kitchenShiftCancel";
-import { getJobFromHours } from "../../../utils/salesforce/volunteer/jobs";
+import { getJob } from "../../../utils/salesforce/volunteer/jobs";
 
 const router = express.Router();
 
@@ -43,7 +43,7 @@ export const sendVolunteerShiftCancelEmail = async ({
   const campaign = await getCampaignFromHours(hoursId);
   const hour = await getHour(hoursId);
   const { Email, FirstName } = await getContactById(contactId);
-  const job = await getJobFromHours(hour.job);
+  const job = await getJob(hour.job);
 
   if (Email && campaign) {
     await sendShiftCancelEmail(Email, {

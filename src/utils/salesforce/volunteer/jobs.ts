@@ -36,6 +36,7 @@ export const getJobs = async (
     "Distance__c",
     "Time_Required__c",
     "No_Text_Alert__c",
+    "Photo__c",
   ] as const;
 
   const obj = "GW_Volunteers__Volunteer_Job__c";
@@ -61,7 +62,7 @@ export const getJobs = async (
     obj,
   });
 
-  const promises = jobs.map(async (j) => {
+  return jobs.map((j) => {
     return {
       id: j.Id,
       name: j.Name,
@@ -81,13 +82,12 @@ export const getJobs = async (
       timeRequired: j.Time_Required__c,
       distance: j.Distance__c,
       noTextAlert: j.No_Text_Alert__c,
+      photo: j.Photo__c,
     };
   });
-
-  return await Promise.all(promises);
 };
 
-export const getJobFromHours = async (jobId: string) => {
+export const getJob = async (jobId: string) => {
   await fetcher.setService("salesforce");
 
   const { data: job }: { data: Job } = await fetcher.get(
