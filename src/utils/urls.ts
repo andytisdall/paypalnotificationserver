@@ -1,6 +1,6 @@
 const baseUrls = {
-  SFQueryPrefix: "/data/v56.0/query/?q=",
-  SFOperationPrefix: "/data/v56.0/sobjects",
+  SFQueryPrefix: "/data/v66.0/query/?q=",
+  SFOperationPrefix: "/data/v66.0/sobjects",
   fileBucket: "coherent-vision-368820.appspot.com",
   appleReviewerId: "64dab5b0c179cf7ef5e90ab4",
   apple: "https://appleid.apple.com/auth/token",

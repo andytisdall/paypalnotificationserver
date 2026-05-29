@@ -7,9 +7,9 @@ import { Region, REGIONS } from "../types";
 import { requireAuth } from "../../middlewares/require-auth";
 import urls from "../../utils/urls";
 import getSecrets from "../../utils/getSecrets";
-import { getSubscribers } from "../getSubscribers";
 import { savePhoto } from "../savePhoto";
 import { OutgoingText, NewOutgoingTextRecord } from "../types";
+import { sendTexts } from "../sendTexts";
 
 const Feedback = mongoose.model("Feedback");
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
@@ -18,8 +18,6 @@ const Phone = mongoose.model("Phone");
 const smsRouter = express.Router();
 
 smsRouter.post("/outgoing", requireAuth, async (req, res) => {
-  const twilioClient = await getTwilioClient();
-
   const {
     message,
     region,
@@ -43,6 +41,8 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
   if (!MESSAGING_SERVICE_SID) {
     throw Error("Could not find messaging service ID");
   }
+
+  const twilioClient = await getTwilioClient();
 
   if (!message && !photo && !attachedPhoto) {
     res.status(422);
@@ -81,8 +81,6 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
-  let sendCount = 0;
-
   if (number) {
     const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
@@ -97,87 +95,47 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
       to: phoneNumber,
       mediaUrl,
     });
-    sendCount++;
+
+    if (process.env.NODE_ENV !== "development") {
+      const newOutgoingTextRecord =
+        new OutgoingTextRecord<NewOutgoingTextRecord>({
+          sender: req.currentUser!.id,
+          region: number,
+          message,
+          image: mediaUrl[0],
+          sendCount: 1,
+        });
+      newOutgoingTextRecord.save();
+    }
+
+    if (feedbackId) {
+      const feedback = await Feedback.findById(feedbackId);
+      if (feedback) {
+        const response = { message, date: format(new Date(), "yyyy-MM-dd") };
+        if (feedback.response) {
+          feedback.response.push(response);
+        } else {
+          feedback.response = [response];
+        }
+        await feedback.save();
+      }
+    }
   } else {
-    let { imgNumbersByRegion, noImgNumbersByRegion } =
-      await getSubscribers(formattedRegion);
-
-    if (process.env.NODE_ENV === "development") {
-      imgNumbersByRegion = { WEST_OAKLAND: ["+14158190251"] };
-      noImgNumbersByRegion = {};
-    }
-
-    const imgNumCount = Object.values(imgNumbersByRegion).reduce(
-      (prev, cur) => cur.length + prev,
-      0,
+    sendTexts(formattedRegion, outgoingText, twilioClient, mediaUrl).then(
+      (sendCount) => {
+        if (process.env.NODE_ENV !== "development") {
+          const newOutgoingTextRecord =
+            new OutgoingTextRecord<NewOutgoingTextRecord>({
+              sender: req.currentUser!.id,
+              region,
+              message,
+              image: mediaUrl[0],
+              sendCount,
+            });
+          newOutgoingTextRecord.save();
+        }
+      },
     );
-
-    try {
-      for (let reg in imgNumbersByRegion) {
-        const regionNums = imgNumbersByRegion[reg as Region];
-
-        if (regionNums) {
-          regionNums.forEach(async (phone) => {
-            await twilioClient.messages.create({
-              ...outgoingText,
-              from: REGIONS[reg as Region],
-              to: phone,
-              mediaUrl,
-            });
-            sendCount++;
-            if (
-              sendCount === imgNumCount &&
-              process.env.NODE_ENV !== "development"
-            ) {
-              const newOutgoingTextRecord =
-                new OutgoingTextRecord<NewOutgoingTextRecord>({
-                  sender: req.currentUser!.id,
-                  region: number || region,
-                  message,
-                  image: mediaUrl[0],
-                  sendCount,
-                });
-              await newOutgoingTextRecord.save();
-            }
-          });
-        }
-      }
-
-      for (let reg in noImgNumbersByRegion) {
-        const regionNums = noImgNumbersByRegion[reg as Region];
-
-        if (regionNums) {
-          for (let phone of regionNums) {
-            await twilioClient.messages.create({
-              ...outgoingText,
-              from: REGIONS[reg as Region],
-              to: phone,
-            });
-            sendCount++;
-          }
-        }
-      }
-    } catch (err) {
-      // give app users a sensible error message if twilio doesn't work for any reason
-
-      console.log(err);
-      throw Error(
-        "The CK Text Service is currently out of service. Please check back later.",
-      );
-    }
-  }
-
-  if (feedbackId) {
-    const feedback = await Feedback.findById(feedbackId);
-    if (feedback) {
-      const response = { message, date: format(new Date(), "yyyy-MM-dd") };
-      if (feedback.response) {
-        feedback.response.push(response);
-      } else {
-        feedback.response = [response];
-      }
-      await feedback.save();
-    }
   }
 
   res.send({

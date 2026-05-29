@@ -31,6 +31,13 @@ mongoose.set("strictQuery", false);
 
 // initialize app and add middleware
 const app = express();
+app.use(function (req, res, next) {
+  if (req.method === "POST" && req.path === "/") {
+    console.log("hit");
+    return res.send(null);
+  }
+  next();
+});
 app.use("/static", express.static(join("public", "static")));
 app.use("/images", express.static(join("public", "images")));
 app.use(express.urlencoded({ extended: true }));

@@ -32,7 +32,7 @@ router.get(
         $gte: startDate,
         $lte: endDate,
       },
-    }).populate("client");
+    });
 
     if (sunMon) {
       periodMeals = periodMeals.filter((meal) =>
@@ -49,8 +49,8 @@ router.get(
       // if (meal.date > highestDate) highestDate = meal.date;
 
       const clientId =
-        meal.client && meal.client._id.toString() !== GENERIC_CLIENT_ID
-          ? meal.client._id
+        meal.client && meal.client.toString() !== GENERIC_CLIENT_ID
+          ? meal.client
           : "unknown";
 
       if (clients[clientId]) {
@@ -84,26 +84,27 @@ router.post("/doorfront/meals", requireAdmin, async (req, res) => {
   }: { meals: number; clientId: string; findByCCode?: boolean; date?: string } =
     req.body;
 
-  const now = formatISO(new Date());
-
   if (meals > 0) {
-    if (findByCCode) {
+    if (findByCCode && date) {
       let client = await Client.findOne({ cCode: clientId });
       if (!client) {
         client = new Client({ cCode: clientId });
         await client.save();
       }
+      let formattedDate = new Date(date);
+      formattedDate.setHours(6);
+      formattedDate = fromZonedTime(formattedDate, "America/Los_Angeles");
       const newClientMeals = new ClientMeal({
         client: client.id,
         amount: meals,
-        date,
+        date: formattedDate,
       });
       await newClientMeals.save();
     } else {
       const newClientMeals = new ClientMeal({
         client: clientId,
         amount: meals,
-        date: now,
+        date: formatISO(new Date()),
       });
       await newClientMeals.save();
     }

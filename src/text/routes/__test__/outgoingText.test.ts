@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 const Phone = mongoose.model("Phone");
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
+const TIMEOUT = 200;
+
 it("sends an outgoing text with attached photo", async () => {
   const newBerkeleySubscriber = new Phone({
     number: "test_berkeley",
@@ -43,6 +45,8 @@ it("sends an outgoing text with attached photo", async () => {
   expect(res.body.photoUrl).toBeDefined();
   expect(res.body.region).toEqual("EAST_OAKLAND");
 
+  await new Promise((resolve) => setTimeout(resolve, TIMEOUT));
+
   const textRecord = await OutgoingTextRecord.findOne({ message });
   const eastOaklandSubscribers = await Phone.find({ region: "EAST_OAKLAND" });
   expect(textRecord?.sendCount).toEqual(eastOaklandSubscribers.length);
@@ -67,6 +71,8 @@ it("sends an outgoing text with image url", async () => {
   );
   expect(res.body.region).toEqual("WEST_OAKLAND");
 
+  await new Promise((resolve) => setTimeout(resolve, TIMEOUT));
+
   const textRecord = await OutgoingTextRecord.findOne({ message });
   const westOaklandSubscribers = await Phone.find({
     region: "WEST_OAKLAND",
@@ -89,6 +95,8 @@ it("sends an outgoing text to all subscribers", async () => {
   expect(res.body.message).toEqual(message);
   expect(res.body.photoUrl).not.toBeDefined();
   expect(res.body.region).toEqual("ALL");
+
+  await new Promise((resolve) => setTimeout(resolve, TIMEOUT));
 
   const textRecord = await OutgoingTextRecord.findOne({ message });
   const allSubscribers = await Phone.find({ region: { $ne: [] } });

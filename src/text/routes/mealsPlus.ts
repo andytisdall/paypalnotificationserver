@@ -6,32 +6,24 @@ import { getTwilioClient } from "../createTwilioClient";
 import getSecrets from "../../utils/getSecrets";
 import {
   Region,
-  REGIONS,
   OutgoingText,
   NewOutgoingTextRecord,
   IncomingText,
   TEST_NUMBER,
 } from "../types";
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
-import { getSubscribers } from "../getSubscribers";
+import { getRegionSubscribers } from "../getSubscribers";
 import {
   getImages,
   routeTextToResponse,
 } from "../responses/processIncomingText";
+import { sendTexts } from "../sendTexts";
 
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
 const router = express.Router();
 
 router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
-  const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
-
-  if (!MESSAGING_SERVICE_SID) {
-    throw Error(
-      "No Messaging Service ID found, which is required for a scheduled message.",
-    );
-  }
-
   const {
     message,
     region,
@@ -41,6 +33,14 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     | Region
     | "ALL";
 
+  const { MESSAGING_SERVICE_SID } = await getSecrets(["MESSAGING_SERVICE_SID"]);
+
+  if (!MESSAGING_SERVICE_SID) {
+    throw Error(
+      "No Messaging Service ID found, which is required for a scheduled message.",
+    );
+  }
+
   const twilioClient = await getTwilioClient();
 
   const outgoingText: Partial<OutgoingText> = {
@@ -48,66 +48,31 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
-  let sendCount = 0;
-
-  let { imgNumbersByRegion, noImgNumbersByRegion } =
-    await getSubscribers(formattedRegion);
+  let subscribers = await getRegionSubscribers(formattedRegion);
 
   if (process.env.NODE_ENV !== "production") {
-    imgNumbersByRegion = { RESOURCES: [TEST_NUMBER] };
-    noImgNumbersByRegion = {};
+    subscribers = { RESOURCES: [TEST_NUMBER] };
   }
 
-  let regions = Object.keys(imgNumbersByRegion) as Region[];
-  for (let reg of regions) {
-    const numbers = imgNumbersByRegion[reg]!;
-    const createOutgoingText = async (phone: string) => {
-      await twilioClient.messages.create({
-        ...outgoingText,
-        from: REGIONS[reg],
-        mediaUrl: [photo],
-        to: phone,
-      });
-      sendCount++;
-    };
+  const mediaUrl = photo ? [photo] : [];
 
-    for (let number of numbers) {
-      createOutgoingText(number);
-    }
-  }
-
-  if (message) {
-    regions = Object.keys(noImgNumbersByRegion) as Region[];
-    for (let reg of regions) {
-      const numbers = noImgNumbersByRegion[reg]!;
-      const createOutgoingText = async (phone: string) => {
-        await twilioClient.messages.create({
-          ...outgoingText,
-          from: REGIONS[reg],
-          to: phone,
-        });
-      };
-
-      for (let number of numbers) {
-        createOutgoingText(number);
+  sendTexts(formattedRegion, outgoingText, twilioClient, mediaUrl).then(
+    (sendCount) => {
+      if (process.env.NODE_ENV === "production") {
+        const newOutgoingTextRecord =
+          new OutgoingTextRecord<NewOutgoingTextRecord>({
+            sender: "salesforce",
+            region,
+            message,
+            image: photo,
+            sendCount,
+          });
+        newOutgoingTextRecord.save();
       }
-    }
-  }
+    },
+  );
 
-  if (process.env.NODE_ENV === "production") {
-    const newOutgoingTextRecord = new OutgoingTextRecord<NewOutgoingTextRecord>(
-      {
-        sender: "salesforce",
-        region,
-        message,
-        image: photo,
-        sendCount,
-      },
-    );
-    await newOutgoingTextRecord.save();
-  }
-
-  res.status(201);
+  res.status(200);
   res.send({ success: true });
 });
 

@@ -15,16 +15,18 @@ router.post("/", requireTextPermission, async (req, res) => {
 
   // create home chef restaurant meals delivery
 
+  const date = toZonedTime(new Date(), "America/Los_Angeles").toISOString();
+
   const shiftId = await createShift({
     jobId: body.fridge,
-    date: new Date().toISOString(),
     restaurantMeals: true,
+    date,
   });
   const newHours = {
     contactId: req.currentUser!.salesforceId,
     shiftId: shiftId,
     jobId: body.fridge,
-    date: toZonedTime(new Date(), "America/Los_Angeles").toISOString(),
+    date,
     mealCount: body.numberOfMealsMeat + body.numberOfMealsVeg,
     restaurantMeals: true,
   };

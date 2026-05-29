@@ -15,10 +15,7 @@ const decodeString = (string: string) => {
   );
 };
 
-export const getJobs = async (
-  campaignId: string,
-  textAlertOnly: boolean = false,
-): Promise<FormattedJob[]> => {
+export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
   const fields = [
     "Id",
     "Name",
@@ -47,14 +44,6 @@ export const getJobs = async (
       { field: "GW_Volunteers__Display_on_Website__c", value: true },
     ],
   };
-
-  if (textAlertOnly) {
-    filters.AND?.push({ field: "No_Text_Alert__c", value: false });
-    filters.AND?.push({
-      field: "GW_Volunteers__Inactive__c",
-      value: false,
-    });
-  }
 
   const jobs = await createQuery<Job, (typeof fields)[number]>({
     fields,
