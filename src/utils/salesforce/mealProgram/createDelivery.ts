@@ -24,6 +24,7 @@ export const createScheduledDelivery = async (
     Number_of_Meals_Veg__c: delivery.numberOfMealsVeg,
     Delivery_Notes__c: "Added by mobile oasis driver",
     Funding_Source__c: "CK",
+    Community_Service_Type__c: "Town Fridge",
   };
 
   await fetcher.post(insertUri, newDelivery);

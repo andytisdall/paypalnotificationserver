@@ -1,5 +1,12 @@
 import { UnformattedContact } from "../contact/types";
 
+type TownFridgeRegion =
+  | "East Oakland"
+  | "West Oakland"
+  | "Berkeley"
+  | "CK Kitchen"
+  | "Alameda";
+
 export interface Shift {
   Id: string;
   GW_Volunteers__Start_Date_Time__c: string;
@@ -36,7 +43,7 @@ export interface Job {
   GW_Volunteers__Location_Street__c: string;
   GW_Volunteers__Location_City__c: string;
   GW_Volunteers__Location_Information__c: string;
-  Region__c?: "East Oakland" | "West Oakland" | "Berkeley" | "CK Kitchen";
+  Region__c?: TownFridgeRegion;
   Fridge_Notes__c?: string;
   Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
   Dropoff_Location__c?: string;
@@ -60,7 +67,7 @@ export interface FormattedJob {
   ongoing: boolean;
   description?: string;
   campaign: string;
-  region?: "East Oakland" | "West Oakland" | "Berkeley" | "CK Kitchen";
+  region?: TownFridgeRegion;
   notes?: string;
   carSizeRequired?: string;
   destination?: string;
@@ -80,6 +87,7 @@ export interface CreateHoursParams {
   mealCount?: number;
   numberOfVolunteers?: number;
   restaurantMeals?: boolean;
+  serviceType?: string;
 }
 
 export interface FormattedHours {

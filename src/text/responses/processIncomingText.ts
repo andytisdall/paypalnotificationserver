@@ -27,7 +27,7 @@ export const routeTextToResponse = async (
     throw Error("could not map recipient number to a region");
   }
 
-  const keyword = Body.toLowerCase().replace(" ", "");
+  const keyword = Body ? Body.toLowerCase().replace(" ", "") : "";
 
   const existingNumber = await Phone.findOne({ number: From });
 

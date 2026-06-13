@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import { formatISO, addDays } from "date-fns";
+import { formatISO, addDays, format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 
 import { requireAdmin } from "../../../middlewares/require-admin";
@@ -41,13 +41,13 @@ router.get(
     }
 
     const clients: Record<string, { meals: number; visits: number }> = {};
-    // let lowestDate = addMonths(startDate, 1);
-    // let highestDate = subMonths(endDate, 1);
+    // const dates: string[] = [];
 
     for (let meal of periodMeals) {
-      // if (meal.date < lowestDate) lowestDate = meal.date;
-      // if (meal.date > highestDate) highestDate = meal.date;
-
+      // const dateString = format(meal.date, "yyyy/MM/dd");
+      // if (!dates.includes(dateString)) {
+      //   dates.push(dateString);
+      // }
       const clientId =
         meal.client && meal.client.toString() !== GENERIC_CLIENT_ID
           ? meal.client
@@ -61,7 +61,7 @@ router.get(
       }
     }
 
-    // console.log(lowestDate, highestDate);
+    // console.log(dates.sort());
 
     res.send(clients);
   },

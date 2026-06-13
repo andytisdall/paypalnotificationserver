@@ -18,7 +18,10 @@ import {
   routeTextToResponse,
 } from "../responses/processIncomingText";
 import { sendTexts } from "../sendTexts";
+import { requireAdmin } from "../../middlewares/require-admin";
+import { addPhoneNumber } from "../salesforce";
 
+const Phone = mongoose.model("Phone");
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
 const router = express.Router();
@@ -98,5 +101,15 @@ router.post(
     res.send(null);
   },
 );
+
+router.post("/migrate", requireAdmin, async (req, res) => {
+  const users = await Phone.find({ region: { $ne: [] } });
+
+  for (let user of users) {
+    await addPhoneNumber(user, user.number, "RESOURCES");
+  }
+
+  res.send(users);
+});
 
 export default router;

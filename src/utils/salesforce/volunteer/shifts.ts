@@ -60,6 +60,7 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
         operator: "<=",
         value: { date: formattedDaysInAdvance, type: "datetime" },
       },
+      { field: "Restaurant_Meals__c", value: false },
     ],
   };
 

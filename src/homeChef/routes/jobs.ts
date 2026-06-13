@@ -11,24 +11,21 @@ const router = express.Router();
 router.get("/job-listing", requireAuth, async (req, res) => {
   const jobs = await getJobs(urls.townFridgeCampaignId);
   const shiftPromises = jobs.map(async (j) => {
-    const jobShifts = await getShifts(j.id);
-    const jobShiftsExcludingRestaurantMeals = jobShifts
-      .filter((js) => !js.restaurantMeals)
-      .map((js) => {
-        return {
-          ...js,
-          startTime: format(js.startTime, "yyyy-MM-dd"),
-        };
-      });
-    j.shifts = jobShiftsExcludingRestaurantMeals;
-    return jobShiftsExcludingRestaurantMeals;
+    const jobShifts = (await getShifts(j.id)).map((js) => {
+      return {
+        ...js,
+        startTime: format(js.startTime, "yyyy-MM-dd"),
+      };
+    });
+
+    j.shifts = jobShifts;
+    return jobShifts;
   });
   const shifts = (await Promise.all(shiftPromises)).flat();
   const mappedJobs = jobs.map((j) => {
     return { ...j, shifts: j.shifts.map((sh) => sh.id) };
   });
-  // filter out jobs with no visible shifts
-  res.send({ jobs: mappedJobs.filter((j) => j.shifts.length > 0), shifts });
+  res.send({ jobs: mappedJobs, shifts });
 });
 
 export default router;

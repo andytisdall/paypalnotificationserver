@@ -31,6 +31,7 @@ router.post("/", async (req, res) => {
     FirstName: firstName,
     LastName: lastName,
     CK_Kitchen_Volunteer_Status__c: "Prospective",
+    GW_Volunteers__Volunteer_Status__c: "Prospective",
     Portal_Username__c: username,
     Portal_Temporary_Password__c: password,
   });
@@ -56,6 +57,8 @@ router.get("/:email", async (req, res) => {
     await createPortalUser({ username, password, salesforceId: contact.id });
     if (!contact.volunteerAgreement) {
       await updateContact(contact.id, {
+        Portal_Username__c: username,
+        Portal_Temporary_Password__c: password,
         CK_Kitchen_Volunteer_Status__c: "Prospective",
       });
     }

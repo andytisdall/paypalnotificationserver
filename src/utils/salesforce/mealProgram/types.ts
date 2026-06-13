@@ -98,4 +98,5 @@ export interface UnformattedMealDelivery {
   Is_This_Week__c?: boolean;
   Is_Next_Week__c?: boolean;
   Funding_Source__c?: string;
+  Community_Service_Type__c?: string;
 }

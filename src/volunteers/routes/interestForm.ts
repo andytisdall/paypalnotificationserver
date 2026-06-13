@@ -27,6 +27,7 @@ export interface VolunteerInterestFormArgs {
   source: string;
   extraInfo?: string;
   corporate?: string;
+  employer?: string;
 }
 
 router.post("/signup", async (req, res) => {
@@ -39,6 +40,7 @@ router.post("/signup", async (req, res) => {
     corporate,
     source,
     extraInfo,
+    employer,
   }: VolunteerInterestFormArgs = req.body;
 
   const contactInfo: Partial<UnformattedContact> = {
@@ -54,6 +56,7 @@ router.post("/signup", async (req, res) => {
     Home_Chef_Status__c: "Prospective",
     CK_Kitchen_Volunteer_Status__c: "Prospective",
     Interest_in_volunteering_group__c: corporate,
+    Employer__c: employer,
   };
 
   // find salesforce contact
