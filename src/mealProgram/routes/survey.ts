@@ -10,12 +10,4 @@ router.post("/survey", async (req, res) => {
   res.sendStatus(204);
 });
 
-export interface SNAPSurveyArgs {
-  receiveSNAP: boolean;
-  november?: boolean;
-  whatDay?: string;
-  howMuch?: string;
-  reduce?: boolean;
-}
-
 export default router;

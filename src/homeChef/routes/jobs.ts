@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.get("/job-listing", requireAuth, async (req, res) => {
   const jobs = await getJobs(urls.townFridgeCampaignId);
+
   const shiftPromises = jobs.map(async (j) => {
     const jobShifts = (await getShifts(j.id)).map((js) => {
       return {

@@ -22,7 +22,7 @@ export const createScheduledDelivery = async (
     Delivery_Method__c: "CK Pickup",
     Number_of_Meals_Meat__c: delivery.numberOfMealsMeat,
     Number_of_Meals_Veg__c: delivery.numberOfMealsVeg,
-    Delivery_Notes__c: "Added by mobile oasis driver",
+    Delivery_Notes__c: "Added by delivery driver",
     Funding_Source__c: "CK",
     Community_Service_Type__c: "Town Fridge",
   };
