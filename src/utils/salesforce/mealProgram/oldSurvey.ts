@@ -1,4 +1,3 @@
-import { MealSurveyArgs, MealSurveyData } from "./types";
 import fetcher from "../../fetcher";
 import urls from "../../urls";
 
@@ -37,3 +36,49 @@ export const submitMealSurveyData = async (data: MealSurveyArgs) => {
     throw new Error("Could not save the survey results");
   }
 };
+
+type YesOrNo = "Yes" | "No";
+
+export interface MealSurveyData {
+  Language__c: "English" | "Spanish";
+  Age__c?: string;
+  Ethnicity__c?: string;
+  Zip_Code__c?: string;
+  Access_to_Microwave__c?: YesOrNo;
+  Access_to_Utensils__c?: YesOrNo;
+  How_many_people_served__c?: string;
+  Children_under_10__c?: YesOrNo;
+  Town_fridge_access_time_of_day__c?: string;
+  Favorite_Food__c?: string;
+  Favorite_Food_2__c?: string;
+  Dietary_Preferences__c?: string;
+  Fruit_Wanted__c?: YesOrNo;
+  Enjoying_Meals__c?: YesOrNo;
+  Access_to_Healthy_Meals__c?: YesOrNo;
+  Skip_a_Meal__c?: string;
+  Access_to_Refrigerator__c?: YesOrNo;
+  Diabetic__c?: YesOrNo;
+  High_Blood_Pressure__c?: YesOrNo;
+}
+
+export interface MealSurveyArgs {
+  language: "English" | "Spanish";
+  age?: string;
+  ethnicity?: string;
+  zip?: string;
+  microwave?: boolean;
+  utensils?: boolean;
+  numberOfPeople?: string;
+  children?: boolean;
+  time?: string;
+  mealType?: string;
+  mealType2?: string;
+  dietary?: string[];
+  fruit?: boolean;
+  taste?: boolean;
+  access?: boolean;
+  skip?: string;
+  fridge?: boolean;
+  diabetes?: boolean;
+  hbp?: boolean;
+}

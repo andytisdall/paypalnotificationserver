@@ -1,48 +1,74 @@
-export interface MealSurveyArgs {
-  language: "English" | "Spanish";
+interface Favorites {
+  American: number[];
+  "Asian Cuisine": number[];
+  Barbecue: number[];
+  Italian: number[];
+  Mexican: number[];
+  Sandwiches: number[];
+  "Southern/ Soul": number[];
+}
+
+export interface MealSurveyArgsV3 {
+  language: "English" | "Spanish" | "Chinese";
   age?: string;
   ethnicity?: string;
+  preferredLanguage?: string;
+  otherPreferredLanguage?: string;
   zip?: string;
-  microwave?: boolean;
-  utensils?: boolean;
   numberOfPeople?: string;
-  children?: boolean;
-  time?: string;
-  mealType?: string;
-  mealType2?: string;
+  children?: string;
+  homelessness?: string;
+  homelessnessOther?: string;
+  cookingItems?: string[];
+  cookingItemsOther?: string;
+  healthConcerns?: string[];
   dietary?: string[];
-  fruit?: boolean;
-  taste?: boolean;
-  access?: boolean;
+  dietaryOther?: string;
+  fruit?: string;
+  favorites: Favorites;
+  calfresh?: string;
+  resources?: string[];
+  resourcesOther?: string;
+  rating?: string;
   skip?: string;
-  fridge?: boolean;
-  diabetes?: boolean;
-  hbp?: boolean;
+  location?: string[];
+  locationOther?: string;
+  access?: string;
 }
 
-export interface MealSurveyData {
-  Language__c: "English" | "Spanish";
+export interface MealSurveyDataV3 {
+  Language__c: "English" | "Spanish" | "Chinese";
   Age__c?: string;
   Ethnicity__c?: string;
+  Preferred_Language__c?: string;
+  Preferred_Language_Other__c?: string;
   Zip_Code__c?: string;
-  Access_to_Microwave__c?: YesOrNo;
-  Access_to_Utensils__c?: YesOrNo;
-  How_many_people_served__c?: string;
-  Children_under_10__c?: YesOrNo;
-  Town_fridge_access_time_of_day__c?: string;
-  Favorite_Food__c?: string;
-  Favorite_Food_2__c?: string;
+  Household_Size__c?: string;
+  Children_under_5__c?: string;
+  Unhoused__c?: string;
+  Unhoused_Other__c?: string;
+  Cooking_Items__c?: string;
+  Cooking_Items_Other__c?: string;
+  Health_Concerns__c?: string;
   Dietary_Preferences__c?: string;
-  Fruit_Wanted__c?: YesOrNo;
-  Enjoying_Meals__c?: YesOrNo;
-  Access_to_Healthy_Meals__c?: YesOrNo;
+  Dietary_Preferences_Other__c?: string;
+  Fruit_Wanted__c?: string;
+  Food_American__c?: number;
+  Food_Asian__c?: number;
+  Food_BBQ__c?: number;
+  Food_Italian__c?: number;
+  Food_Mexican__c?: number;
+  Food_Sandwiches__c?: number;
+  Food_Southern__c?: number;
+  Enrolled_in_Calfresh__c?: string;
+  Helpful_Resources__c?: string;
+  Helpful_Resources_Other__c?: string;
+  Meal_Rating__c?: string;
   Skip_a_Meal__c?: string;
-  Access_to_Refrigerator__c?: YesOrNo;
-  Diabetic__c?: YesOrNo;
-  High_Blood_Pressure__c?: YesOrNo;
+  Meal_Sources__c?: string;
+  Meal_Sources_Other__c?: string;
+  Access_to_Healthy_Meals__c?: string;
 }
-
-type YesOrNo = "Yes" | "No";
 
 export interface MealsPlusService {
   Name: string;
