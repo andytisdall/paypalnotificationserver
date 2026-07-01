@@ -25,6 +25,7 @@ export const createScheduledDelivery = async (
     Delivery_Notes__c: "Added by delivery driver",
     Funding_Source__c: "CK",
     Community_Service_Type__c: "Town Fridge",
+    Engagement_Type__c: "Self-Distributed",
   };
 
   await fetcher.post(insertUri, newDelivery);

@@ -1,11 +1,11 @@
 interface Favorites {
-  American: number[];
-  "Asian Cuisine": number[];
-  Barbecue: number[];
-  Italian: number[];
-  Mexican: number[];
-  Sandwiches: number[];
-  "Southern/ Soul": number[];
+  American: number;
+  "Asian Cuisine": number;
+  Barbecue: number;
+  Italian: number;
+  Mexican: number;
+  Sandwiches: number;
+  "Southern/ Soul": number;
 }
 
 export interface MealSurveyArgsV3 {
@@ -124,5 +124,6 @@ export interface UnformattedMealDelivery {
   Is_This_Week__c?: boolean;
   Is_Next_Week__c?: boolean;
   Funding_Source__c?: string;
+  Engagement_Type__c?: string;
   Community_Service_Type__c?: string;
 }
