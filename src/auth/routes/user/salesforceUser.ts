@@ -5,7 +5,12 @@ import { currentUser } from "../../../middlewares/current-user";
 import { getContactById } from "../../../utils/salesforce/contact/getContact";
 import { FormattedContact } from "../../../utils/salesforce/contact/types";
 import { requireSalesforceAuth } from "../../../middlewares/require-salesforce-auth";
+import { requireAdmin } from "../../../middlewares/require-admin";
 import { createPortalUser, getUniqueUsernameAndPassword } from "./createUser";
+import {
+  getPermissionSets,
+  updateSalesforcePermissions,
+} from "../../../utils/salesforce/user";
 
 const User = mongoose.model("User");
 
@@ -68,6 +73,17 @@ router.post("/salesforce", requireSalesforceAuth, async (req, res) => {
   });
 
   res.status(201).send({ username, password });
+});
+
+router.get("/salesforce-user-permissions", requireAdmin, async (req, res) => {
+  const permissionSets = await getPermissionSets();
+  res.send(permissionSets);
+});
+
+router.patch("/salesforce-user-permissions", requireAdmin, async (req, res) => {
+  const { permissionSetId } = req.body;
+  await updateSalesforcePermissions(permissionSetId);
+  res.send(null);
 });
 
 export default router;

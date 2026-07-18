@@ -40,7 +40,7 @@ it("submits a report", async () => {
   };
 
   await request(app)
-    .post("/api/meal-program/survey3")
+    .post("/api/meal-program/survey")
     .send(formValues)
     .expect(204);
 });
@@ -83,7 +83,7 @@ it("submits a report", async () => {
   };
 
   await request(app)
-    .post("/api/meal-program/survey3")
+    .post("/api/meal-program/survey")
     .send(formValues)
     .expect(204);
 });
