@@ -2,7 +2,7 @@ import express from "express";
 import twilio, { twiml } from "twilio";
 
 import { requireSalesforceAuth } from "../../middlewares/require-salesforce-auth";
-import { getTwilioClient } from "../createTwilioClient";
+import { twilioClient } from "../twilioClient";
 import getSecrets from "../../utils/getSecrets";
 import {
   OutgoingText,
@@ -82,8 +82,6 @@ router.post("/outgoing/volunteer", requireSalesforceAuth, async (req, res) => {
     );
   }
 
-  const twilioClient = await getTwilioClient();
-
   if (!message) {
     res.status(422);
     throw new Error("No message to send");
@@ -95,7 +93,11 @@ router.post("/outgoing/volunteer", requireSalesforceAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
-  const { sid } = await twilioClient.messages.create({
+  if (!twilioClient.client) {
+    throw Error("Twilio client is not initialized");
+  }
+
+  const { sid } = await twilioClient.client.messages.create({
     ...outgoingText,
     to: "+1" + number,
   });

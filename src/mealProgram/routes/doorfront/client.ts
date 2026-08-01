@@ -1,8 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { currentUser } from "../../../middlewares/current-user";
-import { requireAuth } from "../../../middlewares/require-auth";
 import { requireAdmin } from "../../../middlewares/require-admin";
 
 const Client = mongoose.model("Client");

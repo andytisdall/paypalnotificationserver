@@ -11,11 +11,10 @@ export interface DocInformation {
   template: string;
   type: DocType;
   name: string;
-  failUrl?: string;
 }
 
 const volunterWaiverInfo: Pick<DocInformation, "template" | "type" | "name"> = {
-  template: "489948000000063075",
+  template: "Byb7MzMSPUyrTfrAH6FA3QwocGBWvsTLj",
   name: "CK Kitchen Volunteer Agreement",
   type: "CKK",
 };
@@ -24,12 +23,11 @@ export const docInfo: Record<string, DocInformation> = {
   HC: {
     type: "HC",
     url: "/home-chef/onboarding/sign/success",
-    template: "489948000000063117",
+    template: "C4smCqWwfnKDXMCKVyee8SAQHtBDekzSn",
     name: "CK Home Chef Volunteer Agreement",
   },
   CI: {
     url: "/volunteer-check-in/confirm",
-    failUrl: "/volunteer-check-in/list",
     ...volunterWaiverInfo,
   },
   CKK: {

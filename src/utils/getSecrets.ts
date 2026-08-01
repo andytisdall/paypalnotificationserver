@@ -23,6 +23,7 @@ interface Secrets {
   ZOHO_CLIENT_SECRET: string;
   ZOHO_CLIENT_ID: string;
   ZOHO_REFRESH_TOKEN: string;
+  DOCMADEEASY_KEY: string;
 }
 
 type Secret = keyof Secrets;

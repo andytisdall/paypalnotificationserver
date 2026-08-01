@@ -3,9 +3,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import getSecrets from "./getSecrets";
 import urls from "./urls";
 import getSFToken from "./salesforce/getSFToken";
-import { getZohoToken } from "./zoho/getZohoToken";
 
-export type Service = "salesforce" | "zoho";
+export type Service = "salesforce";
 
 class fetcher {
   instance: AxiosInstance;
@@ -16,7 +15,6 @@ class fetcher {
     this.instance = axios.create();
     this.token = {
       salesforce: undefined,
-      zoho: undefined,
     };
   }
 
@@ -35,10 +33,6 @@ class fetcher {
         if (this.service === "salesforce") {
           this.instance.defaults.headers.common["Authorization"] =
             `Bearer ${token}`;
-        }
-        if (this.service === "zoho") {
-          this.instance.defaults.headers.common["Authorization"] =
-            "Zoho-oauthtoken " + token;
         }
       } else {
         this.getToken();
@@ -65,15 +59,6 @@ class fetcher {
     let token: string | undefined;
     if (this.service === "salesforce") {
       token = await getSFToken();
-    }
-
-    if (this.service === "zoho") {
-      if (process.env.NODE_ENV === "production") {
-        token = await getZohoToken();
-      } else {
-        const { ZOHO_SANDBOX_TOKEN } = await getSecrets(["ZOHO_SANDBOX_TOKEN"]);
-        token = ZOHO_SANDBOX_TOKEN;
-      }
     }
 
     this.token[this.service!] = token;

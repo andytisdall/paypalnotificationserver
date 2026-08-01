@@ -9,6 +9,10 @@ import textRecordRouter from "./textRecords";
 import statusCallbackRouter from "./statusCallback";
 import volunteerRreminderRouter from "./volunteerReminder";
 
+import { twilioClient } from "../twilioClient";
+
+twilioClient.initialize();
+
 const textRouter = express.Router({ mergeParams: true });
 
 textRouter.use(phoneRouter);

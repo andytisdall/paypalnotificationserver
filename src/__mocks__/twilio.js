@@ -10,4 +10,9 @@ module.exports = {
       };
     }),
   },
+  Twilio: jest.fn((TWILIO_ID, TWILIO_AUTH_TOKEN, { autoRetry: boolean }) => ({
+    messages: {
+      create: jest.fn(() => {}),
+    },
+  })),
 };

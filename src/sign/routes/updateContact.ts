@@ -4,37 +4,34 @@ import { getUnformattedContactByEmail } from "../../utils/salesforce/contact/get
 import { updateContact } from "../../utils/salesforce/contact/updateContact";
 import { uploadFileToSalesforce } from "../../utils/salesforce/files/fileUpload";
 import { FileWithMetadata } from "../../utils/salesforce/files/metadata";
-import { downloadFile } from "../../utils/zoho/downloadFile";
 import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
 import { checkAndUpdateDriverStatus } from "../../volunteers/routes/driver";
-import { docInfo } from "./docConfig";
+import { docInfo } from "../docConfig";
+import { downloadFile } from "../../utils/docMadeEasy/downloadFile";
 
 const router = express.Router();
 
-export interface WebhookBody {
-  requests: {
-    request_status: string;
-    actions: { recipient_email: string }[];
-    document_ids: { document_name: string; document_id: string }[];
-    request_id: string;
+export interface DocWebhookBody {
+  eventType: string;
+  envelope: {
+    id: string;
+    recipients: { email: string }[];
+    docName: string;
   };
 }
 
 router.post("/update-contact", async (req, res) => {
-  const { requests }: WebhookBody = req.body;
-  const { request_status, actions, document_ids, request_id } = requests;
+  const { envelope, eventType }: DocWebhookBody = req.body;
 
-  if (request_status !== "completed") {
+  if (eventType !== "envelope_signed") {
     return res.sendStatus(200);
   }
 
   const contact = await getUnformattedContactByEmail(
-    actions[0].recipient_email,
+    envelope.recipients[0].email,
   );
 
-  const doc = Object.values(docInfo).find(
-    (d) => d.name === document_ids[0].document_name,
-  );
+  const doc = Object.values(docInfo).find((d) => d.name === envelope.docName);
 
   if (!contact) {
     throw Error("Could not get contact");
@@ -44,7 +41,7 @@ router.post("/update-contact", async (req, res) => {
     throw Error();
   }
 
-  const data = await downloadFile(request_id);
+  const data = await downloadFile(envelope.id);
 
   const file: FileWithMetadata = {
     docType: doc.type,
@@ -68,7 +65,7 @@ router.post("/update-contact", async (req, res) => {
     await updateHomeChefStatus(contact, { agreement: true });
   }
 
-  res.sendStatus(201);
+  res.sendStatus(204);
 });
 
 export default router;

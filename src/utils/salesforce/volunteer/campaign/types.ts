@@ -13,6 +13,8 @@ export interface UnformattedVolunteerCampaign {
   Id: string;
   Portal_Signups_Enabled__c?: boolean;
   Short_Description__c?: string;
+  GW_Volunteers__Volunteer_Completed_Hours__c?: number;
+  Total_Meals_Donated__c?: number;
 }
 
 export interface FormattedVolunteerCampaign {
@@ -22,6 +24,8 @@ export interface FormattedVolunteerCampaign {
   description?: string;
   shortDescription?: string;
   id: string;
+  totalHours?: number;
+  mealsDonated?: number;
 }
 
 export interface FormattedEventCampaign {

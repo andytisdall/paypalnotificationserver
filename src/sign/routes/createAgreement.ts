@@ -3,9 +3,8 @@ import express from "express";
 import { currentUser } from "../../middlewares/current-user";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { UnformattedContact } from "../../utils/salesforce/contact/types";
-import { DocType, docInfo } from "./docConfig";
-
-import { createRequest } from "../../utils/zoho/sign";
+import { DocType, docInfo } from "../docConfig";
+import { createSign } from "../../utils/docMadeEasy/createSign";
 
 const router = express.Router();
 
@@ -59,7 +58,7 @@ router.get(
       return res.send({ signingUrl: "" });
     }
 
-    const signingUrl = await createRequest({
+    const signingUrl = await createSign({
       contact: { name: contact.Name, email: contact.Email, id: contact.Id },
       doc,
       hoursId,

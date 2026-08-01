@@ -33,7 +33,6 @@ mongoose.set("strictQuery", false);
 const app = express();
 app.use(function (req, res, next) {
   if (req.method === "POST" && req.path === "/") {
-    console.log("hit");
     return res.send(null);
   }
   next();

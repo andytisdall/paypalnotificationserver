@@ -19,6 +19,7 @@ const baseUrls = {
   ckKitchenMealPrepJobId: "a0w8Z00000WaOzzQAF",
   homeChefTrainingCampaignId: "701UP000008zJFdYAM",
   deliveryDriverCampaignId: "701UP00000KA6bhYAD",
+  docMadeEasy: "https://api.docmadeeasy.com/rest",
 };
 
 const prodUrls = {

@@ -19,6 +19,7 @@ export const getVolunteerCampaigns: () => Promise<
     "StartDate",
     "EndDate",
     "Short_Description__c",
+    "GW_Volunteers__Volunteer_Completed_Hours__c",
   ] as const;
   const obj = "Campaign";
   const filters: FilterGroup<UnformattedVolunteerCampaign> = {
@@ -53,6 +54,7 @@ export const getVolunteerCampaigns: () => Promise<
       description: cam.Description,
       shortDescription: cam.Short_Description__c,
       id: cam.Id,
+      totalHours: cam.GW_Volunteers__Volunteer_Completed_Hours__c,
     };
   });
 };
@@ -115,7 +117,7 @@ export const getCampaign = async (id: string) => {
 
 export const getHomeChefCampaign = async () => {
   await fetcher.setService("salesforce");
-  const { data }: { data: { Total_Meals_Donated__c: number } | undefined } =
+  const { data }: { data: UnformattedVolunteerCampaign | undefined } =
     await fetcher.get(
       urls.SFOperationPrefix + "/Campaign/" + urls.townFridgeCampaignId,
     );

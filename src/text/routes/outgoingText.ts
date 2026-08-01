@@ -2,7 +2,7 @@ import express from "express";
 import { format } from "date-fns";
 import mongoose from "mongoose";
 
-import { getTwilioClient } from "../createTwilioClient";
+import { twilioClient } from "../twilioClient";
 import { Region, REGIONS } from "../types";
 import { requireAuth } from "../../middlewares/require-auth";
 import urls from "../../utils/urls";
@@ -42,8 +42,6 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     throw Error("Could not find messaging service ID");
   }
 
-  const twilioClient = await getTwilioClient();
-
   if (!message && !photo && !attachedPhoto) {
     res.status(422);
     throw new Error("No message or photo to send");
@@ -81,6 +79,10 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     messagingServiceSid: MESSAGING_SERVICE_SID,
   };
 
+  if (!twilioClient.client) {
+    throw Error("Twilio client is not initialized");
+  }
+
   if (number) {
     const phoneNumber = number.replace(/[^\d]/g, "");
     if (phoneNumber.length !== 10) {
@@ -89,7 +91,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     }
     const phone = await Phone.findOne({ number: phoneNumber });
     const from = REGIONS[phone?.region[0] as Region] || REGIONS["WEST_OAKLAND"];
-    await twilioClient.messages.create({
+    await twilioClient.client.messages.create({
       ...outgoingText,
       from,
       to: phoneNumber,
@@ -121,21 +123,24 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
       }
     }
   } else {
-    sendTexts(formattedRegion, outgoingText, twilioClient, mediaUrl).then(
-      (sendCount) => {
-        if (process.env.NODE_ENV !== "development") {
-          const newOutgoingTextRecord =
-            new OutgoingTextRecord<NewOutgoingTextRecord>({
-              sender: req.currentUser!.id,
-              region,
-              message,
-              image: mediaUrl[0],
-              sendCount,
-            });
-          newOutgoingTextRecord.save();
-        }
-      },
-    );
+    sendTexts(
+      formattedRegion,
+      outgoingText,
+      twilioClient.client,
+      mediaUrl,
+    ).then((sendCount) => {
+      if (process.env.NODE_ENV !== "development") {
+        const newOutgoingTextRecord =
+          new OutgoingTextRecord<NewOutgoingTextRecord>({
+            sender: req.currentUser!.id,
+            region,
+            message,
+            image: mediaUrl[0],
+            sendCount,
+          });
+        newOutgoingTextRecord.save();
+      }
+    });
   }
 
   res.send({

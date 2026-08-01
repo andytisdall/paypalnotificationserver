@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { subMonths } from "date-fns";
 import twilio from "twilio";
 
-import { getTwilioClient } from "../createTwilioClient";
+import { twilioClient } from "../twilioClient";
 import { removeTextSubscriber } from "../../utils/salesforce/text";
 
 const Phone = mongoose.model("Phone");
@@ -35,8 +35,11 @@ router.post(
     if (ErrorCode && Object.values(ERROR_CODES).includes(ErrorCode)) {
       console.log("Text Callback Error Code: " + ErrorCode);
 
-      const twilioClient = await getTwilioClient();
-      const msg = await twilioClient.messages.get(MessageSid).fetch();
+      if (!twilioClient.client) {
+        throw Error("Twilio client is not intialized");
+      }
+
+      const msg = await twilioClient.client.messages.get(MessageSid).fetch();
       const phoneNumber = await Phone.findOne({ number: msg.to });
       if (!phoneNumber) {
         console.log(
@@ -83,7 +86,6 @@ router.post(
         await phoneNumber.save();
       }
     }
-
     res.sendStatus(200);
   },
 );

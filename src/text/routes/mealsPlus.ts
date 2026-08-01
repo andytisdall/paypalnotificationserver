@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import twilio, { twiml } from "twilio";
 
-import { getTwilioClient } from "../createTwilioClient";
+import { twilioClient } from "../twilioClient";
 import getSecrets from "../../utils/getSecrets";
 import {
   Region,
@@ -44,8 +44,6 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
     );
   }
 
-  const twilioClient = await getTwilioClient();
-
   const outgoingText: Partial<OutgoingText> = {
     body: message ? message : undefined,
     messagingServiceSid: MESSAGING_SERVICE_SID,
@@ -59,7 +57,11 @@ router.post("/outgoing/salesforce", requireSalesforceAuth, async (req, res) => {
 
   const mediaUrl = photo ? [photo] : [];
 
-  sendTexts(formattedRegion, outgoingText, twilioClient, mediaUrl).then(
+  if (!twilioClient.client) {
+    throw Error("Twilio client is not initialized");
+  }
+
+  sendTexts(formattedRegion, outgoingText, twilioClient.client, mediaUrl).then(
     (sendCount) => {
       if (process.env.NODE_ENV === "production") {
         const newOutgoingTextRecord =

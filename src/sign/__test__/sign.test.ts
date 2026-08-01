@@ -1,21 +1,34 @@
 import request from "supertest";
+import mongoose from "mongoose";
 
 import app from "../../..";
-import { WebhookBody } from "../routes/updateContact";
+import { DocWebhookBody } from "../routes/updateContact";
 
-it("uploads a signed document from zoho sign to salesforce", async () => {
-  const body: WebhookBody = {
-    requests: {
-      request_status: "",
-      request_id: "",
-      actions: [{ recipient_email: "andy@ckoakland.org" }],
-      document_ids: [
-        {
-          document_id: "489948000000099043",
-          document_name: "CK Kitchen Volunteer Agreement",
-        },
-      ],
+const User = mongoose.model("User");
+
+it("gets a redirect url from the sign documents route", async () => {
+  const token = await global.getToken({ admin: false });
+  const [user] = await User.find();
+
+  await request(app)
+    .get("/api/sign/HC/" + user.salesforceId)
+    .set("Authorization", token)
+    .expect(200);
+});
+
+it("uploads a file from docusign to salesforce for both contact and restaurant accounts", async () => {
+  await global.getToken({ admin: false });
+  const requestBody: DocWebhookBody = {
+    eventType: "envelope_signed",
+    envelope: {
+      id: "Byb5znktrCGMACMWPJMvNfnNRMfqFi2oE",
+      recipients: [{ email: "andy@ckoakland.org" }],
+      docName: "CK Kitchen Volunteer Agreement",
     },
   };
-  await request(app).post("/api/sign/update-contact").send(body).expect(200);
+
+  await request(app)
+    .post("/api/sign/update-contact")
+    .send(requestBody)
+    .expect(204);
 });
