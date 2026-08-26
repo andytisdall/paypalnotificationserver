@@ -1,12 +1,12 @@
 import express from "express";
 import { formatISO } from "date-fns";
+import { CheckInArgs } from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../middlewares/require-admin";
 import { getVolunteersForCheckIn } from "../../utils/salesforce/volunteer/checkin/getVolunteers";
 import { checkInVolunteer } from "../../utils/salesforce/volunteer/checkin/checkInVolunteer";
 import { getTodaysVolunteerShifts } from "../../utils/salesforce/volunteer/checkin/getShifts";
-import { createHours } from "../../utils/salesforce/volunteer/hours";
-
+import { createHours } from "../../utils/salesforce/volunteer/hours/createHours";
 import {
   addSlotToShift,
   getShift,
@@ -26,7 +26,7 @@ router.get("/check-in/:shiftId", requireAdmin, async (req, res) => {
 });
 
 router.post("/check-in", requireAdmin, async (req, res) => {
-  const { hoursId, duration }: { hoursId: string; duration: number } = req.body;
+  const { hoursId, duration }: CheckInArgs = req.body;
 
   await checkInVolunteer({ hoursId, duration });
 

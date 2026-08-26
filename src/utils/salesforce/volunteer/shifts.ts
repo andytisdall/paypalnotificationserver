@@ -1,40 +1,58 @@
 import { fromZonedTime } from "date-fns-tz";
 
+import { VolunteerShift } from "@community-kitchens/apiinterfaces";
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { Shift, FormattedShift } from "./types";
+import { UnformattedShift } from "./types";
 import createQuery, { FilterGroup } from "../queryCreator";
 import { addDays } from "date-fns";
 
-export const getShift = async (
-  shiftId: string,
-): Promise<FormattedShift | undefined> => {
+const formatShift = (
+  shift: Pick<
+    UnformattedShift,
+    | "Id"
+    | "GW_Volunteers__Start_Date_Time__c"
+    | "GW_Volunteers__Number_of_Volunteers_Still_Needed__c"
+    | "Restaurant_Meals__c"
+    | "GW_Volunteers__Duration__c"
+    | "GW_Volunteers__Desired_Number_of_Volunteers__c"
+    | "GW_Volunteers__Job_Location_Street__c"
+    | "End_Time__c"
+    | "Reserved_Shift_is_Available__c"
+    | "GW_Volunteers__Volunteer_Job__c"
+  >,
+): VolunteerShift => {
+  return {
+    id: shift.Id,
+    startTime: shift.GW_Volunteers__Start_Date_Time__c,
+    open:
+      shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === undefined ||
+      shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === null ||
+      shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
+    slots: shift.GW_Volunteers__Number_of_Volunteers_Still_Needed__c || 0,
+    job: shift.GW_Volunteers__Volunteer_Job__c,
+    restaurantMeals: shift.Restaurant_Meals__c,
+    duration: shift.GW_Volunteers__Duration__c,
+    totalSlots: shift.GW_Volunteers__Desired_Number_of_Volunteers__c || 0,
+    reservedOpen: shift.Reserved_Shift_is_Available__c,
+  };
+};
+
+export const getShift = async (shiftId: string) => {
   await fetcher.setService("salesforce");
 
   const url =
     urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shiftId;
 
-  const { data }: { data?: Shift } = await fetcher.get(url);
+  const { data }: { data?: UnformattedShift } = await fetcher.get(url);
 
   if (data) {
-    return {
-      id: data.Id,
-      startTime: data.GW_Volunteers__Start_Date_Time__c,
-      open:
-        data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === null ||
-        data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
-      slots: data.GW_Volunteers__Number_of_Volunteers_Still_Needed__c || 0,
-      job: data.GW_Volunteers__Volunteer_Job__c,
-      restaurantMeals: data.Restaurant_Meals__c,
-      duration: data.GW_Volunteers__Duration__c,
-      totalSlots: data.GW_Volunteers__Desired_Number_of_Volunteers__c || 0,
-    };
+    return formatShift(data);
   }
 };
 
-export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
+export const getShifts = async (jobId: string) => {
   const formattedDaysInAdvance = addDays(new Date(), 60);
-
   const fields = [
     "Id",
     "GW_Volunteers__Start_Date_Time__c",
@@ -44,10 +62,12 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
     "GW_Volunteers__Desired_Number_of_Volunteers__c",
     "GW_Volunteers__Job_Location_Street__c",
     "End_Time__c",
+    "Reserved_Shift_is_Available__c",
+    "GW_Volunteers__Volunteer_Job__c",
   ] as const;
 
   const obj = "GW_Volunteers__Volunteer_Shift__c";
-  const filters: FilterGroup<Shift> = {
+  const filters: FilterGroup<UnformattedShift> = {
     AND: [
       { field: "GW_Volunteers__Volunteer_Job__c", value: jobId },
       {
@@ -64,38 +84,41 @@ export const getShifts = async (jobId: string): Promise<FormattedShift[]> => {
     ],
   };
 
-  const shifts = await createQuery<Shift, (typeof fields)[number]>({
+  const shifts = await createQuery<UnformattedShift, (typeof fields)[number]>({
     fields,
     obj,
     filters,
   });
 
   const promises = shifts.map(async (js) => {
-    return {
-      id: js.Id,
-      startTime: js.GW_Volunteers__Start_Date_Time__c,
-      open:
-        js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c === null ||
-        js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c > 0,
-      slots: js.GW_Volunteers__Number_of_Volunteers_Still_Needed__c,
-      job: jobId,
-      restaurantMeals: js.Restaurant_Meals__c,
-      duration: js.GW_Volunteers__Duration__c,
-      totalSlots: js.GW_Volunteers__Desired_Number_of_Volunteers__c,
-    };
+    const shift = js as unknown as UnformattedShift;
+    return formatShift(shift);
   });
 
   return await Promise.all(promises);
 };
 
-export const addSlotToShift = async (shift: FormattedShift) => {
+export const addSlotToShift = async (
+  shift: Pick<VolunteerShift, "id" | "totalSlots">,
+  options?: { reservedSlot: boolean },
+) => {
   await fetcher.setService("salesforce");
   const url =
     urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c/" + shift.id;
 
-  await fetcher.patch(url, {
-    GW_Volunteers__Desired_Number_of_Volunteers__c: shift.totalSlots + 1,
-  });
+  const patchData: Pick<
+    UnformattedShift,
+    | "GW_Volunteers__Desired_Number_of_Volunteers__c"
+    | "Reserved_Shift_is_Available__c"
+  > = {
+    GW_Volunteers__Desired_Number_of_Volunteers__c: shift.totalSlots || 0 + 1,
+  };
+
+  if (options?.reservedSlot) {
+    patchData.Reserved_Shift_is_Available__c = false;
+  }
+
+  await fetcher.patch(url, patchData);
 };
 
 export const createShift = async ({
@@ -110,7 +133,7 @@ export const createShift = async ({
   await fetcher.setService("salesforce");
   const url = urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Shift__c";
 
-  const newShift: Partial<Shift> = {
+  const newShift: Partial<UnformattedShift> = {
     GW_Volunteers__Volunteer_Job__c: jobId,
     Restaurant_Meals__c: restaurantMeals,
     GW_Volunteers__Duration__c: 1,

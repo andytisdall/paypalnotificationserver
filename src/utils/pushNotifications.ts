@@ -1,12 +1,15 @@
 import PushNotifications from "node-pushnotifications";
 
 import getSecrets from "./getSecrets";
+import { NotificationPayload } from "@community-kitchens/apiinterfaces";
 
 const createNotificationsService = async (app: "d4j" | "homechef") => {
   let apnsP8,
     bundleId: string = "",
     keyId,
-    teamId;
+    teamId,
+    appName: string = "",
+    serviceAccountKeyName;
 
   if (app === "d4j") {
     const { APNS_P8, APNS_KEY_ID, APNS_TEAM_ID } = await getSecrets([
@@ -19,6 +22,8 @@ const createNotificationsService = async (app: "d4j" | "homechef") => {
     bundleId = "org.ckoakland.diningforjustice";
     keyId = APNS_KEY_ID;
     teamId = APNS_TEAM_ID;
+    appName = "org.ckoakland.diningforjustice";
+    serviceAccountKeyName = "dining-for-justice-app";
   }
 
   if (app === "homechef") {
@@ -32,6 +37,8 @@ const createNotificationsService = async (app: "d4j" | "homechef") => {
     bundleId = "org.ckoakland.ckhomechef";
     keyId = APNS_KEY_ID;
     teamId = APNS_TEAM_ID;
+    appName = "com.ckhomechefapp";
+    serviceAccountKeyName = "home-chef-app";
   }
 
   if (!apnsP8 || !bundleId || !keyId || !teamId) {
@@ -48,8 +55,10 @@ const createNotificationsService = async (app: "d4j" | "homechef") => {
       production: process.env.NODE_ENV === "production",
     },
     fcm: {
-      appName: "com.ckhomechefapp",
-      serviceAccountKey: require("../../firebase-project-service-account-key.json"),
+      appName,
+      serviceAccountKey: require(
+        `../../${serviceAccountKeyName}-service-account-key.json`,
+      ),
       credential: null,
     },
     isAlwaysUseFCM: false,
@@ -58,14 +67,14 @@ const createNotificationsService = async (app: "d4j" | "homechef") => {
   const NotificationService = new PushNotifications(config);
   const sendNotification = function (
     tokens: string[],
-    data: { title: string; body: string },
+    data: NotificationPayload,
   ) {
     const payload: PushNotifications.Data = {
       topic: bundleId,
       priority: "high",
       retries: 1,
       expiry: Math.floor(Date.now() / 1000) + 28 * 86400,
-      ...data,
+      ...data.custom,
     };
     return NotificationService.send(tokens, payload);
   };

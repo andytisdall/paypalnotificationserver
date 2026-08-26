@@ -4,7 +4,7 @@ import { formatISO } from "date-fns";
 
 import urls from "../../../utils/urls";
 import { createShift } from "../../../utils/salesforce/volunteer/shifts";
-import { CheckInVolunteer } from "../../../utils/salesforce/volunteer/types";
+import { VolunteerForCheckIn } from "@community-kitchens/apiinterfaces";
 
 let shiftId = "";
 let contactId = "";
@@ -74,8 +74,8 @@ it("checks in", async () => {
     .get("/api/volunteers/check-in/" + shiftId)
     .set("Authorization", token);
 
-  const hours: CheckInVolunteer = response.body.find(
-    (hours: CheckInVolunteer) => hours.contactId === contactId,
+  const hours: VolunteerForCheckIn = response.body.find(
+    (hours: VolunteerForCheckIn) => hours.contactId === contactId,
   );
 
   expect(hours.status).toEqual("Completed");

@@ -6,12 +6,12 @@ const cocktailVoteSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "D4JUser",
       required: true,
-      unique: true,
     },
     bar: {
       type: String, // restaurant name
       required: true,
     },
+    year: Number,
   },
 
   {

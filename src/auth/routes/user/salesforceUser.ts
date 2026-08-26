@@ -36,6 +36,7 @@ router.get("/userInfo", currentUser, async (req, res) => {
     homeChefStatus: contact.Home_Chef_Status__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,
     ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
+    calfreshVolunteer: contact.Calfresh_Volunteer__c,
   };
 
   res.send(contactInfo);

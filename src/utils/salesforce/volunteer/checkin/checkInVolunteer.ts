@@ -1,14 +1,9 @@
+import { CheckInArgs } from "@community-kitchens/apiinterfaces";
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { UnformattedHours } from "../types";
 
-export const checkInVolunteer = async ({
-  hoursId,
-  duration,
-}: {
-  hoursId: string;
-  duration: number;
-}) => {
+export const checkInVolunteer = async ({ hoursId, duration }: CheckInArgs) => {
   await fetcher.setService("salesforce");
 
   const updateUri =

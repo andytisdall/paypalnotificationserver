@@ -1,16 +1,15 @@
 import express from "express";
 import mongoose from "mongoose";
 import passwordGenerator from "generate-password";
+import { CreateUserArgs } from "@community-kitchens/apiinterfaces";
 
-import { currentUser } from "../../../middlewares/current-user";
-import { requireAuth } from "../../../middlewares/require-auth";
 import { requireAdmin } from "../../../middlewares/require-admin";
 
 const User = mongoose.model("User");
 const router = express.Router();
 
 router.post("/", requireAdmin, async (req, res) => {
-  const { username, password, salesforceId } = req.body;
+  const { username, password, salesforceId }: CreateUserArgs = req.body;
 
   const existingUsername = await User.findOne({ username });
   if (existingUsername) {

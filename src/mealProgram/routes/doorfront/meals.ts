@@ -4,6 +4,7 @@ import { formatISO, addDays, format } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 
 import { requireAdmin } from "../../../middlewares/require-admin";
+import { AddMealsArgs } from "@community-kitchens/apiinterfaces";
 
 const ClientMeal = mongoose.model("ClientMeal");
 const Client = mongoose.model("Client");
@@ -76,13 +77,7 @@ router.get(
 // });
 
 router.post("/doorfront/meals", requireAdmin, async (req, res) => {
-  const {
-    meals,
-    clientId,
-    findByCCode,
-    date,
-  }: { meals: number; clientId: string; findByCCode?: boolean; date?: string } =
-    req.body;
+  const { meals, clientId, findByCCode, date }: AddMealsArgs = req.body;
 
   if (meals > 0) {
     if (findByCCode && date) {

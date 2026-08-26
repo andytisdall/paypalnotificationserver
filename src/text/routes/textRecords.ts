@@ -4,6 +4,7 @@ import { fromZonedTime } from "date-fns-tz";
 
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
+import { TextRecord } from "@community-kitchens/apiinterfaces";
 
 const OutgoingTextRecord = mongoose.model("OutgoingTextRecord");
 
@@ -12,7 +13,7 @@ const router = express.Router();
 router.get("/text-records/list/:startDate", requireAdmin, async (req, res) => {
   const { startDate } = req.params;
 
-  const textRecords = await OutgoingTextRecord.find({
+  const textRecords: TextRecord[] = await OutgoingTextRecord.find({
     date: { $gt: fromZonedTime(startDate as string, "America/Los_Angeles") },
   }).sort({ date: -1 });
 

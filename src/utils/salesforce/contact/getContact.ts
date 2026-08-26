@@ -20,6 +20,7 @@ export const getContact = async (
     "FirstName",
     "LastName",
     "CK_Kitchen_Agreement__c",
+    "Calfresh_Volunteer__c",
   ] as const;
   const obj = "Contact";
   const filters: FilterGroup<UnformattedContact> = {
@@ -49,6 +50,7 @@ export const getContact = async (
       firstName: contact.FirstName,
       lastName: contact.LastName,
       volunteerAgreement: contact.CK_Kitchen_Agreement__c,
+      calfreshVolunteer: contact.Calfresh_Volunteer__c,
     };
   } else {
     return null;
@@ -139,6 +141,7 @@ export const getContactByEmail = async (
     "Id",
     "Portal_Username__c",
     "CK_Kitchen_Agreement__c",
+    "Calfresh_Volunteer__c",
   ] as const;
   const obj = "Contact";
   const filters: FilterGroup<UnformattedContact> = {
@@ -161,6 +164,7 @@ export const getContactByEmail = async (
       lastName: contact.LastName,
       volunteerAgreement: contact.CK_Kitchen_Agreement__c,
       email: contact.Email,
+      calfreshVolunteer: contact.Calfresh_Volunteer__c,
     };
   } else {
     return null;

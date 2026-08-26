@@ -1,10 +1,10 @@
+import { DocType } from "@community-kitchens/apiinterfaces";
+
 export interface UserInfo {
   name: string;
   email: string;
   id: string;
 }
-
-export type DocType = "HC" | "CKK";
 
 export interface DocInformation {
   url: string;

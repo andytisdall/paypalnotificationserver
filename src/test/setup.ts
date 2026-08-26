@@ -4,6 +4,12 @@ import jwt from "jsonwebtoken";
 import "../auth/models/user";
 import getSecrets from "../utils/getSecrets";
 
+export const mockUser = {
+  username: "test",
+  password: "password",
+  salesforceId: "0038Z000035IIhKQAW",
+};
+
 declare global {
   function getToken({ admin }: { admin: boolean }): Promise<string>;
   function signIn(username: string): Promise<string>;
@@ -24,13 +30,8 @@ jest.mock("../utils/googleApis/files/storeFile", () => ({
 
 global.getToken = async ({ admin }: { admin: boolean }) => {
   const User = mongoose.model("User");
-  const userInfo = {
-    username: "test",
-    password: "password",
-    salesforceId: "0038Z000035IIhKQAW",
-    admin,
-  };
-  const newUser = new User(userInfo);
+
+  const newUser = new User({ ...mockUser, admin });
   await newUser.save();
   const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {

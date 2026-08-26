@@ -1,9 +1,7 @@
 import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { InsertSuccessResponse } from "../../reusableTypes";
-import { getContactByEmail } from "../../contact/getContact";
 import { CampaignMemberObject } from "./types";
-import createQuery, { FilterGroup } from "../../queryCreator";
 
 export const insertCampaignMember = async (
   campaignMember: Pick<CampaignMemberObject, "ContactId" | "CampaignId">,

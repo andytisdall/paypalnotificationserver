@@ -17,29 +17,29 @@ export interface UnformattedVolunteerCampaign {
   Total_Meals_Donated__c?: number;
 }
 
-export interface FormattedVolunteerCampaign {
-  name: string;
-  startDate?: string;
-  endDate?: string;
-  description?: string;
-  shortDescription?: string;
-  id: string;
-  totalHours?: number;
-  mealsDonated?: number;
-}
+// export interface FormattedVolunteerCampaign {
+//   name: string;
+//   startDate?: string;
+//   endDate?: string;
+//   description?: string;
+//   shortDescription?: string;
+//   id: string;
+//   totalHours?: number;
+//   mealsDonated?: number;
+// }
 
-export interface FormattedEventCampaign {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate?: string;
-  venue?: string;
-  description?: string;
-  address?: string;
-  city?: string;
-  url?: string;
-  photo?: string;
-}
+// export interface FormattedEventCampaign {
+//   id: string;
+//   name: string;
+//   startDate: string;
+//   endDate?: string;
+//   venue?: string;
+//   description?: string;
+//   address?: string;
+//   city?: string;
+//   url?: string;
+//   photo?: string;
+// }
 
 export interface UnformattedEventCampaign {
   Id: string;

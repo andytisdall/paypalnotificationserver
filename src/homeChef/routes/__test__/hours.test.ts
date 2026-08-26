@@ -2,9 +2,9 @@ import app from "../../../../index";
 import request from "supertest";
 
 import {
-  FormattedShift,
-  FormattedHours,
-} from "../../../utils/salesforce/volunteer/types";
+  VolunteerShift,
+  VolunteerHours,
+} from "@community-kitchens/apiinterfaces";
 
 it("gets the list of shifts and signs up for a shift", async () => {
   const token = await global.getToken({ admin: false });
@@ -13,7 +13,7 @@ it("gets the list of shifts and signs up for a shift", async () => {
     .set("Authorization", token)
     .expect(200);
 
-  const shifts: FormattedShift[] = res.body.shifts;
+  const shifts: VolunteerShift[] = res.body.shifts;
 
   const shift = shifts.find((sh) => sh.open);
   if (!shift) {
@@ -40,7 +40,7 @@ it("gets the hours for a contact and then edits one", async () => {
     .set("Authorization", token)
     .expect(200);
 
-  const hours: FormattedHours[] = hoursRes.body;
+  const hours: VolunteerHours[] = hoursRes.body;
   const hour = hours[0];
   if (!hour) {
     throw Error("No hours to edit");

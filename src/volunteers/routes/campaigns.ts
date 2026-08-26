@@ -16,10 +16,11 @@ router.get("/campaigns", async (req, res) => {
 router.get("/campaigns/hours", async (req, res) => {
   const campaigns = await getVolunteerCampaigns();
   const homeChef = await getHomeChefCampaign();
-  const totalHours =
+  const totalHours = Math.floor(
     campaigns.reduce((prev, cur) => {
       return prev + (cur.totalHours || 0);
-    }, 0) + (homeChef.GW_Volunteers__Volunteer_Completed_Hours__c || 0);
+    }, 0) + (homeChef.GW_Volunteers__Volunteer_Completed_Hours__c || 0),
+  );
 
   res.send({ totalHours });
 });

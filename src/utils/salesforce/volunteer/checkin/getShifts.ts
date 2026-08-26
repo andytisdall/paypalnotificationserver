@@ -1,28 +1,29 @@
 import urls from "../../../urls";
 import createQuery, { FilterGroup } from "../../queryCreator";
-import { Shift } from "../types";
+import { UnformattedShift } from "../types";
+import { CheckInShiftsResponse } from "@community-kitchens/apiinterfaces";
 
-interface GetTodaysShiftsResponse {
-  jobs: Record<
-    string,
-    {
-      id: string;
-      name: string;
-      shifts: string[];
-    }
-  >;
-  shifts: Record<
-    string,
-    {
-      id: string;
-      jobName: string;
-      startTime: string;
-      duration: number;
-    }
-  >;
-}
+// interface GetTodaysShiftsResponse {
+//   jobs: Record<
+//     string,
+//     {
+//       id: string;
+//       name: string;
+//       shifts: string[];
+//     }
+//   >;
+//   shifts: Record<
+//     string,
+//     {
+//       id: string;
+//       jobName: string;
+//       startTime: string;
+//       duration: number;
+//     }
+//   >;
+// }
 
-export const getTodaysVolunteerShifts: () => Promise<GetTodaysShiftsResponse> =
+export const getTodaysVolunteerShifts: () => Promise<CheckInShiftsResponse> =
   async () => {
     // const campaignFields = ["Id"] as const;
     // const campaignObj = "Campaign";
@@ -54,7 +55,7 @@ export const getTodaysVolunteerShifts: () => Promise<GetTodaysShiftsResponse> =
     //   obj: jobObj,
     // });
 
-    const jobShifts: GetTodaysShiftsResponse = { jobs: {}, shifts: {} };
+    const jobShifts: CheckInShiftsResponse = { jobs: {}, shifts: {} };
 
     const fields = [
       "Id",
@@ -62,7 +63,7 @@ export const getTodaysVolunteerShifts: () => Promise<GetTodaysShiftsResponse> =
       "GW_Volunteers__Duration__c",
     ] as const;
     const obj = "GW_Volunteers__Volunteer_Shift__c";
-    const filters: FilterGroup<Shift> = {
+    const filters: FilterGroup<UnformattedShift> = {
       AND: [
         {
           field: "GW_Volunteers__Start_Date_Time__c",
@@ -81,14 +82,16 @@ export const getTodaysVolunteerShifts: () => Promise<GetTodaysShiftsResponse> =
       ],
     };
 
-    const shifts = await createQuery<Shift, (typeof fields)[number]>({
-      fields,
-      obj,
-      filters,
-      join: {
-        GW_Volunteers__Volunteer_Job__r: ["Name", "Id"],
+    const shifts = await createQuery<UnformattedShift, (typeof fields)[number]>(
+      {
+        fields,
+        obj,
+        filters,
+        join: {
+          GW_Volunteers__Volunteer_Job__r: ["Name", "Id"],
+        },
       },
-    });
+    );
 
     if (shifts.length) {
       shifts?.forEach((shift) => {

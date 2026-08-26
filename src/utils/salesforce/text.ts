@@ -3,15 +3,20 @@ import fetcher from "../fetcher";
 import urls from "../urls";
 
 interface TextSubscriber {
-  Name?: string;
+  Name: string;
   Regions__c: string;
+  Source__c?: string;
 }
 
 const regionToString = (regions: Region[]) => {
   return regions.length ? regions.map((r) => regionKey[r]).join(";") + ";" : "";
 };
 
-export const editTextSubscriber = async (number: string, regions: Region[]) => {
+export const editTextSubscriber = async (
+  number: string,
+  regions: Region[],
+  source?: string,
+) => {
   await fetcher.setService("salesforce");
 
   const query = `SELECT Id from Text_Service_Subscriber__c WHERE Name = '${number}'`;
@@ -23,19 +28,25 @@ export const editTextSubscriber = async (number: string, regions: Region[]) => {
   const { Id } = res.data.records[0];
   const regionsString = regionToString(regions);
   const patchUri = urls.SFOperationPrefix + "/Text_Service_Subscriber__c/" + Id;
-  const patchData: TextSubscriber = {
+  const patchData: Partial<TextSubscriber> = {
     Regions__c: regionsString,
+    Source__c: source,
   };
   await fetcher.patch(patchUri, patchData);
 };
 
-export const addTextSubscriber = async (number: string, regions: Region[]) => {
+export const addTextSubscriber = async (
+  number: string,
+  regions: Region[],
+  source?: string,
+) => {
   await fetcher.setService("salesforce");
   const insertUri = urls.SFOperationPrefix + "/Text_Service_Subscriber__c";
   const regionsString = regionToString(regions);
   const insertData: TextSubscriber = {
     Name: number,
     Regions__c: regionsString,
+    Source__c: source,
   };
   const { data }: { data: { success?: boolean } } = await fetcher.post(
     insertUri,

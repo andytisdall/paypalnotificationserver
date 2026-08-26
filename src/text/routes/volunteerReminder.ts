@@ -10,10 +10,8 @@ import {
   IncomingText,
 } from "../types";
 import { getContactByPhoneNumber } from "../../utils/salesforce/contact/getContact";
-import {
-  editHours,
-  getTextReminderHours,
-} from "../../utils/salesforce/volunteer/hours";
+import { getTextReminderHours } from "../../utils/salesforce/volunteer/hours/getHours";
+import { editHours } from "../../utils/salesforce/volunteer/hours/editHours";
 import { sendVolunteerShiftCancelEmail } from "../../volunteers/routes/hours/deleteHours";
 
 const router = express.Router();

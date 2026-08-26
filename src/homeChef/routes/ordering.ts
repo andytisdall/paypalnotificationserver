@@ -1,7 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { currentUser } from "../../middlewares/current-user";
+import {
+  SupplyOrder as SupplyOrderType,
+  SupplyOrderInfo,
+} from "@community-kitchens/apiinterfaces";
 import { requireAuth } from "../../middlewares/require-auth";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { requireAdmin } from "../../middlewares/require-admin";
@@ -15,20 +18,20 @@ const router = express.Router();
 
 const SupplyOrder = mongoose.model("SupplyOrder");
 
-export interface SupplyOrder {
-  containers: number;
-  labels: number;
-  soup: number;
-  sandwich: number;
-}
+// export interface SupplyOrder {
+//   containers: number;
+//   labels: number;
+//   soup: number;
+//   sandwich: number;
+// }
 
-interface ManualSupplyOrder extends SupplyOrder {
-  firstName?: string;
-  lastName?: string;
-}
+// interface ManualSupplyOrder extends SupplyOrder {
+//   firstName?: string;
+//   lastName?: string;
+// }
 
 router.post("/ordering", requireAuth, async (req, res) => {
-  const order: SupplyOrder = req.body;
+  const order: SupplyOrderInfo = req.body;
   const { containers, labels, soup, sandwich } = order;
 
   const contact = await getContactById(req.currentUser!.salesforceId);
@@ -71,8 +74,10 @@ router.get(
   "/ordering/fulfilled",
 
   requireAdmin,
-  async (req, res) => {
-    const orders = await SupplyOrder.find({ fulfilled: true });
+  async (_req, res) => {
+    const orders: SupplyOrderType[] = await SupplyOrder.find({
+      fulfilled: true,
+    });
 
     res.send(orders);
   },
@@ -90,7 +95,7 @@ router.post(
     }: {
       firstName: string;
       lastName: string;
-      items: ManualSupplyOrder;
+      items: SupplyOrderInfo;
     } = req.body;
 
     const newOrder = new SupplyOrder({

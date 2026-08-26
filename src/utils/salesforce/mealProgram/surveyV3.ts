@@ -1,12 +1,15 @@
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { MealSurveyArgsV3, MealSurveyDataV3 } from "./types";
+import { MealSurveyDataV3 } from "./types";
+import { MealSurveyArgsV3 } from "@community-kitchens/apiinterfaces";
 
 const joinArray = (array?: string[]) => {
   return array?.join(";");
 };
 
-export const submitMealSurveyDataV3 = async (data: MealSurveyArgsV3) => {
+export const submitMealSurveyDataV3 = async (
+  data: MealSurveyArgsV3["formData"],
+) => {
   await fetcher.setService("salesforce");
 
   const surveyData: MealSurveyDataV3 = {
@@ -26,13 +29,15 @@ export const submitMealSurveyDataV3 = async (data: MealSurveyArgsV3) => {
     Dietary_Preferences__c: joinArray(data.dietary),
     Dietary_Preferences_Other__c: data.dietaryOther,
     Fruit_Wanted__c: data.fruit,
-    Food_American__c: data.favorites.American,
-    Food_Asian__c: data.favorites["Asian Cuisine"],
-    Food_BBQ__c: data.favorites.Barbecue,
-    Food_Italian__c: data.favorites.Italian,
-    Food_Mexican__c: data.favorites.Mexican,
-    Food_Sandwiches__c: data.favorites.Sandwiches,
-    Food_Southern__c: data.favorites["Southern/ Soul"],
+    Food_American__c: data.favorites?.American,
+    Food_Asian__c: data.favorites ? data.favorites["Asian Cuisine"] : undefined,
+    Food_BBQ__c: data.favorites?.Barbecue,
+    Food_Italian__c: data.favorites?.Italian,
+    Food_Mexican__c: data.favorites?.Mexican,
+    Food_Sandwiches__c: data.favorites?.Sandwiches,
+    Food_Southern__c: data.favorites
+      ? data.favorites["Southern/ Soul"]
+      : undefined,
     Enrolled_in_Calfresh__c: data.calfresh,
     Helpful_Resources__c: joinArray(data.resources),
     Helpful_Resources_Other__c: data.resourcesOther,
@@ -41,6 +46,7 @@ export const submitMealSurveyDataV3 = async (data: MealSurveyArgsV3) => {
     Meal_Sources__c: joinArray(data.location),
     Meal_Sources_Other__c: data.locationOther,
     Access_to_Healthy_Meals__c: data.access,
+    Survey_Link_Source__c: data.source,
   };
 
   const insertUri = urls.SFOperationPrefix + "/Meal_Survey_Data_V3__c";

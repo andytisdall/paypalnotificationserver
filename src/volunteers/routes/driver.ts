@@ -10,6 +10,7 @@ import {
   uploadFileToSalesforce,
 } from "../../utils/salesforce/files/fileUpload";
 import { FormattedContact } from "../../utils/salesforce/contact/types";
+import { CarInfo } from "@community-kitchens/apiinterfaces";
 
 const User = mongoose.model("User");
 
@@ -74,7 +75,7 @@ router.post("/driver/insurance", requireAuth, async (req, res) => {
 });
 
 router.post("/driver/car", requireAuth, async (req, res) => {
-  const { size, make, model, year, color } = req.body;
+  const { size, make, model, year, color }: CarInfo = req.body;
 
   const contactId = req.currentUser!.salesforceId;
 

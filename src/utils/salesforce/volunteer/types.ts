@@ -1,13 +1,17 @@
+import {
+  LowercaseRegion,
+  VolunteerShift,
+} from "@community-kitchens/apiinterfaces";
 import { UnformattedContact } from "../contact/types";
 
-type TownFridgeRegion =
-  | "East Oakland"
-  | "West Oakland"
-  | "Berkeley"
-  | "CK Kitchen"
-  | "Alameda";
+// type TownFridgeRegion =
+//   | "East Oakland"
+//   | "West Oakland"
+//   | "Berkeley"
+//   | "CK Kitchen"
+//   | "Alameda";
 
-export interface Shift {
+export interface UnformattedShift {
   Id: string;
   GW_Volunteers__Start_Date_Time__c: string;
   GW_Volunteers__Number_of_Volunteers_Still_Needed__c: number;
@@ -18,23 +22,25 @@ export interface Shift {
   GW_Volunteers__Job_Location_Street__c?: string;
   GW_Volunteers__Job_Location_City__c?: string;
   End_Time__c?: string;
-  GW_Volunteers__Volunteer_Job__r: Job;
+  GW_Volunteers__Volunteer_Job__r: UnformattedJob | string;
   "GW_Volunteers__Volunteer_Job__r.GW_Volunteers__Campaign__c": string;
+  Reserved_Shift_is_Available__c?: boolean;
 }
 
-export interface FormattedShift {
-  id: string;
-  startTime: string;
-  open: boolean;
-  job: string;
-  restaurantMeals: boolean;
-  duration: number;
-  slots: number;
-  totalSlots: number;
-  endTime?: string;
-}
+// export interface FormattedShift {
+//   id: string;
+//   startTime: string;
+//   open: boolean;
+//   job: string;
+//   restaurantMeals: boolean;
+//   duration: number;
+//   slots: number;
+//   totalSlots: number;
+//   endTime?: string;
+//   reservedOpen?: boolean;
+// }
 
-export interface Job {
+export interface UnformattedJob {
   Id: string;
   Name: string;
   GW_Volunteers__Inactive__c: boolean;
@@ -43,7 +49,7 @@ export interface Job {
   GW_Volunteers__Location_Street__c: string;
   GW_Volunteers__Location_City__c: string;
   GW_Volunteers__Location_Information__c: string;
-  Region__c?: TownFridgeRegion;
+  Region__c?: LowercaseRegion;
   Fridge_Notes__c?: string;
   Car_Size_Required__c?: "Small" | "Medium" | "Large" | "Bike";
   Dropoff_Location__c?: string;
@@ -56,27 +62,27 @@ export interface Job {
   Photo__c?: string;
 }
 
-export interface FormattedJob {
-  id: string;
-  name: string;
-  location?: string;
-  locationInfo?: string;
-  locationCity?: string;
-  shifts: FormattedShift[];
-  active: boolean;
-  ongoing: boolean;
-  description?: string;
-  campaign: string;
-  region?: TownFridgeRegion;
-  notes?: string;
-  carSizeRequired?: string;
-  destination?: string;
-  distance?: number;
-  dropoffNotes?: string;
-  timeRequired?: number;
-  noTextAlert?: boolean;
-  photo?: string;
-}
+// export interface FormattedJob {
+//   id: string;
+//   name: string;
+//   location?: string;
+//   locationInfo?: string;
+//   locationCity?: string;
+//   shifts: Partial<VolunteerShift>[];
+//   active: boolean;
+//   ongoing: boolean;
+//   description?: string;
+//   campaign: string;
+//   region?: LowercaseRegion;
+//   notes?: string;
+//   carSizeRequired?: string;
+//   destination?: string;
+//   distance?: number;
+//   dropoffNotes?: string;
+//   timeRequired?: number;
+//   noTextAlert?: boolean;
+//   photo?: string;
+// }
 
 export interface CreateHoursParams {
   contactId: string;
@@ -88,18 +94,19 @@ export interface CreateHoursParams {
   numberOfVolunteers?: number;
   restaurantMeals?: boolean;
   serviceType?: string;
+  reserved?: boolean;
 }
 
-export interface FormattedHours {
-  id: string;
-  mealCount: string;
-  time: string;
-  job: string;
-  status: string;
-  shift: string;
-  campaign?: string;
-  mealType?: "Entree" | "Soup";
-}
+// export interface FormattedHours {
+//   id: string;
+//   mealCount: string;
+//   time: string;
+//   job: string;
+//   status: string;
+//   shift: string;
+//   campaign?: string;
+//   mealType?: "Entree" | "Soup";
+// }
 
 export interface UnformattedHours {
   GW_Volunteers__Volunteer_Job__c: string;
@@ -124,6 +131,7 @@ export interface UnformattedHours {
   "GW_Volunteers__Contact__r.Email": string;
   "GW_Volunteers__Contact__r.CK_Kitchen_Agreement__c": boolean;
   GW_Volunteers__Contact__r: UnformattedContact;
+  Reserved_for_Calfresh__c: boolean;
 }
 
 export interface HoursQueryResponse {
@@ -134,43 +142,12 @@ export interface HoursQueryResponse {
     | undefined;
 }
 
-export interface CheckInVolunteer {
-  hoursId: string;
-  contactId: string;
-  firstName: string | undefined;
-  lastName: string;
-  email: string | undefined;
-  volunteerAgreement: boolean | undefined;
-  status: string;
-}
-
-export interface HomeChefSurvey {
-  Contact__c: string;
-  Id: string;
-}
-
-export interface HomeChefSurveyOption {
-  Id: string;
-  Name: string;
-}
-
-export interface HomeChefSurveyOptionLink {
-  Id: string;
-  Home_Chef_Survey_Option__c: string;
-  Home_Chef_Survey__c: string;
-  Details__c?: string;
-}
-
-export interface HomeChefPoll {
-  City__c: string;
-  Miles__c: string;
-  Active__c: boolean;
-  Support__c?: string;
-}
-
-export interface HomeChefPollBody {
-  city: string;
-  miles: string;
-  active: boolean;
-  support?: string;
-}
+// export interface CheckInVolunteer {
+//   hoursId: string;
+//   contactId: string;
+//   firstName: string | undefined;
+//   lastName: string;
+//   email: string | undefined;
+//   volunteerAgreement: boolean | undefined;
+//   status: string;
+// }

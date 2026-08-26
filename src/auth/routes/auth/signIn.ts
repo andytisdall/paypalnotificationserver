@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import { SignInArgs } from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../../middlewares/require-admin";
 import getSecrets from "../../../utils/getSecrets";
@@ -16,7 +17,7 @@ router.post("/signin", async (req, res) => {
     throw Error("No JWT key found");
   }
 
-  const { username, password } = req.body;
+  const { username, password }: SignInArgs = req.body;
 
   const existingUser = await User.findOne({
     username,

@@ -1,9 +1,9 @@
 import app from "../../../../index";
 import request from "supertest";
-import { MealSurveyArgsV3 } from "../../../utils/salesforce/mealProgram/types";
+import { MealSurveyArgsV3 } from "@community-kitchens/apiinterfaces";
 
 it("submits a report", async () => {
-  const formValues: MealSurveyArgsV3 = {
+  const formValues: MealSurveyArgsV3["formData"] = {
     language: "English",
     age: "18-26",
     ethnicity: "Black or African American",
@@ -46,7 +46,7 @@ it("submits a report", async () => {
 });
 
 it("submits a report", async () => {
-  const formValues: MealSurveyArgsV3 = {
+  const formValues: MealSurveyArgsV3["formData"] = {
     language: "Spanish",
     age: "75+",
     ethnicity: "Prefer not to answer",

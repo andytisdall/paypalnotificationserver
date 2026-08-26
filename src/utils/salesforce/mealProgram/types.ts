@@ -8,33 +8,34 @@ interface Favorites {
   "Southern/ Soul": number;
 }
 
-export interface MealSurveyArgsV3 {
-  language: "English" | "Spanish" | "Chinese";
-  age?: string;
-  ethnicity?: string;
-  preferredLanguage?: string;
-  otherPreferredLanguage?: string;
-  zip?: string;
-  numberOfPeople?: string;
-  children?: string;
-  homelessness?: string;
-  homelessnessOther?: string;
-  cookingItems?: string[];
-  cookingItemsOther?: string;
-  healthConcerns?: string[];
-  dietary?: string[];
-  dietaryOther?: string;
-  fruit?: string;
-  favorites: Favorites;
-  calfresh?: string;
-  resources?: string[];
-  resourcesOther?: string;
-  rating?: string;
-  skip?: string;
-  location?: string[];
-  locationOther?: string;
-  access?: string;
-}
+// export interface MealSurveyArgsV3 {
+//   language: "English" | "Spanish" | "Chinese";
+//   age?: string;
+//   ethnicity?: string;
+//   preferredLanguage?: string;
+//   otherPreferredLanguage?: string;
+//   zip?: string;
+//   numberOfPeople?: string;
+//   children?: string;
+//   homelessness?: string;
+//   homelessnessOther?: string;
+//   cookingItems?: string[];
+//   cookingItemsOther?: string;
+//   healthConcerns?: string[];
+//   dietary?: string[];
+//   dietaryOther?: string;
+//   fruit?: string;
+//   favorites: Favorites;
+//   calfresh?: string;
+//   resources?: string[];
+//   resourcesOther?: string;
+//   rating?: string;
+//   skip?: string;
+//   location?: string[];
+//   locationOther?: string;
+//   access?: string;
+//   source?: string;
+// }
 
 export interface MealSurveyDataV3 {
   Language__c: "English" | "Spanish" | "Chinese";
@@ -68,6 +69,7 @@ export interface MealSurveyDataV3 {
   Meal_Sources__c?: string;
   Meal_Sources_Other__c?: string;
   Access_to_Healthy_Meals__c?: string;
+  Survey_Link_Source__c?: string;
 }
 
 export interface MealsPlusService {

@@ -1,10 +1,11 @@
 import fetcher from "../../../fetcher";
 import createQuery, { FilterGroup } from "../../queryCreator";
-import { UnformattedHours, CheckInVolunteer } from "../types";
+import { UnformattedHours } from "../types";
+import { VolunteerForCheckIn } from "@community-kitchens/apiinterfaces";
 
 export const getVolunteersForCheckIn = async (
   shiftId: string,
-): Promise<CheckInVolunteer[]> => {
+): Promise<VolunteerForCheckIn[]> => {
   await fetcher.setService("salesforce");
 
   const fields = [

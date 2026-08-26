@@ -1,4 +1,4 @@
-import { SupplyOrder } from "../../../homeChef/routes/ordering";
+import { SupplyOrderInfo } from "@community-kitchens/apiinterfaces";
 import { UnformattedContact } from "../../salesforce/contact/types";
 import { sendEmail } from "../email";
 
@@ -36,7 +36,7 @@ export const sendOrderConfirmation = async ({
   order,
 }: {
   contact: UnformattedContact;
-  order: SupplyOrder;
+  order: SupplyOrderInfo;
 }) => {
   if (contact.Email) {
     await sendEmail({
@@ -62,7 +62,7 @@ export const sendManagerSupplyOrder = async ({
   order,
 }: {
   contact: UnformattedContact;
-  order: SupplyOrder;
+  order: SupplyOrderInfo;
 }) => {
   await sendEmail({
     to: "kenai@ckoakland.org",

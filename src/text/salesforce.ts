@@ -12,15 +12,16 @@ export const addPhoneNumber = async (
   user: PhoneNumber,
   number: string,
   region: Region,
+  source?: string,
 ) => {
   if (user) {
     user.region.push(region);
     await user.save();
-    await editTextSubscriber(user.number, user.region);
+    await editTextSubscriber(user.number, user.region, source);
   } else {
     const newPhone = new Phone({ number, region: [region] });
     await newPhone.save();
-    await addTextSubscriber(newPhone.number, newPhone.region);
+    await addTextSubscriber(newPhone.number, newPhone.region, source);
   }
 };
 

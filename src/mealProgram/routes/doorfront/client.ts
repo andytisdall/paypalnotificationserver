@@ -1,5 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
+import {
+  GetClientMealsResponse,
+  Client as ClientType,
+  ClientMeal as ClientMealType,
+} from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../../middlewares/require-admin";
 
@@ -22,11 +27,13 @@ router.get(
 
     if (!client) {
       // create new client
-      client = new Client({ cCode: cCode });
-      await client.save();
+      client = new Client({ cCode });
+      await client?.save();
     }
 
-    const clientMeals = await ClientMeal.find({ client: client.id });
+    const clientMeals: ClientMealType[] = await ClientMeal.find({
+      client: client.id,
+    });
 
     res.send({ clientMeals, client });
   },
@@ -94,19 +101,23 @@ const mergeClientMeals = async (client1ID: string, client2ID: string) => {
 };
 
 router.get("/doorfront/clients", requireAdmin, async (req, res) => {
-  const clients = await Client.find();
+  const clients: ClientType[] = await Client.find();
   res.send(clients);
 });
 
 router.get("/doorfront/client/:id", requireAdmin, async (req, res) => {
   const { id } = req.params;
-  const client = await Client.findById(id);
+  const client: ClientType | null = await Client.findById(id);
   if (!client) {
     return res.send(null);
   }
-  const clientMeals = await ClientMeal.find({ client: client.id });
+  const clientMeals: ClientMealType[] = await ClientMeal.find({
+    client: client.id,
+  });
 
-  res.send({ client, clientMeals });
+  const response: GetClientMealsResponse = { client, clientMeals };
+
+  res.send(response);
 });
 
 router.delete("/doorfront/client/:id", requireAdmin, async (req, res) => {

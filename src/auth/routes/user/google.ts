@@ -1,7 +1,6 @@
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
 
-import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
 import getSecrets from "../../../utils/getSecrets";
 

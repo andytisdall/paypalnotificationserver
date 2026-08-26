@@ -44,6 +44,8 @@ export interface UnformattedContact {
   Driver_s_License_Expiration__c?: string;
   Driver_Volunteer_Status__c?: "Active" | "Inactive";
   Insurance_Expiration_Date__c?: string;
+
+  Calfresh_Volunteer__c?: boolean;
 }
 
 export interface FormattedContact {
@@ -76,6 +78,7 @@ export interface FormattedContact {
   licenseExpiration?: string;
 
   banned?: boolean;
+  calfreshVolunteer?: boolean;
 }
 
 export interface D4JContact {
@@ -95,6 +98,7 @@ export type ContactRawData = Pick<
   | "FirstName"
   | "LastName"
   | "CK_Kitchen_Agreement__c"
+  | "Calfresh_Volunteer__c"
 >;
 
 export type ContactData = Pick<
@@ -107,4 +111,5 @@ export type ContactData = Pick<
   | "firstName"
   | "lastName"
   | "volunteerAgreement"
+  | "calfreshVolunteer"
 >;

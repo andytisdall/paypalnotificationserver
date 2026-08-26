@@ -4,7 +4,8 @@ import { FilterGroup } from "../queryCreator";
 import createQuery from "../queryCreator";
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { Job, FormattedJob } from "./types";
+import { UnformattedJob } from "./types";
+import { Job } from "@community-kitchens/apiinterfaces";
 
 const decodeString = (string: string) => {
   return decode(
@@ -15,7 +16,7 @@ const decodeString = (string: string) => {
   );
 };
 
-export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
+export const getJobs = async (campaignId: string): Promise<Job[]> => {
   const fields = [
     "Id",
     "Name",
@@ -38,14 +39,14 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
 
   const obj = "GW_Volunteers__Volunteer_Job__c";
 
-  const filters: FilterGroup<Job> = {
+  const filters: FilterGroup<UnformattedJob> = {
     AND: [
       { field: "GW_Volunteers__Campaign__c", value: campaignId },
       { field: "GW_Volunteers__Display_on_Website__c", value: true },
     ],
   };
 
-  const jobs = await createQuery<Job, (typeof fields)[number]>({
+  const jobs = await createQuery<UnformattedJob, (typeof fields)[number]>({
     fields,
     filters,
     obj,
@@ -79,7 +80,7 @@ export const getJobs = async (campaignId: string): Promise<FormattedJob[]> => {
 export const getJob = async (jobId: string) => {
   await fetcher.setService("salesforce");
 
-  const { data: job }: { data: Job } = await fetcher.get(
+  const { data: job }: { data: UnformattedJob } = await fetcher.get(
     urls.SFOperationPrefix + "/GW_Volunteers__Volunteer_Job__c/" + jobId,
   );
 

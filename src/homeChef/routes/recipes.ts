@@ -1,9 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
+import {
+  Recipe as RecipeType,
+  CreateRecipeArgs,
+} from "@community-kitchens/apiinterfaces";
 
 import { requireAuth } from "../../middlewares/require-auth";
 import { storeFile, deleteFile } from "../../utils/googleApis/files/storeFile";
-import { RecipeCategory } from "../models/recipe";
 
 const Recipe = mongoose.model("Recipe");
 
@@ -28,17 +31,7 @@ router.get("/recipe/:recipeId", async (req, res) => {
 
 type SectionField = { header: string; text: string };
 
-interface RecipeFields {
-  name: string;
-  ingredients: string;
-  instructions: string;
-  category: RecipeCategory;
-  description?: string;
-  author?: string;
-  bulk?: boolean;
-}
-
-const formatSections = (field: string) =>
+const formatSections = (field: string): string[] =>
   JSON.parse(field).map((item: SectionField) => {
     return {
       header: item.header,
@@ -54,7 +47,7 @@ router.post("/recipe", requireAuth, async (req, res) => {
     description,
     category,
     author,
-  }: RecipeFields = req.body;
+  }: CreateRecipeArgs = req.body;
 
   let image = "";
 
@@ -88,7 +81,7 @@ router.patch("/recipe/:id", requireAuth, async (req, res) => {
     description,
     category,
     author,
-  }: RecipeFields = req.body;
+  }: CreateRecipeArgs = req.body;
   const recipe = await Recipe.findById(recipeId);
   if (!recipe) {
     res.status(404);
@@ -105,7 +98,8 @@ router.patch("/recipe/:id", requireAuth, async (req, res) => {
   }
   recipe.author = author;
   recipe.category = category;
-  recipe.description = description?.split("\n");
+  recipe.description =
+    typeof description === "string" ? description?.split("\n") : "";
   if (req.files?.photo && !Array.isArray(req.files.photo)) {
     if (recipe.image) {
       await deleteFile(recipe.image.split("/").slice(-1));

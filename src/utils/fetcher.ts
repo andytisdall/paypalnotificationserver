@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import getSecrets from "./getSecrets";
 import urls from "./urls";
 import getSFToken from "./salesforce/getSFToken";
 

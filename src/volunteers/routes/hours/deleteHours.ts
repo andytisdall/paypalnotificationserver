@@ -2,10 +2,8 @@ import express from "express";
 
 import { currentUser } from "../../../middlewares/current-user";
 import { getContactById } from "../../../utils/salesforce/contact/getContact";
-import {
-  getHour,
-  deleteVolunteerHours,
-} from "../../../utils/salesforce/volunteer/hours";
+import { deleteVolunteerHours } from "../../../utils/salesforce/volunteer/hours/deleteHours";
+import { getHour } from "../../../utils/salesforce/volunteer/hours/getHours";
 import { getCampaignFromHours } from "../../../utils/salesforce/volunteer/campaign/campaign";
 import { sendShiftCancelEmail } from "../../../utils/email/emailTemplates/kitchenShiftCancel";
 import { getJob } from "../../../utils/salesforce/volunteer/jobs";

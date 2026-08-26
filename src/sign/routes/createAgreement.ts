@@ -3,69 +3,62 @@ import express from "express";
 import { currentUser } from "../../middlewares/current-user";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { UnformattedContact } from "../../utils/salesforce/contact/types";
-import { DocType, docInfo } from "../docConfig";
+import { docInfo } from "../docConfig";
 import { createSign } from "../../utils/docMadeEasy/createSign";
+import { SignArgs, SignResponse } from "@community-kitchens/apiinterfaces";
 
 const router = express.Router();
 
-router.get(
-  "/{:docType}{/:contactId}{/:hoursId}",
-  currentUser,
-  async (req, res) => {
-    const { docType, contactId, hoursId } = req.params as {
-      docType?: DocType;
-      contactId?: string;
-      hoursId?: string;
-    };
+router.get("/{:doc}{/:contactId}{/:hoursId}", currentUser, async (req, res) => {
+  const { doc, contactId, hoursId } = req.params as SignArgs;
 
-    let contact: UnformattedContact | undefined;
+  let contact: UnformattedContact | undefined;
 
-    if (!req.currentUser && !contactId) {
-      throw Error("Request must have a user or pass info into the URL");
-    }
+  if (!req.currentUser && !contactId) {
+    throw Error("Request must have a user or pass info into the URL");
+  }
 
-    if (!docType || !docInfo[docType]) {
-      throw Error("Invalid document requested");
-    }
+  if (!doc || !docInfo[doc]) {
+    throw Error("Invalid document requested");
+  }
 
-    if (contactId) {
-      contact = await getContactById(contactId);
-      if (!contact) {
-        throw Error("Invalid Contact Id");
-      }
-    } else if (req.currentUser) {
-      contact = await getContactById(req.currentUser.salesforceId);
-    }
-
+  if (contactId) {
+    contact = await getContactById(contactId);
     if (!contact) {
-      throw Error("Contact Not Found");
+      throw Error("Invalid Contact Id");
     }
-    if (!contact.Email) {
-      throw Error(
-        "Contact has no email, which is required for document signing",
-      );
-    }
+  } else if (req.currentUser) {
+    contact = await getContactById(req.currentUser.salesforceId);
+  }
 
-    const doc = docInfo[docType];
+  if (!contact) {
+    throw Error("Contact Not Found");
+  }
+  if (!contact.Email) {
+    throw Error("Contact has no email, which is required for document signing");
+  }
 
-    // check if doc is signed and return early
-    const homeChefAlreadySigned =
-      contact.Home_Chef_Volunteeer_Agreement__c && docType === "HC";
-    const kitchenAlreadySigned =
-      contact.CK_Kitchen_Agreement__c && doc.type === "CKK";
+  const document = docInfo[doc];
 
-    if (homeChefAlreadySigned || kitchenAlreadySigned) {
-      return res.send({ signingUrl: "" });
-    }
+  // check if doc is signed and return early
+  const homeChefAlreadySigned =
+    contact.Home_Chef_Volunteeer_Agreement__c && doc === "HC";
+  const kitchenAlreadySigned =
+    contact.CK_Kitchen_Agreement__c && document.type === "CKK";
 
-    const signingUrl = await createSign({
-      contact: { name: contact.Name, email: contact.Email, id: contact.Id },
-      doc,
-      hoursId,
-    });
-    // create
-    res.send({ signingUrl });
-  },
-);
+  if (homeChefAlreadySigned || kitchenAlreadySigned) {
+    return res.send({ signingUrl: "" });
+  }
+
+  const signingUrl = await createSign({
+    contact: { name: contact.Name, email: contact.Email, id: contact.Id },
+    doc: document,
+    hoursId,
+  });
+
+  const response: SignResponse = { signingUrl };
+
+  res.send(response);
+});
 
 export default router;

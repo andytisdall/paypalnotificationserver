@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 import { addPhoneNumber, removePhoneNumber } from "../salesforce";
 import { IncomingText, Region, REGIONS } from "../types";
-import { SIGN_UP_WORDS, CANCEL_WORDS, INFO_WORDS } from "./keywords";
+import {
+  SIGN_UP_WORDS,
+  CANCEL_WORDS,
+  INFO_WORDS,
+  TRACKED_SIGN_UP_WORDS,
+} from "./keywords";
 import { responses } from "./responses";
 import { receiveFeedback } from "../routes/feedback";
 
@@ -33,11 +38,15 @@ export const routeTextToResponse = async (
 
   // sign up words - check for duplicate, and add region to existing users region or create new phone number
 
-  if (SIGN_UP_WORDS.includes(keyword)) {
+  if ([...SIGN_UP_WORDS, ...TRACKED_SIGN_UP_WORDS].includes(keyword)) {
     if (existingNumber && existingNumber.region.includes(region)) {
       return responses.duplicateResponse[program](region);
     }
-    await addPhoneNumber(existingNumber, From, region);
+    let source: string | undefined = undefined;
+    if (TRACKED_SIGN_UP_WORDS.includes(keyword)) {
+      source = "OUSD snacks 2026-2027";
+    }
+    await addPhoneNumber(existingNumber, From, region, source);
     return responses.signUpResponse[program](region);
   }
 

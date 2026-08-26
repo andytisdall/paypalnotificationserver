@@ -4,7 +4,7 @@ import { toZonedTime } from "date-fns-tz";
 import { createScheduledDelivery } from "../../utils/salesforce/mealProgram/createDelivery";
 import { NewMobileOasisDelivery } from "../../utils/salesforce/mealProgram/types";
 import { requireTextPermission } from "../../middlewares/require-text-permission";
-import { createHours } from "../../utils/salesforce/volunteer/hours";
+import { createHours } from "../../utils/salesforce/volunteer/hours/createHours";
 import { createShift } from "../../utils/salesforce/volunteer/shifts";
 
 const router = express.Router();

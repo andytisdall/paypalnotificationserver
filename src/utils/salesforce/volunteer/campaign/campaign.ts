@@ -3,14 +3,16 @@ import urls from "../../../urls";
 import createQuery, { FilterGroup } from "../../queryCreator";
 import { UnformattedHours } from "../types";
 import {
-  FormattedVolunteerCampaign,
   UnformattedVolunteerCampaign,
-  FormattedEventCampaign,
   UnformattedEventCampaign,
 } from "./types";
+import {
+  VolunteerCampaign,
+  EventCampaign,
+} from "@community-kitchens/apiinterfaces";
 
 export const getVolunteerCampaigns: () => Promise<
-  FormattedVolunteerCampaign[]
+  VolunteerCampaign[]
 > = async () => {
   const fields = [
     "Name",
@@ -59,9 +61,7 @@ export const getVolunteerCampaigns: () => Promise<
   });
 };
 
-export const getD4JCampaigns: () => Promise<
-  FormattedEventCampaign[]
-> = async () => {
+export const getD4JCampaigns: () => Promise<EventCampaign[]> = async () => {
   await fetcher.setService("salesforce");
   const fields = [
     "Name",

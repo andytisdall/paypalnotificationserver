@@ -1,25 +1,13 @@
 import express from "express";
+import {
+  HomeChefQuizQuestion,
+  HomeChefQuizAnswer,
+  HomeChefQuizResponse,
+} from "@community-kitchens/apiinterfaces";
 
 import { requireAuth } from "../../middlewares/require-auth";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { updateHomeChefStatus } from "../../utils/salesforce/volunteer/homeChef/updateStatus";
-
-interface HomeChefQuizQuestion {
-  question: string;
-  answers: string[];
-}
-
-interface HomeChefQuizAnswer {
-  index: number;
-  answer: number;
-}
-
-interface HomeChefQuizResponse {
-  passed: boolean;
-  score: number;
-  wrongAnswers: number[];
-  rightAnswers?: string[];
-}
 
 const MIN_SCORE = 7;
 

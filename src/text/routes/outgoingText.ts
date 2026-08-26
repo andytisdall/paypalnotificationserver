@@ -2,8 +2,14 @@ import express from "express";
 import { format } from "date-fns";
 import mongoose from "mongoose";
 
+import {
+  SendTextBody,
+  SendTextResponse,
+  Region,
+} from "@community-kitchens/apiinterfaces";
+
 import { twilioClient } from "../twilioClient";
-import { Region, REGIONS } from "../types";
+import { REGIONS } from "../types";
 import { requireAuth } from "../../middlewares/require-auth";
 import urls from "../../utils/urls";
 import getSecrets from "../../utils/getSecrets";
@@ -17,6 +23,14 @@ const Phone = mongoose.model("Phone");
 
 const smsRouter = express.Router();
 
+interface StoredText {
+  photoUrl?: string;
+  sentTo: Region[];
+  name: string;
+  restaurants: string;
+  date: string;
+}
+
 smsRouter.post("/outgoing", requireAuth, async (req, res) => {
   const {
     message,
@@ -25,14 +39,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     number,
     photo,
     storedText,
-  }: {
-    message?: string;
-    region: Region | "all" | "East Oakland" | "West Oakland" | "Berkeley";
-    feedbackId?: string;
-    number?: string;
-    photo?: string;
-    storedText?: string;
-  } = req.body;
+  }: SendTextBody & { storedText?: StoredText } = req.body;
 
   const attachedPhoto = req.files?.photo;
 
@@ -70,7 +77,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
 
   if (attachedPhoto) {
     mediaUrl = await savePhoto(attachedPhoto, req.currentUser!.username);
-  } else if (photo) {
+  } else if (typeof photo === "string") {
     mediaUrl = [photo];
   }
 
@@ -143,13 +150,15 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     });
   }
 
-  res.send({
+  const response: SendTextResponse & { storedText?: StoredText } = {
     message,
     region: formattedRegion,
     photoUrl: mediaUrl[0],
     number,
     storedText,
-  });
+  };
+
+  res.send(response);
 });
 
 smsRouter.post(

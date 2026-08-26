@@ -12,3 +12,4 @@ export const CANCEL_WORDS = [
 
 export const INFO_WORDS = ["info", "help"];
 export const MEAL_SURVEY_URL = urls.client + "/forms/meal-survey";
+export const TRACKED_SIGN_UP_WORDS = ["school"];

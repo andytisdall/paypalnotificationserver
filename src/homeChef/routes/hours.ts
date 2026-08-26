@@ -1,14 +1,12 @@
 import express from "express";
+import { CreateHoursParams } from "../../utils/salesforce/volunteer/types";
 
-import { currentUser } from "../../middlewares/current-user";
 import { requireAuth } from "../../middlewares/require-auth";
 import fetcher from "../../utils/fetcher";
 import urls from "../../utils/urls";
-import {
-  getHours,
-  createHours,
-  editHours,
-} from "../../utils/salesforce/volunteer/hours";
+import { getHours } from "../../utils/salesforce/volunteer/hours/getHours";
+import { createHours } from "../../utils/salesforce/volunteer/hours/createHours";
+import { editHours } from "../../utils/salesforce/volunteer/hours/editHours";
 import { getContactById } from "../../utils/salesforce/contact/getContact";
 import { sendHomeChefShiftEditEmail } from "../../utils/email/emailTemplates/homeChefShiftEdit";
 
@@ -21,16 +19,8 @@ router.get("/hours", requireAuth, async (req, res) => {
   res.send(hours);
 });
 
-interface HoursPostParams {
-  mealCount: number;
-  shiftId: string;
-  jobId: string;
-  date: string;
-  soup: boolean;
-}
-
 router.post("/hours", requireAuth, async (req, res) => {
-  const { mealCount, shiftId, jobId, date, soup }: HoursPostParams = req.body;
+  const { mealCount, shiftId, jobId, date, soup }: CreateHoursParams = req.body;
 
   const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {

@@ -5,6 +5,7 @@ import { getJobs } from "../../utils/salesforce/volunteer/jobs";
 import urls from "../../utils/urls";
 import { getShifts } from "../../utils/salesforce/volunteer/shifts";
 import { requireAuth } from "../../middlewares/require-auth";
+import { VolunteerShift } from "@community-kitchens/apiinterfaces";
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get("/job-listing", requireAuth, async (req, res) => {
     const jobShifts = (await getShifts(j.id)).map((js) => {
       return {
         ...js,
-        startTime: format(js.startTime, "yyyy-MM-dd"),
+        startTime: format(js.startTime!, "yyyy-MM-dd"),
       };
     });
 
@@ -24,7 +25,7 @@ router.get("/job-listing", requireAuth, async (req, res) => {
   });
   const shifts = (await Promise.all(shiftPromises)).flat();
   const mappedJobs = jobs.map((j) => {
-    return { ...j, shifts: j.shifts.map((sh) => sh.id) };
+    return { ...j, shifts: j.shifts.map((sh: VolunteerShift) => sh.id) };
   });
   res.send({ jobs: mappedJobs, shifts });
 });

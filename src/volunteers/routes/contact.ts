@@ -7,15 +7,12 @@ import {
   createPortalUser,
   getUniqueUsernameAndPassword,
 } from "../../auth/routes/user/createUser";
+import { CreateVolunteerArgs } from "@community-kitchens/apiinterfaces";
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const {
-    email,
-    firstName,
-    lastName,
-  }: { email?: string; firstName: string; lastName: string } = req.body;
+  const { email, firstName, lastName }: CreateVolunteerArgs = req.body;
 
   if (!firstName || !lastName) {
     throw Error("You must provide first name and last name.");

@@ -10,8 +10,7 @@ import { deleteContact } from "../../utils/salesforce/contact/updateContact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email/email";
 import { deleteAllUserCheckIns } from "../../utils/salesforce/d4j";
-import { currentUser } from "../../middlewares/current-user";
-import { requireAuth } from "../../middlewares/require-auth";
+
 import { requireAdmin } from "../../middlewares/require-admin";
 
 const CheckIn = mongoose.model("CheckIn");
@@ -20,7 +19,7 @@ const D4JUser = mongoose.model("D4JUser");
 const router = express.Router();
 
 router.post("/contact/signin", async (req, res) => {
-  const { email, token }: { email: string; token?: string } = req.body;
+  const { email }: { email: string; token?: string } = req.body;
 
   let user = await D4JUser.findOne({ email });
 
@@ -30,12 +29,7 @@ router.post("/contact/signin", async (req, res) => {
     if (!contact) {
       return res.sendStatus(204);
     }
-    user = new D4JUser({ email, salesforceId: contact.id, token });
-    await user.save();
-  }
-
-  if (token && token !== user.token) {
-    user.token = token;
+    user = new D4JUser({ email, salesforceId: contact.id });
     await user.save();
   }
 
@@ -59,7 +53,6 @@ router.post("/contact", async (req, res) => {
     email,
     firstName,
     lastName,
-    token,
   }: { email: string; firstName: string; lastName: string; token?: string } =
     req.body;
 
@@ -72,7 +65,7 @@ router.post("/contact", async (req, res) => {
     throw Error("There is already a user with this email address");
   }
 
-  const user = new D4JUser({ email, token });
+  const user = new D4JUser({ email });
 
   const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
   if (!JWT_KEY) {

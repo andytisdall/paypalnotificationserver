@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import { subDays } from "date-fns";
+import { NotificationPayload } from "@community-kitchens/apiinterfaces";
 
 import { requireAuth } from "../../middlewares/require-auth";
 import { requireAdmin } from "../../middlewares/require-admin";
@@ -11,34 +12,28 @@ const User = mongoose.model("User");
 
 const router = express.Router();
 
-export interface NotificationData {
-  screen: string;
-  subScreen?: string;
-  params?: Record<string, string>;
-}
+// export interface NotificationData {
+//   screen: string;
+//   subScreen?: string;
+//   params?: Record<string, string>;
+// }
 
-export interface NotificationPayload {
-  title: string;
-  body: string;
-  custom?: NotificationData;
-}
+// export interface NotificationPayload {
+//   title: string;
+//   body: string;
+//   custom?: NotificationData;
+// }
 
 router.post("/notifications", requireAdmin, async (req, res) => {
-  const {
-    title,
-    message,
-  }: {
-    title: string;
-    message: string;
-  } = req.body;
+  const { title, body }: NotificationPayload = req.body;
   const notificationsService = await createNotificationsService("homechef");
 
   const payload: NotificationPayload = {
     title,
-    body: message,
+    body,
   };
 
-  let users: any;
+  let users = [];
 
   if (process.env.NODE_ENV === "production") {
     users = await User.find({
@@ -61,9 +56,7 @@ router.post("/notifications", requireAdmin, async (req, res) => {
     });
   }
 
-  console.log(users);
-
-  const userTokens = users.map((u: any) => u.homeChefNotificationToken);
+  const userTokens = users.map((u) => u.homeChefNotificationToken);
 
   await notificationsService.send(userTokens, payload);
   res.sendStatus(204);
@@ -96,7 +89,9 @@ router.get("/notifications/:days", requireAuth, async (req, res) => {
     };
   }
 
-  const notifications = await Notification.find(query).sort([["date", -1]]);
+  const notifications: Notification[] = await Notification.find(query).sort([
+    ["date", -1],
+  ]);
   // const notifications = [
   //   {
   //     date: new Date(),

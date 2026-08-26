@@ -1,4 +1,5 @@
 import express from "express";
+import { VolunteerInterestFormArgs } from "@community-kitchens/apiinterfaces";
 
 import {
   getUniqueUsernameAndPassword,
@@ -18,18 +19,6 @@ import { updateContact } from "../../utils/salesforce/contact/updateContact";
 const User = mongoose.model("User");
 const router = express.Router();
 
-export interface VolunteerInterestFormArgs {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  instagramHandle?: string;
-  source: string;
-  extraInfo?: string;
-  corporate?: string;
-  employer?: string;
-}
-
 router.post("/signup", async (req, res) => {
   const {
     email,
@@ -41,7 +30,8 @@ router.post("/signup", async (req, res) => {
     source,
     extraInfo,
     employer,
-  }: VolunteerInterestFormArgs = req.body;
+    calfresh,
+  }: VolunteerInterestFormArgs["formData"] = req.body;
 
   const contactInfo: Partial<UnformattedContact> = {
     FirstName: firstName,
@@ -57,6 +47,7 @@ router.post("/signup", async (req, res) => {
     CK_Kitchen_Volunteer_Status__c: "Prospective",
     Interest_in_volunteering_group__c: corporate,
     Employer__c: employer,
+    Calfresh_Volunteer__c: calfresh,
   };
 
   // find salesforce contact

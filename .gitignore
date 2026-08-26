@@ -5,4 +5,6 @@ node_modules
 built
 client
 .DS_Store
-firebase-project-service-account-key.json
+dining-for-justice-app-service-account-key.json
+home-chef-app-service-account-key.json
+apiInterfaces/

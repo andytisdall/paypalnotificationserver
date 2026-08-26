@@ -1,7 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { currentUser } from "../../../middlewares/current-user";
 import { requireAuth } from "../../../middlewares/require-auth";
 import { updateContact } from "../../../utils/salesforce/contact/updateContact";
 
