@@ -1,7 +1,7 @@
-import { CBOReportParams } from "../../salesforce/cbo/types";
+import { CBOReport } from "@community-kitchens/apiinterfaces";
 import { formatDataObj } from "./CBOReportData";
 
-export const createCBOSingleReport = (report: CBOReportParams) => {
+export const createCBOSingleReport = (report: CBOReport) => {
   const races = {
     Black: report.race.raceAfrican,
     White: report.race.raceWhite,

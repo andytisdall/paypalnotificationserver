@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import axios from "axios";
 import { getUnixTime } from "date-fns";
+import { AppleSignInArgs } from "@community-kitchens/apiinterfaces";
 
 import getSecrets from "../../../utils/getSecrets";
 import {
@@ -22,13 +23,7 @@ router.post("/apple-signin", async (req, res) => {
     givenName,
     email,
     authorizationCode,
-  }: {
-    id: string;
-    familyName?: string;
-    givenName?: string;
-    email?: string;
-    authorizationCode?: string;
-  } = req.body;
+  }: AppleSignInArgs = req.body;
 
   const { JWT_KEY, APPLE_AUTH_KEY, APPLE_KID, APPLE_TEAM_ID } =
     await getSecrets([

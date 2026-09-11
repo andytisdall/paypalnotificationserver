@@ -1,11 +1,10 @@
 import { format } from "date-fns";
 
-import { CBOReportObject, CBOReportParams } from "./types";
+import { CBOReport } from "@community-kitchens/apiinterfaces";
+import { CBOReportObject } from "./types";
 import createQuery, { FilterGroup } from "../queryCreator";
 
-const convertCBODataFromSalesforce = (
-  report: CBOReportObject,
-): CBOReportParams => {
+const convertCBODataFromSalesforce = (report: CBOReportObject): CBOReport => {
   return {
     month: report.Month__c,
     year: format(new Date(report.Date__c), "yyyy"),
@@ -20,7 +19,6 @@ const convertCBODataFromSalesforce = (
       postcards: report.Calfresh_Postcards__c,
       calfreshApps: report.Assisted_with_Calfresh_Applications__c,
       SSA: report.Calfresh_Applications_Sent_to_SSA__c,
-      percentWithoutAccess: report.Percent_without__c,
     },
     age: {
       age17: report.Age_0_17__c,
@@ -131,7 +129,7 @@ export const getCBOReports = async ({
 }: {
   startDate: Date;
   endDate: Date;
-}): Promise<CBOReportParams[]> => {
+}): Promise<CBOReport[]> => {
   const fields = [] as const;
   const obj = "CBO_Report_Data__c";
   const filters: FilterGroup<CBOReportObject> = {

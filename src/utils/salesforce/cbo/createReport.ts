@@ -2,7 +2,8 @@ import { format, formatISO, lastDayOfMonth } from "date-fns";
 
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { CBOReportParams, CBOReportObject } from "./types";
+import { CBOReportObject } from "./types";
+import { CBOReport } from "@community-kitchens/apiinterfaces";
 
 export const createCBOReport = async ({
   month,
@@ -15,7 +16,7 @@ export const createCBOReport = async ({
   households,
   zips,
   feedback,
-  phoneNumber,
+  phone,
   email,
   year,
   waters,
@@ -25,7 +26,7 @@ export const createCBOReport = async ({
   extraItemAmount,
   granolaBars,
   tortillaChips,
-}: CBOReportParams) => {
+}: CBOReport) => {
   const date = new Date();
   date.setMonth(parseInt(month));
   date.setFullYear(parseInt(year));
@@ -63,7 +64,7 @@ export const createCBOReport = async ({
     Race_White__c: race.raceWhite,
     Race_Unknown__c: race.raceUnknown,
     Unusable_Meals__c: performanceMeasures.unusable,
-    Phone_Number__c: phoneNumber,
+    Phone_Number__c: phone,
     Email__c: email,
     Date__c: formatISO(lastDay),
     X94501__c: zips[94501],

@@ -3,58 +3,8 @@ import createQuery, { FilterGroup } from "../../queryCreator";
 import { UnformattedShift } from "../types";
 import { CheckInShiftsResponse } from "@community-kitchens/apiinterfaces";
 
-// interface GetTodaysShiftsResponse {
-//   jobs: Record<
-//     string,
-//     {
-//       id: string;
-//       name: string;
-//       shifts: string[];
-//     }
-//   >;
-//   shifts: Record<
-//     string,
-//     {
-//       id: string;
-//       jobName: string;
-//       startTime: string;
-//       duration: number;
-//     }
-//   >;
-// }
-
 export const getTodaysVolunteerShifts: () => Promise<CheckInShiftsResponse> =
   async () => {
-    // const campaignFields = ["Id"] as const;
-    // const campaignObj = "Campaign";
-    // const campaignFilters: FilterGroup<UnformattedVolunteerCampaign> = {
-    //   AND: [{ field: "Name", operator: "!=", value: "Delivery Drivers" }],
-    // };
-    // const campaigns = await createQuery<
-    //   UnformattedVolunteerCampaign,
-    //   (typeof campaignFields)[number]
-    // >({ fields: campaignFields, obj: campaignObj, filters: campaignFilters });
-
-    // const idList = [...campaigns.map(({ Id }) => Id)];
-
-    // const jobFields = ["Id", "Name"] as const;
-    // const jobObj = "GW_Volunteers__Volunteer_Job__c";
-    // const jobFilters: FilterGroup<Job> = {
-    //   AND: [
-    //     {
-    //       field: "GW_Volunteers__Campaign__c",
-    //       operator: "IN",
-    //       value: idList,
-    //     },
-    //   ],
-    // };
-
-    // const jobs = await createQuery<Job, (typeof jobFields)[number]>({
-    //   fields: jobFields,
-    //   filters: jobFilters,
-    //   obj: jobObj,
-    // });
-
     const jobShifts: CheckInShiftsResponse = { jobs: {}, shifts: {} };
 
     const fields = [

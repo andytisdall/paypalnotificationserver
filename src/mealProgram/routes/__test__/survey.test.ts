@@ -3,7 +3,7 @@ import request from "supertest";
 import { MealSurveyArgsV3 } from "@community-kitchens/apiinterfaces";
 
 it("submits a report", async () => {
-  const formValues: MealSurveyArgsV3["formData"] = {
+  const formValues: MealSurveyArgsV3 = {
     language: "English",
     age: "18-26",
     ethnicity: "Black or African American",
@@ -46,7 +46,7 @@ it("submits a report", async () => {
 });
 
 it("submits a report", async () => {
-  const formValues: MealSurveyArgsV3["formData"] = {
+  const formValues: MealSurveyArgsV3 = {
     language: "Spanish",
     age: "75+",
     ethnicity: "Prefer not to answer",

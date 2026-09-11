@@ -2,12 +2,10 @@ import { format, toZonedTime } from "date-fns-tz";
 
 import fetcher from "../../fetcher";
 import urls from "../../urls";
-import { NewMobileOasisDelivery } from "./types";
+import { MealDelivery } from "@community-kitchens/apiinterfaces";
 import { UnformattedMealDelivery } from "./types";
 
-export const createScheduledDelivery = async (
-  delivery: NewMobileOasisDelivery,
-) => {
+export const createScheduledDelivery = async (delivery: MealDelivery) => {
   await fetcher.setService("salesforce");
   const insertUri = urls.SFOperationPrefix + "/Meal_Program_Delivery__c";
 

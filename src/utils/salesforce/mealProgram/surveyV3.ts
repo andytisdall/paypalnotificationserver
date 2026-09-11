@@ -7,9 +7,7 @@ const joinArray = (array?: string[]) => {
   return array?.join(";");
 };
 
-export const submitMealSurveyDataV3 = async (
-  data: MealSurveyArgsV3["formData"],
-) => {
+export const submitMealSurveyDataV3 = async (data: MealSurveyArgsV3) => {
   await fetcher.setService("salesforce");
 
   const surveyData: MealSurveyDataV3 = {

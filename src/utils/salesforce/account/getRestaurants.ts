@@ -1,5 +1,6 @@
-import { FormattedD4JRestaurant, UnformattedD4JRestaurant } from "./types";
+import { UnformattedD4JRestaurant } from "./types";
 import createQuery, { FilterGroup } from "../queryCreator";
+import { Restaurant } from "@community-kitchens/apiinterfaces";
 
 const getCoords = (latitude?: number, longitude?: number) => {
   if (latitude && longitude) {
@@ -10,11 +11,11 @@ const getCoords = (latitude?: number, longitude?: number) => {
 const formatAccount = (
   account: UnformattedD4JRestaurant,
   cocktails?: boolean,
-): FormattedD4JRestaurant => {
+): Restaurant => {
   return {
     name: account.Name,
     id: account.Id,
-    pocOwned: account.Minority_Owned__c,
+    pocOwned: !!account.Minority_Owned__c,
     femaleOwned: account.Female_Owned__c,
     vegan: account.Restaurant_Vegan__c,
     cuisine: cocktails ? "cocktails" : account.Type_of_Food__c,
@@ -23,7 +24,7 @@ const formatAccount = (
       account.Geolocation__c?.latitude,
       account.Geolocation__c?.longitude,
     ),
-    openHours: account.Open_Hours__c?.split("_"),
+    openHours: account.Open_Hours__c ? account.Open_Hours__c.split("_") : [],
     photo: account.Photo_URL__c,
     cocktailName: account.Cocktail_Name__c,
     cocktailDescription: account.Cocktail_Description__c,
@@ -35,9 +36,7 @@ const formatAccount = (
   };
 };
 
-export const getD4jRestaurants = async (): Promise<
-  FormattedD4JRestaurant[]
-> => {
+export const getD4jRestaurants = async (): Promise<Restaurant[]> => {
   const fields = [
     "Id",
     "Name",

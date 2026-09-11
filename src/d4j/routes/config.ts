@@ -3,11 +3,7 @@ import mongoose from "mongoose";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 import { requireAdmin } from "../../middlewares/require-admin";
-
-interface EventConfig {
-  contestActive: boolean;
-  styleMonthActive: boolean;
-}
+import { EventConfig, D4JAppVersion } from "@community-kitchens/apiinterfaces";
 
 const Event = mongoose.model("Event");
 
@@ -27,32 +23,37 @@ const router = express.Router();
 const LATEST_D4J_APP_VERSION = "2.8";
 
 router.get("/version", (_req, res) => {
-  res.send({ currentVersion: LATEST_D4J_APP_VERSION });
+  const d4jAppVersion: D4JAppVersion = {
+    currentVersion: LATEST_D4J_APP_VERSION,
+  };
+  res.send(d4jAppVersion);
 });
 
 router.get("/style-week", currentD4JUser, async (req, res) => {
+  const config: EventConfig = {
+    contestActive: false,
+    coordinates: EVENT_COORDS,
+    startTime: START_TIME.toString(),
+    endTime: END_TIME.toString(),
+  };
   if (
     req.currentD4JUser?.email === "andy@ckoakland.org" ||
     process.env.NODE_ENV === "development"
   ) {
     return res.send({
+      ...config,
       contestActive: true,
-      coordinates: EVENT_COORDS,
-      startTime: START_TIME,
-      endTime: END_TIME,
     });
   }
-  res.send({ contestActive: false, styleMonthActive: false });
-  // const styleWeekEvent = await Event.findById(STYLE_WEEK_ID);
-  // res.send(styleWeekEvent);
+
+  res.send(config);
 });
 
 router.post("/style-week", requireAdmin, async (req, res) => {
-  const { contestActive, styleMonthActive }: EventConfig = req.body;
+  const { contestActive }: EventConfig = req.body;
   const event = await Event.findById(STYLE_WEEK_ID);
 
   event.contestActive = contestActive;
-  event.styleMonthActive = styleMonthActive;
   await event.save();
   res.sendStatus(204);
 });

@@ -1,7 +1,7 @@
 import { lastDayOfMonth, format } from "date-fns";
 
 import urls from "../../urls";
-import { CBOReportParams, ZipCode } from "../../salesforce/cbo/types";
+import { CBOReport, ZipCode } from "@community-kitchens/apiinterfaces";
 import { getCBOReports } from "../../salesforce/cbo/getReports";
 import { EmailMessage, sendBatchEmail } from "../email";
 
@@ -10,8 +10,8 @@ function sumField<T>(reportList: T[], field: keyof T) {
 }
 
 function averageField<T>(
-  reportList: CBOReportParams[],
-  field: keyof CBOReportParams["performanceMeasures"],
+  reportList: CBOReport[],
+  field: keyof CBOReport["performanceMeasures"],
 ) {
   const numberOfPeople = sumField(reportList, "individuals");
   if (numberOfPeople) {
@@ -30,7 +30,7 @@ function averageField<T>(
   return 0;
 }
 
-const getRace = (reports: CBOReportParams[]) => {
+const getRace = (reports: CBOReport[]) => {
   const races = reports.map((r) => r.race);
   return {
     Black: sumField(races, "raceAfrican"),
@@ -42,7 +42,7 @@ const getRace = (reports: CBOReportParams[]) => {
   };
 };
 
-const getAge = (reports: CBOReportParams[]) => {
+const getAge = (reports: CBOReport[]) => {
   const ages = reports.map((r) => r.age);
   return {
     "0 - 17": sumField(ages, "age17"),
@@ -54,14 +54,14 @@ const getAge = (reports: CBOReportParams[]) => {
   };
 };
 
-const getHouseholds = (reports: CBOReportParams[]) => {
+const getHouseholds = (reports: CBOReport[]) => {
   return {
     "Households Provided Meals": sumField(reports, "households"),
     "Individuals Provided Meals": sumField(reports, "individuals"),
   };
 };
 
-const getPerformanceMeasures = (reports: CBOReportParams[]) => {
+const getPerformanceMeasures = (reports: CBOReport[]) => {
   const performanceMeasures = reports.map((r) => r.performanceMeasures);
   return {
     "Individuals without Access to Kitchen": sumField(
@@ -89,7 +89,7 @@ const getPerformanceMeasures = (reports: CBOReportParams[]) => {
   };
 };
 
-const getZips = (reports: CBOReportParams[]) => {
+const getZips = (reports: CBOReport[]) => {
   const zips = reports.map((r) => r.zips);
 
   const obj: Partial<Record<ZipCode, number>> = {};
@@ -122,7 +122,7 @@ const formatZips = (obj: Record<string, number>) => {
   return output;
 };
 
-export const createCBOReportDataEmail = (reports: CBOReportParams[]) => {
+export const createCBOReportDataEmail = (reports: CBOReport[]) => {
   const age = getAge(reports);
   const race = getRace(reports);
   const households = getHouseholds(reports);

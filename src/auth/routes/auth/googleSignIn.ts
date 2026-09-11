@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 
+import { GoogleSignInArgs } from "@community-kitchens/apiinterfaces";
 import getSecrets from "../../../utils/getSecrets";
 import {
   getContact,
@@ -17,10 +18,7 @@ const User = mongoose.model("User");
 const router = express.Router();
 
 router.post("/google-signin/mobile", async (req, res) => {
-  const googleId: string = req.body.googleId;
-  const familyName: string = req.body.familyName;
-  const givenName: string = req.body.givenName;
-  const email: string = req.body.email;
+  const { googleId, familyName, givenName, email }: GoogleSignInArgs = req.body;
 
   const { JWT_KEY } = await getSecrets(["JWT_KEY"]);
 
@@ -30,6 +28,10 @@ router.post("/google-signin/mobile", async (req, res) => {
 
   if (!googleId) {
     throw Error("No Google ID Provided");
+  }
+
+  if (!familyName || !email || !givenName) {
+    throw Error("First name, last name and email must be included");
   }
 
   let existingUser = await User.findOne({ googleId });

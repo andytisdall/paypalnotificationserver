@@ -105,12 +105,6 @@ export interface FormattedMealsPlusService extends Omit<
   phone?: string;
 }
 
-export interface NewMobileOasisDelivery {
-  fridge: string;
-  numberOfMealsMeat: number;
-  numberOfMealsVeg: number;
-}
-
 export interface UnformattedMealDelivery {
   Date__c: string;
   CBO__c: string;

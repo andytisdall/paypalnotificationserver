@@ -5,7 +5,7 @@ import { submitMealSurveyDataV3 } from "../../utils/salesforce/mealProgram/surve
 const router = express.Router();
 
 router.post("/survey", async (req, res) => {
-  await submitMealSurveyDataV3(req.body as MealSurveyArgsV3["formData"]);
+  await submitMealSurveyDataV3(req.body as MealSurveyArgsV3);
   res.sendStatus(204);
 });
 

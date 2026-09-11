@@ -2,20 +2,22 @@ import fetcher from "../../../fetcher";
 import urls from "../../../urls";
 import { getContactById } from "../../contact/getContact";
 import { InsertSuccessResponse } from "../../reusableTypes";
-import { CreateHoursParams, UnformattedHours } from "../types";
-import { VolunteerHours } from "@community-kitchens/apiinterfaces";
+import { UnformattedHours } from "../types";
+import {
+  VolunteerHours,
+  CreateVolunteerHoursArgs,
+} from "@community-kitchens/apiinterfaces";
 
 export const createHours = async ({
-  contactId,
   shiftId,
   jobId,
   date,
-  soup,
+  mealType,
   mealCount,
-  numberOfVolunteers,
   restaurantMeals,
   reserved,
-}: CreateHoursParams): Promise<VolunteerHours> => {
+  contactId,
+}: CreateVolunteerHoursArgs): Promise<VolunteerHours> => {
   await fetcher.setService("salesforce");
 
   const contact = await getContactById(contactId);
@@ -43,13 +45,8 @@ export const createHours = async ({
   };
 
   if (mealCount) {
-    const mealType = soup ? "Soup" : "Entree";
     hoursToAdd.Type_of_Meal__c = mealType;
     hoursToAdd.Number_of_Meals__c = mealCount;
-  }
-
-  if (numberOfVolunteers) {
-    hoursToAdd.GW_Volunteers__Number_of_Volunteers__c = numberOfVolunteers;
   }
 
   const hoursInsertUri =

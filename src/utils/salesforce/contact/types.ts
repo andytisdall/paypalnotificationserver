@@ -46,70 +46,71 @@ export interface UnformattedContact {
   Insurance_Expiration_Date__c?: string;
 
   Calfresh_Volunteer__c?: boolean;
+  Pronouns__c?: string;
 }
 
-export interface FormattedContact {
-  householdId: string;
-  name: string;
-  id: string;
-  email?: string;
-  portalUsername?: string;
-  firstName?: string;
-  lastName: string;
-  volunteerAgreement?: boolean;
+// export interface FormattedContact {
+//   householdId: string;
+//   name: string;
+//   id: string;
+//   email?: string;
+//   portalUsername?: string;
+//   firstName?: string;
+//   lastName: string;
+//   volunteerAgreement?: boolean;
 
-  foodHandler?: boolean;
-  homeChefAgreement?: boolean;
-  homeChefStatus?: string;
-  homeChefQuizPassed?: boolean;
-  homeChefSurveyCompleted?: boolean;
+//   foodHandler?: boolean;
+//   homeChefAgreement?: boolean;
+//   homeChefStatus?: string;
+//   homeChefQuizPassed?: boolean;
+//   homeChefSurveyCompleted?: boolean;
 
-  ckKitchenStatus?: string;
+//   ckKitchenStatus?: string;
 
-  driverStatus?: "Active" | "Inactive";
-  car?: {
-    size?: "Bike" | "Small" | "Medium" | "Large";
-    make?: string;
-    model?: string;
-    year?: string;
-    color?: string;
-  };
-  insuranceExpiration?: string;
-  licenseExpiration?: string;
+//   driverStatus?: "Active" | "Inactive";
+//   car?: {
+//     size?: "Bike" | "Small" | "Medium" | "Large";
+//     make?: string;
+//     model?: string;
+//     year?: string;
+//     color?: string;
+//   };
+//   insuranceExpiration?: string;
+//   licenseExpiration?: string;
 
-  banned?: boolean;
-  calfreshVolunteer?: boolean;
-}
+//   banned?: boolean;
+//   calfreshVolunteer?: boolean;
+// }
 
-export interface D4JContact {
-  firstName: string;
-  email: string;
-  id: string;
-  d4jPoints?: number;
-}
+// export interface D4JContact {
+//   firstName: string;
+//   email: string;
+//   id: string;
+//   d4jPoints?: number;
+// }
 
-export type ContactRawData = Pick<
-  UnformattedContact,
-  | "Id"
-  | "Name"
-  | "npsp__HHId__c"
-  | "Portal_Username__c"
-  | "Email"
-  | "FirstName"
-  | "LastName"
-  | "CK_Kitchen_Agreement__c"
-  | "Calfresh_Volunteer__c"
->;
+// export type ContactRawData = Pick<
+//   UnformattedContact,
+//   | "Id"
+//   | "Name"
+//   | "npsp__HHId__c"
+//   | "Portal_Username__c"
+//   | "Email"
+//   | "FirstName"
+//   | "LastName"
+//   | "CK_Kitchen_Agreement__c"
+//   | "Calfresh_Volunteer__c"
+// >;
 
-export type ContactData = Pick<
-  FormattedContact,
-  | "id"
-  | "name"
-  | "householdId"
-  | "portalUsername"
-  | "email"
-  | "firstName"
-  | "lastName"
-  | "volunteerAgreement"
-  | "calfreshVolunteer"
->;
+// export type ContactData = Pick<
+//   FormattedContact,
+//   | "id"
+//   | "name"
+//   | "householdId"
+//   | "portalUsername"
+//   | "email"
+//   | "firstName"
+//   | "lastName"
+//   | "volunteerAgreement"
+//   | "calfreshVolunteer"
+// >;

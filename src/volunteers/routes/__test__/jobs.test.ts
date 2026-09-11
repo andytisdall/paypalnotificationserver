@@ -28,7 +28,7 @@ it("gets volunteer shifts and jobs", async () => {
     shiftId: shiftForSignup.id,
     jobId: job.id,
     date: shiftForSignup.startTime,
-    contactSalesforceId: mockUser.salesforceId,
+    contactId: mockUser.salesforceId,
   };
   await request(app).post("/api/volunteers/hours").send(newHours1).expect(201);
 

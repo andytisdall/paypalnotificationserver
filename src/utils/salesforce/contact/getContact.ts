@@ -1,13 +1,42 @@
 import fetcher from "../../fetcher";
 import urls from "../../urls";
 import createQuery, { FilterGroup } from "../queryCreator";
+import { Volunteer } from "@community-kitchens/apiinterfaces";
 
-import { ContactData, UnformattedContact, D4JContact } from "./types";
+import { UnformattedContact } from "./types";
+import { D4JContact } from "@community-kitchens/apiinterfaces";
+
+export const formatContact = (
+  contact: Pick<
+    UnformattedContact,
+    | "Name"
+    | "npsp__HHId__c"
+    | "Id"
+    | "Portal_Username__c"
+    | "Email"
+    | "FirstName"
+    | "LastName"
+    | "CK_Kitchen_Agreement__c"
+    | "Calfresh_Volunteer__c"
+  >,
+): Volunteer => {
+  return {
+    id: contact.Id,
+    name: contact.Name,
+    householdId: contact.npsp__HHId__c,
+    portalUsername: contact.Portal_Username__c,
+    email: contact.Email,
+    firstName: contact.FirstName,
+    lastName: contact.LastName,
+    volunteerAgreement: contact.CK_Kitchen_Agreement__c,
+    calfreshVolunteer: contact.Calfresh_Volunteer__c,
+  };
+};
 
 export const getContact = async (
   lastName: string,
   firstName: string,
-): Promise<ContactData | null> => {
+): Promise<Volunteer | null> => {
   const escapedFirstName = firstName.replace(/'/g, "\\'");
   const escapedLastName = lastName.replace(/'/g, "\\'");
 
@@ -41,17 +70,7 @@ export const getContact = async (
 
   const contact = contacts[0];
   if (contact) {
-    return {
-      id: contact.Id,
-      name: contact.Name,
-      householdId: contact.npsp__HHId__c,
-      portalUsername: contact.Portal_Username__c,
-      email: contact.Email,
-      firstName: contact.FirstName,
-      lastName: contact.LastName,
-      volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-      calfreshVolunteer: contact.Calfresh_Volunteer__c,
-    };
+    return formatContact(contact);
   } else {
     return null;
   }
@@ -60,7 +79,7 @@ export const getContact = async (
 export const getContactByLastNameAndEmail = async (
   lastName: string,
   email: string,
-): Promise<ContactData | null> => {
+): Promise<Volunteer | null> => {
   const escapedLastName = lastName.replace(/'/g, "\\'");
   const fields = [
     "Name",
@@ -71,6 +90,7 @@ export const getContactByLastNameAndEmail = async (
     "FirstName",
     "LastName",
     "CK_Kitchen_Agreement__c",
+    "Calfresh_Volunteer__c",
   ] as const;
   const obj = "Contact";
   const filters: FilterGroup<UnformattedContact> = {
@@ -91,16 +111,7 @@ export const getContactByLastNameAndEmail = async (
 
   const contact = contacts[0];
   if (contact) {
-    return {
-      id: contact.Id,
-      name: contact.Name,
-      householdId: contact.npsp__HHId__c,
-      portalUsername: contact.Portal_Username__c,
-      email: contact.Email,
-      firstName: contact.FirstName,
-      lastName: contact.LastName,
-      volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-    };
+    return formatContact(contact);
   } else {
     return null;
   }
@@ -121,7 +132,6 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
   const contact = await getContactById(id);
   return {
     email: contact.Email!,
-    firstName: contact.FirstName!,
     id: contact.Id!,
   };
 };
@@ -131,7 +141,7 @@ export const getD4JContact = async (id: string): Promise<D4JContact> => {
 
 export const getContactByEmail = async (
   email: string,
-): Promise<ContactData | null> => {
+): Promise<Volunteer | null> => {
   const fields = [
     "Name",
     "FirstName",
@@ -155,17 +165,7 @@ export const getContactByEmail = async (
 
   const contact = contacts[0];
   if (contact) {
-    return {
-      id: contact.Id,
-      householdId: contact.npsp__HHId__c,
-      portalUsername: contact.Portal_Username__c,
-      firstName: contact.FirstName,
-      name: contact.Name,
-      lastName: contact.LastName,
-      volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-      email: contact.Email,
-      calfreshVolunteer: contact.Calfresh_Volunteer__c,
-    };
+    return formatContact(contact);
   } else {
     return null;
   }

@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import mongoose from "mongoose";
 
 import {
-  SendTextBody,
+  SendTextArgs,
   SendTextResponse,
   Region,
 } from "@community-kitchens/apiinterfaces";
@@ -23,14 +23,6 @@ const Phone = mongoose.model("Phone");
 
 const smsRouter = express.Router();
 
-interface StoredText {
-  photoUrl?: string;
-  sentTo: Region[];
-  name: string;
-  restaurants: string;
-  date: string;
-}
-
 smsRouter.post("/outgoing", requireAuth, async (req, res) => {
   const {
     message,
@@ -39,7 +31,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     number,
     photo,
     storedText,
-  }: SendTextBody & { storedText?: StoredText } = req.body;
+  }: SendTextArgs = req.body;
 
   const attachedPhoto = req.files?.photo;
 
@@ -150,7 +142,7 @@ smsRouter.post("/outgoing", requireAuth, async (req, res) => {
     });
   }
 
-  const response: SendTextResponse & { storedText?: StoredText } = {
+  const response: SendTextResponse = {
     message,
     region: formattedRegion,
     photoUrl: mediaUrl[0],

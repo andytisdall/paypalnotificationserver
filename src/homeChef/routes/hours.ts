@@ -1,5 +1,5 @@
 import express from "express";
-import { CreateHoursParams } from "../../utils/salesforce/volunteer/types";
+import { CreateVolunteerHoursArgs } from "@community-kitchens/apiinterfaces";
 
 import { requireAuth } from "../../middlewares/require-auth";
 import fetcher from "../../utils/fetcher";
@@ -20,19 +20,25 @@ router.get("/hours", requireAuth, async (req, res) => {
 });
 
 router.post("/hours", requireAuth, async (req, res) => {
-  const { mealCount, shiftId, jobId, date, soup }: CreateHoursParams = req.body;
+  const {
+    mealCount,
+    shiftId,
+    jobId,
+    date,
+    mealType,
+  }: CreateVolunteerHoursArgs = req.body;
 
   const salesforceId = req.currentUser!.salesforceId;
   if (!salesforceId) {
     throw Error("User does not have a salesforce ID");
   }
   const hours = await createHours({
-    contactId: salesforceId,
     mealCount,
     shiftId,
     jobId,
     date,
-    soup,
+    mealType,
+    contactId: salesforceId,
   });
 
   res.status(201);

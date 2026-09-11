@@ -1,6 +1,6 @@
 import express from "express";
 
-import { CBOReportParams } from "../../utils/salesforce/cbo/types";
+import { CBOReport } from "@community-kitchens/apiinterfaces";
 import { getCBOReports } from "../../utils/salesforce/cbo/getReports";
 import { requireAdmin } from "../../middlewares/require-admin";
 import { sendCBOReportDataEmail } from "../../utils/email/emailTemplates/CBOReportData";
@@ -34,7 +34,7 @@ router.post("/cbo/email", requireSalesforceAuth, async (req, res) => {
 });
 
 router.post("/cbo", async (req, res) => {
-  const submission: CBOReportParams = req.body;
+  const submission: CBOReport = req.body;
 
   await createCBOReport(submission);
 

@@ -12,7 +12,8 @@ import { CreateVolunteerArgs } from "@community-kitchens/apiinterfaces";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { email, firstName, lastName }: CreateVolunteerArgs = req.body;
+  const { email, firstName, lastName, calfreshVolunteer }: CreateVolunteerArgs =
+    req.body;
 
   if (!firstName || !lastName) {
     throw Error("You must provide first name and last name.");
@@ -31,6 +32,7 @@ router.post("/", async (req, res) => {
     GW_Volunteers__Volunteer_Status__c: "Prospective",
     Portal_Username__c: username,
     Portal_Temporary_Password__c: password,
+    Calfresh_Volunteer__c: calfreshVolunteer,
   });
 
   await createPortalUser({

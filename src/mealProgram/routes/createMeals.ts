@@ -2,15 +2,15 @@ import express from "express";
 import { toZonedTime } from "date-fns-tz";
 
 import { createScheduledDelivery } from "../../utils/salesforce/mealProgram/createDelivery";
-import { NewMobileOasisDelivery } from "../../utils/salesforce/mealProgram/types";
 import { requireTextPermission } from "../../middlewares/require-text-permission";
 import { createHours } from "../../utils/salesforce/volunteer/hours/createHours";
 import { createShift } from "../../utils/salesforce/volunteer/shifts";
+import { MealDelivery } from "@community-kitchens/apiinterfaces";
 
 const router = express.Router();
 
 router.post("/", requireTextPermission, async (req, res) => {
-  const body: NewMobileOasisDelivery = req.body;
+  const body: MealDelivery = req.body;
   await createScheduledDelivery(body);
 
   // create home chef restaurant meals delivery

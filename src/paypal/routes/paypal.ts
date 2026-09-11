@@ -4,7 +4,7 @@ import { format, formatISO, addDays } from "date-fns";
 
 import { sendDonationAckEmail } from "../../utils/email/emailTemplates/donationAck";
 import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
-import { ContactData } from "../../utils/salesforce/contact/types";
+import { Volunteer } from "@community-kitchens/apiinterfaces";
 import urls from "../../utils/urls";
 import fetcher from "../../utils/fetcher";
 import { addContact } from "../../utils/salesforce/contact/addContact";
@@ -168,7 +168,7 @@ const formatDate = (date: string) => {
 //   }
 // };
 
-const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
+const addRecurring = async (paypalData: PaypalData, contact: Volunteer) => {
   const formattedDate = formatDate(paypalData.time_created);
 
   let dayOfMonth = format(formattedDate, "d");
@@ -180,7 +180,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   }
 
   const recurringToAdd: RecurringDonationObject = {
-    npe03__Contact__c: contact.id!,
+    npe03__Contact__c: contact.id,
     npe03__Date_Established__c: formattedDate,
     npe03__Amount__c: paypalData.amount!,
     npsp__RecurringType__c: "Open",
@@ -206,10 +206,7 @@ const addRecurring = async (paypalData: PaypalData, contact: ContactData) => {
   console.log("Recurring Donation Added: " + JSON.stringify(summaryMessage));
 };
 
-const cancelRecurring = async (
-  paypalData: PaypalData,
-  contact: ContactData,
-) => {
+const cancelRecurring = async (paypalData: PaypalData, contact: Volunteer) => {
   const recurringQuery = [
     "SELECT",
     "Id",
@@ -256,7 +253,7 @@ const cancelRecurring = async (
 
 const updateRecurringOpp = async (
   paypalData: PaypalData,
-  contact: ContactData,
+  contact: Volunteer,
   status: "Closed Lost" | "Posted",
 ) => {
   // query donations to get ID
@@ -303,7 +300,7 @@ const updateRecurringOpp = async (
     throw Error("Existing opportunity not found");
   }
 };
-const addDonation = async (paypalData: PaypalData, contact: ContactData) => {
+const addDonation = async (paypalData: PaypalData, contact: Volunteer) => {
   if (!paypalData.payment_date) {
     throw Error("Could not add donation without a payment date");
   }

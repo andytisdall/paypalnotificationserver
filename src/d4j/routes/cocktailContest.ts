@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
+import { MixologyData } from "@community-kitchens/apiinterfaces";
 
 const CURRENT_YEAR = 2026;
 
@@ -9,11 +10,11 @@ const CocktailVote = mongoose.model("CocktailVote");
 
 const router = express.Router();
 
-interface MixologyData {
-  mixologist: string;
-  restaurant: string;
-  cocktail: string;
-}
+// interface MixologyData {
+//   mixologist: string;
+//   restaurant: string;
+//   cocktail: string;
+// }
 
 const PLACEHOLDER = "Placeholder";
 

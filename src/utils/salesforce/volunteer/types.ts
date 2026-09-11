@@ -1,15 +1,5 @@
-import {
-  LowercaseRegion,
-  VolunteerShift,
-} from "@community-kitchens/apiinterfaces";
+import { LowercaseRegion } from "@community-kitchens/apiinterfaces";
 import { UnformattedContact } from "../contact/types";
-
-// type TownFridgeRegion =
-//   | "East Oakland"
-//   | "West Oakland"
-//   | "Berkeley"
-//   | "CK Kitchen"
-//   | "Alameda";
 
 export interface UnformattedShift {
   Id: string;
@@ -26,19 +16,6 @@ export interface UnformattedShift {
   "GW_Volunteers__Volunteer_Job__r.GW_Volunteers__Campaign__c": string;
   Reserved_Shift_is_Available__c?: boolean;
 }
-
-// export interface FormattedShift {
-//   id: string;
-//   startTime: string;
-//   open: boolean;
-//   job: string;
-//   restaurantMeals: boolean;
-//   duration: number;
-//   slots: number;
-//   totalSlots: number;
-//   endTime?: string;
-//   reservedOpen?: boolean;
-// }
 
 export interface UnformattedJob {
   Id: string;
@@ -61,52 +38,6 @@ export interface UnformattedJob {
   No_Text_Alert__c?: boolean;
   Photo__c?: string;
 }
-
-// export interface FormattedJob {
-//   id: string;
-//   name: string;
-//   location?: string;
-//   locationInfo?: string;
-//   locationCity?: string;
-//   shifts: Partial<VolunteerShift>[];
-//   active: boolean;
-//   ongoing: boolean;
-//   description?: string;
-//   campaign: string;
-//   region?: LowercaseRegion;
-//   notes?: string;
-//   carSizeRequired?: string;
-//   destination?: string;
-//   distance?: number;
-//   dropoffNotes?: string;
-//   timeRequired?: number;
-//   noTextAlert?: boolean;
-//   photo?: string;
-// }
-
-export interface CreateHoursParams {
-  contactId: string;
-  shiftId: string;
-  jobId: string;
-  date: string;
-  soup?: boolean;
-  mealCount?: number;
-  numberOfVolunteers?: number;
-  restaurantMeals?: boolean;
-  serviceType?: string;
-  reserved?: boolean;
-}
-
-// export interface FormattedHours {
-//   id: string;
-//   mealCount: string;
-//   time: string;
-//   job: string;
-//   status: string;
-//   shift: string;
-//   campaign?: string;
-//   mealType?: "Entree" | "Soup";
-// }
 
 export interface UnformattedHours {
   GW_Volunteers__Volunteer_Job__c: string;
@@ -141,13 +72,3 @@ export interface HoursQueryResponse {
       }
     | undefined;
 }
-
-// export interface CheckInVolunteer {
-//   hoursId: string;
-//   contactId: string;
-//   firstName: string | undefined;
-//   lastName: string;
-//   email: string | undefined;
-//   volunteerAgreement: boolean | undefined;
-//   status: string;
-// }

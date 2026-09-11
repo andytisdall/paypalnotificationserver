@@ -1,21 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
-import {
-  NotificationPayload,
-  Notification as NotificationType,
-} from "@community-kitchens/apiinterfaces";
+import { NotificationPayload } from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../middlewares/require-admin";
 import createNotificationsService from "../../utils/pushNotifications";
 import { D4JUser } from "../models/d4jUser";
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 
-export interface Announcement {
-  title: string;
-  message: string;
-  photo?: string;
-  data?: NotificationType;
-}
+// export interface Announcement {
+//   title: string;
+//   message: string;
+//   photo?: string;
+//   data?: NotificationType;
+// }
 
 const Notification = mongoose.model("Notification");
 
@@ -66,7 +63,6 @@ router.get("/announcement", async (req, res) => {
 
 router.post("/save-token", currentD4JUser, async (req, res) => {
   const { token }: { token: string } = req.body;
-  console.log(token);
   const user = await D4JUser.findById(req.currentD4JUser!.id);
 
   if (user) {

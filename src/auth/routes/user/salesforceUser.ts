@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 import { currentUser } from "../../../middlewares/current-user";
 import { getContactById } from "../../../utils/salesforce/contact/getContact";
-import { FormattedContact } from "../../../utils/salesforce/contact/types";
+import { ContactInfo } from "@community-kitchens/apiinterfaces";
 import { requireSalesforceAuth } from "../../../middlewares/require-salesforce-auth";
 import { requireAdmin } from "../../../middlewares/require-admin";
 import { createPortalUser, getUniqueUsernameAndPassword } from "./createUser";
@@ -27,7 +27,7 @@ router.get("/userInfo", currentUser, async (req, res) => {
     throw Error("User does not have a salesforce ID");
   }
   const contact = await getContactById(req.currentUser!.salesforceId);
-  const contactInfo: Partial<FormattedContact> = {
+  const contactInfo: Partial<ContactInfo> = {
     firstName: contact.FirstName,
     lastName: contact.LastName,
     homeChefAgreement: contact.Home_Chef_Volunteeer_Agreement__c,
@@ -35,7 +35,6 @@ router.get("/userInfo", currentUser, async (req, res) => {
     homeChefQuizPassed: contact.Home_Chef_Quiz_Passed__c,
     homeChefStatus: contact.Home_Chef_Status__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,
-    ckKitchenStatus: contact.CK_Kitchen_Volunteer_Status__c,
     calfreshVolunteer: contact.Calfresh_Volunteer__c,
   };
 

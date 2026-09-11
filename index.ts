@@ -22,6 +22,7 @@ import d4jRouter from "./src/d4j/routes";
 import signRouter from "./src/sign/routes";
 import emailRouter from "./src/email/email";
 import eventsRouter from "./src/events/routes/rsvp";
+import voicemailRouter from "./src/voicemail/routes/voicemail";
 
 import { errorHandler } from "./src/middlewares/error-handler";
 
@@ -60,6 +61,7 @@ apiRouter.use("/d4j", d4jRouter);
 apiRouter.use("/sign", signRouter);
 apiRouter.use("/email", emailRouter);
 apiRouter.use("/events", eventsRouter);
+apiRouter.use("/voicemail", voicemailRouter);
 
 apiRouter.use(errorHandler);
 apiRouter.get("/{*path}", (_req, res) => {

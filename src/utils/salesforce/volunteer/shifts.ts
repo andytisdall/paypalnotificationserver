@@ -111,7 +111,7 @@ export const addSlotToShift = async (
     | "GW_Volunteers__Desired_Number_of_Volunteers__c"
     | "Reserved_Shift_is_Available__c"
   > = {
-    GW_Volunteers__Desired_Number_of_Volunteers__c: shift.totalSlots || 0 + 1,
+    GW_Volunteers__Desired_Number_of_Volunteers__c: (shift.totalSlots || 0) + 1,
   };
 
   if (options?.reservedSlot) {

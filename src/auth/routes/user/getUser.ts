@@ -17,6 +17,22 @@ router.get("/", currentUser, async (req, res) => {
 
 router.get("/all", requireAdmin, async (_req, res) => {
   const allUsers = await User.find();
+  // await fetcher.setService("salesforce");
+  // console.log(allUsers.length);
+  // let noUsers = 0;
+  // for (let i = 0; i < allUsers.length; i++) {
+  //   const user = allUsers[i];
+  //   try {
+  //     await fetcher.get(
+  //       urls.SFOperationPrefix + "/Contact/" + user.salesforceId,
+  //     );
+  //   } catch (err) {
+  //     noUsers++;
+  //     await User.deleteOne({ _id: user.id });
+  //   }
+  // }
+
+  // console.log(noUsers + " users deleted");
 
   res.send(allUsers);
 });

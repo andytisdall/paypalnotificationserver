@@ -3,6 +3,7 @@ import { getContactByLastNameAndEmail } from "../../utils/salesforce/contact/get
 import { createProgramEngagement } from "../../utils/salesforce/workforce";
 import { updateContact } from "../../utils/salesforce/contact/updateContact";
 import { addContact } from "../../utils/salesforce/contact/addContact";
+import { CulinaryTrainingArgs } from "@community-kitchens/apiinterfaces";
 
 const router = express.Router();
 
@@ -16,16 +17,7 @@ router.post("/workforce-development", async (req, res) => {
     internet,
     description,
     source,
-  }: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: string;
-    internet: boolean;
-    description: string;
-    source: string;
-  } = req.body;
+  }: CulinaryTrainingArgs = req.body;
 
   let contact = await getContactByLastNameAndEmail(lastName, email);
   if (contact) {
@@ -45,7 +37,7 @@ router.post("/workforce-development", async (req, res) => {
   }
 
   await createProgramEngagement({
-    contactId: contact.id,
+    contactId: contact!.id,
     internet,
     source,
     bio: description,

@@ -1,6 +1,5 @@
 import express from "express";
 import mongoose from "mongoose";
-import { RSVP as RSVPArgs } from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../middlewares/require-admin";
 
@@ -8,15 +7,15 @@ const RSVP = mongoose.model("RSVP");
 
 const router = express.Router();
 
-router.post("/rsvp", async (req, res) => {
-  const rsvp: RSVPArgs = req.body;
+// router.post("/rsvp", async (req, res) => {
+//   const rsvp: RSVPArgs = req.body;
 
-  const newRsvp = new RSVP(rsvp);
+//   const newRsvp = new RSVP(rsvp);
 
-  await newRsvp.save();
+//   await newRsvp.save();
 
-  res.send(null);
-});
+//   res.send(null);
+// });
 
 router.get("/rsvp", requireAdmin, async (req, res) => {
   const rsvps = await RSVP.find();

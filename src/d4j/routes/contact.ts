@@ -3,6 +3,10 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { generate } from "generate-password";
 
+import {
+  CreateD4JContactArgs,
+  D4JSignInArgs,
+} from "@community-kitchens/apiinterfaces";
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
 import { addContact } from "../../utils/salesforce/contact/addContact";
@@ -10,7 +14,6 @@ import { deleteContact } from "../../utils/salesforce/contact/updateContact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email/email";
 import { deleteAllUserCheckIns } from "../../utils/salesforce/d4j";
-
 import { requireAdmin } from "../../middlewares/require-admin";
 
 const CheckIn = mongoose.model("CheckIn");
@@ -19,7 +22,7 @@ const D4JUser = mongoose.model("D4JUser");
 const router = express.Router();
 
 router.post("/contact/signin", async (req, res) => {
-  const { email }: { email: string; token?: string } = req.body;
+  const { email }: D4JSignInArgs = req.body;
 
   let user = await D4JUser.findOne({ email });
 
@@ -49,12 +52,7 @@ router.post("/contact/signin", async (req, res) => {
 });
 
 router.post("/contact", async (req, res) => {
-  const {
-    email,
-    firstName,
-    lastName,
-  }: { email: string; firstName: string; lastName: string; token?: string } =
-    req.body;
+  const { email, firstName, lastName }: CreateD4JContactArgs = req.body;
 
   if (!email || !firstName || !lastName) {
     throw Error("You must provide an email, first name and last name.");
@@ -105,22 +103,6 @@ router.post("/contact", async (req, res) => {
   // await sendConfirmD4JUserEmail(contact, code);
 
   res.send({ contact: user, token: jwtToken });
-});
-
-router.post("/confirm-email", async (req, res) => {
-  const { code } = req.body;
-  if (!code) {
-    throw Error("No code provided");
-  }
-  const user = await D4JUser.findOne({ secretCode: code });
-  if (!user) {
-    throw Error("Invalid Code");
-  }
-  user.unconfirmed = false;
-  user.secretCode = undefined;
-
-  await user.save();
-  res.sendStatus(204);
 });
 
 router.get("/contact", currentD4JUser, async (req, res) => {

@@ -1,10 +1,10 @@
 import app from "../../../../index";
 import request from "supertest";
 
-import { CBOReportParams } from "../../../utils/salesforce/cbo/types";
+import { CBOReport } from "@community-kitchens/apiinterfaces";
 
 it("submits a report", async () => {
-  const formValues: Omit<CBOReportParams, "cboId"> = {
+  const formValues: Omit<CBOReport, "cboId"> = {
     month: "May",
     year: "2026",
     name: "Andy Tisdall",
@@ -43,7 +43,7 @@ it("submits a report", async () => {
     households: 487,
     zips: { 94619: 3, 94612: 0, 94607: 50 },
     feedback: "The food was good",
-    phoneNumber: "415-819-0251",
+    phone: "415-819-0251",
     email: "andy@ckoakland.org",
   };
 

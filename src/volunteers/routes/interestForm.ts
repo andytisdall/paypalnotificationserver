@@ -31,7 +31,8 @@ router.post("/signup", async (req, res) => {
     extraInfo,
     employer,
     calfresh,
-  }: VolunteerInterestFormArgs["formData"] = req.body;
+    pronouns,
+  }: VolunteerInterestFormArgs = req.body;
 
   const contactInfo: Partial<UnformattedContact> = {
     FirstName: firstName,
@@ -48,6 +49,7 @@ router.post("/signup", async (req, res) => {
     Interest_in_volunteering_group__c: corporate,
     Employer__c: employer,
     Calfresh_Volunteer__c: calfresh,
+    Pronouns__c: pronouns,
   };
 
   // find salesforce contact

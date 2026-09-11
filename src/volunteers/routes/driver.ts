@@ -9,7 +9,7 @@ import {
   formatFilesFromFileArray,
   uploadFileToSalesforce,
 } from "../../utils/salesforce/files/fileUpload";
-import { FormattedContact } from "../../utils/salesforce/contact/types";
+import { DriverInfo } from "@community-kitchens/apiinterfaces";
 import { CarInfo } from "@community-kitchens/apiinterfaces";
 
 const User = mongoose.model("User");
@@ -21,7 +21,7 @@ router.get("/driver", currentUser, async (req, res) => {
     return res.send(null);
   }
   const contact = await getContactById(req.currentUser.salesforceId);
-  const formattedContact: Partial<FormattedContact> = {
+  const formattedContact: Partial<DriverInfo> = {
     licenseExpiration: contact.Driver_s_License_Expiration__c,
     insuranceExpiration: contact.Insurance_Expiration_Date__c,
     volunteerAgreement: contact.CK_Kitchen_Agreement__c,

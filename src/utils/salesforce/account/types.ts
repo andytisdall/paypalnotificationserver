@@ -26,25 +26,25 @@ export interface UnformattedD4JRestaurant {
   Website?: string;
 }
 
-export type Coordinates = { latitude: number; longitude: number };
+// export type Coordinates = { latitude: number; longitude: number };
 
-export interface FormattedD4JRestaurant {
-  name: string;
-  id: string;
-  neighborhood?: string;
-  cuisine?: string;
-  pocOwned?: string;
-  vegan: boolean;
-  femaleOwned: boolean;
-  googleId: string;
-  coords?: Coordinates;
-  openHours?: string[];
-  photo?: string;
-  cocktailName?: string;
-  cocktailDescription?: string;
-  cocktail2Name?: string;
-  cocktail2Description?: string;
-  status?: "Active" | "Former" | "Paused";
-  closed?: boolean;
-  url?: string;
-}
+// export interface FormattedD4JRestaurant {
+//   name: string;
+//   id: string;
+//   neighborhood?: string;
+//   cuisine?: string;
+//   pocOwned?: string;
+//   vegan: boolean;
+//   femaleOwned: boolean;
+//   googleId: string;
+//   coords?: Coordinates;
+//   openHours?: string[];
+//   photo?: string;
+//   cocktailName?: string;
+//   cocktailDescription?: string;
+//   cocktail2Name?: string;
+//   cocktail2Description?: string;
+//   status?: "Active" | "Former" | "Paused";
+//   closed?: boolean;
+//   url?: string;
+// }
