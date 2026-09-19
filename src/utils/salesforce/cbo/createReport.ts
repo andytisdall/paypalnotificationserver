@@ -130,13 +130,19 @@ export const createCBOReport = async ({
     X94709__c: zips[94709],
     X94710__c: zips[94710],
     X94712__c: zips[94712],
-    Water_Bottles_Distributed__c: waters,
-    Juice_Boxes_Distributed__c: juices,
-    Pairs_of_Socks_Distributed__c: socks,
+    Water_Bottles_Distributed__c: waters ? parseInt(waters) : undefined,
+    Juice_Boxes_Distributed__c: juices ? parseInt(juices) : undefined,
+    Pairs_of_Socks_Distributed__c: socks ? parseInt(socks) : undefined,
     Extra_Item__c: extraItem,
-    Amount_of_Extra_Item__c: extraItemAmount,
-    Granola_Bars_Distributed__c: granolaBars,
-    Tortilla_Chip_Bags_Distributed__c: tortillaChips,
+    Amount_of_Extra_Item__c: extraItemAmount
+      ? parseInt(extraItemAmount)
+      : undefined,
+    Granola_Bars_Distributed__c: granolaBars
+      ? parseInt(granolaBars)
+      : undefined,
+    Tortilla_Chip_Bags_Distributed__c: tortillaChips
+      ? parseInt(tortillaChips)
+      : undefined,
   };
 
   await fetcher.setService("salesforce");

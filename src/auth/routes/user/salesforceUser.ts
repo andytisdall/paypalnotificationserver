@@ -75,6 +75,12 @@ router.post("/salesforce", requireSalesforceAuth, async (req, res) => {
   res.status(201).send({ username, password });
 });
 
+router.delete("/salesforce/:id", requireSalesforceAuth, async (req, res) => {
+  const { id } = req.params;
+  await User.deleteOne({ salesforceId: id });
+  res.send(null);
+});
+
 router.get("/salesforce-user-permissions", requireAdmin, async (req, res) => {
   const permissionSets = await getPermissionSets();
   res.send(permissionSets);

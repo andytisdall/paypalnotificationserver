@@ -9,7 +9,6 @@ const convertCBODataFromSalesforce = (report: CBOReportObject): CBOReport => {
     month: report.Month__c,
     year: format(new Date(report.Date__c), "yyyy"),
     name: report.Name,
-    cboId: report.CBO__c,
     cboName: report.CBO_Name__c,
     performanceMeasures: {
       withoutAccess: report.Individuals_without_access_to_kitchen__c,
@@ -44,7 +43,7 @@ const convertCBODataFromSalesforce = (report: CBOReportObject): CBOReport => {
     individuals: report.Individuals_Provided_Food__c,
     households: report.Households_Provided_Food__c,
     feedback: report.Feedback__c,
-    phoneNumber: report.Phone_Number__c,
+    phone: report.Phone_Number__c,
     email: report.Email__c,
     zips: {
       94501: report.X94501__c,
@@ -115,11 +114,11 @@ const convertCBODataFromSalesforce = (report: CBOReportObject): CBOReport => {
       Unhoused: report.XUnhoused__c,
       Other: report.XOther__c,
     },
-    waters: report.Water_Bottles_Distributed__c,
-    juices: report.Juice_Boxes_Distributed__c,
-    socks: report.Pairs_of_Socks_Distributed__c,
-    extraItem: report.Extra_Item__c,
-    extraItemAmount: report.Amount_of_Extra_Item__c,
+    waters: report.Water_Bottles_Distributed__c?.toString(),
+    juices: report.Juice_Boxes_Distributed__c?.toString(),
+    socks: report.Pairs_of_Socks_Distributed__c?.toString(),
+    extraItem: report.Extra_Item__c?.toString(),
+    extraItemAmount: report.Amount_of_Extra_Item__c?.toString(),
   };
 };
 

@@ -5,6 +5,7 @@ import { generate } from "generate-password";
 
 import {
   CreateD4JContactArgs,
+  D4JContact,
   D4JSignInArgs,
 } from "@community-kitchens/apiinterfaces";
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
@@ -48,7 +49,13 @@ router.post("/contact/signin", async (req, res) => {
     JWT_KEY,
   );
 
-  res.send({ contact: user, token: jwtToken });
+  const response: D4JContact = {
+    email: user.email,
+    id: user.id,
+    token: jwtToken,
+  };
+
+  res.send(response);
 });
 
 router.post("/contact", async (req, res) => {
@@ -97,12 +104,19 @@ router.post("/contact", async (req, res) => {
   // });
 
   // user.secretCode = code;
-  // await user.save();
 
   // // @ts-ignore
   // await sendConfirmD4JUserEmail(contact, code);
 
-  res.send({ contact: user, token: jwtToken });
+  await user.save();
+
+  const response: D4JContact = {
+    id: user.id,
+    email: user.email,
+    token: jwtToken,
+  };
+
+  res.send(response);
 });
 
 router.get("/contact", currentD4JUser, async (req, res) => {

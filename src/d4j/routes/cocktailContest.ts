@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
-import { MixologyData } from "@community-kitchens/apiinterfaces";
+import { ContestVote, MixologyData } from "@community-kitchens/apiinterfaces";
 
 const CURRENT_YEAR = 2026;
 
@@ -10,41 +10,48 @@ const CocktailVote = mongoose.model("CocktailVote");
 
 const router = express.Router();
 
-// interface MixologyData {
-//   mixologist: string;
-//   restaurant: string;
-//   cocktail: string;
-// }
-
-const PLACEHOLDER = "Placeholder";
-
 const data: MixologyData[] = [
   {
     restaurant: "Acre Kitchen & Bar",
-    mixologist: PLACEHOLDER,
-    cocktail: PLACEHOLDER,
+    mixologist: "Gina Ingeri",
   },
   {
     restaurant: "Agave Uptown",
-    mixologist: PLACEHOLDER,
-    cocktail: PLACEHOLDER,
+    mixologist: "Everth Oliva",
   },
-  { restaurant: "Co Nam", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "District", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Fluid 510", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Jaji", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Lucy Blue", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Moonglow", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "North Light", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Popoca", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "Sobre Mesa", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
-  { restaurant: "There There", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
+  { restaurant: "Co Nam", mixologist: "Trung Nguyen" },
+  { restaurant: "District", mixologist: "John Marsh" },
+  {
+    restaurant: "Fluid 510",
+    mixologist: "Sean Sullivan",
+  },
+  { restaurant: "Jaji", mixologist: "Sean Boultan" },
+  {
+    restaurant: "Lucy Blue",
+    mixologist: "Joseph Cleveland",
+  },
+  {
+    restaurant: "Moonglow",
+    mixologist: "Samantha Junio",
+  },
+  { restaurant: "North Light", mixologist: "Sam Cho" },
+  {
+    restaurant: "Popoca",
+    mixologist: "Stephanie Lopez",
+  },
+  {
+    restaurant: "Sobre Mesa",
+    mixologist: "Chef Nelson German",
+  },
+  {
+    restaurant: "There There",
+    mixologist: "Leila Malikyarm",
+  },
   {
     restaurant: "Town Bar & Lounge",
-    mixologist: PLACEHOLDER,
-    cocktail: PLACEHOLDER,
+    mixologist: "Kyle McDaniel",
   },
-  { restaurant: "Viridian", mixologist: PLACEHOLDER, cocktail: PLACEHOLDER },
+  { restaurant: "Viridian", mixologist: "William Tsui" },
 ];
 
 router.get("/contest/cocktails", async (req, res) => {
@@ -55,7 +62,7 @@ router.get("/contest/votes", currentD4JUser, async (req, res) => {
   if (!req.currentD4JUser) {
     return res.send(null);
   }
-  const userVote = await CocktailVote.findOne({
+  const userVote: ContestVote | null = await CocktailVote.findOne({
     year: CURRENT_YEAR,
     user: req.currentD4JUser.id,
   });

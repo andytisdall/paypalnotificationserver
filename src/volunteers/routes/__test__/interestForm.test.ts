@@ -20,6 +20,7 @@ it("correctly makes the portal user and salesforce contact when the interest for
     source: "Newspaper",
     extraInfo: "I love cooking",
     corporate: true,
+    pronouns: "Who/When",
   };
 
   await request(app)

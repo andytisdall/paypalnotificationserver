@@ -4,7 +4,7 @@ import request from "supertest";
 import { CBOReport } from "@community-kitchens/apiinterfaces";
 
 it("submits a report", async () => {
-  const formValues: Omit<CBOReport, "cboId"> = {
+  const formValues: CBOReport = {
     month: "May",
     year: "2026",
     name: "Andy Tisdall",

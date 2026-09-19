@@ -80,7 +80,7 @@ export const getD4JCampaigns: () => Promise<EventCampaign[]> = async () => {
     AND: [
       { field: "ParentId", value: urls.d4jCampaignId },
       { field: "RecordTypeId", value: "0128Z000001BIZDQA4" },
-      { field: "stayclassy__Start_Date__c", value: null },
+      { field: "stayclassy__Start_Date__c", operator: "!=", value: null },
     ],
   };
 
