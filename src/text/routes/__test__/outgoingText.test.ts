@@ -20,14 +20,10 @@ it("sends an outgoing text with attached photo", async () => {
     number: "test_east_oakland",
     region: ["EAST_OAKLAND", "BERKELEY"],
   });
-  const newResourcesSubscriber = new Phone({
-    number: "test_resources",
-    region: ["RESOURCES"],
-  });
+
   await newBerkeleySubscriber.save();
   await newWestOaklandSubscriber.save();
   await newEastOaklandSubscriber.save();
-  await newResourcesSubscriber.save();
 
   const token = await global.getToken({ admin: true });
 

@@ -1,7 +1,8 @@
 import { Twilio } from "twilio";
 
-import { Region, OutgoingText, REGIONS } from "./types";
+import { OutgoingText, REGIONS } from "./types";
 import { getRegionSubscribers } from "./getSubscribers";
+import { Region } from "@community-kitchens/apiinterfaces";
 
 export const sendTexts = async (
   region: Region | "ALL",

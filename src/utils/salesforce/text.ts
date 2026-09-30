@@ -1,4 +1,5 @@
-import { Region, regionKey } from "../../text/types";
+import { regionKey } from "../../text/types";
+import { Region } from "@community-kitchens/apiinterfaces";
 import fetcher from "../fetcher";
 import urls from "../urls";
 

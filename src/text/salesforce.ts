@@ -4,7 +4,8 @@ import {
   addTextSubscriber,
   editTextSubscriber,
 } from "../utils/salesforce/text";
-import { PhoneNumber, Region } from "./types";
+import { PhoneNumber } from "./types";
+import { Region } from "@community-kitchens/apiinterfaces";
 
 const Phone = mongoose.model("Phone");
 

@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { Region, PhoneNumber } from "../types";
+import { Region } from "@community-kitchens/apiinterfaces";
+import { PhoneNumber } from "../types";
 import {
   addTextSubscriber,
   editTextSubscriber,

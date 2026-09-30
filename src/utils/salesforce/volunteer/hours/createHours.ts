@@ -22,7 +22,7 @@ export const createHours = async ({
 
   const contact = await getContactById(contactId);
   if (contact.Banned_from_Volunteering__c) {
-    throw Error("This contact is banned from signing up to volunteer");
+    throw Error("You are unable to sign up for shifts at this time");
   }
 
   const { data } = await fetcher.get(

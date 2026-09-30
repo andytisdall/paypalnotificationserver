@@ -7,6 +7,8 @@ export interface UnformattedContact {
   Id: string;
   npsp__HHId__c: string;
   MailingStreet?: string;
+  MailingCity?: string;
+
   Phone?: string;
 
   // general volunteer
@@ -47,6 +49,7 @@ export interface UnformattedContact {
 
   Calfresh_Volunteer__c?: boolean;
   Pronouns__c?: string;
+  Consent_to_be_Emailed__c?: boolean;
 }
 
 // export interface FormattedContact {

@@ -1,6 +1,5 @@
-import { Region } from "../types";
+import { Region } from "@community-kitchens/apiinterfaces";
 import { mealAlertResponses } from "./mealAlertResponses";
-import { mealsPlusResponses } from "./mealsPlusResponses";
 
 type ResponseType =
   | "generalInfoResponse"
@@ -8,24 +7,9 @@ type ResponseType =
   | "signUpResponse"
   | "feedbackResponse";
 
-export const responses: Record<
-  ResponseType,
-  { ALERT: (region: Region) => string; PLUS: () => string }
-> = {
-  generalInfoResponse: {
-    ALERT: mealAlertResponses.generalInfoResponse,
-    PLUS: mealsPlusResponses.generalInfoResponse,
-  },
-  duplicateResponse: {
-    ALERT: mealAlertResponses.duplicateResponse,
-    PLUS: mealsPlusResponses.duplicateResponse,
-  },
-  signUpResponse: {
-    ALERT: mealAlertResponses.signUpResponse,
-    PLUS: mealsPlusResponses.signUpResponse,
-  },
-  feedbackResponse: {
-    ALERT: mealAlertResponses.feedbackResponse,
-    PLUS: mealsPlusResponses.feedbackResponse,
-  },
+export const responses: Record<ResponseType, (region: Region) => string> = {
+  generalInfoResponse: mealAlertResponses.generalInfoResponse,
+  duplicateResponse: mealAlertResponses.duplicateResponse,
+  signUpResponse: mealAlertResponses.signUpResponse,
+  feedbackResponse: mealAlertResponses.feedbackResponse,
 };

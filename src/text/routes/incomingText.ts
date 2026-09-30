@@ -16,11 +16,7 @@ router.post(
 
     const images = getImages(req.body);
 
-    const responseMessage = await routeTextToResponse(
-      req.body,
-      images,
-      "ALERT",
-    );
+    const responseMessage = await routeTextToResponse(req.body, images);
     if (!responseMessage) {
       return res.sendStatus(200);
     }

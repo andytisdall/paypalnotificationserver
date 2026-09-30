@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
+import { Region } from "@community-kitchens/apiinterfaces";
 import { addPhoneNumber, removePhoneNumber } from "../salesforce";
-import { IncomingText, Region, REGIONS } from "../types";
+import { IncomingText, REGIONS } from "../types";
 import {
   SIGN_UP_WORDS,
   CANCEL_WORDS,
@@ -24,7 +25,6 @@ export const getImages = (body: any) => {
 export const routeTextToResponse = async (
   { Body, From, To }: IncomingText,
   images: string[],
-  program: "ALERT" | "PLUS",
 ) => {
   const regions = Object.keys(REGIONS) as Region[];
   const region = regions.find((reg) => REGIONS[reg] === To);
@@ -40,14 +40,14 @@ export const routeTextToResponse = async (
 
   if ([...SIGN_UP_WORDS, ...TRACKED_SIGN_UP_WORDS].includes(keyword)) {
     if (existingNumber && existingNumber.region.includes(region)) {
-      return responses.duplicateResponse[program](region);
+      return responses.duplicateResponse(region);
     }
     let source: string | undefined = undefined;
     if (TRACKED_SIGN_UP_WORDS.includes(keyword)) {
       source = "OUSD snacks 2026-2027";
     }
     await addPhoneNumber(existingNumber, From, region, source);
-    return responses.signUpResponse[program](region);
+    return responses.signUpResponse(region);
   }
 
   // built in unsubscribe words for twilio. outgoing messages will be blocked until 'START' is texted
@@ -63,11 +63,11 @@ export const routeTextToResponse = async (
     !existingNumber?.region.includes(region) ||
     INFO_WORDS.includes(keyword)
   ) {
-    return responses.generalInfoResponse[program](region);
+    return responses.generalInfoResponse(region);
   }
 
   // if it's an existing user with text that has not been matched, it's treated as feedback
 
   await receiveFeedback({ message: Body, sender: From, region, images });
-  return responses.feedbackResponse[program](region);
+  return responses.feedbackResponse(region);
 };

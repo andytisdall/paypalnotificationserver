@@ -1,29 +1,40 @@
 import express from "express";
 import mongoose from "mongoose";
+import { GetVoicemailResponse } from "@community-kitchens/apiinterfaces";
 
 import { requireAdmin } from "../../middlewares/require-admin";
 import { twilioClient } from "../../text/twilioClient";
 
-const User = mongoose.model("User");
 const Voicemail = mongoose.model("Voicemail");
 const router = express.Router();
 
 router.get("/", requireAdmin, async (req, res) => {
-  const user = req.currentUser!;
-  const recordings = await twilioClient.client?.recordings.list();
+  // const user = req.currentUser!;
+  const voicemail = await twilioClient.client?.recordings.list();
 
-  if (user.username !== "Andy") {
-    const userVoicemails = (await Voicemail.find({ user: user.id })).map(
-      (vm: { recordingId: string }) => vm.recordingId,
-    );
-    const userRecordings = recordings?.filter((rec) => {
-      return userVoicemails.includes(rec.sid);
-    });
-    res.send({ recordings: userRecordings });
-  } else {
-    const allVms = await Voicemail.find();
-    res.send({ recordings, userVms: allVms });
+  // if (user.username !== "Andy") {
+  //   const userVoicemails = (await Voicemail.find({ user: user.id })).map(
+  //     (vm: { recordingId: string }) => vm.recordingId,
+  //   );
+  //   const userRecordings = recordings?.filter((rec) => {
+  //     return userVoicemails.includes(rec.sid);
+  //   });
+  //   res.send({ recordings: userRecordings });
+  // } else {
+
+  if (!voicemail) {
+    throw Error("Error retrieving voicemail");
   }
+
+  const recordings = voicemail.map((vm) => ({
+    mediaUrl: vm.mediaUrl,
+    sid: vm.sid,
+    dateCreated: vm.dateCreated.toString(),
+  }));
+  const allVms = await Voicemail.find();
+  const response: GetVoicemailResponse = { recordings, userVms: allVms };
+  res.send(response);
+  // }
 });
 
 router.post("/:userId", async (req, res) => {

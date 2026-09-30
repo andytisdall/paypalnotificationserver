@@ -1,5 +1,7 @@
 import { Types, Document } from "mongoose";
 
+import { Region } from "@community-kitchens/apiinterfaces";
+
 export interface NewOutgoingTextRecord {
   message?: string;
   sender: string;
@@ -49,20 +51,16 @@ export interface IncomingText {
   To: string;
 }
 
-export type Region = "EAST_OAKLAND" | "WEST_OAKLAND" | "BERKELEY" | "RESOURCES";
-
 export const REGIONS: Record<Region, string> = {
   WEST_OAKLAND: "+15105297288",
   EAST_OAKLAND: "+15109301159",
   BERKELEY: "+15106944697",
-  RESOURCES: "+15108673402",
 };
 
 export const regionKey: Record<Region, string> = {
   EAST_OAKLAND: "East Oakland",
   WEST_OAKLAND: "West Oakland",
   BERKELEY: "Berkeley",
-  RESOURCES: "Resources",
 };
 
 export const VOLUNTEER_REMINDER_NUMBER = "+15102886563";

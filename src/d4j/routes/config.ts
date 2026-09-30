@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import { fromZonedTime } from "date-fns-tz";
 
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 import { requireAdmin } from "../../middlewares/require-admin";
@@ -8,18 +9,21 @@ import { EventConfig, D4JAppVersion } from "@community-kitchens/apiinterfaces";
 const Event = mongoose.model("Event");
 
 export const STYLE_WEEK_ID = "67044fab8f93ddc0f28e0bce";
-// real coords
 
-// const EVENT_COORDS = {
-//   latitude: 37.805796,
-//   longitude: -122.2711,
-// };
+// real coords
+const EVENT_COORDS = {
+  latitude: 37.805796,
+  longitude: -122.2711,
+};
 
 // house coords
 // const EVENT_COORDS = {
 //   latitude: 37.791091357810714,
 //   longitude: -122.2039671326603,
 // };
+
+// ios simulator coords
+// const EVENT_COORDS = { latitude: 37.785834, longitude: -122.406417 };
 
 // ck coords
 // const EVENT_COORDS = {
@@ -28,20 +32,33 @@ export const STYLE_WEEK_ID = "67044fab8f93ddc0f28e0bce";
 // };
 
 // android coords
-const EVENT_COORDS = { latitude: 37.421998, longitude: -122.084 };
+// const EVENT_COORDS = { latitude: 37.421998, longitude: -122.084 };
+
 // real time
-// const START_TIME = new Date(2026, 9, 7, 17, 30);
-// const END_TIME = new Date(2026, 9, 7, 20, 0);
+const START_TIME = fromZonedTime(
+  new Date(2026, 9, 7, 17, 30),
+  "America/Los_Angeles",
+);
+
+const END_TIME = fromZonedTime(
+  new Date(2026, 9, 7, 20, 0),
+  "America/Los_Angeles",
+);
 
 // fake time
-const START_TIME = new Date(2026, 8, 18, 16, 59);
-const END_TIME = new Date(2026, 8, 18, 19, 10);
+// const START_TIME = fromZonedTime(
+//   new Date(2026, 8, 30, 13, 11),
+//   "America/Los_Angeles",
+// );
 
-// const EVENT_DATE = new Date(2026, 8, 16);
+// const END_TIME = fromZonedTime(
+//   new Date(2026, 8, 30, 13, 20),
+//   "America/Los_Angeles",
+// );
 
 const router = express.Router();
 
-const LATEST_D4J_APP_VERSION = "2.12";
+const LATEST_D4J_APP_VERSION = "2.13";
 
 router.get("/version", (_req, res) => {
   const d4jAppVersion: D4JAppVersion = {
@@ -54,7 +71,8 @@ router.get("/style-week", currentD4JUser, async (req, res) => {
   const event = await Event.findById(STYLE_WEEK_ID);
 
   const config: EventConfig = {
-    contestActive: event.contestActive,
+    contestActive:
+      process.env.NODE_ENV === "production" ? event.contestActive : true,
     coordinates: EVENT_COORDS,
     startTime: START_TIME.toString(),
     endTime: END_TIME.toString(),

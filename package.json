@@ -35,7 +35,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@community-kitchens/apiinterfaces": "^1.0.44",
+    "@community-kitchens/apiinterfaces": "^1.0.48",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/express-fileupload": "^1.5.1",

@@ -11,7 +11,10 @@ import {
 import { currentD4JUser } from "../../middlewares/current-d4j-user";
 import { getContactByEmail } from "../../utils/salesforce/contact/getContact";
 import { addContact } from "../../utils/salesforce/contact/addContact";
-import { deleteContact } from "../../utils/salesforce/contact/updateContact";
+import {
+  deleteContact,
+  updateContact,
+} from "../../utils/salesforce/contact/updateContact";
 import getSecrets from "../../utils/getSecrets";
 import { sendEmail } from "../../utils/email/email";
 import { deleteAllUserCheckIns } from "../../utils/salesforce/d4j";
@@ -23,7 +26,7 @@ const D4JUser = mongoose.model("D4JUser");
 const router = express.Router();
 
 router.post("/contact/signin", async (req, res) => {
-  const { email }: D4JSignInArgs = req.body;
+  const { email, subscribe }: D4JSignInArgs = req.body;
 
   let user = await D4JUser.findOne({ email });
 
@@ -55,11 +58,18 @@ router.post("/contact/signin", async (req, res) => {
     token: jwtToken,
   };
 
+  if (subscribe) {
+    await updateContact(user.salesforceId, {
+      Consent_to_be_Emailed__c: subscribe,
+    });
+  }
+
   res.send(response);
 });
 
 router.post("/contact", async (req, res) => {
-  const { email, firstName, lastName }: CreateD4JContactArgs = req.body;
+  const { email, firstName, lastName, city, subscribe }: CreateD4JContactArgs =
+    req.body;
 
   if (!email || !firstName || !lastName) {
     throw Error("You must provide an email, first name and last name.");
@@ -87,6 +97,8 @@ router.post("/contact", async (req, res) => {
     Email: email,
     FirstName: firstName,
     LastName: lastName,
+    MailingCity: city,
+    Consent_to_be_Emailed__c: subscribe,
   });
   user.salesforceId = contact!.id;
 

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { Region } from "./types";
+import { Region } from "@community-kitchens/apiinterfaces";
 
 const Phone = mongoose.model("Phone");
 
@@ -11,16 +11,10 @@ export const getAllSubscribers = async (): Promise<
     WEST_OAKLAND: [],
     EAST_OAKLAND: [],
     BERKELEY: [],
-    RESOURCES: [],
   };
   let usedNumbers: string[] = [];
 
-  const regionOrder: Region[] = [
-    "WEST_OAKLAND",
-    "EAST_OAKLAND",
-    "BERKELEY",
-    "RESOURCES",
-  ];
+  const regionOrder: Region[] = ["WEST_OAKLAND", "EAST_OAKLAND", "BERKELEY"];
 
   for (let region of regionOrder) {
     const numbers = await getRegionSubscribers(region);

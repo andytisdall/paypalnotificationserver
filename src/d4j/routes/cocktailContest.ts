@@ -14,44 +14,73 @@ const data: MixologyData[] = [
   {
     restaurant: "Acre Kitchen & Bar",
     mixologist: "Gina Ingeri",
+    cocktail: "Placeholder Title",
   },
   {
     restaurant: "Agave Uptown",
     mixologist: "Everth Oliva",
+    cocktail: "Placeholder Title",
   },
-  { restaurant: "Co Nam", mixologist: "Trung Nguyen" },
-  { restaurant: "District", mixologist: "John Marsh" },
+  {
+    restaurant: "Co Nam",
+    mixologist: "Trung Nguyen",
+    cocktail: "Placeholder Title",
+  },
+  {
+    restaurant: "District",
+    mixologist: "John Marsh",
+    cocktail: "Placeholder Title",
+  },
   {
     restaurant: "Fluid 510",
     mixologist: "Sean Sullivan",
+    cocktail: "Placeholder Title",
   },
-  { restaurant: "Jaji", mixologist: "Sean Boultan" },
+  {
+    restaurant: "Jaji",
+    mixologist: "Sean Boultan",
+    cocktail: "Placeholder Title",
+  },
   {
     restaurant: "Lucy Blue",
     mixologist: "Joseph Cleveland",
+    cocktail: "Placeholder Title",
   },
   {
     restaurant: "Moonglow",
     mixologist: "Samantha Junio",
+    cocktail: "Placeholder Title",
   },
-  { restaurant: "North Light", mixologist: "Sam Cho" },
+  {
+    restaurant: "North Light",
+    mixologist: "Sam Cho",
+    cocktail: "Placeholder Title",
+  },
   {
     restaurant: "Popoca",
     mixologist: "Stephanie Lopez",
+    cocktail: "Placeholder Title",
   },
   {
     restaurant: "Sobre Mesa",
-    mixologist: "Chef Nelson German",
+    mixologist: "Chef Nelson German Chef Nelson German",
+    cocktail: "Placeholder Title Placeholder Title DSAD",
   },
   {
     restaurant: "There There",
     mixologist: "Leila Malikyarm",
+    cocktail: "Placeholder Title",
   },
   {
     restaurant: "Town Bar & Lounge",
     mixologist: "Kyle McDaniel",
+    cocktail: "Placeholder Title",
   },
-  { restaurant: "Viridian", mixologist: "William Tsui" },
+  {
+    restaurant: "Viridian",
+    mixologist: "William Tsui",
+    cocktail: "Placeholder Title",
+  },
 ];
 
 router.get("/contest/cocktails", async (req, res) => {
@@ -97,19 +126,14 @@ router.post("/contest/vote", currentD4JUser, async (req, res) => {
 
 router.get("/contest/winner", async (req, res) => {
   const allVotes = await CocktailVote.find({ year: CURRENT_YEAR });
-  const totals: Record<string, number> = allVotes.reduce(
-    (voteObj, currentVote) => {
-      if (voteObj[currentVote.bar]) {
-        voteObj[currentVote.bar] += 1;
-      } else {
-        voteObj[currentVote.bar] = 1;
-      }
-      return voteObj;
-    },
-    {},
-  );
 
-  res.send(totals);
+  const voteTotals: Record<string, number> = {};
+  data.forEach((item) => (voteTotals[item.restaurant] = 0));
+  allVotes.forEach((currentVote) => {
+    voteTotals[currentVote.bar] += 1;
+  });
+
+  res.send(voteTotals);
 });
 
 export default router;
